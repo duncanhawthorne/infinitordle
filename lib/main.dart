@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:dh/wordlist.dart';
 import 'dart:math';
@@ -45,7 +44,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: bg,
         ),
       ),
-      home: const Duncanordle(),
+      home: const Infinitordle(),
     );
   }
 }
@@ -58,7 +57,7 @@ List getTargetWords(numberOfBoards) {
   return starterList;
 }
 
-class _DuncanordleState extends State<Duncanordle> {
+class _InfinitordleState extends State<Infinitordle> {
   //initialise
   int _typeCountInWord = 0;
   double scW = 100; //default value
@@ -96,6 +95,29 @@ class _DuncanordleState extends State<Duncanordle> {
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showResetConfirmScreen() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(appTitle),
+          content: const Text('Reset board?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => _resetBoard(context),
+              child: const Text('OK'),
+            ),
+          ],
         );
       },
     );
@@ -218,7 +240,8 @@ class _DuncanordleState extends State<Duncanordle> {
     });
   }
 
-  void _resetBoard() {
+  void _resetBoard(context) {
+    Navigator.pop(context, 'OK');
     setState(() {
       //initialise on reset
       _typeCountInWord = 0;
@@ -322,16 +345,16 @@ class _DuncanordleState extends State<Duncanordle> {
     scH = MediaQuery.of(context).size.height;
     //print(scW);
     verSpaceAfterTitle = scH - 50;
-    effectiveMaxSingleKeyPixel = min(scW/10,min(kbKeyMaxPix,verSpaceAfterTitle * 0.25 /3));
+    effectiveMaxSingleKeyPixel =
+        min(scW / 10, min(kbKeyMaxPix, verSpaceAfterTitle * 0.25 / 3));
     //_resetBoard();
     return Scaffold(
       appBar: AppBar(
-          centerTitle: true,
+        centerTitle: true,
         title: _titleWidget(),
       ),
       body: Container(
         color: Colors.black87,
-
         child: Column(
           //color: Colors.grey,
           children: [
@@ -339,19 +362,22 @@ class _DuncanordleState extends State<Duncanordle> {
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               spacing: 8.0,
               runSpacing: 8.0,
-              children: [            Wrap(
-                //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                spacing: 8.0,
-                runSpacing: 8.0,
-                children: List.generate(numberOfBoards ~/ 2, (index) => _gameboardWidget(index)),
-              ),
+              children: [
                 Wrap(
                   //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   spacing: 8.0,
                   runSpacing: 8.0,
-                  children: List.generate(numberOfBoards ~/ 2, (index) => _gameboardWidget(numberOfBoards ~/ 2 + index)),
-                ),]
-              ,
+                  children: List.generate(
+                      numberOfBoards ~/ 2, (index) => _gameboardWidget(index)),
+                ),
+                Wrap(
+                  //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  children: List.generate(numberOfBoards ~/ 2,
+                      (index) => _gameboardWidget(numberOfBoards ~/ 2 + index)),
+                ),
+              ],
             ),
 
             //Row(
@@ -360,7 +386,7 @@ class _DuncanordleState extends State<Duncanordle> {
             //      numberOfBoardsAcross, (index) => _gameboardWidget(index + numberOfBoardsAcross)),
             //),
             const Divider(
-                color: Colors.transparent,
+              color: Colors.transparent,
               height: 2,
             ),
             _keyboardWidget(),
@@ -373,7 +399,8 @@ class _DuncanordleState extends State<Duncanordle> {
   Widget _titleWidget() {
     return GestureDetector(
         onTap: () {
-          _resetBoard();
+          _showResetConfirmScreen();
+          //_resetBoard();
         },
         child: Center(
           child: Row(
@@ -407,34 +434,41 @@ class _DuncanordleState extends State<Duncanordle> {
     //double scH = MediaQuery.of(context).size.height;
     //double verSpaceAfterTitle = scH - 70;
 
-
-
     int numBoardRows = 5 + numberOfBoards;
     double boardMinPix = 80;
-    double vertSpaceForBoard = verSpaceAfterTitle - effectiveMaxSingleKeyPixel * 3;
+    double vertSpaceForBoard =
+        verSpaceAfterTitle - effectiveMaxSingleKeyPixel * 3;
 
-    double effectiveMaxSingleBPixelNoWrap = min(boardMinPix,min(vertSpaceForBoard / 1 / numBoardRows, scW / (numberOfBoards ~/ 1)/5));
+    //double effectiveMaxSingleBPixelNoWrap = min(
+    //    boardMinPix,
+    //    min(vertSpaceForBoard / 1 / numBoardRows,
+    //        scW / (numberOfBoards ~/ 1) / 5));
 
-    if (scW < 850) { //((scW-8*(numberOfBoards-1)) /numberOfBoards/5 < 0.5* (verSpaceAfterTitle - 5 - effectiveMaxSingleKeyPixel*3) / numBoardRows) {//(scW < 850) { //FIXME harcoded number //|| scH > scW
+    if (scW < 850) {
+      //((scW-8*(numberOfBoards-1)) /numberOfBoards/5 < 0.5* (verSpaceAfterTitle - 5 - effectiveMaxSingleKeyPixel*3) / numBoardRows) {//(scW < 850) { //FIXME harcoded number //|| scH > scW
       numberOfBigRowsOfBoards = 2;
-    }
-    else {
+    } else {
       numberOfBigRowsOfBoards = 1;
     }
 
     //print([scW, numberOfBigRowsOfBoards, effectiveMaxSingleBPixelNoWrap, effectiveMaxSingleBPixelNoWrap * (numberOfBoards * 5)]);
 
-    double effectiveMaxSingleBPixel = min(boardMinPix,min(vertSpaceForBoard / numberOfBigRowsOfBoards / numBoardRows, scW / (numberOfBoards ~/ numberOfBigRowsOfBoards)/5));
+    double effectiveMaxSingleBPixel = min(
+        boardMinPix,
+        min(vertSpaceForBoard / numberOfBigRowsOfBoards / numBoardRows,
+            scW / (numberOfBoards ~/ numberOfBigRowsOfBoards) / 5));
     //print([numberOfBigRowsOfBoards,effectiveMaxSingleBPixelNoWrap,effectiveMaxSingleBPixel,boardMinPix,vertSpaceForBoard / 1 / numBoardRows, scW / (numberOfBoards ~/ 1)/5]);
-
 
     //print([scW, scH, effectiveKbPix, vertSpaceForBoard]);
     return Container(
       //constraints: BoxConstraints(maxWidth: 250, maxHeight: (5 + numberOfBoards.toDouble()) * 50),
       constraints: BoxConstraints(
-          maxWidth: 0.97 * 5 * effectiveMaxSingleBPixel, //restriction on single gameboard
-          maxHeight: 0.97 * numBoardRows * effectiveMaxSingleBPixel
-      ), //restriction on single gameboard
+          maxWidth: 0.97 *
+              5 *
+              effectiveMaxSingleBPixel, //restriction on single gameboard
+          maxHeight: 0.97 *
+              numBoardRows *
+              effectiveMaxSingleBPixel), //restriction on single gameboard
       child: GridView.builder(
           itemCount: numBoardRows * 5,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -450,8 +484,8 @@ class _DuncanordleState extends State<Duncanordle> {
     return Expanded(
       child: Container(
         constraints: BoxConstraints(
-            maxWidth: effectiveMaxSingleKeyPixel*10,
-            maxHeight: effectiveMaxSingleKeyPixel*3),
+            maxWidth: effectiveMaxSingleKeyPixel * 10,
+            maxHeight: effectiveMaxSingleKeyPixel * 3),
         child: GridView.builder(
             itemCount: 30,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -486,7 +520,9 @@ class _DuncanordleState extends State<Duncanordle> {
 
   Widget _miniGridContainer(gameboardOrKeyboard, index, boardNumber, cols) {
     return Container(
-      constraints: BoxConstraints(maxWidth: effectiveMaxSingleKeyPixel -8, maxHeight: effectiveMaxSingleKeyPixel -8),
+      constraints: BoxConstraints(
+          maxWidth: effectiveMaxSingleKeyPixel - 8,
+          maxHeight: effectiveMaxSingleKeyPixel - 8),
       child: GridView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
@@ -573,7 +609,7 @@ class _DuncanordleState extends State<Duncanordle> {
         fontWeight: gameboardOrKeyboard == "gameboard"
             ? FontWeight.bold
             : FontWeight.normal,
-        //fontSize: gameboardOrKeyboard == "gameboard" ? 40 : 40,
+        //fontSize: gameboardOrKeyboard == "gameboard" ? 5 : null,
       ),
     );
   }
@@ -596,9 +632,9 @@ class _DuncanordleState extends State<Duncanordle> {
 
 }
 
-class Duncanordle extends StatefulWidget {
-  const Duncanordle({super.key});
+class Infinitordle extends StatefulWidget {
+  const Infinitordle({super.key});
 
   @override
-  State<Duncanordle> createState() => _DuncanordleState();
+  State<Infinitordle> createState() => _InfinitordleState();
 }
