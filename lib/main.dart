@@ -18,7 +18,7 @@ final infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
 final infSuccessPraise = [];
 bool infMode = true;
-bool _cheatMode = true; //for debugging
+bool _cheatMode = false; //for debugging
 const infNumBacksteps = 1; //defunct
 
 void main() {
