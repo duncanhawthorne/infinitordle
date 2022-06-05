@@ -10,7 +10,8 @@ String appTitle2 = "o";
 String appTitle3 = "rdle";
 const Color bg = Color(0xff222222);
 const double keyboardSingleKeyStarterMaxPixel = 80;
-const numberOfBoards = 4;
+const numBoards = 4;
+const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 final _keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 final _legalWords = kLegalWordsText.split("\n");
 final _finalWords = kFinalWordsText.split("\n");
@@ -59,12 +60,13 @@ class _InfinitordleState extends State<Infinitordle> {
   double scH = 100; //default value only
   double vertSpaceAfterTitle = 30; //default value only
   double keyboardSingleKeyEffectiveMaxPixel = 10; //default value only
-  int numBigRowsOfBoards = 2; //default value only
+  int numPresentationBigRowsOfBoards = 2; //default value only
+  //int numRowsPerBoard = 1;
 
   //production: empty initialise
-  var _targetWords = getTargetWords(numberOfBoards);
+  var _targetWords = getTargetWords(numBoards);
   var _gameboardEntries =
-      List<String>.generate(((5 + numberOfBoards) * 5), (i) => "");
+      List<String>.generate((numRowsPerBoard * 5), (i) => "");
   int _currentWord = 0;
   int _typeCountInWord = 0;
 
@@ -115,7 +117,8 @@ class _InfinitordleState extends State<Infinitordle> {
             ),
             TextButton(
               onPressed: () => _resetBoard(context),
-              child: const Text('OK'),
+              child: const Text('OK', style: TextStyle(
+        color: Colors.red)),
             ),
           ],
         );
@@ -125,6 +128,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   void _keyboardTapped(int index) {
     setState(() {
+
       if (_keyboardList[index] == " ") {
         //ignore pressing of non-keys
         return;
@@ -148,7 +152,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
             if (infMode) {
               //Code for single win in infMode
-              for (var board = 0; board < numberOfBoards; board++) {
+              for (var board = 0; board < numBoards; board++) {
                 if (_detectBoardSolvedByRow(board, _currentWord)) {
                   //execute infinturdle code. Erase a row and step back
                   for (var j = 0; j < infNumBacksteps; j++) {
@@ -187,7 +191,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
             //Code for totally winning game across all boards
             bool totallySolved = true;
-            for (var i = 0; i < numberOfBoards; i++) {
+            for (var i = 0; i < numBoards; i++) {
               if (!_detectBoardSolvedByRow(i, _currentWord)) {
                 totallySolved = false;
               }
@@ -198,7 +202,7 @@ class _InfinitordleState extends State<Infinitordle> {
             }
 
             //Code for losing game
-            if (_currentWord >= 5 + numberOfBoards) {
+            if (_currentWord >= numRowsPerBoard) {
               //didn't get it in time
               _showTargetWordsSolution();
             }
@@ -234,8 +238,8 @@ class _InfinitordleState extends State<Infinitordle> {
       _typeCountInWord = 0;
       _currentWord = 0;
       _gameboardEntries =
-          List<String>.generate(((5 + numberOfBoards) * 5), (i) => "");
-      _targetWords = getTargetWords(numberOfBoards);
+          List<String>.generate((numRowsPerBoard * 5), (i) => "");
+      _targetWords = getTargetWords(numBoards);
       appTitle2 = "o";
       infSuccessWords.clear();
       infSuccessBoardsMatchingWords.clear();
@@ -243,7 +247,7 @@ class _InfinitordleState extends State<Infinitordle> {
       //speed initialise entries using cheat mode for debugging
       if (_cheatMode) {
         _targetWords[0] = "scoff";
-        if (numberOfBoards == 4) {
+        if (numBoards == 4) {
           _targetWords[1] = "brunt";
           _targetWords[2] = "chair";
           _targetWords[3] = "table";
@@ -354,14 +358,14 @@ class _InfinitordleState extends State<Infinitordle> {
                   spacing: 8.0,
                   runSpacing: 8.0,
                   children: List.generate(
-                      numberOfBoards ~/ 2, (index) => _gameboardWidget(index)),
+                      numBoards ~/ 2, (index) => _gameboardWidget(index)),
                 ),
                 Wrap(
                   //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   spacing: 8.0,
                   runSpacing: 8.0,
-                  children: List.generate(numberOfBoards ~/ 2,
-                      (index) => _gameboardWidget(numberOfBoards ~/ 2 + index)),
+                  children: List.generate(numBoards ~/ 2,
+                      (index) => _gameboardWidget(numBoards ~/ 2 + index)),
                 ),
               ],
             ),
@@ -409,21 +413,20 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _gameboardWidget(boardNumber) {
-    int numBoardRows = 5 + numberOfBoards;
     double vertSpaceForBoard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixel * 3;
 
     if (scW < 850) {
-      //((scW-8*(numberOfBoards-1)) /numberOfBoards/5 < 0.5* (verSpaceAfterTitle - 5 - effectiveMaxSingleKeyPixel*3) / numBoardRows) {//(scW < 850) { //FIXME harcoded number //|| scH > scW
-      numBigRowsOfBoards = 2;
+      //((scW-8*(numberOfBoards-1)) /numberOfBoards/5 < 0.5* (verSpaceAfterTitle - 5 - effectiveMaxSingleKeyPixel*3) / numRowsPerBoard) {//(scW < 850) { //FIXME harcoded number //|| scH > scW
+      numPresentationBigRowsOfBoards = 2;
     } else {
-      numBigRowsOfBoards = 1;
+      numPresentationBigRowsOfBoards = 1;
     }
 
     double gameboardSingleBoxEffectiveMaxPixel = min(
         keyboardSingleKeyStarterMaxPixel,
-        min(vertSpaceForBoard / numBigRowsOfBoards / numBoardRows,
-            scW / (numberOfBoards ~/ numBigRowsOfBoards) / 5));
+        min(vertSpaceForBoard / numPresentationBigRowsOfBoards / numRowsPerBoard,
+            scW / (numBoards ~/ numPresentationBigRowsOfBoards) / 5));
 
     return Container(
       //constraints: BoxConstraints(maxWidth: 250, maxHeight: (5 + numberOfBoards.toDouble()) * 50),
@@ -432,10 +435,10 @@ class _InfinitordleState extends State<Infinitordle> {
               5 *
               gameboardSingleBoxEffectiveMaxPixel, //restriction on single gameboard
           maxHeight: 0.97 *
-              numBoardRows *
+              numRowsPerBoard *
               gameboardSingleBoxEffectiveMaxPixel), //restriction on single gameboard
       child: GridView.builder(
-          itemCount: numBoardRows * 5,
+          itemCount: numRowsPerBoard * 5,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 5,
           ),
@@ -488,10 +491,10 @@ class _InfinitordleState extends State<Infinitordle> {
       child: GridView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
-          itemCount: numberOfBoards,
+          itemCount: numBoards,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: numberOfBoards,
-            childAspectRatio: 1 / numberOfBoards,
+            crossAxisCount: numBoards,
+            childAspectRatio: 1 / numBoards,
           ),
           itemBuilder: (BuildContext context, int subIndex) {
             return _miniSquareColor(
@@ -546,8 +549,7 @@ class _InfinitordleState extends State<Infinitordle> {
                   : _detectBoardSolvedByRow(boardNumber, index ~/ 5)
                       ? Colors.black //hide after solved
                       : _getGameboardSquareColor(index, boardNumber)
-              : Colors
-                  .transparent // _getBestColorForLetter(_keyboardList[index], 0) //Colors.black
+              : Colors.transparent // Colors.grey
           ),
       child: FittedBox(
         fit: BoxFit
@@ -565,13 +567,12 @@ class _InfinitordleState extends State<Infinitordle> {
       style: TextStyle(
         color: gameboardOrKeyboard == "gameboard"
             ? _detectBoardSolvedByRow(boardNumber, index ~/ 5)
-                ? Colors.black //hide after solved
+                ? Colors.black //hide after solved by making text black, so invisible
                 : Colors.white
             : Colors.white,
         fontWeight: gameboardOrKeyboard == "gameboard"
             ? FontWeight.bold
             : FontWeight.normal,
-        //fontSize: gameboardOrKeyboard == "gameboard" ? 5 : null,
       ),
     );
   }
