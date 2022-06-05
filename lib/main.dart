@@ -4,13 +4,12 @@ import 'dart:math';
 
 Random random = Random();
 
-String startingTitle = "infinitordle";
 String appTitle = "infinitordle";
 String appTitle1 = "infinit";
 String appTitle2 = "o";
 String appTitle3 = "rdle";
 const Color bg = Color(0xff222222);
-const double kbKeyMaxPix = 80;
+const double keyboardSingleKeyStarterMaxPixel = 80;
 const numberOfBoards = 4;
 final _keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 final _legalWords = kLegalWordsText.split("\n");
@@ -18,9 +17,9 @@ final _finalWords = kFinalWordsText.split("\n");
 final infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
 final infSuccessPraise = [];
-bool infinitordle = true;
-bool _cheatMode = false;
-const infNumBacksteps = 1;
+bool infMode = true;
+bool _cheatMode = true; //for debugging
+const infNumBacksteps = 1; //defunct
 
 void main() {
   runApp(const MyApp());
@@ -34,11 +33,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: appTitle,
       theme: ThemeData(
-        //https://github.com/flutter/flutter/issues/93140
-        //fontFamily: kIsWeb && window.navigator.userAgent.contains('OS 15_')
-        //    ? '-apple-system'
-        //    : null,
-        fontFamily: '-apple-system',
+        fontFamily:
+            '-apple-system', //https://github.com/flutter/flutter/issues/93140
         appBarTheme: const AppBarTheme(
           backgroundColor: bg,
           foregroundColor: bg,
@@ -59,19 +55,18 @@ List getTargetWords(numberOfBoards) {
 
 class _InfinitordleState extends State<Infinitordle> {
   //initialise
-  int _typeCountInWord = 0;
-  double scW = 100; //default value
-  double scH = 100;
-  double verSpaceAfterTitle = 30;
-  double effectiveMaxSingleKeyPixel = 10;
-  int numberOfBigRowsOfBoards = 2;
-  //int numberOfBoardsAcross = numberOfBoards ~/ numberOfBigRowsOfBoards;
+  double scW = 100; //default value only
+  double scH = 100; //default value only
+  double vertSpaceAfterTitle = 30; //default value only
+  double keyboardSingleKeyEffectiveMaxPixel = 10; //default value only
+  int numBigRowsOfBoards = 2; //default value only
 
   //production: empty initialise
   var _targetWords = getTargetWords(numberOfBoards);
   var _gameboardEntries =
       List<String>.generate(((5 + numberOfBoards) * 5), (i) => "");
   int _currentWord = 0;
+  int _typeCountInWord = 0;
 
   Future<void> _showTargetWordsSolution() async {
     return showDialog<void>(
@@ -90,7 +85,7 @@ class _InfinitordleState extends State<Infinitordle> {
                     (infSuccessWords.length == 1 ? "" : "s") +
                     ": " +
                     infSuccessWords.join(", ") +
-                    "\nYou missed: " +
+                    "\n\nYou missed: " +
                     _targetWords.join(", ")),
               ],
             ),
@@ -107,7 +102,12 @@ class _InfinitordleState extends State<Infinitordle> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(appTitle),
-          content: const Text('Reset board?'),
+          // ignore: prefer_interpolation_to_compose_strings
+          content: Text("You've got " +
+              infSuccessWords.length.toString() +
+              " word" +
+              (infSuccessWords.length == 1 ? "" : "s") +
+              ' so far. \n\nLose your progress and reset the infinitordle board?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -125,15 +125,6 @@ class _InfinitordleState extends State<Infinitordle> {
 
   void _keyboardTapped(int index) {
     setState(() {
-      /* //debug text to help on formatting
-      _gameboardList[0] = "t";
-      _gameboardList[1] = "a";
-      _gameboardList[2] = "b";
-      _gameboardList[3] = "l";
-      _gameboardList[4] = "e";
-      _whichWord = 1;
-       */
-
       if (_keyboardList[index] == " ") {
         //ignore pressing of non-keys
         return;
@@ -146,8 +137,8 @@ class _InfinitordleState extends State<Infinitordle> {
         }
         return;
       }
-      if (_keyboardList[index] == ">") {
-        if (_typeCountInWord == 5) {
+      if (_keyboardList[index] == ">") { //submit guess
+        if (_typeCountInWord == 5) { //ignore if not completed whole word
           if (_legalWords.contains(_gameboardEntries
               .sublist(_currentWord * 5, (_currentWord + 1) * 5)
               .join(""))) {
@@ -155,11 +146,11 @@ class _InfinitordleState extends State<Infinitordle> {
             _currentWord++;
             _typeCountInWord = 0;
 
-            if (infinitordle) {
-              //Code for winning one game
+            if (infMode) {
+              //Code for single win in infMode
               for (var board = 0; board < numberOfBoards; board++) {
                 if (_detectBoardSolvedByRow(board, _currentWord)) {
-                  true; //execute infinturdle code
+                  //execute infinturdle code. Erase a row and step back
                   for (var j = 0; j < infNumBacksteps; j++) {
                     var tmpGameboardEntries =
                         _gameboardEntries.sublist(5, _gameboardEntries.length);
@@ -170,24 +161,20 @@ class _InfinitordleState extends State<Infinitordle> {
                     _currentWord--;
                   }
                   _targetWords[board] =
-                      _finalWords[random.nextInt(_finalWords.length)];
-                  //_keyboardList[19] = (int.parse(_keyboardList[19])+1).toString();
-                  if (appTitle2 == "o") {
+                      _finalWords[random.nextInt(_finalWords.length)]; //new target word
+                  if (appTitle2 == "o") { //put ∞ symbols into title
                     appTitle2 = "∞";
                   } else {
                     // ignore: prefer_interpolation_to_compose_strings
                     appTitle2 = appTitle2 + "∞";
                   }
-                  //appTitle = appTitle.substring(0, 7) +
-                  //    "∞" +
-                  //    appTitle.substring(
-                  //        appTitle.contains("o") ? 8 : 7,
-                  //        appTitle
-                  //            .length); //first time replace o with inf, then just add inf
+                  //record success words for conclusion and to green outline
                   infSuccessWords.add(_gameboardEntries
                       .sublist((_currentWord - 1) * 5, (_currentWord) * 5)
                       .join(""));
                   infSuccessBoardsMatchingWords.add(board);
+
+                  //temporarily full green, by adding to praise list and then removing
                   infSuccessPraise.add(board);
                   Future.delayed(const Duration(milliseconds: 1000), () {
                     setState(() {
@@ -253,7 +240,7 @@ class _InfinitordleState extends State<Infinitordle> {
       infSuccessWords.clear();
       infSuccessBoardsMatchingWords.clear();
 
-      //speed initialise
+      //speed initialise entries using cheat mode for debugging
       if (_cheatMode) {
         _targetWords[0] = "scoff";
         if (numberOfBoards == 4) {
@@ -265,7 +252,6 @@ class _InfinitordleState extends State<Infinitordle> {
         for (var j = 0; j < cheatString.length; j++) {
           _gameboardEntries[j] = cheatString[j];
         }
-        //_gameboardEntries = "maplewindyscourfightkebab     ".split("");
         _currentWord = 5;
       }
     });
@@ -341,13 +327,13 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
+    //recalculate these key values regularly, for screen size changes
     scW = MediaQuery.of(context).size.width;
     scH = MediaQuery.of(context).size.height;
-    //print(scW);
-    verSpaceAfterTitle = scH - 50;
-    effectiveMaxSingleKeyPixel =
-        min(scW / 10, min(kbKeyMaxPix, verSpaceAfterTitle * 0.25 / 3));
-    //_resetBoard();
+    vertSpaceAfterTitle = scH - 50;
+    keyboardSingleKeyEffectiveMaxPixel = min(scW / 10,
+        min(keyboardSingleKeyStarterMaxPixel, vertSpaceAfterTitle * 0.25 / 3));
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -356,13 +342,13 @@ class _InfinitordleState extends State<Infinitordle> {
       body: Container(
         color: Colors.black87,
         child: Column(
-          //color: Colors.grey,
           children: [
             Wrap(
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               spacing: 8.0,
               runSpacing: 8.0,
               children: [
+                //split into 2 so that dont get a wrap on 3 + 1 basis. Not that this is why 2 is hardcoded below
                 Wrap(
                   //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   spacing: 8.0,
@@ -379,12 +365,6 @@ class _InfinitordleState extends State<Infinitordle> {
                 ),
               ],
             ),
-
-            //Row(
-            //  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //  children: List.generate(
-            //      numberOfBoardsAcross, (index) => _gameboardWidget(index + numberOfBoardsAcross)),
-            //),
             const Divider(
               color: Colors.transparent,
               height: 2,
@@ -400,7 +380,6 @@ class _InfinitordleState extends State<Infinitordle> {
     return GestureDetector(
         onTap: () {
           _showResetConfirmScreen();
-          //_resetBoard();
         },
         child: Center(
           child: Row(
@@ -430,45 +409,31 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _gameboardWidget(boardNumber) {
-    //double scW = MediaQuery.of(context).size.width;
-    //double scH = MediaQuery.of(context).size.height;
-    //double verSpaceAfterTitle = scH - 70;
-
     int numBoardRows = 5 + numberOfBoards;
-    double boardMinPix = 80;
     double vertSpaceForBoard =
-        verSpaceAfterTitle - effectiveMaxSingleKeyPixel * 3;
-
-    //double effectiveMaxSingleBPixelNoWrap = min(
-    //    boardMinPix,
-    //    min(vertSpaceForBoard / 1 / numBoardRows,
-    //        scW / (numberOfBoards ~/ 1) / 5));
+        vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixel * 3;
 
     if (scW < 850) {
       //((scW-8*(numberOfBoards-1)) /numberOfBoards/5 < 0.5* (verSpaceAfterTitle - 5 - effectiveMaxSingleKeyPixel*3) / numBoardRows) {//(scW < 850) { //FIXME harcoded number //|| scH > scW
-      numberOfBigRowsOfBoards = 2;
+      numBigRowsOfBoards = 2;
     } else {
-      numberOfBigRowsOfBoards = 1;
+      numBigRowsOfBoards = 1;
     }
 
-    //print([scW, numberOfBigRowsOfBoards, effectiveMaxSingleBPixelNoWrap, effectiveMaxSingleBPixelNoWrap * (numberOfBoards * 5)]);
+    double gameboardSingleBoxEffectiveMaxPixel = min(
+        keyboardSingleKeyStarterMaxPixel,
+        min(vertSpaceForBoard / numBigRowsOfBoards / numBoardRows,
+            scW / (numberOfBoards ~/ numBigRowsOfBoards) / 5));
 
-    double effectiveMaxSingleBPixel = min(
-        boardMinPix,
-        min(vertSpaceForBoard / numberOfBigRowsOfBoards / numBoardRows,
-            scW / (numberOfBoards ~/ numberOfBigRowsOfBoards) / 5));
-    //print([numberOfBigRowsOfBoards,effectiveMaxSingleBPixelNoWrap,effectiveMaxSingleBPixel,boardMinPix,vertSpaceForBoard / 1 / numBoardRows, scW / (numberOfBoards ~/ 1)/5]);
-
-    //print([scW, scH, effectiveKbPix, vertSpaceForBoard]);
     return Container(
       //constraints: BoxConstraints(maxWidth: 250, maxHeight: (5 + numberOfBoards.toDouble()) * 50),
       constraints: BoxConstraints(
           maxWidth: 0.97 *
               5 *
-              effectiveMaxSingleBPixel, //restriction on single gameboard
+              gameboardSingleBoxEffectiveMaxPixel, //restriction on single gameboard
           maxHeight: 0.97 *
               numBoardRows *
-              effectiveMaxSingleBPixel), //restriction on single gameboard
+              gameboardSingleBoxEffectiveMaxPixel), //restriction on single gameboard
       child: GridView.builder(
           itemCount: numBoardRows * 5,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -484,8 +449,8 @@ class _InfinitordleState extends State<Infinitordle> {
     return Expanded(
       child: Container(
         constraints: BoxConstraints(
-            maxWidth: effectiveMaxSingleKeyPixel * 10,
-            maxHeight: effectiveMaxSingleKeyPixel * 3),
+            maxWidth: keyboardSingleKeyEffectiveMaxPixel * 10,
+            maxHeight: keyboardSingleKeyEffectiveMaxPixel * 3),
         child: GridView.builder(
             itemCount: 30,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -505,9 +470,6 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget _keyStackWithMiniGrid(gameboardOrKeyboard, index, boardNumber) {
     return Stack(
       children: [
-        //Center(
-        //    child: _square(
-        //        gameboardOrKeyboard, index, boardNumber, Colors.black45)),
         Center(
             child: _miniGridContainer(
                 gameboardOrKeyboard, index, boardNumber, "not used")),
@@ -521,8 +483,8 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget _miniGridContainer(gameboardOrKeyboard, index, boardNumber, cols) {
     return Container(
       constraints: BoxConstraints(
-          maxWidth: effectiveMaxSingleKeyPixel - 8,
-          maxHeight: effectiveMaxSingleKeyPixel - 8),
+          maxWidth: keyboardSingleKeyEffectiveMaxPixel - 8,
+          maxHeight: keyboardSingleKeyEffectiveMaxPixel - 8),
       child: GridView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
@@ -613,23 +575,6 @@ class _InfinitordleState extends State<Infinitordle> {
       ),
     );
   }
-
-  /*
-  Widget _keyboard() {
-    return KeyboardListener(
-        focusNode: _miniSquareColor(1,2,3,4),
-        child: _miniSquareColor(1,2,3,4),
-        onKeyEvent: (event) {
-          if (event.runtimeType == RawKeyDownEvent) {
-            if (event.physicalKey == PhysicalKeyboardKey.keyX) {
-              _gameboardEntries[0] = "q";
-            }
-          }
-        },
-    );
-  }
-  */
-
 }
 
 class Infinitordle extends StatefulWidget {
