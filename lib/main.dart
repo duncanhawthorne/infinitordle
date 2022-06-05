@@ -1,6 +1,3 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
 
 import 'package:flutter/material.dart';
 import 'package:dh/wordlist.dart';
@@ -324,11 +321,12 @@ class _DuncanordleState extends State<Duncanordle> {
     scW = MediaQuery.of(context).size.width;
     scH = MediaQuery.of(context).size.height;
     //print(scW);
-    verSpaceAfterTitle = scH - 70;
+    verSpaceAfterTitle = scH - 50;
     effectiveMaxSingleKeyPixel = min(scW/10,min(kbKeyMaxPix,verSpaceAfterTitle * 0.25 /3));
     //_resetBoard();
     return Scaffold(
       appBar: AppBar(
+          centerTitle: true,
         title: _titleWidget(),
       ),
       body: Container(
@@ -341,7 +339,19 @@ class _DuncanordleState extends State<Duncanordle> {
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               spacing: 8.0,
               runSpacing: 8.0,
-              children: List.generate(numberOfBoards, (index) => _gameboardWidget(index)),
+              children: [            Wrap(
+                //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: List.generate(numberOfBoards ~/ 2, (index) => _gameboardWidget(index)),
+              ),
+                Wrap(
+                  //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  children: List.generate(numberOfBoards ~/ 2, (index) => _gameboardWidget(numberOfBoards ~/ 2 + index)),
+                ),]
+              ,
             ),
 
             //Row(
@@ -349,7 +359,10 @@ class _DuncanordleState extends State<Duncanordle> {
             //  children: List.generate(
             //      numberOfBoardsAcross, (index) => _gameboardWidget(index + numberOfBoardsAcross)),
             //),
-            const Divider(color: Colors.transparent),
+            const Divider(
+                color: Colors.transparent,
+              height: 2,
+            ),
             _keyboardWidget(),
           ],
         ),
@@ -400,9 +413,9 @@ class _DuncanordleState extends State<Duncanordle> {
     double boardMinPix = 80;
     double vertSpaceForBoard = verSpaceAfterTitle - effectiveMaxSingleKeyPixel * 3;
 
-    //double effectiveMaxSingleBPixelNoWrap = min(boardMinPix,min(vertSpaceForBoard / 1 / numBoardRows, scW / (numberOfBoards ~/ 1)/5));
+    double effectiveMaxSingleBPixelNoWrap = min(boardMinPix,min(vertSpaceForBoard / 1 / numBoardRows, scW / (numberOfBoards ~/ 1)/5));
 
-    if (scW < 850) { //FIXME harcoded number //|| scH > scW
+    if (scW < 850) { //((scW-8*(numberOfBoards-1)) /numberOfBoards/5 < 0.5* (verSpaceAfterTitle - 5 - effectiveMaxSingleKeyPixel*3) / numBoardRows) {//(scW < 850) { //FIXME harcoded number //|| scH > scW
       numberOfBigRowsOfBoards = 2;
     }
     else {
@@ -412,7 +425,7 @@ class _DuncanordleState extends State<Duncanordle> {
     //print([scW, numberOfBigRowsOfBoards, effectiveMaxSingleBPixelNoWrap, effectiveMaxSingleBPixelNoWrap * (numberOfBoards * 5)]);
 
     double effectiveMaxSingleBPixel = min(boardMinPix,min(vertSpaceForBoard / numberOfBigRowsOfBoards / numBoardRows, scW / (numberOfBoards ~/ numberOfBigRowsOfBoards)/5));
-
+    //print([numberOfBigRowsOfBoards,effectiveMaxSingleBPixelNoWrap,effectiveMaxSingleBPixel,boardMinPix,vertSpaceForBoard / 1 / numBoardRows, scW / (numberOfBoards ~/ 1)/5]);
 
 
     //print([scW, scH, effectiveKbPix, vertSpaceForBoard]);
