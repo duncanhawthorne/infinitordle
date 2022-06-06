@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:dh/wordlist.dart';
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Random random = Random();
 
 String appTitle = "infinitordle";
 String appTitle1 = "infinit";
-String appTitle2 = "o";
+//String appTitle2 = "o";
 String appTitle3 = "rdle";
 const Color bg = Color(0xff222222);
 const double keyboardSingleKeyUnconstrainedMaxPixel = 80;
@@ -15,9 +16,10 @@ const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 final _keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 final _legalWords = kLegalWordsText.split("\n");
 final _finalWords = kFinalWordsText.split("\n");
-final infSuccessWords = [];
+final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
 final infSuccessPraise = [];
+const double boardSpacer = 8;
 bool infMode = true;
 bool _cheatMode = false; //for debugging
 const infNumBacksteps = 1; //defunct
@@ -49,9 +51,13 @@ class MyApp extends StatelessWidget {
 List getTargetWords(numberOfBoards) {
   var starterList = [];
   for (var i = 0; i < numberOfBoards; i++) {
-    starterList.add(_finalWords[random.nextInt(_finalWords.length)]);
+    starterList.add(getTargetWord());
   }
   return starterList;
+}
+
+String getTargetWord() {
+  return _finalWords[random.nextInt(_finalWords.length)];
 }
 
 class _InfinitordleState extends State<Infinitordle> {
@@ -69,6 +75,49 @@ class _InfinitordleState extends State<Infinitordle> {
       List<String>.generate((numRowsPerBoard * 5), (i) => "");
   int _currentWord = 0;
   int _typeCountInWord = 0;
+
+  initState() {
+    loadKeys();
+  }
+
+  Future<void> loadKeys() async {
+    final prefs = await SharedPreferences.getInstance();
+    _targetWords[0] = prefs.getString('word0') ?? getTargetWord();
+    _targetWords[1] = prefs.getString('word1') ?? getTargetWord();
+    _targetWords[2] = prefs.getString('word2') ?? getTargetWord();
+    _targetWords[3] = prefs.getString('word3') ?? getTargetWord();
+    _currentWord = prefs.getInt('currentWord') ?? 0;
+
+    var tmpinfSuccessWords = prefs.getString('infSuccessWords') ?? "";
+    for (var i = 0; i < tmpinfSuccessWords.length ~/ 5; i++) {
+      var j = i * 5;
+      infSuccessWords.add(tmpinfSuccessWords.substring(j, j + 5));
+      infSuccessBoardsMatchingWords.add(-1);
+    }
+
+    var tmpGB1 = prefs.getString('gameboardEntries') ?? "";
+    for (var i = 0; i < tmpGB1.length; i++) {
+      _gameboardEntries[i] = tmpGB1.substring(i, i + 1);
+    }
+    setState(() {});
+    saveKeys();
+  }
+
+  Future<void> saveKeys() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('word0', _targetWords[0]);
+    await prefs.setString('word1', _targetWords[1]);
+    await prefs.setString('word2', _targetWords[2]);
+    await prefs.setString('word3', _targetWords[3]);
+    await prefs.setInt('currentWord', _currentWord);
+    await prefs.setString('infSuccessWords', infSuccessWords.join(""));
+
+    var tmpGB1 = "";
+    for (var i = 0; i < _gameboardEntries.length; i++) {
+      tmpGB1 = tmpGB1 + _gameboardEntries[i];
+    }
+    await prefs.setString('gameboardEntries', tmpGB1);
+  }
 
   Future<void> _showTargetWordsSolution() async {
     return showDialog<void>(
@@ -106,6 +155,7 @@ class _InfinitordleState extends State<Infinitordle> {
           title: Text(appTitle),
           // ignore: prefer_interpolation_to_compose_strings
           content: Text(
+              // ignore: prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings
               "Solve 4 boards at once. As you solve each board, the target word for that board will be replaced with another word, and you will get one extra guess. Can you keep going forever and reach infinitordle?\n\n" +
                   "You've got " +
                   infSuccessWords.length.toString() +
@@ -129,6 +179,8 @@ class _InfinitordleState extends State<Infinitordle> {
 
   void _keyboardTapped(int index) {
     setState(() {
+      //print([_targetWords, infSuccessWords]);
+
       if (_keyboardList[index] == " ") {
         //ignore pressing of non-keys
         return;
@@ -156,25 +208,7 @@ class _InfinitordleState extends State<Infinitordle> {
               //Code for single win in infMode
               for (var board = 0; board < numBoards; board++) {
                 if (_detectBoardSolvedByRow(board, _currentWord)) {
-                  //execute infinturdle code. Erase a row and step back
-                  for (var j = 0; j < infNumBacksteps; j++) {
-                    var tmpGameboardEntries =
-                        _gameboardEntries.sublist(5, _gameboardEntries.length);
-                    for (var i = 0; i < 5; i++) {
-                      tmpGameboardEntries.add("");
-                    }
-                    _gameboardEntries = tmpGameboardEntries;
-                    _currentWord--;
-                  }
-                  _targetWords[board] = _finalWords[
-                      random.nextInt(_finalWords.length)]; //new target word
-                  if (appTitle2 == "o") {
-                    //put ∞ symbols into title
-                    appTitle2 = "∞";
-                  } else {
-                    // ignore: prefer_interpolation_to_compose_strings
-                    appTitle2 = appTitle2 + "∞";
-                  }
+
                   //record success words for conclusion and to green outline
                   infSuccessWords.add(_gameboardEntries
                       .sublist((_currentWord - 1) * 5, (_currentWord) * 5)
@@ -188,6 +222,32 @@ class _InfinitordleState extends State<Infinitordle> {
                       infSuccessPraise.removeLast();
                     });
                   });
+
+
+                  //execute infinturdle code. Erase a row and step back
+                  for (var j = 0; j < infNumBacksteps; j++) {
+                    var tmpGameboardEntries =
+                        _gameboardEntries.sublist(5, _gameboardEntries.length);
+                    for (var i = 0; i < 5; i++) {
+                      tmpGameboardEntries.add("");
+                    }
+                    _gameboardEntries = tmpGameboardEntries;
+                    _currentWord--;
+                  }
+                  _targetWords[board] = getTargetWord(); //new target word
+
+                  /*
+                  if (appTitle2 == "o") {
+                    //put ∞ symbols into title
+                    appTitle2 = ""inf""";
+                  } else {
+                    // ignore: prefer_interpolation_to_compose_strings
+                    appTitle2 = appTitle2 + "∞";
+                  }
+
+                   */
+
+
                 }
               }
             }
@@ -219,6 +279,7 @@ class _InfinitordleState extends State<Infinitordle> {
             _typeCountInWord = 0;
           }
         }
+        saveKeys();
         return;
       }
       if (true) {
@@ -243,7 +304,7 @@ class _InfinitordleState extends State<Infinitordle> {
       _gameboardEntries =
           List<String>.generate((numRowsPerBoard * 5), (i) => "");
       _targetWords = getTargetWords(numBoards);
-      appTitle2 = "o";
+      //appTitle2 = "o";
       infSuccessWords.clear();
       infSuccessBoardsMatchingWords.clear();
 
@@ -261,6 +322,7 @@ class _InfinitordleState extends State<Infinitordle> {
         }
         _currentWord = 5;
       }
+      saveKeys();
     });
   }
 
@@ -354,21 +416,21 @@ class _InfinitordleState extends State<Infinitordle> {
           children: [
             Wrap(
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              spacing: 8.0,
-              runSpacing: 8.0,
+              spacing: boardSpacer,
+              runSpacing: boardSpacer,
               children: [
                 //split into 2 so that dont get a wrap on 3 + 1 basis. Not that this is why 2 is hardcoded below
                 Wrap(
                   //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  spacing: 8.0,
-                  runSpacing: 8.0,
+                  spacing: boardSpacer,
+                  runSpacing: boardSpacer,
                   children: List.generate(
                       numBoards ~/ 2, (index) => _gameboardWidget(index)),
                 ),
                 Wrap(
                   //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  spacing: 8.0,
-                  runSpacing: 8.0,
+                  spacing: boardSpacer,
+                  runSpacing: boardSpacer,
                   children: List.generate(numBoards ~/ 2,
                       (index) => _gameboardWidget(numBoards ~/ 2 + index)),
                 ),
@@ -386,6 +448,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _titleWidget() {
+    var inftext = infSuccessWords.isEmpty ? "o" : "∞" * infSuccessWords.length;
     return GestureDetector(
         onTap: () {
           _showResetConfirmScreen();
@@ -401,9 +464,9 @@ class _InfinitordleState extends State<Infinitordle> {
               children: <TextSpan>[
                 TextSpan(text: appTitle1),
                 TextSpan(
-                    text: appTitle2,
+                    text: inftext, //appTitle2   ,
                     style: TextStyle(
-                        color: appTitle2 == "o" ? Colors.white : Colors.green)),
+                        color: inftext == "o" ? Colors.white : Colors.green)),
                 TextSpan(text: appTitle3),
               ],
             ),
@@ -417,7 +480,7 @@ class _InfinitordleState extends State<Infinitordle> {
     double vertSpaceForSingleGameboardKeyNoWrap =
         vertSpaceForGameboard / numRowsPerBoard;
     double horizSpaceForSingleGameboardKeyNoWrap =
-        (scW - (numBoards - 1) * 8) / numBoards / 5;
+        (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
 
     if (vertSpaceForSingleGameboardKeyNoWrap >
         2 * horizSpaceForSingleGameboardKeyNoWrap) {
@@ -432,7 +495,7 @@ class _InfinitordleState extends State<Infinitordle> {
             (vertSpaceForGameboard) /
                 numPresentationBigRowsOfBoards /
                 numRowsPerBoard,
-            (scW - (numBoards - 1) * 8) /
+            (scW - (numBoards - 1) * boardSpacer) /
                 (numBoards ~/ numPresentationBigRowsOfBoards) /
                 5));
 
@@ -544,14 +607,14 @@ class _InfinitordleState extends State<Infinitordle> {
             customBorder: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Container(
+            child: SizedBox(
                 height: 500,
                 width: 500,
                 child: FittedBox(
                     fit: BoxFit.fitHeight,
                     child: Text(
                       _keyboardList[index].toUpperCase(),
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ))),
           ),
         )),
@@ -561,24 +624,19 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _kbMiniGridContainer(index) {
-    return Container(
-      //constraints: BoxConstraints(
-      //    maxWidth: keyboardSingleKeyEffectiveMaxPixel,
-      //    maxHeight: keyboardSingleKeyEffectiveMaxPixel),
-      child: GridView.builder(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemCount: numBoards,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: numBoards ~/ numPresentationBigRowsOfBoards,
-            childAspectRatio: 1 /
-                ((numBoards / numPresentationBigRowsOfBoards) /
-                    numPresentationBigRowsOfBoards),
-          ),
-          itemBuilder: (BuildContext context, int subIndex) {
-            return _kbMiniSquareColor(index, subIndex);
-          }),
-    );
+    return GridView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: numBoards,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: numBoards ~/ numPresentationBigRowsOfBoards,
+          childAspectRatio: 1 /
+              ((numBoards / numPresentationBigRowsOfBoards) /
+                  numPresentationBigRowsOfBoards),
+        ),
+        itemBuilder: (BuildContext context, int subIndex) {
+          return _kbMiniSquareColor(index, subIndex);
+        });
   }
 
   Widget _kbMiniSquareColor(index, subIndex) {
