@@ -157,7 +157,7 @@ class _InfinitordleState extends State<Infinitordle> {
           // ignore: prefer_interpolation_to_compose_strings
           content: Text(
               // ignore: prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings
-              "Solve 4 boards at once. As you solve each board, the target word for that board will be replaced with another word, and you will get one extra guess. Can you keep going forever and reach infinitordle?\n\n" +
+              "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n" +
                   "You've got " +
                   infSuccessWords.length.toString() +
                   " word" +
@@ -534,7 +534,7 @@ class _InfinitordleState extends State<Infinitordle> {
       curve: Curves.fastOutSlowIn,
       decoration: BoxDecoration(
           border:
-              Border.all(color: infGolden ? Colors.green : bg, width: 2),
+              Border.all(color: infGolden ? Colors.green : bg, width: infGolden ? 2 : 0),
           borderRadius: BorderRadius.circular(10),
           color: infSuccessPraise.contains(boardNumber) &&
                   rowOfIndex ==
