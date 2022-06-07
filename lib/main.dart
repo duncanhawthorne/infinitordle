@@ -426,7 +426,8 @@ class _InfinitordleState extends State<Infinitordle> {
 
 
 
-  Widget dh(index, boardNumber) {
+  Widget gbSquareTextFlipper(index, boardNumber) {
+    Widget gbsInst = _gbSquareText(index, boardNumber);
     return GestureDetector(
       //onTap: () {
       //  _flip(index, boardNumber);
@@ -443,12 +444,12 @@ class _InfinitordleState extends State<Infinitordle> {
                 ..rotateX(val),
               child: Container(
                   child: val <= (pi / 2)
-                      ? _gbSquareText(index, boardNumber)
+                      ? gbsInst
                       : Transform(
                     alignment: Alignment.center,
                     transform: Matrix4.identity()..rotateX(pi), // it will flip horizontally the container
                     child:
-                    _gbSquareText(index, boardNumber)
+                    gbsInst
                       /*
                     Container(
                       decoration: new BoxDecoration(
@@ -641,7 +642,7 @@ class _InfinitordleState extends State<Infinitordle> {
                       : _getGameboardSquareColor(index, boardNumber)),
       child: FittedBox(
         fit: BoxFit.fitHeight,
-        child: dh(index, boardNumber), //_gbSquareText(index, boardNumber),
+        child: gbSquareTextFlipper(index, boardNumber), //_gbSquareText(index, boardNumber),
       ),
     );
   }
