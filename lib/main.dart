@@ -3,7 +3,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
-bool _cheatMode = false; //for debugging
+bool _cheatMode = true; //for debugging
 
 Random random = Random();
 String appTitle = "infinitordle";
@@ -75,6 +75,15 @@ class _InfinitordleState extends State<Infinitordle> {
       List<String>.generate((numRowsPerBoard * 5), (i) => "");
   int _currentWord = -1; //gets overriden by initState()
   int _typeCountInWord = 0;
+
+
+
+
+
+
+
+
+
 
   @override
   initState() {
@@ -182,6 +191,8 @@ class _InfinitordleState extends State<Infinitordle> {
     setState(() {
       //print([_targetWords, infSuccessWords]);
 
+
+
       if (_keyboardList[index] == " ") {
         //ignore pressing of non-keys
         return;
@@ -202,6 +213,9 @@ class _InfinitordleState extends State<Infinitordle> {
               .sublist(_currentWord * 5, (_currentWord + 1) * 5)
               .join(""))) {
             //valid word so accept and move to next line
+
+
+
             _currentWord++;
             _typeCountInWord = 0;
 
@@ -234,6 +248,9 @@ class _InfinitordleState extends State<Infinitordle> {
                     _currentWord--;
                   }
                   _targetWords[board] = getTargetWord(); //new target word
+
+
+
 
                   /*
                   if (appTitle2 == "o") {
@@ -276,6 +293,12 @@ class _InfinitordleState extends State<Infinitordle> {
             _gameboardEntries[_currentWord * 5 + 4] = "";
             _typeCountInWord = 0;
           }
+        }
+        for (var i = 0; i < 5; i ++) {
+          Future.delayed(Duration(milliseconds: 100 * i), () {
+            _flip((_currentWord - 1) * 5 + i, -1);
+          });
+
         }
         saveKeys();
         return;
@@ -392,6 +415,60 @@ class _InfinitordleState extends State<Infinitordle> {
     return false;
   }
 
+  var angles =
+  List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+
+  void _flip(index, boardNumber) {
+    setState(() {
+      angles[index] = (angles[index] + pi) % (2 * pi);
+    });
+  }
+
+
+
+  Widget dh(index, boardNumber) {
+    return GestureDetector(
+      //onTap: () {
+      //  _flip(index, boardNumber);
+      //},
+      child: TweenAnimationBuilder(
+          tween: Tween<double>(begin: 0, end: angles[index]),
+          duration: Duration(milliseconds: 500),
+          builder: (BuildContext context, double val, __) {
+            return (Transform(
+              //let's make the card flip by it's center
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateX(val),
+              child: Container(
+                  child: val <= (pi / 2)
+                      ? _gbSquareText(index, boardNumber)
+                      : Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()..rotateX(pi), // it will flip horizontally the container
+                    child:
+                    _gbSquareText(index, boardNumber)
+                      /*
+                    Container(
+                      decoration: new BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.rectangle
+                      ),
+                    )
+              */,
+                  ) //else we will display it here,
+              ),
+            ));
+          }),
+    );
+  }
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     //recalculate these key values regularly, for screen size changes
@@ -403,6 +480,10 @@ class _InfinitordleState extends State<Infinitordle> {
         min(keyboardSingleKeyUnconstrainedMaxPixel,
             vertSpaceAfterTitle * 0.25 / 3));
 
+
+
+
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -412,6 +493,7 @@ class _InfinitordleState extends State<Infinitordle> {
         color: Colors.black87,
         child: Column(
           children: [
+
             Wrap(
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               spacing: boardSpacer,
@@ -439,6 +521,17 @@ class _InfinitordleState extends State<Infinitordle> {
               height: 2,
             ),
             _keyboardWidget(),
+
+
+
+
+
+
+
+
+
+
+
           ],
         ),
       ),
@@ -548,7 +641,7 @@ class _InfinitordleState extends State<Infinitordle> {
                       : _getGameboardSquareColor(index, boardNumber)),
       child: FittedBox(
         fit: BoxFit.fitHeight,
-        child: _gbSquareText(index, boardNumber),
+        child: dh(index, boardNumber), //_gbSquareText(index, boardNumber),
       ),
     );
   }
