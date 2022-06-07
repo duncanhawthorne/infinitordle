@@ -3,7 +3,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
-bool _cheatMode = true; //for debugging
+bool _cheatMode = false; //for debugging
 
 Random random = Random();
 String appTitle = "infinitordle";
@@ -439,7 +439,7 @@ class _InfinitordleState extends State<Infinitordle> {
               //let's make the card flip by it's center
               alignment: Alignment.center,
               transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
+                //..setEntry(3, 2, 0)
                 ..rotateX(val),
               child: Container(
                   child: val <= (pi / 2)
