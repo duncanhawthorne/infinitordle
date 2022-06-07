@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:dh/wordlist.dart';
+import 'package:infinitordle/wordlist.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Random random = Random();
+bool _cheatMode = false; //for debugging
 
+Random random = Random();
 String appTitle = "infinitordle";
 String appTitle1 = "infinit";
-//String appTitle2 = "o";
 String appTitle3 = "rdle";
 const Color bg = Color(0xff222222);
 const double keyboardSingleKeyUnconstrainedMaxPixel = 80;
@@ -21,8 +21,8 @@ final infSuccessBoardsMatchingWords = [];
 final infSuccessPraise = [];
 const double boardSpacer = 8;
 bool infMode = true;
-bool _cheatMode = false; //for debugging
 const infNumBacksteps = 1; //defunct
+const grey = Color(0xff555555);
 
 void main() {
   runApp(const MyApp());
@@ -62,20 +62,21 @@ String getTargetWord() {
 
 class _InfinitordleState extends State<Infinitordle> {
   //initialise
-  double scW = 1; //default value only
-  double scH = 1; //default value only
-  double vertSpaceAfterTitle = 1; //default value only
-  double keyboardSingleKeyEffectiveMaxPixel = 1; //default value only
-  int numPresentationBigRowsOfBoards = 2; //default value only
+  double scW = -1; //default value only
+  double scH = -1; //default value only
+  double vertSpaceAfterTitle = -1; //default value only
+  double keyboardSingleKeyEffectiveMaxPixel = -1; //default value only
+  int numPresentationBigRowsOfBoards = -1; //default value only
   //int numRowsPerBoard = 1;
 
   //production: empty initialise
-  var _targetWords = getTargetWords(numBoards);
+  var _targetWords = getTargetWords(numBoards); //gets overriden by initState()
   var _gameboardEntries =
       List<String>.generate((numRowsPerBoard * 5), (i) => "");
-  int _currentWord = 0;
+  int _currentWord = -1; //gets overriden by initState()
   int _typeCountInWord = 0;
 
+  @override
   initState() {
     loadKeys();
   }
@@ -208,7 +209,6 @@ class _InfinitordleState extends State<Infinitordle> {
               //Code for single win in infMode
               for (var board = 0; board < numBoards; board++) {
                 if (_detectBoardSolvedByRow(board, _currentWord)) {
-
                   //record success words for conclusion and to green outline
                   infSuccessWords.add(_gameboardEntries
                       .sublist((_currentWord - 1) * 5, (_currentWord) * 5)
@@ -222,7 +222,6 @@ class _InfinitordleState extends State<Infinitordle> {
                       infSuccessPraise.removeLast();
                     });
                   });
-
 
                   //execute infinturdle code. Erase a row and step back
                   for (var j = 0; j < infNumBacksteps; j++) {
@@ -246,7 +245,6 @@ class _InfinitordleState extends State<Infinitordle> {
                   }
 
                    */
-
 
                 }
               }
@@ -361,7 +359,7 @@ class _InfinitordleState extends State<Infinitordle> {
         return bg; //grey //used and no match
       }
     }
-    return const Color(0xff555555); //not yet used
+    return grey; //not yet used
   }
 
   Color _getGameboardSquareColor(index, boardNumber) {
@@ -521,6 +519,7 @@ class _InfinitordleState extends State<Infinitordle> {
     var wordForRowOfIndex = _gameboardEntries
         .sublist((5 * rowOfIndex).toInt(), (5 * (rowOfIndex + 1)).toInt())
         .join("");
+    bool legal = _typeCountInWord != 5 || _legalWords.contains(wordForRowOfIndex);
     if (infSuccessWords.contains(wordForRowOfIndex)) {
       if (infSuccessBoardsMatchingWords[
               infSuccessWords.indexOf(wordForRowOfIndex)] ==
@@ -529,21 +528,24 @@ class _InfinitordleState extends State<Infinitordle> {
       }
     }
     return AnimatedContainer(
-      height: 500, //oversize so it goes to maximum allowed in grid
-      width: 500, //oversize so it goes to maximum allowed in grid
+      //height: 500, //oversize so it goes to maximum allowed in grid
+      //width: 500, //oversize so it goes to maximum allowed in grid
       duration: const Duration(milliseconds: 300),
       curve: Curves.fastOutSlowIn,
       decoration: BoxDecoration(
-          border: Border.all(color: infGolden ? Colors.green : bg, width: 1),
+          border:
+              Border.all(color: infGolden ? Colors.green : bg, width: 2),
           borderRadius: BorderRadius.circular(10),
           color: infSuccessPraise.contains(boardNumber) &&
                   rowOfIndex ==
                       _currentWord -
                           1 //square on final finished row, i.e. only highlight what has just been submitted and only for 500 ms
               ? Colors.green //temporary green glow
-              : _detectBoardSolvedByRow(boardNumber, rowOfIndex)
-                  ? Colors.black //hide after solved
-                  : _getGameboardSquareColor(index, boardNumber)),
+              : rowOfIndex == _currentWord
+                  ? legal ? grey : Colors.red
+                  : _detectBoardSolvedByRow(boardNumber, rowOfIndex)
+                      ? Colors.black //hide after solved
+                      : _getGameboardSquareColor(index, boardNumber)),
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: _gbSquareText(index, boardNumber),
@@ -555,6 +557,13 @@ class _InfinitordleState extends State<Infinitordle> {
     return Text(
       _gameboardEntries[index].toUpperCase(),
       style: TextStyle(
+        shadows: const <Shadow>[
+          Shadow(
+            offset: Offset(0, 0),
+            blurRadius: 1.0,
+            color: bg,
+          ),
+        ],
         color: _detectBoardSolvedByRow(boardNumber, index ~/ 5)
             ? Colors.black //"hide" after being solved
             : Colors.white,
@@ -614,7 +623,15 @@ class _InfinitordleState extends State<Infinitordle> {
                     fit: BoxFit.fitHeight,
                     child: Text(
                       _keyboardList[index].toUpperCase(),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          shadows: <Shadow>[
+                            Shadow(
+                              offset: Offset(0, 0),
+                              blurRadius: 1.0,
+                              color: bg,
+                            ),
+                          ]),
                     ))),
           ),
         )),
