@@ -3,7 +3,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
-bool _cheatMode = true; //for debugging
+bool _cheatMode = false; //for debugging
 
 Random random = Random();
 String appTitle = "infinitordle";
