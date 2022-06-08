@@ -3,7 +3,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
-bool _cheatMode = false; //for debugging
+bool _cheatMode = true; //for debugging
 
 Random random = Random();
 String appTitle = "infinitordle";
@@ -76,15 +76,6 @@ class _InfinitordleState extends State<Infinitordle> {
   int _currentWord = -1; //gets overriden by initState()
   int _typeCountInWord = 0;
 
-
-
-
-
-
-
-
-
-
   @override
   initState() {
     loadKeys();
@@ -108,6 +99,12 @@ class _InfinitordleState extends State<Infinitordle> {
     var tmpGB1 = prefs.getString('gameboardEntries') ?? "";
     for (var i = 0; i < tmpGB1.length; i++) {
       _gameboardEntries[i] = tmpGB1.substring(i, i + 1);
+    }
+    for (var j = 0; j < _gameboardEntries.length; j++) {
+      if (_gameboardEntries[j] != "") {
+        print(j);
+        _flip(j, -1);
+      }
     }
     setState(() {});
     saveKeys();
@@ -191,8 +188,6 @@ class _InfinitordleState extends State<Infinitordle> {
     setState(() {
       //print([_targetWords, infSuccessWords]);
 
-
-
       if (_keyboardList[index] == " ") {
         //ignore pressing of non-keys
         return;
@@ -212,17 +207,23 @@ class _InfinitordleState extends State<Infinitordle> {
           if (_legalWords.contains(_gameboardEntries
               .sublist(_currentWord * 5, (_currentWord + 1) * 5)
               .join(""))) {
+            oneLegalWord = true;
+            oneMatchingWord = false;
             //valid word so accept and move to next line
-
-
 
             _currentWord++;
             _typeCountInWord = 0;
 
             if (infMode) {
+
+
               //Code for single win in infMode
               for (var board = 0; board < numBoards; board++) {
                 if (_detectBoardSolvedByRow(board, _currentWord)) {
+                  oneMatchingWord = true;
+                  //////////////////////////
+                  Future.delayed(const Duration(milliseconds: 1500), () {
+                    setState(() {
                   //record success words for conclusion and to green outline
                   infSuccessWords.add(_gameboardEntries
                       .sublist((_currentWord - 1) * 5, (_currentWord) * 5)
@@ -248,23 +249,16 @@ class _InfinitordleState extends State<Infinitordle> {
                     _currentWord--;
                   }
                   _targetWords[board] = getTargetWord(); //new target word
-
-
-
-
-                  /*
-                  if (appTitle2 == "o") {
-                    //put ∞ symbols into title
-                    appTitle2 = ""inf""";
-                  } else {
-                    // ignore: prefer_interpolation_to_compose_strings
-                    appTitle2 = appTitle2 + "∞";
+                  for (var j = 0; j < 5; j++) {
+                    _flip(_currentWord * 5 + j, -1);
                   }
-
-                   */
-
+                  saveKeys();
+                });
+                });
+/////////////////////////////////////////////
                 }
               }
+
             }
 
             //Code for totally winning game across all boards
@@ -280,9 +274,15 @@ class _InfinitordleState extends State<Infinitordle> {
             }
 
             //Code for losing game
-            if (_currentWord >= numRowsPerBoard) {
+            if (!oneMatchingWord && _currentWord >= numRowsPerBoard) {
               //didn't get it in time
               _showTargetWordsSolution();
+            }
+
+            for (var i = 0; i < 5; i++) {
+              Future.delayed(Duration(milliseconds: 100 * i), () {
+                _flip((_currentWord - 1) * 5 + i, -1);
+              });
             }
           } else {
             //not a word so just reset current word
@@ -294,12 +294,7 @@ class _InfinitordleState extends State<Infinitordle> {
             _typeCountInWord = 0;
           }
         }
-        for (var i = 0; i < 5; i ++) {
-          Future.delayed(Duration(milliseconds: 100 * i), () {
-            _flip((_currentWord - 1) * 5 + i, -1);
-          });
 
-        }
         saveKeys();
         return;
       }
@@ -329,7 +324,11 @@ class _InfinitordleState extends State<Infinitordle> {
       infSuccessWords.clear();
       infSuccessBoardsMatchingWords.clear();
 
+      angles =
+      List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+
       //speed initialise entries using cheat mode for debugging
+      const cheatString = "maplewindyscourfightkebab";
       if (_cheatMode) {
         _targetWords[0] = "scoff";
         if (numBoards == 4) {
@@ -337,12 +336,19 @@ class _InfinitordleState extends State<Infinitordle> {
           _targetWords[2] = "chair";
           _targetWords[3] = "table";
         }
-        const cheatString = "maplewindyscourfightkebab";
+
         for (var j = 0; j < cheatString.length; j++) {
           _gameboardEntries[j] = cheatString[j];
         }
         _currentWord = 5;
+        for (var j = 0; j < _gameboardEntries.length; j++) {
+          if (_gameboardEntries[j] != "") {
+            _flip(j, -1);
+          }
+        }
       }
+
+
       saveKeys();
     });
   }
@@ -415,61 +421,6 @@ class _InfinitordleState extends State<Infinitordle> {
     return false;
   }
 
-  var angles =
-  List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
-
-  void _flip(index, boardNumber) {
-    setState(() {
-      angles[index] = (angles[index] + pi) % (2 * pi);
-    });
-  }
-
-
-
-  Widget gbSquareTextFlipper(index, boardNumber) {
-    Widget gbsInst = _gbSquareText(index, boardNumber);
-    return GestureDetector(
-      //onTap: () {
-      //  _flip(index, boardNumber);
-      //},
-      child: TweenAnimationBuilder(
-          tween: Tween<double>(begin: 0, end: angles[index]),
-          duration: Duration(milliseconds: 500),
-          builder: (BuildContext context, double val, __) {
-            return (Transform(
-              //let's make the card flip by it's center
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                //..setEntry(3, 2, 0)
-                ..rotateX(val),
-              child: Container(
-                  child: val <= (pi / 2)
-                      ? gbsInst
-                      : Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.identity()..rotateX(pi), // it will flip horizontally the container
-                    child:
-                    gbsInst
-                      /*
-                    Container(
-                      decoration: new BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.rectangle
-                      ),
-                    )
-              */,
-                  ) //else we will display it here,
-              ),
-            ));
-          }),
-    );
-  }
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     //recalculate these key values regularly, for screen size changes
@@ -481,10 +432,6 @@ class _InfinitordleState extends State<Infinitordle> {
         min(keyboardSingleKeyUnconstrainedMaxPixel,
             vertSpaceAfterTitle * 0.25 / 3));
 
-
-
-
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -494,7 +441,6 @@ class _InfinitordleState extends State<Infinitordle> {
         color: Colors.black87,
         child: Column(
           children: [
-
             Wrap(
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               spacing: boardSpacer,
@@ -522,17 +468,6 @@ class _InfinitordleState extends State<Infinitordle> {
               height: 2,
             ),
             _keyboardWidget(),
-
-
-
-
-
-
-
-
-
-
-
           ],
         ),
       ),
@@ -602,18 +537,70 @@ class _InfinitordleState extends State<Infinitordle> {
             crossAxisCount: 5,
           ),
           itemBuilder: (BuildContext context, int index) {
-            return _gbSquare(index, boardNumber);
+            return _gbSquareTextFlipper(index, boardNumber);
           }),
     );
   }
 
-  Widget _gbSquare(index, boardNumber) {
+  var angles =
+      List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+
+  bool oneLegalWord = false;
+  bool oneMatchingWord = false;
+
+  void _flip(index, boardNumber) {
+    setState(() {
+      if (angles[index] == -0.001) {
+        angles[index] = 0.5;
+      }
+      else {
+        angles[index] = (angles[index] + 0.5) % 1;
+      }
+    });
+  }
+
+  Widget _gbSquareTextFlipper(index, boardNumber) {
+    return GestureDetector(
+      //onTap: () {
+      //  _flip(index, boardNumber);
+      //},
+      child: TweenAnimationBuilder(
+          tween: Tween<double>(begin: 0, end: angles[index]),
+          duration: Duration(milliseconds: 500),
+          builder: (BuildContext context, double val, __) {
+            //Widget gbsInst = _gbSquare(index, boardNumber, val, "b");
+            //print(val);
+            return (Transform(
+
+              //let's make the card flip by it's center
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                //..setEntry(3, 2, 0)
+                ..rotateX(val * (2*pi)),
+              child: Container(
+                  child: val <= 0.25
+                      ? _gbSquare(index, boardNumber, val, "b")
+                      : Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.identity()
+                            ..rotateX(
+                                pi), // it will flip horizontally the container
+                          child: _gbSquare(index, boardNumber, val, "f"),
+                        ) //else we will display it here,
+                  ),
+            ));
+          }),
+    );
+  }
+
+  Widget _gbSquare(index, boardNumber, val, bf) {
     bool infGolden = false;
     int rowOfIndex = index ~/ 5;
     var wordForRowOfIndex = _gameboardEntries
         .sublist((5 * rowOfIndex).toInt(), (5 * (rowOfIndex + 1)).toInt())
         .join("");
-    bool legal = _typeCountInWord != 5 || _legalWords.contains(wordForRowOfIndex);
+    bool legal =
+        _typeCountInWord != 5 || _legalWords.contains(wordForRowOfIndex);
     if (infSuccessWords.contains(wordForRowOfIndex)) {
       if (infSuccessBoardsMatchingWords[
               infSuccessWords.indexOf(wordForRowOfIndex)] ==
@@ -621,28 +608,37 @@ class _InfinitordleState extends State<Infinitordle> {
         infGolden = true;
       }
     }
-    return AnimatedContainer(
+    return Container(
+      //AnimatedContainer(
       //height: 500, //oversize so it goes to maximum allowed in grid
       //width: 500, //oversize so it goes to maximum allowed in grid
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.fastOutSlowIn,
+      //duration: const Duration(milliseconds: 300),
+      //curve: Curves.fastOutSlowIn,
       decoration: BoxDecoration(
-          border:
-              Border.all(color: infGolden ? Colors.green : bg, width: infGolden ? 2 : 0),
+          border: Border.all(
+              color: bf == "b" ? bg :
+              infGolden ? Colors.green : bg,
+
+              width: bf == "b" ? 1 : infGolden ? 2 : 0),
           borderRadius: BorderRadius.circular(10),
-          color: infSuccessPraise.contains(boardNumber) &&
+          color: bf == "b" ? grey : infSuccessPraise.contains(boardNumber) &&
                   rowOfIndex ==
                       _currentWord -
                           1 //square on final finished row, i.e. only highlight what has just been submitted and only for 500 ms
               ? Colors.green //temporary green glow
               : rowOfIndex == _currentWord
-                  ? legal ? grey : Colors.red
+                  ? legal
+                      ? grey
+                      : Colors.red
                   : _detectBoardSolvedByRow(boardNumber, rowOfIndex)
                       ? Colors.black //hide after solved
-                      : _getGameboardSquareColor(index, boardNumber)),
+                      //: oneSuccess && val < 0.25 && rowOfIndex == _currentWord - 1 //FIXME doesnt work rigth when press refresh because vals aren't loaded
+                      //    ? grey
+                          : _getGameboardSquareColor(index, boardNumber)),
       child: FittedBox(
         fit: BoxFit.fitHeight,
-        child: gbSquareTextFlipper(index, boardNumber), //_gbSquareText(index, boardNumber),
+        child: _gbSquareText(
+            index, boardNumber), //_gbSquareText(index, boardNumber),
       ),
     );
   }
