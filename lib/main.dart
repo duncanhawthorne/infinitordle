@@ -4,7 +4,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
-bool _cheatMode = false; //for debugging
+bool _cheatMode = true; //for debugging
 
 Random random = Random();
 String appTitle = "infinitordle";
@@ -226,16 +226,19 @@ class _InfinitordleState extends State<Infinitordle> {
                   Future.delayed(const Duration(milliseconds: 1500), () {
                     setState(() {
                       //record success words for conclusion and to green outline
-                      infSuccessWords.add(_gameboardEntries
-                          .sublist((_currentWord - 1) * 5, (_currentWord) * 5)
-                          .join(""));
-                      infSuccessBoardsMatchingWords.add(board);
+
 
                       //temporarily full green, by adding to praise list and then removing
-                      infSuccessPraise.add(board);
+                      //infSuccessPraise.add(board);
                       Future.delayed(const Duration(milliseconds: 1000), () {
                         setState(() {
-                          infSuccessPraise.removeLast();
+                          //infSuccessPraise.removeLast();
+                          infSuccessWords.add(_gameboardEntries
+                              .sublist((_currentWord - 1) * 5, (_currentWord) * 5)
+                              .join(""));
+                          infSuccessBoardsMatchingWords.add(board);
+                          _targetWords[board] = getTargetWord(); //new target word
+                          saveKeys();
                         });
                       });
 
@@ -249,7 +252,7 @@ class _InfinitordleState extends State<Infinitordle> {
                         _gameboardEntries = tmpGameboardEntries;
                         _currentWord--;
                       }
-                      _targetWords[board] = getTargetWord(); //new target word
+
                       for (var j = 0; j < 5; j++) {
                         _flip(_currentWord * 5 + j, -1);
                       }
@@ -645,14 +648,14 @@ class _InfinitordleState extends State<Infinitordle> {
               ? rowOfIndex == _currentWord && !legal
                   ? Colors.red
                   : grey
-              : infSuccessPraise.contains(boardNumber) &&
-                      rowOfIndex ==
-                          _currentWord -
-                              1 //square on final finished row, i.e. only highlight what has just been submitted and only for 500 ms
-                  ? Colors.green //temporary green glow
-                  : rowOfIndex == _currentWord
-                      ? grey //should never see this as on the front of the cards
-                      : _detectBoardSolvedByRow(boardNumber, rowOfIndex)
+             // : infSuccessPraise.contains(boardNumber) &&
+             //         rowOfIndex ==
+             //             _currentWord -
+             //                 1 //square on final finished row, i.e. only highlight what has just been submitted and only for 500 ms
+             //     ? Colors.green //temporary green glow
+             //     : rowOfIndex == _currentWord
+             //         ? grey //should never see this as on the front of the cards
+                      : !infMode && _detectBoardSolvedByRow(boardNumber, rowOfIndex)
                           ? bg //"hide" after solved
                           : _getGameboardSquareColor(index, boardNumber)),
       child: FittedBox(
@@ -674,7 +677,7 @@ class _InfinitordleState extends State<Infinitordle> {
             color: bg,
           ),
         ],
-        color: _detectBoardSolvedByRow(boardNumber, index ~/ 5)
+        color: !infMode && _detectBoardSolvedByRow(boardNumber, index ~/ 5)
             ? bg //"hide" after being solved
             : Colors.white,
         fontWeight: FontWeight.bold,
