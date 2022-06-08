@@ -666,6 +666,7 @@ class _InfinitordleState extends State<Infinitordle> {
         //    color: bg,
         //  ),
         //],
+        fontSize: 100,
         color: !infMode && _detectBoardSolvedByRow(boardNumber, index ~/ 5)
             ? bg //"hide" after being solved
             : Colors.white,
