@@ -614,8 +614,8 @@ class _InfinitordleState extends State<Infinitordle> {
     }
     return Container(
       //AnimatedContainer(
-      //height: 500, //oversize so it goes to maximum allowed in grid
-      //width: 500, //oversize so it goes to maximum allowed in grid
+      height: 500, //oversize so it goes to maximum allowed in grid
+      width: 500, //oversize so it goes to maximum allowed in grid
       //duration: const Duration(milliseconds: 300),
       //curve: Curves.fastOutSlowIn,
       decoration: BoxDecoration(
