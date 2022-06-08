@@ -81,6 +81,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   initState() {
+    super.initState();
     loadKeys();
   }
 
