@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinitordle/wordlist.dart';
+import 'package:infinitordle/helper.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
-bool _cheatMode = true; //for debugging
+bool _cheatMode = false; //for debugging
 
-Random random = Random();
 String appTitle = "infinitordle";
 String appTitle1 = "infinit";
 String appTitle3 = "rdle";
@@ -16,10 +16,10 @@ const numBoards = 4;
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 final _keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 final _legalWords = kLegalWordsText.split("\n");
-final _finalWords = kFinalWordsText.split("\n");
+
 final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
-final infSuccessPraise = [];
+//final infSuccessPraise = [];
 const double boardSpacer = 8;
 bool infMode = true;
 const infNumBacksteps = 1; //defunct
@@ -49,18 +49,6 @@ class MyApp extends StatelessWidget {
       home: const Infinitordle(),
     );
   }
-}
-
-List getTargetWords(numberOfBoards) {
-  var starterList = [];
-  for (var i = 0; i < numberOfBoards; i++) {
-    starterList.add(getTargetWord());
-  }
-  return starterList;
-}
-
-String getTargetWord() {
-  return _finalWords[random.nextInt(_finalWords.length)];
 }
 
 class _InfinitordleState extends State<Infinitordle> {
@@ -227,17 +215,20 @@ class _InfinitordleState extends State<Infinitordle> {
                     setState(() {
                       //record success words for conclusion and to green outline
 
-
                       //temporarily full green, by adding to praise list and then removing
                       //infSuccessPraise.add(board);
                       Future.delayed(const Duration(milliseconds: 1000), () {
                         setState(() {
+                          //new target word and update accordingly
+
                           //infSuccessPraise.removeLast();
                           infSuccessWords.add(_gameboardEntries
-                              .sublist((_currentWord - 1) * 5, (_currentWord) * 5)
+                              .sublist(
+                                  (_currentWord - 1) * 5, (_currentWord) * 5)
                               .join(""));
                           infSuccessBoardsMatchingWords.add(board);
-                          _targetWords[board] = getTargetWord(); //new target word
+                          _targetWords[board] =
+                              getTargetWord(); //new target word
                           saveKeys();
                         });
                       });
@@ -251,11 +242,11 @@ class _InfinitordleState extends State<Infinitordle> {
                         }
                         _gameboardEntries = tmpGameboardEntries;
                         _currentWord--;
+                        for (var j = 0; j < 5; j++) {
+                          _flip(_currentWord * 5 + j, -1);
+                        }
                       }
 
-                      for (var j = 0; j < 5; j++) {
-                        _flip(_currentWord * 5 + j, -1);
-                      }
                       saveKeys();
                     });
                   });
@@ -569,11 +560,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   void _flip(index, boardNumber) {
     setState(() {
-      if (angles[index] == -0.001) {
-        angles[index] = 0.5;
-      } else {
-        angles[index] = (angles[index] + 0.5) % 1;
-      }
+      angles[index] = (angles[index] + 0.5) % 1;
     });
   }
 
@@ -644,20 +631,22 @@ class _InfinitordleState extends State<Infinitordle> {
                       ? 2
                       : 0),
           borderRadius: BorderRadius.circular(10),
-          color: bf == "b"
-              ? rowOfIndex == _currentWord && !legal
-                  ? Colors.red
-                  : grey
-             // : infSuccessPraise.contains(boardNumber) &&
-             //         rowOfIndex ==
-             //             _currentWord -
-             //                 1 //square on final finished row, i.e. only highlight what has just been submitted and only for 500 ms
-             //     ? Colors.green //temporary green glow
-             //     : rowOfIndex == _currentWord
-             //         ? grey //should never see this as on the front of the cards
-                      : !infMode && _detectBoardSolvedByRow(boardNumber, rowOfIndex)
-                          ? bg //"hide" after solved
-                          : _getGameboardSquareColor(index, boardNumber)),
+          color: !infMode && _detectBoardSolvedByRow(boardNumber, rowOfIndex)
+              ? bg
+              : bf == "b"
+                  ? rowOfIndex == _currentWord && !legal
+                      ? Colors.red
+                      : grey
+                  // : infSuccessPraise.contains(boardNumber) &&
+                  //         rowOfIndex ==
+                  //             _currentWord -
+                  //                 1 //square on final finished row, i.e. only highlight what has just been submitted and only for 500 ms
+                  //     ? Colors.green //temporary green glow
+                  //     : rowOfIndex == _currentWord
+                  //         ? grey //should never see this as on the front of the cards
+                  //: !infMode && _detectBoardSolvedByRow(boardNumber, rowOfIndex)
+                  //    ? bg //"hide" after solved
+                      : _getGameboardSquareColor(index, boardNumber)),
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: _gbSquareText(
