@@ -659,13 +659,13 @@ class _InfinitordleState extends State<Infinitordle> {
     return Text(
       _gameboardEntries[index].toUpperCase(),
       style: TextStyle(
-        shadows: const <Shadow>[
-          Shadow(
-            offset: Offset(0, 0),
-            blurRadius: 1.0,
-            color: bg,
-          ),
-        ],
+        //shadows: const <Shadow>[
+        //  Shadow(
+        //    offset: Offset(0, 0),
+        //    blurRadius: 1.0,
+        //    color: bg,
+        //  ),
+        //],
         color: !infMode && _detectBoardSolvedByRow(boardNumber, index ~/ 5)
             ? bg //"hide" after being solved
             : Colors.white,
