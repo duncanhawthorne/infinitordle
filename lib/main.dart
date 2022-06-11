@@ -171,12 +171,12 @@ class _InfinitordleState extends State<Infinitordle> {
                           'Lose your progress and reset the board?'),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
+              onPressed: () => {focusNode.requestFocus() , Navigator.pop(context, 'Cancel')},
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () =>
-                  {_resetBoard(context), Navigator.pop(context, 'OK')},
+                  {_resetBoard(context), focusNode.requestFocus(), Navigator.pop(context, 'OK')},
               child: const Text('Reset', style: TextStyle(color: Colors.red)),
             ),
           ],
