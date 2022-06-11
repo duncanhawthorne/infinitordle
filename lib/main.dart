@@ -4,6 +4,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'package:infinitordle/helper.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 bool _cheatMode = false; //for debugging
 
@@ -16,7 +17,8 @@ const numBoards = 4;
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 final _keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 final _legalWords = kLegalWordsText.split("\n");
-
+final isWebMobile = kIsWeb && (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android);
+final int durMult = isWebMobile ? 0 : 1;
 final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
 const double boardSpacer = 8;
@@ -220,7 +222,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
             //Made a guess flip over the cards to see the colors
             for (var i = 0; i < 5; i++) {
-              Future.delayed(Duration(milliseconds: 100 * i), () {
+              Future.delayed(Duration(milliseconds: durMult * 100 * i), () {
                 //flip to reveal the colors with pleasing animation
                 _flip((_currentWord - 1) * 5 + i, -1);
               });
@@ -260,7 +262,7 @@ class _InfinitordleState extends State<Infinitordle> {
             }
 
             if (infMode && oneMatchingWord) {
-              Future.delayed(const Duration(milliseconds: 1500), () {
+              Future.delayed(Duration(milliseconds: durMult * 1500), () {
                 //Give time for above code to show visually, so we have flipped
                 setState(() {
                   //Erase a row and step back
@@ -283,11 +285,11 @@ class _InfinitordleState extends State<Infinitordle> {
                       _flip(_currentWord * 5 + j, -1);
                     }
                   }
-                  saveKeys();
                 });
+                saveKeys();
               });
 
-              Future.delayed(const Duration(milliseconds: 2500), () {
+              Future.delayed(Duration(milliseconds: durMult * 2500), () {
                 //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
                 setState(() {
                   //Log the word just got in success words, which gets green to shown
@@ -297,8 +299,8 @@ class _InfinitordleState extends State<Infinitordle> {
                   infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
                   //Create new target word for the board
                   _targetWords[oneMatchingWordBoard] = getTargetWord();
-                  saveKeys();
                 });
+                saveKeys();
               });
             }
           } else {
@@ -312,7 +314,6 @@ class _InfinitordleState extends State<Infinitordle> {
           }
         }
 
-        saveKeys();
         return;
       }
       if (true) {
@@ -326,6 +327,7 @@ class _InfinitordleState extends State<Infinitordle> {
         return;
       }
     });
+    saveKeys();
   }
 
   void _resetBoard(context) {
@@ -367,35 +369,27 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Color _getBestColorForLetter(queryLetter, boardNumber) {
+    //print("_getBestColorForLetter");
     if (queryLetter == " ") {
       return Colors.transparent;
     }
     //get color for the keyboard based on best (green > yellow > grey) color on the grid
-    for (var gameboardPosition = 0;
-        gameboardPosition <
-            _gameboardEntries.sublist(0, _currentWord * 5).length;
-        gameboardPosition++) {
-      if (_gameboardEntries[gameboardPosition] == queryLetter) {
-        if (_getCardColor(gameboardPosition, boardNumber) == Colors.green) {
+    for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
+      if (_gameboardEntries[gbPosition] == queryLetter) {
+        if (_getCardColor(gbPosition, boardNumber) == Colors.green) {
           return Colors.green;
         }
       }
     }
-    for (var gameboardPosition = 0;
-        gameboardPosition <
-            _gameboardEntries.sublist(0, _currentWord * 5).length;
-        gameboardPosition++) {
-      if (_gameboardEntries[gameboardPosition] == queryLetter) {
-        if (_getCardColor(gameboardPosition, boardNumber) == Colors.amber) {
+    for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
+      if (_gameboardEntries[gbPosition] == queryLetter) {
+        if (_getCardColor(gbPosition, boardNumber) == Colors.amber) {
           return Colors.amber;
         }
       }
     }
-    for (var gameboardPosition = 0;
-        gameboardPosition <
-            _gameboardEntries.sublist(0, _currentWord * 5).length;
-        gameboardPosition++) {
-      if (_gameboardEntries[gameboardPosition] == queryLetter) {
+    for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
+      if (_gameboardEntries[gbPosition] == queryLetter) {
         return Colors.transparent; //bg; //grey //used and no match
       }
     }
@@ -403,8 +397,9 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Color _getCardColor(index, boardNumber) {
+    //print("_getCardColor");
     if (index >= (_currentWord) * 5) {
-      return grey; //bg; //later rows
+      return grey; //later rows
     } else {
       if (_targetWords[boardNumber][index % 5] == _gameboardEntries[index]) {
         return Colors.green;
@@ -417,6 +412,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   bool _detectBoardSolvedByRow(boardNumber, maxRowToCheck) {
+    //print("_detectBoardSolvedByRow");
     for (var q = 0; q < min(_currentWord, maxRowToCheck); q++) {
       bool result = true;
       for (var j = 0; j < 5; j++) {
@@ -582,25 +578,22 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _cardFlipper(index, boardNumber) {
-    return GestureDetector(
-      child: TweenAnimationBuilder(
-          tween: Tween<double>(begin: 0, end: angles[index]),
-          duration: const Duration(milliseconds: 500),
-          builder: (BuildContext context, double val, __) {
-            return (Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()..rotateX(val * (2 * pi)),
-              child: Container(
-                  child: val <= 0.25
-                      ? _card(index, boardNumber, val, "b")
-                      : Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.identity()..rotateX(pi),
-                          child: _card(index, boardNumber, val, "f"),
-                        )),
-            ));
-          }),
-    );
+    return TweenAnimationBuilder(
+        tween: Tween<double>(begin: 0, end: angles[index]),
+        duration: Duration(milliseconds: durMult * 500),
+        builder: (BuildContext context, double val, __) {
+          return (Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()..rotateX(val * (2 * pi)),
+            child: val <= 0.25
+                ? _card(index, boardNumber, val, "b")
+                : Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()..rotateX(pi),
+                    child: _card(index, boardNumber, val, "f"),
+                  ),
+          ));
+        });
   }
 
   Widget _card(index, boardNumber, val, bf) {
