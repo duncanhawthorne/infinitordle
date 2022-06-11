@@ -23,6 +23,7 @@ const double boardSpacer = 8;
 bool infMode = true;
 const infNumBacksteps = 1;
 const grey = Color(0xff555555);
+int lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
 
 FocusNode focusNode = FocusNode();
 
@@ -454,7 +455,10 @@ class _InfinitordleState extends State<Infinitordle> {
             _keyboardTapped(29);
           }
           if (keyDownEvent.logicalKey == LogicalKeyboardKey.backspace) {
-            _keyboardTapped(20);
+            if (DateTime.now().millisecondsSinceEpoch > lastTimePressedDelete + 100) { //workaround to bug which was firing delete key twice
+              _keyboardTapped(20);
+              lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
+            }
           }
         },
         child: Container(
