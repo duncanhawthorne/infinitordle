@@ -196,6 +196,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   void _keyboardTapped(int index) {
     setState(() {
+
       if (_keyboardList[index] == " ") {
         //ignore pressing of non-keys
         return;
@@ -218,7 +219,7 @@ class _InfinitordleState extends State<Infinitordle> {
             //Legal word, but not necessarily correct word
 
             //Legal word so step forward
-            oneLegalWord = true;
+
             _currentWord++;
             _typeCountInWord = 0;
 
@@ -325,6 +326,18 @@ class _InfinitordleState extends State<Infinitordle> {
           _gameboardEntries[_currentWord * 5 + _typeCountInWord] =
               _keyboardList[index];
           _typeCountInWord++;
+
+          //doing this once rather than live inside the widget for speed
+          oneLegalWord = false;
+          if (_typeCountInWord == 5) {
+            //ignore if not completed whole word
+            if (_legalWords.contains(_gameboardEntries
+                .sublist(_currentWord * 5, (_currentWord + 1) * 5)
+                .join(""))) {
+              oneLegalWord = true;
+            }
+          }
+
         }
         return;
       }
@@ -604,7 +617,7 @@ class _InfinitordleState extends State<Infinitordle> {
         .sublist((5 * rowOfIndex).toInt(), (5 * (rowOfIndex + 1)).toInt())
         .join("");
     bool legalOrShort =
-        _typeCountInWord != 5 || _legalWords.contains(wordForRowOfIndex);
+        _typeCountInWord != 5 || oneLegalWord;
 
     bool infPreviousWin5 = false;
     if (infSuccessWords.contains(wordForRowOfIndex)) {
