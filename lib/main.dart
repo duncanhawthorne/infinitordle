@@ -17,9 +17,7 @@ const numBoards = 4;
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 final _keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 final _legalWords = kLegalWordsText.split("\n");
-final isWebMobile = kIsWeb &&
-    (defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.android);
+final isWebMobile = false; //kIsWeb &&     (defaultTargetPlatform == TargetPlatform.iOS ||         defaultTargetPlatform == TargetPlatform.android);
 final int durMult = isWebMobile ? 0 : 1;
 final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
