@@ -59,10 +59,10 @@ class _InfinitordleState extends State<Infinitordle> {
   int numPresentationBigRowsOfBoards = -1; //default value only
 
   //production: empty initialise
-  var _targetWords = getTargetWords(numBoards); //gets overriden by initState()
+  var _targetWords = getTargetWords(numBoards); //gets overridden by initState()
   var _gameboardEntries =
       List<String>.generate((numRowsPerBoard * 5), (i) => "");
-  int _currentWord = -1; //gets overriden by initState()
+  int _currentWord = -1; //gets overridden by initState()
   int _typeCountInWord = 0;
 
   @override
@@ -84,6 +84,13 @@ class _InfinitordleState extends State<Infinitordle> {
       var j = i * 5;
       infSuccessWords.add(tmpinfSuccessWords.substring(j, j + 5));
       infSuccessBoardsMatchingWords.add(-1);
+    }
+
+    var tmpinfSuccessBoardsMatchingWords =
+        prefs.getString('infSuccessBoardsMatchingWords') ?? "";
+    for (var i = 0; i < tmpinfSuccessBoardsMatchingWords.length; i++) {
+      infSuccessBoardsMatchingWords[i] =
+          int.parse(tmpinfSuccessBoardsMatchingWords[i]);
     }
 
     var tmpGB1 = prefs.getString('gameboardEntries') ?? "";
@@ -113,36 +120,23 @@ class _InfinitordleState extends State<Infinitordle> {
       tmpGB1 = tmpGB1 + _gameboardEntries[i];
     }
     await prefs.setString('gameboardEntries', tmpGB1);
-  }
 
-  Future<void> _showTargetWordsSolution() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(appTitle),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                // ignore: prefer_interpolation_to_compose_strings
-                Text("You got " +
-                    infSuccessWords.length.toString() +
-                    " word" +
-                    (infSuccessWords.length == 1 ? "" : "s") +
-                    ": " +
-                    infSuccessWords.join(", ") +
-                    "\n\nYou missed: " +
-                    _targetWords.join(", ")),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    var tmpinfSuccessBoardsMatchingWords = "";
+    for (var i = 0; i < infSuccessBoardsMatchingWords.length; i++) {
+      tmpinfSuccessBoardsMatchingWords = tmpinfSuccessBoardsMatchingWords +
+          infSuccessBoardsMatchingWords[i].toString();
+    }
+
+    await prefs.setString(
+        'infSuccessBoardsMatchingWords', tmpinfSuccessBoardsMatchingWords);
   }
 
   Future<void> _showResetConfirmScreen() async {
+    bool end = false;
+    if (!oneMatchingWord && _currentWord >= numRowsPerBoard) {
+      end = true;
+    }
+    //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -152,20 +146,38 @@ class _InfinitordleState extends State<Infinitordle> {
           // ignore: prefer_interpolation_to_compose_strings
           content: Text(
               // ignore: prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings
-              "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n" +
-                  "You've got " +
-                  infSuccessWords.length.toString() +
-                  " word" +
-                  (infSuccessWords.length == 1 ? "" : "s") +
-                  ' so far. \n\nLose your progress and reset the infinitordle board?'),
+              end
+                  ?
+                  // ignore: prefer_interpolation_to_compose_strings
+                  "You got " +
+                      infSuccessWords.length.toString() +
+                      " word" +
+                      (infSuccessWords.length == 1 ? "" : "s") +
+                      ": " +
+                      infSuccessWords.join(", ") +
+                      "\n\nYou missed: " +
+                      _targetWords.join(", ") +
+                      "\n\nReset the board?'"
+                  // ignore: prefer_interpolation_to_compose_strings
+                  : "You've got " +
+                      infSuccessWords.length.toString() +
+                      " word" +
+                      (infSuccessWords.length == 1 ? "" : "s") +
+                      ' so far' +
+                      (infSuccessWords.isNotEmpty ? ":" : "") +
+                      ' ' +
+                      infSuccessWords.join(", ") +
+                      "\n\n"
+                          'Lose your progress and reset the board?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, 'Cancel'),
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () => _resetBoard(context),
-              child: const Text('OK', style: TextStyle(color: Colors.red)),
+              onPressed: () =>
+                  {_resetBoard(context), Navigator.pop(context, 'OK')},
+              child: const Text('Reset', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -225,7 +237,7 @@ class _InfinitordleState extends State<Infinitordle> {
             //Code for losing game
             if (!oneMatchingWord && _currentWord >= numRowsPerBoard) {
               //didn't get it in time
-              _showTargetWordsSolution();
+              _showResetConfirmScreen();
             }
 
             if (!infMode && oneMatchingWord) {
@@ -248,12 +260,18 @@ class _InfinitordleState extends State<Infinitordle> {
                 setState(() {
                   //Erase a row and step back
                   for (var j = 0; j < infNumBacksteps; j++) {
+                    for (var i = 0; i < 5; i++) {
+                      _gameboardEntries.removeAt(0);
+                      _gameboardEntries.add("");
+                    }
+                    /*
                     var tmpGameboardEntries =
                         _gameboardEntries.sublist(5, _gameboardEntries.length);
                     for (var i = 0; i < 5; i++) {
                       tmpGameboardEntries.add("");
                     }
                     _gameboardEntries = tmpGameboardEntries;
+                     */
                     _currentWord--;
                     //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
                     for (var j = 0; j < 5; j++) {
@@ -273,14 +291,13 @@ class _InfinitordleState extends State<Infinitordle> {
                       .join(""));
                   infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
                   //Create new target word for the board
-                  _targetWords[oneMatchingWordBoard] =
-                      getTargetWord();
+                  _targetWords[oneMatchingWordBoard] = getTargetWord();
                   saveKeys();
                 });
               });
             }
           } else {
-            //not a legal word so just reset current word
+            //not a legal word so just clear current word
             _gameboardEntries[_currentWord * 5 + 0] = "";
             _gameboardEntries[_currentWord * 5 + 1] = "";
             _gameboardEntries[_currentWord * 5 + 2] = "";
@@ -307,7 +324,6 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   void _resetBoard(context) {
-    Navigator.pop(context, 'OK');
     setState(() {
       //initialise on reset
       _typeCountInWord = 0;
@@ -347,7 +363,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   Color _getBestColorForLetter(queryLetter, boardNumber) {
     if (queryLetter == " ") {
-      return bg;
+      return Colors.transparent;
     }
     //get color for the keyboard based on best (green > yellow > grey) color on the grid
     for (var gameboardPosition = 0;
@@ -355,8 +371,7 @@ class _InfinitordleState extends State<Infinitordle> {
             _gameboardEntries.sublist(0, _currentWord * 5).length;
         gameboardPosition++) {
       if (_gameboardEntries[gameboardPosition] == queryLetter) {
-        if (_getGameboardSquareColor(gameboardPosition, boardNumber) ==
-            Colors.green) {
+        if (_getCardColor(gameboardPosition, boardNumber) == Colors.green) {
           return Colors.green;
         }
       }
@@ -366,8 +381,7 @@ class _InfinitordleState extends State<Infinitordle> {
             _gameboardEntries.sublist(0, _currentWord * 5).length;
         gameboardPosition++) {
       if (_gameboardEntries[gameboardPosition] == queryLetter) {
-        if (_getGameboardSquareColor(gameboardPosition, boardNumber) ==
-            Colors.amber) {
+        if (_getCardColor(gameboardPosition, boardNumber) == Colors.amber) {
           return Colors.amber;
         }
       }
@@ -377,22 +391,22 @@ class _InfinitordleState extends State<Infinitordle> {
             _gameboardEntries.sublist(0, _currentWord * 5).length;
         gameboardPosition++) {
       if (_gameboardEntries[gameboardPosition] == queryLetter) {
-        return bg; //grey //used and no match
+        return Colors.transparent; //bg; //grey //used and no match
       }
     }
     return grey; //not used yet by the player
   }
 
-  Color _getGameboardSquareColor(index, boardNumber) {
+  Color _getCardColor(index, boardNumber) {
     if (index >= (_currentWord) * 5) {
-      return bg; //later rows
+      return grey; //bg; //later rows
     } else {
       if (_targetWords[boardNumber][index % 5] == _gameboardEntries[index]) {
         return Colors.green;
       } else if (_targetWords[boardNumber].contains(_gameboardEntries[index])) {
         return Colors.amber;
       } else {
-        return bg;
+        return Colors.transparent;
       }
     }
   }
@@ -401,7 +415,7 @@ class _InfinitordleState extends State<Infinitordle> {
     for (var q = 0; q < min(_currentWord, maxRowToCheck); q++) {
       bool result = true;
       for (var j = 0; j < 5; j++) {
-        if (_getGameboardSquareColor(q * 5 + j, boardNumber) != Colors.green) {
+        if (_getCardColor(q * 5 + j, boardNumber) != Colors.green) {
           result = false;
         }
       }
@@ -444,14 +458,14 @@ class _InfinitordleState extends State<Infinitordle> {
           }
         },
         child: Container(
-          color: Colors.black87,
+          color: bg,
           child: Column(
             children: [
               Wrap(
                 spacing: boardSpacer,
                 runSpacing: boardSpacer,
                 children: [
-                  //split into 2 so that dont get a wrap on 3 + 1 basis. Note that this is why 2 is hardcoded below
+                  //split into 2 so that don't get a wrap on 3 + 1 basis. Note that this is why 2 is hardcoded below
                   Wrap(
                     spacing: boardSpacer,
                     runSpacing: boardSpacer,
@@ -508,19 +522,17 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget _gameboardWidget(boardNumber) {
     double vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixel * 3;
-    double vertSpaceForSingleGameboardKeyNoWrap =
-        vertSpaceForGameboard / numRowsPerBoard;
-    double horizSpaceForSingleGameboardKeyNoWrap =
+    double vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
+    double horizSpaceForCardNoWrap =
         (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
 
-    if (vertSpaceForSingleGameboardKeyNoWrap >
-        2 * horizSpaceForSingleGameboardKeyNoWrap) {
+    if (vertSpaceForCardNoWrap > 2 * horizSpaceForCardNoWrap) {
       numPresentationBigRowsOfBoards = 2;
     } else {
       numPresentationBigRowsOfBoards = 1;
     }
 
-    double gameboardSingleBoxEffectiveMaxPixel = min(
+    double cardEffectiveMaxPixel = min(
         keyboardSingleKeyUnconstrainedMaxPixel,
         min(
             (vertSpaceForGameboard) /
@@ -532,9 +544,8 @@ class _InfinitordleState extends State<Infinitordle> {
 
     return Container(
       constraints: BoxConstraints(
-          maxWidth: 0.97 * 5 * gameboardSingleBoxEffectiveMaxPixel,
-          maxHeight:
-              0.97 * numRowsPerBoard * gameboardSingleBoxEffectiveMaxPixel),
+          maxWidth: 0.97 * 5 * cardEffectiveMaxPixel,
+          maxHeight: 0.97 * numRowsPerBoard * cardEffectiveMaxPixel),
       child: GridView.builder(
           physics:
               const NeverScrollableScrollPhysics(), //turns off ios scrolling
@@ -543,7 +554,7 @@ class _InfinitordleState extends State<Infinitordle> {
             crossAxisCount: 5,
           ),
           itemBuilder: (BuildContext context, int index) {
-            return _gbSquareTextFlipper(index, boardNumber);
+            return _cardFlipper(index, boardNumber);
           }),
     );
   }
@@ -560,7 +571,7 @@ class _InfinitordleState extends State<Infinitordle> {
     });
   }
 
-  Widget _gbSquareTextFlipper(index, boardNumber) {
+  Widget _cardFlipper(index, boardNumber) {
     return GestureDetector(
       child: TweenAnimationBuilder(
           tween: Tween<double>(begin: 0, end: angles[index]),
@@ -571,18 +582,18 @@ class _InfinitordleState extends State<Infinitordle> {
               transform: Matrix4.identity()..rotateX(val * (2 * pi)),
               child: Container(
                   child: val <= 0.25
-                      ? _gbSquare(index, boardNumber, val, "b")
+                      ? _card(index, boardNumber, val, "b")
                       : Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.identity()..rotateX(pi),
-                          child: _gbSquare(index, boardNumber, val, "f"),
+                          child: _card(index, boardNumber, val, "f"),
                         )),
             ));
           }),
     );
   }
 
-  Widget _gbSquare(index, boardNumber, val, bf) {
+  Widget _card(index, boardNumber, val, bf) {
     int rowOfIndex = index ~/ 5;
     var wordForRowOfIndex = _gameboardEntries
         .sublist((5 * rowOfIndex).toInt(), (5 * (rowOfIndex + 1)).toInt())
@@ -598,37 +609,41 @@ class _InfinitordleState extends State<Infinitordle> {
         infPreviousWin5 = true;
       }
     }
-    return Container(
-      height: 500, //oversize so it renders in full and so doesn't pixelate
-      width: 500, //oversize so it renders in full and so doesn't pixelate
-      decoration: BoxDecoration(
-          border: Border.all(
-              color: bf == "b"
-                  ? bg
-                  : infPreviousWin5
-                      ? Colors.green
-                      : bg,
-              width: bf == "b"
-                  ? 1
-                  : infPreviousWin5
-                      ? 2
-                      : 0),
-          borderRadius: BorderRadius.circular(10),
-          color: !infMode && _detectBoardSolvedByRow(boardNumber, rowOfIndex)
-              ? bg //"hide" after solved board
-              : bf == "b"
-                  ? rowOfIndex == _currentWord && !legalOrShort
-                      ? Colors.red
-                      : grey
-                  : _getGameboardSquareColor(index, boardNumber)),
-      child: FittedBox(
-        fit: BoxFit.fitHeight,
-        child: _gbSquareText(index, boardNumber),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(0.5),
+        height: 500, //oversize so it renders in full and so doesn't pixelate
+        width: 500, //oversize so it renders in full and so doesn't pixelate
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: bf == "b"
+                    ? bg
+                    : infPreviousWin5
+                        ? Colors.green
+                        : bg,
+                width: bf == "b"
+                    ? 0
+                    : infPreviousWin5
+                        ? 2
+                        : 0),
+            borderRadius: BorderRadius.circular(10), //needed for green border
+            color: !infMode && _detectBoardSolvedByRow(boardNumber, rowOfIndex)
+                ? Colors.transparent // bg //"hide" after solved board
+                : bf == "b"
+                    ? rowOfIndex == _currentWord && !legalOrShort
+                        ? Colors.red
+                        : grey
+                    : _getCardColor(index, boardNumber)),
+        child: FittedBox(
+          fit: BoxFit.fitHeight,
+          child: _cardText(index, boardNumber),
+        ),
       ),
     );
   }
 
-  Widget _gbSquareText(index, boardNumber) {
+  Widget _cardText(index, boardNumber) {
     int rowOfIndex = index ~/ 5;
     return Text(
       _gameboardEntries[index].toUpperCase(),
@@ -642,7 +657,7 @@ class _InfinitordleState extends State<Infinitordle> {
         ],
         fontSize: 100,
         color: !infMode && _detectBoardSolvedByRow(boardNumber, rowOfIndex)
-            ? bg //"hide" after being solved
+            ? Colors.transparent // bg //"hide" after being solved
             : Colors.white,
         fontWeight: FontWeight.bold,
       ),
@@ -669,50 +684,76 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _kbStackWithMiniGrid(index) {
-    return Stack(
-      children: [
-        Center(
-            child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: bg, width: 1),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: _kbMiniGridContainer(index),
-          ),
-        )),
-        Center(
-            child: Material(
-          color: Colors.transparent,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: InkWell(
-            onTap: () {
-              _keyboardTapped(index);
-            },
-            customBorder: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+    return Container(
+      padding: const EdgeInsets.all(0.5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        //borderRadius: BorderRadius.circular(10),
+        child: Stack(
+          children: [
+            Center(
+              //child: Container(
+              //decoration: BoxDecoration(
+              //  //border: Border.all(color: bg, width: 1),
+              //),
+              //child:
+
+              //ClipRRect(
+              //  borderRadius: BorderRadius.circular(10),
+              child: ["<", ">", " "].contains(_keyboardList[index])
+                  ? const SizedBox.shrink()
+                  : _kbMiniGridContainer(index),
+              //),
+              //        )
             ),
-            child: SizedBox(
-                height: 500,
-                width: 500,
-                child: FittedBox(
-                    fit: BoxFit.fitHeight,
-                    child: Text(
-                      _keyboardList[index].toUpperCase(),
-                      style: const TextStyle(
-                          color: Colors.white,
-                          shadows: <Shadow>[
-                            Shadow(
-                              offset: Offset(0, 0),
-                              blurRadius: 1.0,
-                              color: bg,
-                            ),
-                          ]),
-                    ))),
-          ),
-        )),
-      ],
+            Center(
+                child: Material(
+              color: Colors.transparent,
+              //shape:
+              //    RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: _keyboardList[index] == " "
+                  ? const SizedBox.shrink()
+                  : InkWell(
+                      onTap: () {
+                        _keyboardTapped(index);
+                      },
+                      //customBorder: RoundedRectangleBorder(
+                      //  borderRadius: BorderRadius.circular(10),
+                      //),
+                      child: SizedBox(
+                          height: 500,
+                          width: 500,
+                          child: FittedBox(
+                              fit: BoxFit.fitHeight,
+                              child: _keyboardList[index] == "<"
+                                  ? Container(
+                                      padding: const EdgeInsets.all(7),
+                                      child: const Icon(
+                                          Icons.keyboard_backspace,
+                                          color: Colors.white))
+                                  : _keyboardList[index] == ">"
+                                      ? Container(
+                                          padding: const EdgeInsets.all(7),
+                                          child: const Icon(
+                                              Icons.keyboard_return_sharp,
+                                              color: Colors.white))
+                                      : Text(
+                                          _keyboardList[index].toUpperCase(),
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              shadows: <Shadow>[
+                                                Shadow(
+                                                  offset: Offset(0, 0),
+                                                  blurRadius: 1.0,
+                                                  color: bg,
+                                                ),
+                                              ]),
+                                        ))),
+                    ),
+            )),
+          ],
+        ),
+      ),
     );
   }
 
@@ -734,7 +775,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   Widget _kbMiniSquareColor(index, subIndex) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 500),
       curve: Curves.fastOutSlowIn,
       height: 1000,
       decoration: BoxDecoration(
