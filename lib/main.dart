@@ -17,7 +17,9 @@ const numBoards = 4;
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 final _keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 final _legalWords = kLegalWordsText.split("\n");
-final isWebMobile = kIsWeb && (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android);
+final isWebMobile = kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android);
 final int durMult = isWebMobile ? 0 : 1;
 final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
@@ -712,54 +714,58 @@ class _InfinitordleState extends State<Infinitordle> {
               //        )
             ),
             Center(
-                child: Material(
-              color: Colors.transparent,
-              //shape:
-              //    RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              child: _keyboardList[index] == " "
-                  ? const SizedBox.shrink()
-                  : InkWell(
-                      onTap: () {
-                        _keyboardTapped(index);
-                      },
-                      //customBorder: RoundedRectangleBorder(
-                      //  borderRadius: BorderRadius.circular(10),
-                      //),
-                      child: SizedBox(
-                          height: 500,
-                          width: 500,
-                          child: FittedBox(
-                              fit: BoxFit.fitHeight,
-                              child: _keyboardList[index] == "<"
-                                  ? Container(
-                                      padding: const EdgeInsets.all(7),
-                                      child: const Icon(
-                                          Icons.keyboard_backspace,
-                                          color: Colors.white))
-                                  : _keyboardList[index] == ">"
-                                      ? Container(
-                                          padding: const EdgeInsets.all(7),
-                                          child: const Icon(
-                                              Icons.keyboard_return_sharp,
-                                              color: Colors.white))
-                                      : Text(
-                                          _keyboardList[index].toUpperCase(),
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              shadows: <Shadow>[
-                                                Shadow(
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 1.0,
-                                                  color: bg,
-                                                ),
-                                              ]),
-                                        ))),
-                    ),
-            )),
+                child: _keyboardList[index] == " "
+                    ? const SizedBox.shrink()
+                    : isWebMobile
+                        ? GestureDetector(
+                            onTap: () {
+                              _keyboardTapped(index);
+                            },
+                            child: _kbTextSquare(index),
+                          )
+                        : Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                _keyboardTapped(index);
+                              },
+                              child: _kbTextSquare(index),
+                            ),
+                          )),
           ],
         ),
       ),
     );
+  }
+
+  Widget _kbTextSquare(index) {
+    return SizedBox(
+        height: 500,
+        width: 500,
+        child: FittedBox(
+            fit: BoxFit.fitHeight,
+            child: _keyboardList[index] == "<"
+                ? Container(
+                    padding: const EdgeInsets.all(7),
+                    child: const Icon(Icons.keyboard_backspace,
+                        color: Colors.white))
+                : _keyboardList[index] == ">"
+                    ? Container(
+                        padding: const EdgeInsets.all(7),
+                        child: const Icon(Icons.keyboard_return_sharp,
+                            color: Colors.white))
+                    : Text(
+                        _keyboardList[index].toUpperCase(),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            shadows: <Shadow>[
+                              Shadow(
+                                offset: Offset(0, 0),
+                                blurRadius: 1.0,
+                                color: bg,
+                              ),
+                            ]),
+                      )));
   }
 
   Widget _kbMiniGridContainer(index) {
