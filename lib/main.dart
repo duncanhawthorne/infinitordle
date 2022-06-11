@@ -158,7 +158,7 @@ class _InfinitordleState extends State<Infinitordle> {
                       infSuccessWords.join(", ") +
                       "\n\nYou missed: " +
                       _targetWords.join(", ") +
-                      "\n\nReset the board?'"
+                      "\n\nReset the board?"
                   // ignore: prefer_interpolation_to_compose_strings
                   : "You've got " +
                       infSuccessWords.length.toString() +
@@ -172,12 +172,16 @@ class _InfinitordleState extends State<Infinitordle> {
                           'Lose your progress and reset the board?'),
           actions: <Widget>[
             TextButton(
-              onPressed: () => {focusNode.requestFocus() , Navigator.pop(context, 'Cancel')},
+              onPressed: () =>
+                  {focusNode.requestFocus(), Navigator.pop(context, 'Cancel')},
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () =>
-                  {_resetBoard(context), focusNode.requestFocus(), Navigator.pop(context, 'OK')},
+              onPressed: () => {
+                _resetBoard(context),
+                focusNode.requestFocus(),
+                Navigator.pop(context, 'OK')
+              },
               child: const Text('Reset', style: TextStyle(color: Colors.red)),
             ),
           ],
@@ -455,7 +459,9 @@ class _InfinitordleState extends State<Infinitordle> {
             _keyboardTapped(29);
           }
           if (keyDownEvent.logicalKey == LogicalKeyboardKey.backspace) {
-            if (DateTime.now().millisecondsSinceEpoch > lastTimePressedDelete + 100) { //workaround to bug which was firing delete key twice
+            if (DateTime.now().millisecondsSinceEpoch >
+                lastTimePressedDelete + 100) {
+              //workaround to bug which was firing delete key twice
               _keyboardTapped(20);
               lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
             }
@@ -497,7 +503,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _titleWidget() {
-    var inftext = infSuccessWords.isEmpty ? "o" : "∞" * infSuccessWords.length;
+    var infText = infSuccessWords.isEmpty ? "o" : "∞" * infSuccessWords.length;
     return GestureDetector(
         onTap: () {
           _showResetConfirmScreen();
@@ -513,9 +519,9 @@ class _InfinitordleState extends State<Infinitordle> {
               children: <TextSpan>[
                 TextSpan(text: appTitle1),
                 TextSpan(
-                    text: inftext,
+                    text: infText,
                     style: TextStyle(
-                        color: inftext == "o" ? Colors.white : Colors.green)),
+                        color: infText == "o" ? Colors.white : Colors.green)),
                 TextSpan(text: appTitle3),
               ],
             ),
@@ -778,9 +784,10 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _kbMiniSquareColor(index, subIndex) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.fastOutSlowIn,
+    //return AnimatedContainer(
+    //  duration: const Duration(milliseconds: 500),
+    //  curve: Curves.fastOutSlowIn,
+    return Container(
       height: 1000,
       decoration: BoxDecoration(
         color: _getBestColorForLetter(_keyboardList[index], subIndex),
