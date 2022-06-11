@@ -628,10 +628,10 @@ class _InfinitordleState extends State<Infinitordle> {
         decoration: BoxDecoration(
             border: Border.all(
                 color: bf == "b"
-                    ? bg
+                    ? Colors.transparent //bg
                     : infPreviousWin5
                         ? Colors.green
-                        : bg,
+                        : Colors.transparent, //bg
                 width: bf == "b"
                     ? 0
                     : infPreviousWin5
@@ -658,6 +658,7 @@ class _InfinitordleState extends State<Infinitordle> {
     return Text(
       _gameboardEntries[index].toUpperCase(),
       style: TextStyle(
+        /*
         shadows: const <Shadow>[
           Shadow(
             offset: Offset(0, 0),
@@ -665,7 +666,8 @@ class _InfinitordleState extends State<Infinitordle> {
             color: bg,
           ),
         ],
-        fontSize: 100,
+         */
+        fontSize: 30,
         color: !infMode && _detectBoardSolvedByRow(boardNumber, rowOfIndex)
             ? Colors.transparent // bg //"hide" after being solved
             : Colors.white,
