@@ -6,7 +6,7 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 
-bool _cheatMode = true; //for debugging
+bool _cheatMode = false; //for debugging
 
 String appTitle = "infinitordle";
 String appTitle1 = "infinit";
