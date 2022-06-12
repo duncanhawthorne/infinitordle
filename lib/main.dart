@@ -382,7 +382,6 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Color _getBestColorForLetter(queryLetter, boardNumber) {
-    //print("_getBestColorForLetter");
     if (queryLetter == " ") {
       return Colors.transparent;
     }
@@ -409,8 +408,17 @@ class _InfinitordleState extends State<Infinitordle> {
     return grey; //not used yet by the player
   }
 
+  //Debug code to test total time taken by functions //not used
+  int _timer_millis = 0;
+  Color _getCardColorFake(index, boardNumber) {
+    int _timer_start = DateTime.now().microsecondsSinceEpoch;
+    var x = _getCardColor(index, boardNumber);
+    _timer_millis = _timer_millis + (DateTime.now().microsecondsSinceEpoch - _timer_start);
+    print(_timer_millis);
+    return x;
+  }
+
   Color _getCardColor(index, boardNumber) {
-    //print("_getCardColor");
     if (index >= (_currentWord) * 5) {
       return grey; //later rows
     } else {
@@ -425,7 +433,6 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   bool _detectBoardSolvedByRow(boardNumber, maxRowToCheck) {
-    //print("_detectBoardSolvedByRow");
     for (var q = 0; q < min(_currentWord, maxRowToCheck); q++) {
       bool result = true;
       for (var j = 0; j < 5; j++) {
@@ -444,12 +451,13 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget build(BuildContext context) {
     //recalculate these key values regularly, for screen size changes
     scW = MediaQuery.of(context).size.width;
-    scH = MediaQuery.of(context).size.height;
+    scH = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;// - (kIsWeb ? 0 : kBottomNavigationBarHeight);
     vertSpaceAfterTitle = scH - 56 - 2; //app bar and divider
     keyboardSingleKeyEffectiveMaxPixel = min(
         scW / 10,
         min(keyboardSingleKeyUnconstrainedMaxPixel,
             vertSpaceAfterTitle * 0.25 / 3));
+    //SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     return Scaffold(
       appBar: AppBar(
