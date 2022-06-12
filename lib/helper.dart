@@ -1,8 +1,11 @@
 import 'dart:math';
-import 'package:infinitordle/wordlist.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:infinitordle/constants.dart';
 
-Random random = Random();
-final _finalWords = kFinalWordsText.split("\n");
+String getTargetWord() {
+  return finalWords[random.nextInt(finalWords.length)];
+}
 
 List getTargetWords(numberOfBoards) {
   var starterList = [];
@@ -12,7 +15,198 @@ List getTargetWords(numberOfBoards) {
   return starterList;
 }
 
-String getTargetWord() {
-  return _finalWords[random.nextInt(_finalWords.length)];
+Color getBestColorForLetter(index, boardNumber) {
+  Color? cacheAnswer = keyColors[boardNumber][index];
+  if (cacheAnswer != null) {
+    return cacheAnswer;
+  }
+
+  Color? answer;
+
+  String queryLetter = keyboardList[index];
+  if (queryLetter == " ") {
+    answer = Colors.transparent;
+  }
+  if (answer == null) {
+    //get color for the keyboard based on best (green > yellow > grey) color on the grid
+    for (var gbPosition = 0; gbPosition < currentWord * 5; gbPosition++) {
+      if (gameboardEntries[gbPosition] == queryLetter) {
+        if (getCardColor(gbPosition, boardNumber) == Colors.green) {
+          answer = Colors.green;
+        }
+      }
+    }
+  }
+  if (answer == null) {
+    for (var gbPosition = 0; gbPosition < currentWord * 5; gbPosition++) {
+      if (gameboardEntries[gbPosition] == queryLetter) {
+        if (getCardColor(gbPosition, boardNumber) == Colors.amber) {
+          answer = Colors.amber;
+        }
+      }
+    }
+  }
+  if (answer == null) {
+    for (var gbPosition = 0; gbPosition < currentWord * 5; gbPosition++) {
+      if (gameboardEntries[gbPosition] == queryLetter) {
+        answer = Colors.transparent; //bg; //grey //used and no match
+      }
+    }
+  }
+  // ignore: prefer_conditional_assignment
+  if (answer == null) {
+    answer = grey; //not used yet by the player
+  }
+  keyColors[boardNumber][index] = answer;
+  return answer; // ?? Colors.pink;
 }
 
+Color getCardColor(index, boardNumber) {
+  Color? cacheAnswer = cardColors[boardNumber][index];
+  if (cacheAnswer != null) {
+    return cacheAnswer;
+  }
+
+  Color? answer;
+  if (index >= (currentWord) * 5) {
+    answer = grey; //later rows
+  } else {
+    if (targetWords[boardNumber][index % 5] == gameboardEntries[index]) {
+      answer = Colors.green;
+    } else if (targetWords[boardNumber].contains(gameboardEntries[index])) {
+      answer = Colors.amber;
+    } else {
+      answer = Colors.transparent;
+    }
+  }
+
+  cardColors[boardNumber][index] = answer;
+  return answer;
+}
+
+bool detectBoardSolvedByRow(boardNumber, maxRowToCheck) {
+  for (var q = 0; q < min(currentWord, maxRowToCheck); q++) {
+    bool result = true;
+    for (var j = 0; j < 5; j++) {
+      if (getCardColor(q * 5 + j, boardNumber) != Colors.green) {
+        result = false;
+      }
+    }
+    if (result) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void resetColorsCache() {
+  cardColors = [];
+  keyColors = [];
+  for (int i = 0; i < numBoards; i++) {
+    cardColors.add(List<Color?>.generate((numRowsPerBoard * 5), (i) => null));
+    keyColors.add(List<Color?>.generate((30), (i) => null));
+  }
+}
+
+Future<void> loadKeys() async {
+  final prefs = await SharedPreferences.getInstance();
+  targetWords = [];
+  targetWords.add(prefs.getString('word0') ?? getTargetWord());
+  targetWords.add(prefs.getString('word1') ?? getTargetWord());
+  targetWords.add(prefs.getString('word2') ?? getTargetWord());
+  targetWords.add(prefs.getString('word3') ?? getTargetWord());
+  currentWord = prefs.getInt('currentWord') ?? 0;
+
+  var tmpinfSuccessWords = prefs.getString('infSuccessWords') ?? "";
+  for (var i = 0; i < tmpinfSuccessWords.length ~/ 5; i++) {
+    var j = i * 5;
+    infSuccessWords.add(tmpinfSuccessWords.substring(j, j + 5));
+    infSuccessBoardsMatchingWords.add(-1);
+  }
+
+  var tmpinfSuccessBoardsMatchingWords =
+      prefs.getString('infSuccessBoardsMatchingWords') ?? "";
+  for (var i = 0; i < tmpinfSuccessBoardsMatchingWords.length; i++) {
+    infSuccessBoardsMatchingWords[i] =
+        int.parse(tmpinfSuccessBoardsMatchingWords[i]);
+  }
+
+  var tmpGB1 = prefs.getString('gameboardEntries') ?? "";
+  for (var i = 0; i < tmpGB1.length; i++) {
+    gameboardEntries[i] = tmpGB1.substring(i, i + 1);
+  }
+  for (var j = 0; j < gameboardEntries.length; j++) {
+    if (gameboardEntries[j] != "") {
+      flipReal(j, -1);
+    }
+  }
+
+  saveKeys();
+}
+
+Future<void> saveKeys() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('word0', targetWords[0]);
+  await prefs.setString('word1', targetWords[1]);
+  await prefs.setString('word2', targetWords[2]);
+  await prefs.setString('word3', targetWords[3]);
+  await prefs.setInt('currentWord', currentWord);
+  await prefs.setString('infSuccessWords', infSuccessWords.join(""));
+
+  var tmpGB1 = "";
+  for (var i = 0; i < gameboardEntries.length; i++) {
+    tmpGB1 = tmpGB1 + gameboardEntries[i];
+  }
+  await prefs.setString('gameboardEntries', tmpGB1);
+
+  var tmpinfSuccessBoardsMatchingWords = "";
+  for (var i = 0; i < infSuccessBoardsMatchingWords.length; i++) {
+    tmpinfSuccessBoardsMatchingWords = tmpinfSuccessBoardsMatchingWords +
+        infSuccessBoardsMatchingWords[i].toString();
+  }
+
+  await prefs.setString(
+      'infSuccessBoardsMatchingWords', tmpinfSuccessBoardsMatchingWords);
+}
+
+void flipReal(index, boardNumber) {
+  angles[index] = (angles[index] + 0.5) % 1;
+}
+
+void detetctAndUpdateForScreenSize(context) {
+  if (scW != MediaQuery.of(context).size.width ||
+      scH !=
+          MediaQuery.of(context).size.height -
+              MediaQuery.of(context).padding.top) {
+    //recalculate these key values for screen size changes
+    scW = MediaQuery.of(context).size.width;
+    scH = MediaQuery.of(context).size.height -
+        MediaQuery.of(context)
+            .padding
+            .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
+    vertSpaceAfterTitle = scH - 56 - 2; //app bar and divider
+    keyboardSingleKeyEffectiveMaxPixel = min(
+        scW / 10,
+        min(keyboardSingleKeyUnconstrainedMaxPixel,
+            vertSpaceAfterTitle * 0.25 / 3));
+    vertSpaceForGameboard =
+        vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixel * 3;
+    vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
+    horizSpaceForCardNoWrap =
+        (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
+    if (vertSpaceForCardNoWrap > 2 * horizSpaceForCardNoWrap) {
+      numPresentationBigRowsOfBoards = 2;
+    } else {
+      numPresentationBigRowsOfBoards = 1;
+    }
+    cardEffectiveMaxPixel = min(
+        keyboardSingleKeyUnconstrainedMaxPixel,
+        min(
+            (vertSpaceForGameboard) /
+                numPresentationBigRowsOfBoards /
+                numRowsPerBoard,
+            (scW - (numBoards - 1) * boardSpacer) /
+                (numBoards ~/ numPresentationBigRowsOfBoards) /
+                5));
+  }
+}
