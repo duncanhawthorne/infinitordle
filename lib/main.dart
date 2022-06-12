@@ -6,7 +6,7 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 
-bool _cheatMode = false; //for debugging
+bool _cheatMode = true; //for debugging
 
 String appTitle = "infinitordle";
 String appTitle1 = "infinit";
@@ -17,8 +17,11 @@ const numBoards = 4;
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 final _keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 final _legalWords = kLegalWordsText.split("\n");
-final isWebMobile = false; //kIsWeb &&     (defaultTargetPlatform == TargetPlatform.iOS ||         defaultTargetPlatform == TargetPlatform.android);
-final int durMult = isWebMobile ? 0 : 1;
+final isWebMobileReal = kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android);
+final noAnimations = true && isWebMobileReal;
+final int durMult = noAnimations ? 0 : 1;
 final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
 const double boardSpacer = 8;
@@ -26,6 +29,21 @@ bool infMode = true;
 const infNumBacksteps = 1;
 const grey = Color(0xff555555);
 int lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
+
+double vertSpaceForGameboard = -1;
+double vertSpaceForCardNoWrap = -1;
+double horizSpaceForCardNoWrap = -1;
+int numPresentationBigRowsOfBoards = -1;
+double cardEffectiveMaxPixel = -1;
+double scW = -1; //default value only
+double scH = -1; //default value only
+double vertSpaceAfterTitle = -1; //default value only
+double keyboardSingleKeyEffectiveMaxPixel = -1; //default value only
+
+var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+
+bool oneLegalWord = false;
+bool oneMatchingWord = false;
 
 FocusNode focusNode = FocusNode();
 
@@ -54,32 +72,39 @@ class MyApp extends StatelessWidget {
 }
 
 class _InfinitordleState extends State<Infinitordle> {
-  //initialise
-  double scW = -1; //default value only
-  double scH = -1; //default value only
-  double vertSpaceAfterTitle = -1; //default value only
-  double keyboardSingleKeyEffectiveMaxPixel = -1; //default value only
-  int numPresentationBigRowsOfBoards = -1; //default value only
-
   //production: empty initialise
-  var _targetWords = getTargetWords(numBoards); //gets overridden by initState()
+  var _targetWords = []; //gets overridden by loadKeys()
   var _gameboardEntries =
       List<String>.generate((numRowsPerBoard * 5), (i) => "");
   int _currentWord = -1; //gets overridden by initState()
   int _typeCountInWord = 0;
 
+  var cardColors = [];
+  var keyColors = [];
+
+  void resetColorsCache() {
+    cardColors = [];
+    keyColors = [];
+    for (int i = 0; i < numBoards; i++) {
+      cardColors.add(List<Color?>.generate((numRowsPerBoard * 5), (i) => null));
+      keyColors.add(List<Color?>.generate((30), (i) => null));
+    }
+  }
+
   @override
   initState() {
     super.initState();
+    resetColorsCache();
     loadKeys();
   }
 
   Future<void> loadKeys() async {
     final prefs = await SharedPreferences.getInstance();
-    _targetWords[0] = prefs.getString('word0') ?? getTargetWord();
-    _targetWords[1] = prefs.getString('word1') ?? getTargetWord();
-    _targetWords[2] = prefs.getString('word2') ?? getTargetWord();
-    _targetWords[3] = prefs.getString('word3') ?? getTargetWord();
+    _targetWords = [];
+    _targetWords.add(prefs.getString('word0') ?? getTargetWord());
+    _targetWords.add(prefs.getString('word1') ?? getTargetWord());
+    _targetWords.add(prefs.getString('word2') ?? getTargetWord());
+    _targetWords.add(prefs.getString('word3') ?? getTargetWord());
     _currentWord = prefs.getInt('currentWord') ?? 0;
 
     var tmpinfSuccessWords = prefs.getString('infSuccessWords') ?? "";
@@ -194,7 +219,6 @@ class _InfinitordleState extends State<Infinitordle> {
 
   void _keyboardTapped(int index) {
     setState(() {
-
       if (_keyboardList[index] == " ") {
         //ignore pressing of non-keys
         return;
@@ -286,6 +310,7 @@ class _InfinitordleState extends State<Infinitordle> {
                       _flip(_currentWord * 5 + j, -1);
                     }
                   }
+                  resetColorsCache();
                 });
                 saveKeys();
               });
@@ -300,6 +325,7 @@ class _InfinitordleState extends State<Infinitordle> {
                   infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
                   //Create new target word for the board
                   _targetWords[oneMatchingWordBoard] = getTargetWord();
+                  resetColorsCache();
                 });
                 saveKeys();
               });
@@ -314,7 +340,7 @@ class _InfinitordleState extends State<Infinitordle> {
             _typeCountInWord = 0;
           }
         }
-
+        resetColorsCache();
         return;
       }
       if (true) {
@@ -335,7 +361,6 @@ class _InfinitordleState extends State<Infinitordle> {
               oneLegalWord = true;
             }
           }
-
         }
         return;
       }
@@ -377,59 +402,97 @@ class _InfinitordleState extends State<Infinitordle> {
           }
         }
       }
-      saveKeys();
+      resetColorsCache();
+    });
+    saveKeys();
+  }
+
+  void _flip(index, boardNumber) {
+    setState(() {
+      angles[index] = (angles[index] + 0.5) % 1;
     });
   }
 
-  Color _getBestColorForLetter(queryLetter, boardNumber) {
+  Color getBestColorForLetter(index, boardNumber) {
+    Color? cacheAnswer = keyColors[boardNumber][index];
+    if (cacheAnswer != null) {
+      return cacheAnswer;
+    }
+
+    Color? answer;
+
+    String queryLetter = _keyboardList[index];
     if (queryLetter == " ") {
-      return Colors.transparent;
+      answer = Colors.transparent;
     }
-    //get color for the keyboard based on best (green > yellow > grey) color on the grid
-    for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
-      if (_gameboardEntries[gbPosition] == queryLetter) {
-        if (_getCardColor(gbPosition, boardNumber) == Colors.green) {
-          return Colors.green;
+    if (answer == null) {
+      //get color for the keyboard based on best (green > yellow > grey) color on the grid
+      for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
+        if (_gameboardEntries[gbPosition] == queryLetter) {
+          if (_getCardColor(gbPosition, boardNumber) == Colors.green) {
+            answer = Colors.green;
+          }
         }
       }
     }
-    for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
-      if (_gameboardEntries[gbPosition] == queryLetter) {
-        if (_getCardColor(gbPosition, boardNumber) == Colors.amber) {
-          return Colors.amber;
+    if (answer == null) {
+      for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
+        if (_gameboardEntries[gbPosition] == queryLetter) {
+          if (_getCardColor(gbPosition, boardNumber) == Colors.amber) {
+            answer = Colors.amber;
+          }
         }
       }
     }
-    for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
-      if (_gameboardEntries[gbPosition] == queryLetter) {
-        return Colors.transparent; //bg; //grey //used and no match
+    if (answer == null) {
+      for (var gbPosition = 0; gbPosition < _currentWord * 5; gbPosition++) {
+        if (_gameboardEntries[gbPosition] == queryLetter) {
+          answer = Colors.transparent; //bg; //grey //used and no match
+        }
       }
     }
-    return grey; //not used yet by the player
+    // ignore: prefer_conditional_assignment
+    if (answer == null) {
+      answer = grey; //not used yet by the player
+    }
+    keyColors[boardNumber][index] = answer;
+    return answer; // ?? Colors.pink;
   }
 
   //Debug code to test total time taken by functions //not used
-  int _timer_millis = 0;
+  /*
+  int _timerMillis = 0;
   Color _getCardColorFake(index, boardNumber) {
     int _timer_start = DateTime.now().microsecondsSinceEpoch;
     var x = _getCardColor(index, boardNumber);
-    _timer_millis = _timer_millis + (DateTime.now().microsecondsSinceEpoch - _timer_start);
-    print(_timer_millis);
+    _timerMillis =
+        _timerMillis + (DateTime.now().microsecondsSinceEpoch - _timer_start);
+    print(_timerMillis);
     return x;
   }
+   */
 
   Color _getCardColor(index, boardNumber) {
+    Color? cacheAnswer = cardColors[boardNumber][index];
+    if (cacheAnswer != null) {
+      return cacheAnswer;
+    }
+
+    Color? answer;
     if (index >= (_currentWord) * 5) {
-      return grey; //later rows
+      answer = grey; //later rows
     } else {
       if (_targetWords[boardNumber][index % 5] == _gameboardEntries[index]) {
-        return Colors.green;
+        answer = Colors.green;
       } else if (_targetWords[boardNumber].contains(_gameboardEntries[index])) {
-        return Colors.amber;
+        answer = Colors.amber;
       } else {
-        return Colors.transparent;
+        answer = Colors.transparent;
       }
     }
+
+    cardColors[boardNumber][index] = answer;
+    return answer;
   }
 
   bool _detectBoardSolvedByRow(boardNumber, maxRowToCheck) {
@@ -449,15 +512,41 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
-    //recalculate these key values regularly, for screen size changes
-    scW = MediaQuery.of(context).size.width;
-    scH = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;// - (kIsWeb ? 0 : kBottomNavigationBarHeight);
-    vertSpaceAfterTitle = scH - 56 - 2; //app bar and divider
-    keyboardSingleKeyEffectiveMaxPixel = min(
-        scW / 10,
-        min(keyboardSingleKeyUnconstrainedMaxPixel,
-            vertSpaceAfterTitle * 0.25 / 3));
-    //SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    if (scW != MediaQuery.of(context).size.width ||
+        scH !=
+            MediaQuery.of(context).size.height -
+                MediaQuery.of(context).padding.top) {
+      //recalculate these key values for screen size changes
+      scW = MediaQuery.of(context).size.width;
+      scH = MediaQuery.of(context).size.height -
+          MediaQuery.of(context)
+              .padding
+              .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
+      vertSpaceAfterTitle = scH - 56 - 2; //app bar and divider
+      keyboardSingleKeyEffectiveMaxPixel = min(
+          scW / 10,
+          min(keyboardSingleKeyUnconstrainedMaxPixel,
+              vertSpaceAfterTitle * 0.25 / 3));
+      vertSpaceForGameboard =
+          vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixel * 3;
+      vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
+      horizSpaceForCardNoWrap =
+          (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
+      if (vertSpaceForCardNoWrap > 2 * horizSpaceForCardNoWrap) {
+        numPresentationBigRowsOfBoards = 2;
+      } else {
+        numPresentationBigRowsOfBoards = 1;
+      }
+      cardEffectiveMaxPixel = min(
+          keyboardSingleKeyUnconstrainedMaxPixel,
+          min(
+              (vertSpaceForGameboard) /
+                  numPresentationBigRowsOfBoards /
+                  numRowsPerBoard,
+              (scW - (numBoards - 1) * boardSpacer) /
+                  (numBoards ~/ numPresentationBigRowsOfBoards) /
+                  5));
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -547,28 +636,6 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _gameboardWidget(boardNumber) {
-    double vertSpaceForGameboard =
-        vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixel * 3;
-    double vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
-    double horizSpaceForCardNoWrap =
-        (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
-
-    if (vertSpaceForCardNoWrap > 2 * horizSpaceForCardNoWrap) {
-      numPresentationBigRowsOfBoards = 2;
-    } else {
-      numPresentationBigRowsOfBoards = 1;
-    }
-
-    double cardEffectiveMaxPixel = min(
-        keyboardSingleKeyUnconstrainedMaxPixel,
-        min(
-            (vertSpaceForGameboard) /
-                numPresentationBigRowsOfBoards /
-                numRowsPerBoard,
-            (scW - (numBoards - 1) * boardSpacer) /
-                (numBoards ~/ numPresentationBigRowsOfBoards) /
-                5));
-
     return Container(
       constraints: BoxConstraints(
           maxWidth: 0.97 * 5 * cardEffectiveMaxPixel,
@@ -584,18 +651,6 @@ class _InfinitordleState extends State<Infinitordle> {
             return _cardFlipper(index, boardNumber);
           }),
     );
-  }
-
-  var angles =
-      List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
-
-  bool oneLegalWord = false;
-  bool oneMatchingWord = false;
-
-  void _flip(index, boardNumber) {
-    setState(() {
-      angles[index] = (angles[index] + 0.5) % 1;
-    });
   }
 
   Widget _cardFlipper(index, boardNumber) {
@@ -622,8 +677,7 @@ class _InfinitordleState extends State<Infinitordle> {
     var wordForRowOfIndex = _gameboardEntries
         .sublist((5 * rowOfIndex).toInt(), (5 * (rowOfIndex + 1)).toInt())
         .join("");
-    bool legalOrShort =
-        _typeCountInWord != 5 || oneLegalWord;
+    bool legalOrShort = _typeCountInWord != 5 || oneLegalWord;
 
     bool infPreviousWin5 = false;
     if (infSuccessWords.contains(wordForRowOfIndex)) {
@@ -735,7 +789,7 @@ class _InfinitordleState extends State<Infinitordle> {
             Center(
                 child: _keyboardList[index] == " "
                     ? const SizedBox.shrink()
-                    : isWebMobile
+                    : noAnimations
                         ? GestureDetector(
                             onTap: () {
                               _keyboardTapped(index);
@@ -799,18 +853,18 @@ class _InfinitordleState extends State<Infinitordle> {
                   numPresentationBigRowsOfBoards),
         ),
         itemBuilder: (BuildContext context, int subIndex) {
-          return _kbMiniSquareColor(index, subIndex);
+          return kbMiniSquareColor(index, subIndex);
         });
   }
 
-  Widget _kbMiniSquareColor(index, subIndex) {
+  Widget kbMiniSquareColor(index, subIndex) {
     //return AnimatedContainer(
     //  duration: const Duration(milliseconds: 500),
     //  curve: Curves.fastOutSlowIn,
     return Container(
       height: 1000,
       decoration: BoxDecoration(
-        color: _getBestColorForLetter(_keyboardList[index], subIndex),
+        color: getBestColorForLetter(index, subIndex),
       ),
     );
   }
