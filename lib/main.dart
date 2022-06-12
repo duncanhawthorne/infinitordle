@@ -46,12 +46,12 @@ class _InfinitordleState extends State<Infinitordle> {
     setState(() {});
   }
 
-  void flip(index, boardNumber) {
+  void flipCard(index, boardNumber) {
     flipReal(index, boardNumber);
     setState(() {});
   }
 
-  void keyboardTapped(int index) {
+  void onKeyboardTapped(int index) {
     //   setState(() {
     if (keyboardList[index] == " ") {
       //ignore pressing of non-keys
@@ -82,7 +82,7 @@ class _InfinitordleState extends State<Infinitordle> {
             Future.delayed(Duration(milliseconds: durMult * 100 * i), () {
               //flip to reveal the colors with pleasing animation
               setState(() {
-                flip((currentWord - 1) * 5 + i, -1);
+                flipCard((currentWord - 1) * 5 + i, -1);
               });
             });
           }
@@ -141,7 +141,7 @@ class _InfinitordleState extends State<Infinitordle> {
                   currentWord--;
                   //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
                   for (var j = 0; j < 5; j++) {
-                    flip(currentWord * 5 + j, -1);
+                    flipCard(currentWord * 5 + j, -1);
                   }
                 }
                 resetColorsCache();
@@ -229,7 +229,7 @@ class _InfinitordleState extends State<Infinitordle> {
       currentWord = 5;
       for (var j = 0; j < gameboardEntries.length; j++) {
         if (gameboardEntries[j] != "") {
-          flip(j, -1);
+          flipCard(j, -1);
         }
       }
     }
@@ -253,16 +253,16 @@ class _InfinitordleState extends State<Infinitordle> {
         autofocus: true,
         onKeyEvent: (keyDownEvent) {
           if (keyboardList.contains(keyDownEvent.character)) {
-            keyboardTapped(keyboardList.indexOf(keyDownEvent.character ?? " "));
+            onKeyboardTapped(keyboardList.indexOf(keyDownEvent.character ?? " "));
           }
           if (keyDownEvent.logicalKey == LogicalKeyboardKey.enter) {
-            keyboardTapped(29);
+            onKeyboardTapped(29);
           }
           if (keyDownEvent.logicalKey == LogicalKeyboardKey.backspace) {
             if (DateTime.now().millisecondsSinceEpoch >
                 lastTimePressedDelete + 100) {
               //workaround to bug which was firing delete key twice
-              keyboardTapped(20);
+              onKeyboardTapped(20);
               lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
             }
           }
@@ -486,7 +486,7 @@ class _InfinitordleState extends State<Infinitordle> {
                     : noAnimations
                         ? GestureDetector(
                             onTap: () {
-                              keyboardTapped(index);
+                              onKeyboardTapped(index);
                             },
                             child: _kbTextSquare(index),
                           )
@@ -494,7 +494,7 @@ class _InfinitordleState extends State<Infinitordle> {
                             color: Colors.transparent,
                             child: InkWell(
                               onTap: () {
-                                keyboardTapped(index);
+                                onKeyboardTapped(index);
                               },
                               child: _kbTextSquare(index),
                             ),
