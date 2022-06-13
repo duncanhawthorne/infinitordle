@@ -51,6 +51,15 @@ class _InfinitordleState extends State<Infinitordle> {
     setState(() {});
   }
 
+  void delayedFlipOnAbsoluteCard(int currentWord, int i) {
+    Future.delayed(Duration(milliseconds: durMult * 100 * i), () {
+      //flip to reveal the colors with pleasing animation
+      setState(() {
+        flipReal((currentWord - 1) * 5 + i, -1);
+      });
+    });
+  }
+
   void onKeyboardTapped(int index) {
     //   setState(() {
     if (keyboardList[index] == " ") {
@@ -65,40 +74,37 @@ class _InfinitordleState extends State<Infinitordle> {
       }
     } else if (keyboardList[index] == ">") {
       //submit guess
-      if (typeCountInWord == 5) {
+      if (typeCountInWord == 5 && threadsafeBlockNewWord == false) {
         //ignore if not completed whole word
-        if (legalWords.contains(gameboardEntries
+        String enteredWord = gameboardEntries
             .sublist(currentWord * 5, (currentWord + 1) * 5)
-            .join(""))) {
+            .join("");
+        if (legalWords.contains(enteredWord)) {
           //Legal word, but not necessarily correct word
 
           //Legal word so step forward
-
+          resetColorsCache();
           currentWord++;
           typeCountInWord = 0;
 
           //Made a guess flip over the cards to see the colors
-          for (var i = 0; i < 5; i++) {
-            Future.delayed(Duration(milliseconds: durMult * 100 * i), () {
-              //flip to reveal the colors with pleasing animation
-              setState(() {
-                flipCard((currentWord - 1) * 5 + i, -1);
-              });
-            });
+          for (int i = 0; i < 5; i++) {
+            delayedFlipOnAbsoluteCard(currentWord.toInt(), i);
           }
 
           //Test if it is correct word
           oneMatchingWord = false;
           int oneMatchingWordBoard = -1;
-          if (infMode) {
-            //Code for single win in infMode
-            for (var board = 0; board < numBoards; board++) {
-              if (detectBoardSolvedByRow(board, currentWord)) {
-                oneMatchingWord = true;
-                oneMatchingWordBoard = board;
-              }
+          //if (infMode) {
+          //Code for single win in infMode
+          for (var board = 0; board < numBoards; board++) {
+            if (detectBoardSolvedByRow(board, currentWord)) {
+              threadsafeBlockNewWord = true;
+              oneMatchingWord = true;
+              oneMatchingWordBoard = board;
             }
           }
+          // }
 
           //Code for losing game
           if (!oneMatchingWord && currentWord >= numRowsPerBoard) {
@@ -118,6 +124,7 @@ class _InfinitordleState extends State<Infinitordle> {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(appTitle)));
             }
+            threadsafeBlockNewWord = false;
           }
 
           if (infMode && oneMatchingWord) {
@@ -145,21 +152,22 @@ class _InfinitordleState extends State<Infinitordle> {
                   }
                 }
                 resetColorsCache();
-              });
-              saveKeys();
-            });
 
-            Future.delayed(Duration(milliseconds: durMult * 2500), () {
-              //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
-              setState(() {
-                //Log the word just got in success words, which gets green to shown
-                infSuccessWords.add(gameboardEntries
-                    .sublist((currentWord - 1) * 5, (currentWord) * 5)
-                    .join(""));
-                infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
-                //Create new target word for the board
-                targetWords[oneMatchingWordBoard] = getTargetWord();
-                resetColorsCache();
+                Future.delayed(Duration(milliseconds: durMult * 1000), () {
+                  //include inside other future so definitely happens after rather relying on race
+                  //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
+                  setState(() {
+                    //Log the word just got in success words, which gets green to shown
+                    infSuccessWords.add(enteredWord);
+                    infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
+                    //Create new target word for the board
+                    targetWords[oneMatchingWordBoard] = getTargetWord();
+
+                    resetColorsCache();
+                    threadsafeBlockNewWord = false;
+                  });
+                  saveKeys();
+                });
               });
               saveKeys();
             });
@@ -216,17 +224,19 @@ class _InfinitordleState extends State<Infinitordle> {
 
     //speed initialise entries using cheat mode for debugging
     if (cheatMode) {
-      targetWords[0] = "scoff";
-      if (numBoards == 4) {
-        targetWords[1] = "brunt";
-        targetWords[2] = "chair";
-        targetWords[3] = "table";
+      for (var j = 0; j < numBoards; j++) {
+        if (cheatWords.length > j) {
+          targetWords[j] = cheatWords[j];
+        } else {
+          targetWords[j] = getTargetWord();
+        }
       }
 
       for (var j = 0; j < cheatString.length; j++) {
         gameboardEntries[j] = cheatString[j];
       }
-      currentWord = 5;
+
+      currentWord = cheatString.length ~/ 5;
       for (var j = 0; j < gameboardEntries.length; j++) {
         if (gameboardEntries[j] != "") {
           flipCard(j, -1);
@@ -253,7 +263,8 @@ class _InfinitordleState extends State<Infinitordle> {
         autofocus: true,
         onKeyEvent: (keyDownEvent) {
           if (keyboardList.contains(keyDownEvent.character)) {
-            onKeyboardTapped(keyboardList.indexOf(keyDownEvent.character ?? " "));
+            onKeyboardTapped(
+                keyboardList.indexOf(keyDownEvent.character ?? " "));
           }
           if (keyDownEvent.logicalKey == LogicalKeyboardKey.enter) {
             onKeyboardTapped(29);

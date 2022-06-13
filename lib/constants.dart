@@ -23,6 +23,7 @@ const double boardSpacer = 8;
 //Helper text
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
 const cheatString = "maplewindyscourfightkebab";
+const cheatWords = ["scoff", "brunt", "armor", "tabby"];
 final legalWords = kLegalWordsText.split("\n");
 final finalWords = kFinalWordsText.split("\n");
 
@@ -41,6 +42,7 @@ int typeCountInWord = 0;
 var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
 final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
+bool threadsafeBlockNewWord = false;
 
 //Helpers for state of the game
 bool oneLegalWord = false;

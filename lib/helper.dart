@@ -33,6 +33,7 @@ Color getBestColorForLetter(index, boardNumber) {
       if (gameboardEntries[gbPosition] == queryLetter) {
         if (getCardColor(gbPosition, boardNumber) == Colors.green) {
           answer = Colors.green;
+          break;
         }
       }
     }
@@ -42,6 +43,7 @@ Color getBestColorForLetter(index, boardNumber) {
       if (gameboardEntries[gbPosition] == queryLetter) {
         if (getCardColor(gbPosition, boardNumber) == Colors.amber) {
           answer = Colors.amber;
+          break;
         }
       }
     }
@@ -50,6 +52,7 @@ Color getBestColorForLetter(index, boardNumber) {
     for (var gbPosition = 0; gbPosition < currentWord * 5; gbPosition++) {
       if (gameboardEntries[gbPosition] == queryLetter) {
         answer = Colors.transparent; //bg; //grey //used and no match
+        break;
       }
     }
   }
@@ -69,12 +72,43 @@ Color getCardColor(index, boardNumber) {
 
   Color? answer;
   if (index >= (currentWord) * 5) {
-    answer = grey; //later rows
+    answer = Colors.transparent; //grey; //later rows
   } else {
-    if (targetWords[boardNumber][index % 5] == gameboardEntries[index]) {
+    String targetWord = targetWords[boardNumber];
+    String testLetter = gameboardEntries[index];
+    int testRow = index ~/ 5;
+    int testColumn = index % 5;
+    if (targetWord[testColumn] == testLetter) {
       answer = Colors.green;
-    } else if (targetWords[boardNumber].contains(gameboardEntries[index])) {
-      answer = Colors.amber;
+    } else if (targetWord.contains(testLetter)) {
+
+      int numberOfThisLetterInTargetWord = testLetter.allMatches(targetWord).length;
+      int numberOfYellowThisLetterToLeftInCardRow = 0;
+      for (var i = 0; i < testColumn; i++) {
+
+        //print([i, getCardColor(testRow * 5 + i, boardNumber)]);
+        if(gameboardEntries[testRow * 5 + i] == testLetter && getCardColor(testRow * 5 + i, boardNumber) == Colors.amber) {
+          numberOfYellowThisLetterToLeftInCardRow++;
+        }
+      }
+
+      int numberOfGreenThisLetterInCardRow = 0;
+      for (var i = 0; i < 5; i++) {
+        if(gameboardEntries[testRow * 5 + i] == testLetter && targetWord[i] == gameboardEntries[testRow * 5 + i]) {
+          numberOfGreenThisLetterInCardRow++;
+        }
+      }
+
+      //print([boardNumber, testRow, testColumn, testLetter, numberOfThisLetterInTargetWord, numberOfYellowThisLetterToLeftInCardRow, numberOfGreenThisLetterInCardRow]);
+
+      if(numberOfThisLetterInTargetWord > numberOfYellowThisLetterToLeftInCardRow + numberOfGreenThisLetterInCardRow) { //full logic to deal with repeating letters. If only one letter matching targetWord, then always returns Amber
+        answer = Colors.amber;
+      }
+      else {
+        answer = Colors.transparent;
+      }
+
+
     } else {
       answer = Colors.transparent;
     }
@@ -172,6 +206,8 @@ Future<void> saveKeys() async {
 void flipReal(index, boardNumber) {
   angles[index] = (angles[index] + 0.5) % 1;
 }
+
+
 
 void detetctAndUpdateForScreenSize(context) {
   if (scW != MediaQuery.of(context).size.width ||
