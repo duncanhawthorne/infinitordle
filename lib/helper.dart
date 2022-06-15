@@ -15,6 +15,55 @@ List getTargetWords(numberOfBoards) {
   return starterList;
 }
 
+void logWinAndGetNewWord(enteredWord, oneMatchingWordBoard) {
+  //Log the word just got in success words, which gets green to shown
+  infSuccessWords.add(enteredWord);
+  infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
+  //Create new target word for the board
+  targetWords[oneMatchingWordBoard] = getTargetWord();
+}
+
+void oneStepBack() {
+  //Erase a row and step back
+  for (var j = 0; j < infNumBacksteps; j++) {
+    for (var i = 0; i < 5; i++) {
+      gameboardEntries.removeAt(0);
+      gameboardEntries.add("");
+    }
+    currentWord--;
+    //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
+    for (var j = 0; j < 5; j++) {
+      flipReal(currentWord * 5 + j, "b");
+    }
+  }
+}
+
+bool streak() {
+  bool isStreak = true;
+  if (infSuccessWords.isNotEmpty) {
+    isStreak = true;
+  }
+  else {
+    isStreak = false;
+  }
+
+  if (infSuccessWords.length >= min(4,currentWord)) {
+    for (int q = 0; q < min(4,currentWord); q++) {
+      int i = currentWord - 1 - q;
+      if (gameboardEntries.sublist(i * 5, i * 5 + 5).join("") !=
+          infSuccessWords[infSuccessWords.length - 1 - q]) {
+        isStreak = false;
+        break;
+      }
+    }
+  }
+  else {
+    isStreak = false;
+  }
+  return isStreak;
+}
+
+
 Color getBestColorForLetter(index, boardNumber) {
   Color? cacheAnswer = keyColors[boardNumber][index];
   if (cacheAnswer != null) {

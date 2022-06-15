@@ -64,7 +64,9 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   void onKeyboardTapped(int index) {
-    //   setState(() {
+    if (onStreakLastTimeChecked) {
+      onStreakLastTimeChecked = streak();
+    }
     if (keyboardList[index] == " ") {
       //ignore pressing of non-keys
 
@@ -135,25 +137,7 @@ class _InfinitordleState extends State<Infinitordle> {
               //Give time for above code to show visually, so we have flipped
               setState(() {
                 //Erase a row and step back
-                for (var j = 0; j < infNumBacksteps; j++) {
-                  for (var i = 0; i < 5; i++) {
-                    gameboardEntries.removeAt(0);
-                    gameboardEntries.add("");
-                  }
-                  /*
-                    var tmpGameboardEntries =
-                        _gameboardEntries.sublist(5, _gameboardEntries.length);
-                    for (var i = 0; i < 5; i++) {
-                      tmpGameboardEntries.add("");
-                    }
-                    _gameboardEntries = tmpGameboardEntries;
-                     */
-                  currentWord--;
-                  //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
-                  for (var j = 0; j < 5; j++) {
-                    flipCard(currentWord * 5 + j, "b");
-                  }
-                }
+                oneStepBack();
                 resetColorsCache();
 
                 Future.delayed(Duration(milliseconds: durMult * 1000), () {
@@ -161,10 +145,19 @@ class _InfinitordleState extends State<Infinitordle> {
                   //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
                   setState(() {
                     //Log the word just got in success words, which gets green to shown
-                    infSuccessWords.add(enteredWord);
-                    infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
-                    //Create new target word for the board
-                    targetWords[oneMatchingWordBoard] = getTargetWord();
+                    logWinAndGetNewWord(enteredWord, oneMatchingWordBoard);
+
+                    if (streak()) {
+                      onStreakLastTimeChecked = true;
+                    Future.delayed(Duration(milliseconds: durMult * 1500), () {
+                      if (currentWord > 0) {
+                        oneStepBack();
+                      }
+                      resetColorsCache();
+                      setState(() {});
+
+                    });
+                    }
 
                     resetColorsCache();
                     threadsafeBlockNewWord = false;
@@ -278,7 +271,7 @@ class _InfinitordleState extends State<Infinitordle> {
           }
           if (keyDownEvent.logicalKey == LogicalKeyboardKey.backspace) {
             if (DateTime.now().millisecondsSinceEpoch >
-                lastTimePressedDelete + 100) {
+                lastTimePressedDelete + 200) {
               //workaround to bug which was firing delete key twice
               onKeyboardTapped(20);
               lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
@@ -537,8 +530,8 @@ class _InfinitordleState extends State<Infinitordle> {
                 : keyboardList[index] == ">"
                     ? Container(
                         padding: const EdgeInsets.all(7),
-                        child: const Icon(Icons.keyboard_return_sharp,
-                            color: Colors.white))
+                        child: Icon(Icons.keyboard_return_sharp,
+                            color: onStreakLastTimeChecked ? Colors.green : Colors.white))
                     : Text(
                         keyboardList[index].toUpperCase(),
                         style: const TextStyle(
