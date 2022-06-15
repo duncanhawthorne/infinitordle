@@ -44,18 +44,21 @@ class _InfinitordleState extends State<Infinitordle> {
     resetColorsCache();
     loadKeys();
     setState(() {});
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      setState(() {}); //Hack, but makes sure state set right shortly after starting
+    });
   }
 
-  void flipCard(index, boardNumber) {
-    flipReal(index, boardNumber);
+  void flipCard(index, toFOrB) {
+    flipReal(index, toFOrB);
     setState(() {});
   }
 
-  void delayedFlipOnAbsoluteCard(int currentWord, int i) {
+  void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB) {
     Future.delayed(Duration(milliseconds: durMult * 100 * i), () {
       //flip to reveal the colors with pleasing animation
       setState(() {
-        flipReal((currentWord - 1) * 5 + i, -1);
+        flipReal((currentWord - 1) * 5 + i, toFOrB);
       });
     });
   }
@@ -89,7 +92,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
           //Made a guess flip over the cards to see the colors
           for (int i = 0; i < 5; i++) {
-            delayedFlipOnAbsoluteCard(currentWord.toInt(), i);
+            delayedFlipOnAbsoluteCard(currentWord.toInt(), i, "f");
           }
 
           //Test if it is correct word
@@ -148,7 +151,7 @@ class _InfinitordleState extends State<Infinitordle> {
                   currentWord--;
                   //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
                   for (var j = 0; j < 5; j++) {
-                    flipCard(currentWord * 5 + j, -1);
+                    flipCard(currentWord * 5 + j, "b");
                   }
                 }
                 resetColorsCache();
@@ -220,7 +223,11 @@ class _InfinitordleState extends State<Infinitordle> {
     infSuccessWords.clear();
     infSuccessBoardsMatchingWords.clear();
 
-    angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+    for (var j = 0; j < numRowsPerBoard * 5; j++) {
+        //angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+        flipCard(j, "b");
+    }
+
 
     //speed initialise entries using cheat mode for debugging
     if (cheatMode) {
@@ -239,7 +246,7 @@ class _InfinitordleState extends State<Infinitordle> {
       currentWord = cheatString.length ~/ 5;
       for (var j = 0; j < gameboardEntries.length; j++) {
         if (gameboardEntries[j] != "") {
-          flipCard(j, -1);
+          flipCard(j, "f");
         }
       }
     }

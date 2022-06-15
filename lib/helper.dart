@@ -81,34 +81,35 @@ Color getCardColor(index, boardNumber) {
     if (targetWord[testColumn] == testLetter) {
       answer = Colors.green;
     } else if (targetWord.contains(testLetter)) {
-
-      int numberOfThisLetterInTargetWord = testLetter.allMatches(targetWord).length;
+      int numberOfThisLetterInTargetWord =
+          testLetter.allMatches(targetWord).length;
       int numberOfYellowThisLetterToLeftInCardRow = 0;
       for (var i = 0; i < testColumn; i++) {
-
         //print([i, getCardColor(testRow * 5 + i, boardNumber)]);
-        if(gameboardEntries[testRow * 5 + i] == testLetter && getCardColor(testRow * 5 + i, boardNumber) == Colors.amber) {
+        if (gameboardEntries[testRow * 5 + i] == testLetter &&
+            getCardColor(testRow * 5 + i, boardNumber) == Colors.amber) {
           numberOfYellowThisLetterToLeftInCardRow++;
         }
       }
 
       int numberOfGreenThisLetterInCardRow = 0;
       for (var i = 0; i < 5; i++) {
-        if(gameboardEntries[testRow * 5 + i] == testLetter && targetWord[i] == gameboardEntries[testRow * 5 + i]) {
+        if (gameboardEntries[testRow * 5 + i] == testLetter &&
+            targetWord[i] == gameboardEntries[testRow * 5 + i]) {
           numberOfGreenThisLetterInCardRow++;
         }
       }
 
       //print([boardNumber, testRow, testColumn, testLetter, numberOfThisLetterInTargetWord, numberOfYellowThisLetterToLeftInCardRow, numberOfGreenThisLetterInCardRow]);
 
-      if(numberOfThisLetterInTargetWord > numberOfYellowThisLetterToLeftInCardRow + numberOfGreenThisLetterInCardRow) { //full logic to deal with repeating letters. If only one letter matching targetWord, then always returns Amber
+      if (numberOfThisLetterInTargetWord >
+          numberOfYellowThisLetterToLeftInCardRow +
+              numberOfGreenThisLetterInCardRow) {
+        //full logic to deal with repeating letters. If only one letter matching targetWord, then always returns Amber
         answer = Colors.amber;
-      }
-      else {
+      } else {
         answer = Colors.transparent;
       }
-
-
     } else {
       answer = Colors.transparent;
     }
@@ -169,12 +170,12 @@ Future<void> loadKeys() async {
   for (var i = 0; i < tmpGB1.length; i++) {
     gameboardEntries[i] = tmpGB1.substring(i, i + 1);
   }
-  for (var j = 0; j < gameboardEntries.length; j++) {
+  for (var j = 0; j < (tmpGB1.length ~/ 5) * 5; j++) {
     if (gameboardEntries[j] != "") {
-      flipReal(j, -1);
+      flipReal(j, "f");
     }
   }
-
+  typeCountInWord = tmpGB1.length % 5;
   saveKeys();
 }
 
@@ -203,11 +204,14 @@ Future<void> saveKeys() async {
       'infSuccessBoardsMatchingWords', tmpinfSuccessBoardsMatchingWords);
 }
 
-void flipReal(index, boardNumber) {
-  angles[index] = (angles[index] + 0.5) % 1;
+void flipReal(index, toFOrB) {
+  if (toFOrB == "b") {
+    angles[index] = 0;
+  } else {
+    angles[index] = 0.5;
+  }
+  //angles[index] = (angles[index] + 0.5) % 1;
 }
-
-
 
 void detetctAndUpdateForScreenSize(context) {
   if (scW != MediaQuery.of(context).size.width ||
