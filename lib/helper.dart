@@ -15,12 +15,20 @@ List getTargetWords(numberOfBoards) {
   return starterList;
 }
 
+void cheatPrintTargetWords() {
+  if (cheatMode) {
+    print(targetWords);
+  }
+}
+
 void logWinAndGetNewWord(enteredWord, oneMatchingWordBoard) {
   //Log the word just got in success words, which gets green to shown
   infSuccessWords.add(enteredWord);
   infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
   //Create new target word for the board
   targetWords[oneMatchingWordBoard] = getTargetWord();
+  resetColorsCache();
+  saveKeys();
 }
 
 void oneStepBack() {
@@ -36,6 +44,8 @@ void oneStepBack() {
       flipReal(currentWord * 5 + j, "b");
     }
   }
+  resetColorsCache();
+  saveKeys();
 }
 
 bool streak() {
@@ -47,8 +57,8 @@ bool streak() {
     isStreak = false;
   }
 
-  if (infSuccessWords.length >= min(4,currentWord)) {
-    for (int q = 0; q < min(4,currentWord); q++) {
+  if (infSuccessWords.length >= min(3,currentWord)) {
+    for (int q = 0; q < min(3,currentWord); q++) {
       int i = currentWord - 1 - q;
       if (gameboardEntries.sublist(i * 5, i * 5 + 5).join("") !=
           infSuccessWords[infSuccessWords.length - 1 - q]) {
@@ -60,6 +70,24 @@ bool streak() {
   else {
     isStreak = false;
   }
+
+  /*
+  int q = 0;
+  for (int i = currentWord - 1; i >= 0; i++) {
+
+    if (infSuccessWords.length > q) {
+      if (gameboardEntries.sublist(i * 5, i * 5 + 5).join("") !=
+          infSuccessWords[infSuccessWords.length - 1 - q]) {
+        isStreak = false;
+        break;
+    }
+
+
+    q++;
+  }
+*/
+
+
   return isStreak;
 }
 
@@ -238,7 +266,7 @@ Future<void> saveKeys() async {
   await prefs.setString('infSuccessWords', infSuccessWords.join(""));
 
   var tmpGB1 = "";
-  for (var i = 0; i < gameboardEntries.length; i++) {
+  for (var i = 0; i < currentWord * 5; i++) {
     tmpGB1 = tmpGB1 + gameboardEntries[i];
   }
   await prefs.setString('gameboardEntries', tmpGB1);

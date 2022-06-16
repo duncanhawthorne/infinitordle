@@ -45,7 +45,8 @@ class _InfinitordleState extends State<Infinitordle> {
     loadKeys();
     setState(() {});
     Future.delayed(const Duration(milliseconds: 1000), () {
-      setState(() {}); //Hack, but makes sure state set right shortly after starting
+      setState(
+          () {}); //Hack, but makes sure state set right shortly after starting
     });
   }
 
@@ -64,9 +65,8 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   void onKeyboardTapped(int index) {
-    if (onStreakLastTimeChecked) {
-      onStreakLastTimeChecked = streak();
-    }
+    cheatPrintTargetWords();
+
     if (keyboardList[index] == " ") {
       //ignore pressing of non-keys
 
@@ -81,7 +81,7 @@ class _InfinitordleState extends State<Infinitordle> {
       //submit guess
       if (typeCountInWord == 5 && threadsafeBlockNewWord == false) {
         //ignore if not completed whole word
-        String enteredWord = gameboardEntries
+        enteredWord = gameboardEntries
             .sublist(currentWord * 5, (currentWord + 1) * 5)
             .join("");
         if (legalWords.contains(enteredWord)) {
@@ -91,6 +91,10 @@ class _InfinitordleState extends State<Infinitordle> {
           resetColorsCache();
           currentWord++;
           typeCountInWord = 0;
+
+          if (onStreakLastTimeChecked) {
+            onStreakLastTimeChecked = streak();
+          }
 
           //Made a guess flip over the cards to see the colors
           for (int i = 0; i < 5; i++) {
@@ -133,43 +137,34 @@ class _InfinitordleState extends State<Infinitordle> {
           }
 
           if (infMode && oneMatchingWord) {
+            setState(() {});
             Future.delayed(Duration(milliseconds: durMult * 1500), () {
               //Give time for above code to show visually, so we have flipped
-              setState(() {
-                //Erase a row and step back
-                oneStepBack();
-                resetColorsCache();
+              //Erase a row and step back
+              oneStepBack();
+              setState(() {});
 
-                Future.delayed(Duration(milliseconds: durMult * 1000), () {
-                  //include inside other future so definitely happens after rather relying on race
-                  //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
-                  setState(() {
-                    //Log the word just got in success words, which gets green to shown
-                    logWinAndGetNewWord(enteredWord, oneMatchingWordBoard);
+              Future.delayed(Duration(milliseconds: durMult * 1000), () {
+                //include inside other future so definitely happens after rather relying on race
+                //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
 
-                    if (streak()) {
-                      onStreakLastTimeChecked = true;
-                    Future.delayed(Duration(milliseconds: durMult * 1500), () {
-                      if (currentWord > 0) {
-                        oneStepBack();
-                      }
-                      resetColorsCache();
+                //Log the word just got in success words, which gets green to shown
+                logWinAndGetNewWord(enteredWord, oneMatchingWordBoard);
+                threadsafeBlockNewWord = false;
+                setState(() {});
+
+                if (streak()) {
+                  onStreakLastTimeChecked = true;
+                  Future.delayed(Duration(milliseconds: durMult * 1000), () {
+                    if (currentWord > 0) {
+                      oneStepBack();
                       setState(() {});
-
-                    });
                     }
-
-                    resetColorsCache();
-                    threadsafeBlockNewWord = false;
                   });
-                  saveKeys();
-                });
+                }
               });
-              saveKeys();
             });
           }
-          setState(() {});
-          resetColorsCache();
         } else {
           //not a legal word so just clear current word
           gameboardEntries[currentWord * 5 + 0] = "";
@@ -203,7 +198,6 @@ class _InfinitordleState extends State<Infinitordle> {
       }
     }
 //    });
-    saveKeys();
   }
 
   void resetBoard() {
@@ -217,10 +211,9 @@ class _InfinitordleState extends State<Infinitordle> {
     infSuccessBoardsMatchingWords.clear();
 
     for (var j = 0; j < numRowsPerBoard * 5; j++) {
-        //angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
-        flipCard(j, "b");
+      //angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+      flipCard(j, "b");
     }
-
 
     //speed initialise entries using cheat mode for debugging
     if (cheatMode) {
@@ -531,7 +524,9 @@ class _InfinitordleState extends State<Infinitordle> {
                     ? Container(
                         padding: const EdgeInsets.all(7),
                         child: Icon(Icons.keyboard_return_sharp,
-                            color: onStreakLastTimeChecked ? Colors.green : Colors.white))
+                            color: onStreakLastTimeChecked
+                                ? Colors.green
+                                : Colors.white))
                     : Text(
                         keyboardList[index].toUpperCase(),
                         style: const TextStyle(

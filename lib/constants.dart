@@ -44,6 +44,7 @@ final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
 bool threadsafeBlockNewWord = false;
 bool onStreakLastTimeChecked = false;
+String enteredWord = "";
 
 //Helpers for state of the game
 bool oneLegalWord = false;
