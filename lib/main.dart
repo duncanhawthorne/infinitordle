@@ -98,6 +98,8 @@ class _InfinitordleState extends State<Infinitordle> {
             onStreakForKeyboardIndicatorCache = streak();
           }
 
+          saveKeys();
+
           //Made a guess flip over the cards to see the colors
           for (int i = 0; i < 5; i++) {
             delayedFlipOnAbsoluteCard(currentWordLocal.toInt(), i, "f");

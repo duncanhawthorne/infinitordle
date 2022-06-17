@@ -205,10 +205,23 @@ void resetColorsCache() {
 Future<void> loadKeys() async {
   final prefs = await SharedPreferences.getInstance();
   targetWords = [];
-  targetWords.add(prefs.getString('word0') ?? getTargetWord());
-  targetWords.add(prefs.getString('word1') ?? getTargetWord());
-  targetWords.add(prefs.getString('word2') ?? getTargetWord());
-  targetWords.add(prefs.getString('word3') ?? getTargetWord());
+
+  //targetWords.add(prefs.getString('word0') ?? getTargetWord());
+  //targetWords.add(prefs.getString('word1') ?? getTargetWord());
+  //targetWords.add(prefs.getString('word2') ?? getTargetWord());
+  //targetWords.add(prefs.getString('word3') ?? getTargetWord());
+
+  String tmpWords = prefs.getString('word') ?? "";
+  List tmpWordsList = tmpWords.split(";");
+  for (var i = 0; i < numBoards; i++) {
+    if (tmpWordsList.length > i) {
+      targetWords.add(tmpWordsList[i]);
+    }
+    else {
+      targetWords.add(getTargetWord());
+    }
+  }
+
   currentWord = prefs.getInt('currentWord') ?? 0;
 
   var tmpinfSuccessWords = prefs.getString('infSuccessWords') ?? "";
@@ -240,10 +253,13 @@ Future<void> loadKeys() async {
 
 Future<void> saveKeys() async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('word0', targetWords[0]);
-  await prefs.setString('word1', targetWords[1]);
-  await prefs.setString('word2', targetWords[2]);
-  await prefs.setString('word3', targetWords[3]);
+  //await prefs.setString('word0', targetWords[0]);
+  //await prefs.setString('word1', targetWords[1]);
+  //await prefs.setString('word2', targetWords[2]);
+  //await prefs.setString('word3', targetWords[3]);
+
+  await prefs.setString('word', targetWords.join(";"));
+
   await prefs.setInt('currentWord', currentWord);
   await prefs.setString('infSuccessWords', infSuccessWords.join(""));
 
@@ -261,6 +277,7 @@ Future<void> saveKeys() async {
 
   await prefs.setString(
       'infSuccessBoardsMatchingWords', tmpinfSuccessBoardsMatchingWords);
+
 }
 
 void flipReal(index, toFOrB) {
