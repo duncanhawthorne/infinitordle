@@ -58,9 +58,8 @@ class _InfinitordleState extends State<Infinitordle> {
   void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB) {
     Future.delayed(Duration(milliseconds: durMult * 100 * i), () {
       //flip to reveal the colors with pleasing animation
-      setState(() {
-        flipReal((currentWord - 1) * 5 + i, toFOrB);
-      });
+      flipReal((currentWord - 1) * 5 + i, toFOrB);
+      setState(() {});
     });
   }
 
@@ -79,65 +78,66 @@ class _InfinitordleState extends State<Infinitordle> {
       }
     } else if (keyboardList[index] == ">") {
       //submit guess
-      if (typeCountInWord == 5 && threadsafeBlockNewWord == false) {
+      if (typeCountInWord == 5) {
+        //&& threadsafeBlockNewWord == false
         //ignore if not completed whole word
-        enteredWord = gameboardEntries
+        String enteredWordLocal = gameboardEntries
             .sublist(currentWord * 5, (currentWord + 1) * 5)
-            .join("");
-        if (legalWords.contains(enteredWord)) {
+            .join(""); //local variable to ensure threadsafe
+        if (legalWords.contains(enteredWordLocal)) {
           //Legal word, but not necessarily correct word
 
           //Legal word so step forward
           resetColorsCache();
           currentWord++;
+          int currentWordLocal = currentWord;
           typeCountInWord = 0;
 
-          if (onStreakLastTimeChecked) {
-            onStreakLastTimeChecked = streak();
+          if (onStreakForKeyboardIndicatorCache) {
+            //purely for the visual indicator on the return key. Test this every legal word, rather than every correct word
+            onStreakForKeyboardIndicatorCache = streak();
           }
 
           //Made a guess flip over the cards to see the colors
           for (int i = 0; i < 5; i++) {
-            delayedFlipOnAbsoluteCard(currentWord.toInt(), i, "f");
+            delayedFlipOnAbsoluteCard(currentWordLocal.toInt(), i, "f");
           }
 
           //Test if it is correct word
-          oneMatchingWord = false;
-          int oneMatchingWordBoard = -1;
-          //if (infMode) {
-          //Code for single win in infMode
+          bool oneMatchingWordLocal = false;
+          oneMatchingWordForResetScreenCache = false;
+          int oneMatchingWordBoardLocal =
+              -1; //local variable to ensure threadsafe
           for (var board = 0; board < numBoards; board++) {
             if (detectBoardSolvedByRow(board, currentWord)) {
-              threadsafeBlockNewWord = true;
-              oneMatchingWord = true;
-              oneMatchingWordBoard = board;
+              //threadsafeBlockNewWord = true;
+              oneMatchingWordLocal = true;
+              oneMatchingWordForResetScreenCache = true;
+              oneMatchingWordBoardLocal = board;
             }
           }
-          // }
 
           //Code for losing game
-          if (!oneMatchingWord && currentWord >= numRowsPerBoard) {
+          if (!oneMatchingWordLocal && currentWord >= numRowsPerBoard) {
             //didn't get it in time
             showResetConfirmScreen();
           }
 
-          if (!infMode && oneMatchingWord) {
+          if (!infMode && oneMatchingWordLocal) {
             //Code for totally winning game across all boards
-            bool totallySolved = true;
+            bool totallySolvedLocal = true;
             for (var i = 0; i < numBoards; i++) {
               if (!detectBoardSolvedByRow(i, currentWord)) {
-                totallySolved = false;
+                totallySolvedLocal = false;
               }
             }
-            if (totallySolved) {
+            if (totallySolvedLocal) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(appTitle)));
             }
-            threadsafeBlockNewWord = false;
           }
 
-          if (infMode && oneMatchingWord) {
-            setState(() {});
+          if (infMode && oneMatchingWordLocal) {
             Future.delayed(Duration(milliseconds: durMult * 1500), () {
               //Give time for above code to show visually, so we have flipped
               //Erase a row and step back
@@ -147,14 +147,12 @@ class _InfinitordleState extends State<Infinitordle> {
               Future.delayed(Duration(milliseconds: durMult * 1000), () {
                 //include inside other future so definitely happens after rather relying on race
                 //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
-
                 //Log the word just got in success words, which gets green to shown
-                logWinAndGetNewWord(enteredWord, oneMatchingWordBoard);
-                threadsafeBlockNewWord = false;
+                logWinAndGetNewWord(
+                    enteredWordLocal, oneMatchingWordBoardLocal);
                 setState(() {});
 
                 if (streak()) {
-                  onStreakLastTimeChecked = true;
                   Future.delayed(Duration(milliseconds: durMult * 1000), () {
                     if (currentWord > 0) {
                       oneStepBack();
@@ -167,11 +165,9 @@ class _InfinitordleState extends State<Infinitordle> {
           }
         } else {
           //not a legal word so just clear current word
-          gameboardEntries[currentWord * 5 + 0] = "";
-          gameboardEntries[currentWord * 5 + 1] = "";
-          gameboardEntries[currentWord * 5 + 2] = "";
-          gameboardEntries[currentWord * 5 + 3] = "";
-          gameboardEntries[currentWord * 5 + 4] = "";
+          for (var i = 0; i < 5; i++) {
+            gameboardEntries[currentWord * 5 + i] = "";
+          }
           typeCountInWord = 0;
           setState(() {});
         }
@@ -185,13 +181,13 @@ class _InfinitordleState extends State<Infinitordle> {
         typeCountInWord++;
 
         //doing this once rather than live inside the widget for speed
-        oneLegalWord = false;
+        oneLegalWordForRedCardsCache = false;
         if (typeCountInWord == 5) {
           //ignore if not completed whole word
           if (legalWords.contains(gameboardEntries
               .sublist(currentWord * 5, (currentWord + 1) * 5)
               .join(""))) {
-            oneLegalWord = true;
+            oneLegalWordForRedCardsCache = true;
           }
         }
         setState(() {});
@@ -211,7 +207,6 @@ class _InfinitordleState extends State<Infinitordle> {
     infSuccessBoardsMatchingWords.clear();
 
     for (var j = 0; j < numRowsPerBoard * 5; j++) {
-      //angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
       flipCard(j, "b");
     }
 
@@ -236,8 +231,8 @@ class _InfinitordleState extends State<Infinitordle> {
         }
       }
     }
+    onStreakForKeyboardIndicatorCache = false;
     resetColorsCache();
-//    });
     setState(() {});
     saveKeys();
   }
@@ -254,20 +249,27 @@ class _InfinitordleState extends State<Infinitordle> {
       body: KeyboardListener(
         focusNode: focusNode,
         autofocus: true,
-        onKeyEvent: (keyDownEvent) {
-          if (keyboardList.contains(keyDownEvent.character)) {
-            onKeyboardTapped(
-                keyboardList.indexOf(keyDownEvent.character ?? " "));
-          }
-          if (keyDownEvent.logicalKey == LogicalKeyboardKey.enter) {
-            onKeyboardTapped(29);
-          }
-          if (keyDownEvent.logicalKey == LogicalKeyboardKey.backspace) {
-            if (DateTime.now().millisecondsSinceEpoch >
-                lastTimePressedDelete + 200) {
-              //workaround to bug which was firing delete key twice
-              onKeyboardTapped(20);
-              lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
+        onKeyEvent: (keyEvent) {
+          if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
+            if (keyboardList.contains(keyEvent.character)) {
+              onKeyboardTapped(keyboardList.indexOf(keyEvent.character ?? " "));
+            }
+            if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
+              onKeyboardTapped(29);
+            }
+            if (keyEvent.logicalKey == LogicalKeyboardKey.backspace &&
+                backspaceSafe) {
+              if (backspaceSafe) {
+                // (DateTime.now().millisecondsSinceEpoch > lastTimePressedDelete + 200) {
+                //workaround to bug which was firing delete key twice
+                backspaceSafe = false;
+                onKeyboardTapped(20);
+                //lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
+              }
+            }
+          } else if (keyEvent.runtimeType.toString() == 'KeyUpEvent') {
+            if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
+              backspaceSafe = true;
             }
           }
         },
@@ -375,7 +377,7 @@ class _InfinitordleState extends State<Infinitordle> {
     var wordForRowOfIndex = gameboardEntries
         .sublist((5 * rowOfIndex).toInt(), (5 * (rowOfIndex + 1)).toInt())
         .join("");
-    bool legalOrShort = typeCountInWord != 5 || oneLegalWord;
+    bool legalOrShort = typeCountInWord != 5 || oneLegalWordForRedCardsCache;
 
     bool infPreviousWin5 = false;
     if (infSuccessWords.contains(wordForRowOfIndex)) {
@@ -524,7 +526,7 @@ class _InfinitordleState extends State<Infinitordle> {
                     ? Container(
                         padding: const EdgeInsets.all(7),
                         child: Icon(Icons.keyboard_return_sharp,
-                            color: onStreakLastTimeChecked
+                            color: onStreakForKeyboardIndicatorCache
                                 ? Colors.green
                                 : Colors.white))
                     : Text(
@@ -571,7 +573,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   Future<void> showResetConfirmScreen() async {
     bool end = false;
-    if (!oneMatchingWord && currentWord >= numRowsPerBoard) {
+    if (!oneMatchingWordForResetScreenCache && currentWord >= numRowsPerBoard) {
       end = true;
     }
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";

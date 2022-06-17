@@ -17,6 +17,7 @@ List getTargetWords(numberOfBoards) {
 
 void cheatPrintTargetWords() {
   if (cheatMode) {
+    // ignore: avoid_print
     print(targetWords);
   }
 }
@@ -71,29 +72,13 @@ bool streak() {
     isStreak = false;
   }
 
-  /*
-  int q = 0;
-  for (int i = currentWord - 1; i >= 0; i++) {
-
-    if (infSuccessWords.length > q) {
-      if (gameboardEntries.sublist(i * 5, i * 5 + 5).join("") !=
-          infSuccessWords[infSuccessWords.length - 1 - q]) {
-        isStreak = false;
-        break;
-    }
-
-
-    q++;
-  }
-*/
-
-
+  onStreakForKeyboardIndicatorCache = isStreak; //cache the result for visual indicator on return key
   return isStreak;
 }
 
 
 Color getBestColorForLetter(index, boardNumber) {
-  Color? cacheAnswer = keyColors[boardNumber][index];
+  Color? cacheAnswer = keyColorsCache[boardNumber][index];
   if (cacheAnswer != null) {
     return cacheAnswer;
   }
@@ -137,12 +122,12 @@ Color getBestColorForLetter(index, boardNumber) {
   if (answer == null) {
     answer = grey; //not used yet by the player
   }
-  keyColors[boardNumber][index] = answer;
+  keyColorsCache[boardNumber][index] = answer;
   return answer; // ?? Colors.pink;
 }
 
 Color getCardColor(index, boardNumber) {
-  Color? cacheAnswer = cardColors[boardNumber][index];
+  Color? cacheAnswer = cardColorsCache[boardNumber][index];
   if (cacheAnswer != null) {
     return cacheAnswer;
   }
@@ -162,7 +147,6 @@ Color getCardColor(index, boardNumber) {
           testLetter.allMatches(targetWord).length;
       int numberOfYellowThisLetterToLeftInCardRow = 0;
       for (var i = 0; i < testColumn; i++) {
-        //print([i, getCardColor(testRow * 5 + i, boardNumber)]);
         if (gameboardEntries[testRow * 5 + i] == testLetter &&
             getCardColor(testRow * 5 + i, boardNumber) == Colors.amber) {
           numberOfYellowThisLetterToLeftInCardRow++;
@@ -177,8 +161,6 @@ Color getCardColor(index, boardNumber) {
         }
       }
 
-      //print([boardNumber, testRow, testColumn, testLetter, numberOfThisLetterInTargetWord, numberOfYellowThisLetterToLeftInCardRow, numberOfGreenThisLetterInCardRow]);
-
       if (numberOfThisLetterInTargetWord >
           numberOfYellowThisLetterToLeftInCardRow +
               numberOfGreenThisLetterInCardRow) {
@@ -192,7 +174,7 @@ Color getCardColor(index, boardNumber) {
     }
   }
 
-  cardColors[boardNumber][index] = answer;
+  cardColorsCache[boardNumber][index] = answer;
   return answer;
 }
 
@@ -212,11 +194,11 @@ bool detectBoardSolvedByRow(boardNumber, maxRowToCheck) {
 }
 
 void resetColorsCache() {
-  cardColors = [];
-  keyColors = [];
+  cardColorsCache = [];
+  keyColorsCache = [];
   for (int i = 0; i < numBoards; i++) {
-    cardColors.add(List<Color?>.generate((numRowsPerBoard * 5), (i) => null));
-    keyColors.add(List<Color?>.generate((30), (i) => null));
+    cardColorsCache.add(List<Color?>.generate((numRowsPerBoard * 5), (i) => null));
+    keyColorsCache.add(List<Color?>.generate((30), (i) => null));
   }
 }
 
@@ -287,7 +269,6 @@ void flipReal(index, toFOrB) {
   } else {
     angles[index] = 0.5;
   }
-  //angles[index] = (angles[index] + 0.5) % 1;
 }
 
 void detetctAndUpdateForScreenSize(context) {

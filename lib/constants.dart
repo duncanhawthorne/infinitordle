@@ -4,7 +4,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'package:flutter/foundation.dart';
 
 //Debug
-bool cheatMode = false;
+bool cheatMode = true;
 
 //Branding
 String appTitle = "infinitordle";
@@ -39,18 +39,19 @@ var targetWords = []; //gets overridden by loadKeys()
 var gameboardEntries = List<String>.generate((numRowsPerBoard * 5), (i) => "");
 int currentWord = -1; //gets overridden by initState()
 int typeCountInWord = 0;
-var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
 final List<String> infSuccessWords = [];
 final infSuccessBoardsMatchingWords = [];
-bool threadsafeBlockNewWord = false;
-bool onStreakLastTimeChecked = false;
-String enteredWord = "";
+
+//Visual the state of the game
+var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
 
 //Helpers for state of the game
-bool oneLegalWord = false;
-bool oneMatchingWord = false;
-var cardColors = [];
-var keyColors = [];
+bool oneLegalWordForRedCardsCache = false;
+bool oneMatchingWordForResetScreenCache = false;
+bool onStreakForKeyboardIndicatorCache = false;
+var cardColorsCache = [];
+var keyColorsCache = [];
+bool backspaceSafe = true;
 
 //Screen constants
 const double keyboardSingleKeyUnconstrainedMaxPixel = 80;
