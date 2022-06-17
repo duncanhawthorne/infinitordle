@@ -4,7 +4,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'package:flutter/foundation.dart';
 
 //Debug
-bool cheatMode = true;
+bool cheatMode = false;
 
 //Branding
 String appTitle = "infinitordle";

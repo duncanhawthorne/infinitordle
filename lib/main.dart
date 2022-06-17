@@ -141,7 +141,7 @@ class _InfinitordleState extends State<Infinitordle> {
             Future.delayed(Duration(milliseconds: durMult * 1500), () {
               //Give time for above code to show visually, so we have flipped
               //Erase a row and step back
-              oneStepBack();
+              oneStepBack(currentWordLocal);
               setState(() {});
 
               Future.delayed(Duration(milliseconds: durMult * 1000), () {
@@ -155,7 +155,7 @@ class _InfinitordleState extends State<Infinitordle> {
                 if (streak()) {
                   Future.delayed(Duration(milliseconds: durMult * 1000), () {
                     if (currentWord > 0) {
-                      oneStepBack();
+                      oneStepBack(currentWordLocal);
                       setState(() {});
                     }
                   });
@@ -174,7 +174,7 @@ class _InfinitordleState extends State<Infinitordle> {
       }
     } else if (true) {
       //pressing regular key, as other options already dealt with above
-      if (typeCountInWord < 5) {
+      if (typeCountInWord < 5 && currentWord < numRowsPerBoard) {
         //still typing out word, else ignore
         gameboardEntries[currentWord * 5 + typeCountInWord] =
             keyboardList[index];

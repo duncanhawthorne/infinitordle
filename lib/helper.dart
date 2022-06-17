@@ -32,7 +32,7 @@ void logWinAndGetNewWord(enteredWord, oneMatchingWordBoard) {
   saveKeys();
 }
 
-void oneStepBack() {
+void oneStepBack(currentWordLocal) {
   //Erase a row and step back
   for (var j = 0; j < infNumBacksteps; j++) {
     for (var i = 0; i < 5; i++) {
