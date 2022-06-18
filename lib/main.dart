@@ -301,7 +301,7 @@ class _InfinitordleState extends State<Infinitordle> {
               ),
               const Divider(
                 color: Colors.transparent,
-                height: 2,
+                height: dividerHeight,
               ),
               _keyboardWidget(),
             ],
@@ -341,8 +341,8 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget _gameboardWidget(boardNumber) {
     return Container(
       constraints: BoxConstraints(
-          maxWidth: 0.97 * 5 * cardEffectiveMaxPixel,
-          maxHeight: 0.97 * numRowsPerBoard * cardEffectiveMaxPixel),
+          maxWidth: 5 * cardEffectiveMaxPixel, //*0.97
+          maxHeight: numRowsPerBoard * cardEffectiveMaxPixel), //*0.97
       child: GridView.builder(
           physics:
               const NeverScrollableScrollPhysics(), //turns off ios scrolling

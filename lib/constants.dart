@@ -64,7 +64,9 @@ double scW = -1; //default value only
 double scH = -1; //default value only
 double vertSpaceAfterTitle = -1; //default value only
 double keyboardSingleKeyEffectiveMaxPixel = -1; //default value only
+const double dividerHeight = 2;
+const double appBarHeight = 56;
 
 //Misc
 Random random = Random();
-int lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
+//int lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;

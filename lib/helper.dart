@@ -16,7 +16,7 @@ List getTargetWords(numberOfBoards) {
 }
 
 void cheatPrintTargetWords() {
-  if (cheatMode) {
+  if (true || cheatMode) {
     // ignore: avoid_print
     print(targetWords);
   }
@@ -214,7 +214,7 @@ Future<void> loadKeys() async {
   String tmpWords = prefs.getString('word') ?? "";
   List tmpWordsList = tmpWords.split(";");
   for (var i = 0; i < numBoards; i++) {
-    if (tmpWordsList.length > i) {
+    if (tmpWordsList.length > i && tmpWordsList[i] != "") { //
       targetWords.add(tmpWordsList[i]);
     }
     else {
@@ -299,7 +299,7 @@ void detetctAndUpdateForScreenSize(context) {
         MediaQuery.of(context)
             .padding
             .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
-    vertSpaceAfterTitle = scH - 56 - 2; //app bar and divider
+    vertSpaceAfterTitle = scH - appBarHeight - dividerHeight; //app bar and divider
     keyboardSingleKeyEffectiveMaxPixel = min(
         scW / 10,
         min(keyboardSingleKeyUnconstrainedMaxPixel,
@@ -314,13 +314,15 @@ void detetctAndUpdateForScreenSize(context) {
     } else {
       numPresentationBigRowsOfBoards = 1;
     }
+    int numSpacersAcross = (numBoards ~/ numPresentationBigRowsOfBoards) - 1;
+    int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
     cardEffectiveMaxPixel = min(
         keyboardSingleKeyUnconstrainedMaxPixel,
         min(
-            (vertSpaceForGameboard) /
+            (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
                 numPresentationBigRowsOfBoards /
                 numRowsPerBoard,
-            (scW - (numBoards - 1) * boardSpacer) /
+            (scW - numSpacersAcross * boardSpacer) /
                 (numBoards ~/ numPresentationBigRowsOfBoards) /
                 5));
   }
