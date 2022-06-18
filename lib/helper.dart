@@ -16,7 +16,7 @@ List getTargetWords(numberOfBoards) {
 }
 
 void cheatPrintTargetWords() {
-  if (true || cheatMode) {
+  if (cheatMode) {
     // ignore: avoid_print
     print(targetWords);
   }
