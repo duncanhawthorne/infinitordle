@@ -252,7 +252,8 @@ class _InfinitordleState extends State<Infinitordle> {
         focusNode: focusNode,
         autofocus: true,
         onKeyEvent: (keyEvent) {
-          if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
+          if (keyEvent is KeyDownEvent) {
+          //if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
             if (keyboardList.contains(keyEvent.character)) {
               onKeyboardTapped(keyboardList.indexOf(keyEvent.character ?? " "));
             }
@@ -269,7 +270,7 @@ class _InfinitordleState extends State<Infinitordle> {
                 //lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
               }
             }
-          } else if (keyEvent.runtimeType.toString() == 'KeyUpEvent') {
+          } else if (keyEvent is KeyUpEvent) {
             if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
               backspaceSafe = true;
             }
