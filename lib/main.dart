@@ -496,7 +496,7 @@ class _InfinitordleState extends State<Infinitordle> {
               //        )
             ),
             Container(
-              decoration: BoxDecoration(color: Colors.pink),
+              //decoration: BoxDecoration(color: Colors.pink), //debug
               child: Center(
                   child: keyboardList[index] == " "
                       ? const SizedBox.shrink()
