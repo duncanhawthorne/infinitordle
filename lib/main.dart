@@ -500,7 +500,7 @@ class _InfinitordleState extends State<Infinitordle> {
               child: Center(
                   child: keyboardList[index] == " "
                       ? const SizedBox.shrink()
-                      : noAnimations
+                      : false && noAnimations
                           ? GestureDetector(
                               onTap: () {
                                 onKeyboardTapped(index);
