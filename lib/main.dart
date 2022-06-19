@@ -391,7 +391,7 @@ class _InfinitordleState extends State<Infinitordle> {
       }
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10 * keyboardSingleKeyEffectiveMaxPixelHeight / keyboardSingleKeyUnconstrainedMaxPixelHeight),
       child: Container(
         padding: const EdgeInsets.all(0.5),
         height: 500, //oversize so it renders in full and so doesn't pixelate
@@ -408,7 +408,7 @@ class _InfinitordleState extends State<Infinitordle> {
                     : infPreviousWin5
                         ? 2
                         : 0),
-            borderRadius: BorderRadius.circular(10), //needed for green border
+            borderRadius: BorderRadius.circular(10 * keyboardSingleKeyEffectiveMaxPixelHeight / keyboardSingleKeyUnconstrainedMaxPixelHeight), //needed for green border
             color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
@@ -451,13 +451,14 @@ class _InfinitordleState extends State<Infinitordle> {
     return Expanded(
       child: Container(
         constraints: BoxConstraints(
-            maxWidth: keyboardSingleKeyEffectiveMaxPixel * 10,
-            maxHeight: keyboardSingleKeyEffectiveMaxPixel * 3),
+            maxWidth: keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatio,
+            maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight * 3),
         child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(), //ios fix
             itemCount: 30,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 10,
+              childAspectRatio: 1 / keyAspectRatio,
             ),
             itemBuilder: (BuildContext context, int index) {
               return _kbStackWithMiniGrid(index);
@@ -516,8 +517,8 @@ class _InfinitordleState extends State<Infinitordle> {
 
   Widget _kbTextSquare(index) {
     return SizedBox(
-        height: 500,
-        width: 500,
+        height: keyboardSingleKeyEffectiveMaxPixelHeight, //500,
+        width: keyboardSingleKeyEffectiveMaxPixelHeight / keyAspectRatio, //500,
         child: FittedBox(
             fit: BoxFit.fitHeight,
             child: keyboardList[index] == "<"
@@ -555,7 +556,7 @@ class _InfinitordleState extends State<Infinitordle> {
           crossAxisCount: numBoards ~/ numPresentationBigRowsOfBoards,
           childAspectRatio: 1 /
               ((numBoards / numPresentationBigRowsOfBoards) /
-                  numPresentationBigRowsOfBoards),
+                  numPresentationBigRowsOfBoards) / keyAspectRatio,
         ),
         itemBuilder: (BuildContext context, int subIndex) {
           return _kbMiniSquareColor(index, subIndex);

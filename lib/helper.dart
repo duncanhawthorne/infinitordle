@@ -300,12 +300,12 @@ void detetctAndUpdateForScreenSize(context) {
             .padding
             .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
     vertSpaceAfterTitle = scH - appBarHeight - dividerHeight; //app bar and divider
-    keyboardSingleKeyEffectiveMaxPixel = min(
+    keyboardSingleKeyEffectiveMaxPixelHeight = keyAspectRatio * min(
         scW / 10,
-        min(keyboardSingleKeyUnconstrainedMaxPixel,
+        min(keyboardSingleKeyUnconstrainedMaxPixelHeight,
             vertSpaceAfterTitle * 0.25 / 3));
     vertSpaceForGameboard =
-        vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixel * 3;
+        vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
     vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
     horizSpaceForCardNoWrap =
         (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
@@ -317,7 +317,7 @@ void detetctAndUpdateForScreenSize(context) {
     int numSpacersAcross = (numBoards ~/ numPresentationBigRowsOfBoards) - 1;
     int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
     cardEffectiveMaxPixel = min(
-        keyboardSingleKeyUnconstrainedMaxPixel,
+        keyboardSingleKeyUnconstrainedMaxPixelHeight,
         min(
             (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
                 numPresentationBigRowsOfBoards /
