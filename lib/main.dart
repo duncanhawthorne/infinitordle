@@ -495,28 +495,30 @@ class _InfinitordleState extends State<Infinitordle> {
               //),
               //        )
             ),
-            Center(
-                child: keyboardList[index] == " "
-                    ? const SizedBox.shrink()
-                    : noAnimations
-                        ? GestureDetector(
-                            onTap: () {
-                              onKeyboardTapped(index);
-                            },
-                            child: _kbTextSquare(index),
-                          )
-                        : Material(
-                            color: Colors.transparent,
-                            child: InkWell(
+            Container(
+              decoration: BoxDecoration(color: Colors.pink),
+              child: Center(
+                  child: keyboardList[index] == " "
+                      ? const SizedBox.shrink()
+                      : noAnimations
+                          ? GestureDetector(
                               onTap: () {
                                 onKeyboardTapped(index);
                               },
-                              child: Container(
-                                decoration: BoxDecoration(color: Colors.pink),
-                                  child: _kbTextSquare(index)
+                              child: _kbTextSquare(index),
+                            )
+                          : Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  onKeyboardTapped(index);
+                                },
+                                child: Container(
+                                    child: _kbTextSquare(index)
+                                ),
                               ),
-                            ),
-                          )),
+                            )),
+            ),
           ],
         ),
       ),
