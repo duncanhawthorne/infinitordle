@@ -253,7 +253,7 @@ class _InfinitordleState extends State<Infinitordle> {
         autofocus: true,
         onKeyEvent: (keyEvent) {
           if (keyEvent is KeyDownEvent) {
-          //if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
+            //if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
             if (keyboardList.contains(keyEvent.character)) {
               onKeyboardTapped(keyboardList.indexOf(keyEvent.character ?? " "));
             }
@@ -391,7 +391,9 @@ class _InfinitordleState extends State<Infinitordle> {
       }
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10 * keyboardSingleKeyEffectiveMaxPixelHeight / keyboardSingleKeyUnconstrainedMaxPixelHeight),
+      borderRadius: BorderRadius.circular(10 *
+          keyboardSingleKeyEffectiveMaxPixelHeight /
+          keyboardSingleKeyUnconstrainedMaxPixelHeight),
       child: Container(
         padding: const EdgeInsets.all(0.5),
         height: 500, //oversize so it renders in full and so doesn't pixelate
@@ -408,7 +410,9 @@ class _InfinitordleState extends State<Infinitordle> {
                     : infPreviousWin5
                         ? 2
                         : 0),
-            borderRadius: BorderRadius.circular(10 * keyboardSingleKeyEffectiveMaxPixelHeight / keyboardSingleKeyUnconstrainedMaxPixelHeight), //needed for green border
+            borderRadius: BorderRadius.circular(10 *
+                keyboardSingleKeyEffectiveMaxPixelHeight /
+                keyboardSingleKeyUnconstrainedMaxPixelHeight), //needed for green border
             color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
@@ -451,7 +455,8 @@ class _InfinitordleState extends State<Infinitordle> {
     return Expanded(
       child: Container(
         constraints: BoxConstraints(
-            maxWidth: keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatio,
+            maxWidth:
+                keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatio,
             maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight * 3),
         child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(), //ios fix
@@ -506,7 +511,10 @@ class _InfinitordleState extends State<Infinitordle> {
                               onTap: () {
                                 onKeyboardTapped(index);
                               },
-                              child: _kbTextSquare(index),
+                              child: Container(
+                                decoration: BoxDecoration(color: Colors.pink),
+                                  child: _kbTextSquare(index)
+                              ),
                             ),
                           )),
           ],
@@ -549,6 +557,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   Widget _kbMiniGridContainer(index) {
     return GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         itemCount: numBoards,
@@ -556,7 +565,8 @@ class _InfinitordleState extends State<Infinitordle> {
           crossAxisCount: numBoards ~/ numPresentationBigRowsOfBoards,
           childAspectRatio: 1 /
               ((numBoards / numPresentationBigRowsOfBoards) /
-                  numPresentationBigRowsOfBoards) / keyAspectRatio,
+                  numPresentationBigRowsOfBoards) /
+              keyAspectRatio,
         ),
         itemBuilder: (BuildContext context, int subIndex) {
           return _kbMiniSquareColor(index, subIndex);
