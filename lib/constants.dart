@@ -31,7 +31,7 @@ final finalWords = kFinalWordsText.split("\n");
 final isWebMobileReal = kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android);
-final noAnimations = true && isWebMobileReal;
+final noAnimations = false && isWebMobileReal;
 final int durMult = noAnimations ? 0 : 1;
 
 //Effectively the state of the game
