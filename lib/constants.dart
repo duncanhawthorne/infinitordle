@@ -37,11 +37,12 @@ final int delayMult = noAnimations ? 1 : 1;
 
 //Effectively the state of the game
 var targetWords = []; //gets overridden by loadKeys()
-var gameboardEntries = List<String>.generate((numRowsPerBoard * 5), (i) => "");
+var gameboardEntries = []; //List<String>.generate((numRowsPerBoard * 5), (i) => "");
 int currentWord = -1; //gets overridden by initState()
 int typeCountInWord = 0;
-final List<String> infSuccessWords = [];
-final infSuccessBoardsMatchingWords = [];
+var infSuccessWords = [];
+var infSuccessBoardsMatchingWords = [];
+Map<String, dynamic> game = {};
 
 //Visual the state of the game
 var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);

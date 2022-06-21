@@ -40,6 +40,7 @@ class Infinitordle extends StatefulWidget {
 class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
+
     super.initState();
     resetColorsCache();
     loadKeys();
@@ -48,17 +49,18 @@ class _InfinitordleState extends State<Infinitordle> {
       setState(
           () {}); //Hack, but makes sure state set right shortly after starting
     });
+
   }
 
   void flipCard(index, toFOrB) {
-    flipReal(index, toFOrB);
+    flipCardReal(index, toFOrB);
     setState(() {});
   }
 
   void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB) {
     Future.delayed(Duration(milliseconds: delayMult * 250 * i), () {
       //flip to reveal the colors with pleasing animation
-      flipReal((currentWord - 1) * 5 + i, toFOrB);
+      flipCardReal((currentWord - 1) * 5 + i, toFOrB);
       setState(() {});
     });
   }
@@ -199,44 +201,8 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   void resetBoard() {
-    //   setState(() {
-    //initialise on reset
-    typeCountInWord = 0;
-    currentWord = 0;
-    gameboardEntries = List<String>.generate((numRowsPerBoard * 5), (i) => "");
-    targetWords = getTargetWords(numBoards);
-    infSuccessWords.clear();
-    infSuccessBoardsMatchingWords.clear();
-
-    for (var j = 0; j < numRowsPerBoard * 5; j++) {
-      flipCard(j, "b");
-    }
-
-    //speed initialise entries using cheat mode for debugging
-    if (cheatMode) {
-      for (var j = 0; j < numBoards; j++) {
-        if (cheatWords.length > j) {
-          targetWords[j] = cheatWords[j];
-        } else {
-          targetWords[j] = getTargetWord();
-        }
-      }
-
-      for (var j = 0; j < cheatString.length; j++) {
-        gameboardEntries[j] = cheatString[j];
-      }
-
-      currentWord = cheatString.length ~/ 5;
-      for (var j = 0; j < gameboardEntries.length; j++) {
-        if (gameboardEntries[j] != "") {
-          flipCard(j, "f");
-        }
-      }
-    }
-    onStreakForKeyboardIndicatorCache = false;
-    resetColorsCache();
+    resetBoardReal();
     setState(() {});
-    saveKeys();
   }
 
   @override

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:infinitordle/constants.dart';
+import 'dart:convert';
 
 String getTargetWord() {
   return finalWords[random.nextInt(finalWords.length)];
@@ -42,7 +43,7 @@ void oneStepBack(currentWordLocal) {
     currentWord--;
     //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
     for (var j = 0; j < 5; j++) {
-      flipReal(currentWord * 5 + j, "b");
+      flipCardReal(currentWord * 5 + j, "b");
     }
   }
   resetColorsCache();
@@ -53,13 +54,12 @@ bool streak() {
   bool isStreak = true;
   if (infSuccessWords.isNotEmpty) {
     isStreak = true;
-  }
-  else {
+  } else {
     isStreak = false;
   }
 
-  if (infSuccessWords.length >= min(3,currentWord)) {
-    for (int q = 0; q < min(3,currentWord); q++) {
+  if (infSuccessWords.length >= min(3, currentWord)) {
+    for (int q = 0; q < min(3, currentWord); q++) {
       int i = currentWord - 1 - q;
       if (gameboardEntries.sublist(i * 5, i * 5 + 5).join("") !=
           infSuccessWords[infSuccessWords.length - 1 - q]) {
@@ -67,15 +67,14 @@ bool streak() {
         break;
       }
     }
-  }
-  else {
+  } else {
     isStreak = false;
   }
 
-  onStreakForKeyboardIndicatorCache = isStreak; //cache the result for visual indicator on return key
+  onStreakForKeyboardIndicatorCache =
+      isStreak; //cache the result for visual indicator on return key
   return isStreak;
 }
-
 
 Color getBestColorForLetter(index, boardNumber) {
   Color? cacheAnswer = keyColorsCache[boardNumber][index];
@@ -197,12 +196,16 @@ void resetColorsCache() {
   cardColorsCache = [];
   keyColorsCache = [];
   for (int i = 0; i < numBoards; i++) {
-    cardColorsCache.add(List<Color?>.generate((numRowsPerBoard * 5), (i) => null));
+    cardColorsCache
+        .add(List<Color?>.generate((numRowsPerBoard * 5), (i) => null));
     keyColorsCache.add(List<Color?>.generate((30), (i) => null));
   }
 }
 
 Future<void> loadKeys() async {
+  loadMapKeys();
+  return;
+
   final prefs = await SharedPreferences.getInstance();
   targetWords = [];
 
@@ -214,10 +217,10 @@ Future<void> loadKeys() async {
   String tmpWords = prefs.getString('word') ?? "";
   List tmpWordsList = tmpWords.split(";");
   for (var i = 0; i < numBoards; i++) {
-    if (tmpWordsList.length > i && tmpWordsList[i] != "") { //
+    if (tmpWordsList.length > i && tmpWordsList[i] != "") {
+      //
       targetWords.add(tmpWordsList[i]);
-    }
-    else {
+    } else {
       targetWords.add(getTargetWord());
     }
   }
@@ -242,16 +245,20 @@ Future<void> loadKeys() async {
   for (var i = 0; i < tmpGB1.length; i++) {
     gameboardEntries[i] = tmpGB1.substring(i, i + 1);
   }
-  for (var j = 0; j < (tmpGB1.length ~/ 5) * 5; j++) {
-    if (gameboardEntries[j] != "") {
-      flipReal(j, "f");
-    }
-  }
+  //for (var j = 0; j < (tmpGB1.length ~/ 5) * 5; j++) {
+  //  if (gameboardEntries[j] != "") {
+  //    flipCardReal(j, "f");
+  //  }
+  //}
+  initiateFlipState();
   typeCountInWord = tmpGB1.length % 5;
   saveKeys();
 }
 
 Future<void> saveKeys() async {
+  saveMapKeys();
+  return;
+
   final prefs = await SharedPreferences.getInstance();
   //await prefs.setString('word0', targetWords[0]);
   //await prefs.setString('word1', targetWords[1]);
@@ -277,10 +284,95 @@ Future<void> saveKeys() async {
 
   await prefs.setString(
       'infSuccessBoardsMatchingWords', tmpinfSuccessBoardsMatchingWords);
-
 }
 
-void flipReal(index, toFOrB) {
+Future<void> saveMapKeys() async {
+  game = {};
+  game["targetWords"] = targetWords;
+  game["gameboardEntries"] = gameboardEntries;
+  game["currentWord"] = currentWord;
+  game["typeCountInWord"] = typeCountInWord;
+  game["infSuccessWords"] = infSuccessWords;
+  game["infSuccessBoardsMatchingWords"] = infSuccessBoardsMatchingWords;
+
+  String gameEncoded = json.encode(game);
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('game', gameEncoded);
+}
+
+Future<void> loadMapKeys() async {
+  final prefs = await SharedPreferences.getInstance();
+  String gameEncoded = prefs.getString('game') ?? "";
+
+  if (gameEncoded == "") {
+    resetBoardReal();
+  } else {
+    try {
+      game = json.decode(gameEncoded);
+
+      targetWords = game["targetWords"];
+      gameboardEntries = game["gameboardEntries"];
+      currentWord = game["currentWord"];
+      typeCountInWord = game["typeCountInWord"];
+      infSuccessWords = game["infSuccessWords"];
+      infSuccessBoardsMatchingWords = game["infSuccessBoardsMatchingWords"];
+    } catch (error) {
+      resetBoardReal();
+    }
+  }
+  initiateFlipState();
+  saveMapKeys();
+}
+
+void resetBoardReal() {
+  //   setState(() {
+  //initialise on reset
+  typeCountInWord = 0;
+  currentWord = 0;
+  gameboardEntries.clear();
+  gameboardEntries
+      .addAll(List<String>.generate((numRowsPerBoard * 5), (i) => ""));
+  //print(gameboardEntries);
+  //gameboardEntries = ;
+  targetWords = getTargetWords(numBoards);
+  infSuccessWords.clear();
+  infSuccessBoardsMatchingWords.clear();
+
+  for (var j = 0; j < numRowsPerBoard * 5; j++) {
+    flipCardReal(j, "b");
+  }
+
+  //speed initialise entries using cheat mode for debugging
+  if (cheatMode) {
+    for (var j = 0; j < numBoards; j++) {
+      if (cheatWords.length > j) {
+        targetWords[j] = cheatWords[j];
+      } else {
+        targetWords[j] = getTargetWord();
+      }
+    }
+
+    for (var j = 0; j < cheatString.length; j++) {
+      gameboardEntries[j] = cheatString[j];
+    }
+
+    currentWord = cheatString.length ~/ 5;
+  }
+  initiateFlipState();
+  onStreakForKeyboardIndicatorCache = false;
+  resetColorsCache();
+  saveKeys();
+}
+
+void initiateFlipState() {
+  for (var j = 0; j < gameboardEntries.length; j++) {
+    if (gameboardEntries[j] != "") {
+      flipCardReal(j, "f");
+    }
+  }
+}
+
+void flipCardReal(index, toFOrB) {
   if (toFOrB == "b") {
     angles[index] = 0;
   } else {
@@ -299,11 +391,13 @@ void detetctAndUpdateForScreenSize(context) {
         MediaQuery.of(context)
             .padding
             .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
-    vertSpaceAfterTitle = scH - appBarHeight - dividerHeight; //app bar and divider
-    keyboardSingleKeyEffectiveMaxPixelHeight = keyAspectRatio * min(
-        scW / 10,
-        min(keyboardSingleKeyUnconstrainedMaxPixelHeight,
-            vertSpaceAfterTitle * 0.25 / 3));
+    vertSpaceAfterTitle =
+        scH - appBarHeight - dividerHeight; //app bar and divider
+    keyboardSingleKeyEffectiveMaxPixelHeight = keyAspectRatio *
+        min(
+            scW / 10,
+            min(keyboardSingleKeyUnconstrainedMaxPixelHeight,
+                vertSpaceAfterTitle * 0.25 / 3));
     vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
     vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
