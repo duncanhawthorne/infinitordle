@@ -4,7 +4,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'package:flutter/foundation.dart';
 
 //Debug
-const bool cheatMode = true;
+const bool cheatMode = false;
 
 //Branding
 String appTitle = "infinitordle";
@@ -32,7 +32,7 @@ final isWebMobileReal = kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android);
 final noAnimations = true && isWebMobileReal;
-final int durMult = noAnimations ? 1 : 1;
+final int durMult = noAnimations ? 0 : 1;
 final int delayMult = noAnimations ? 1 : 1;
 
 //Effectively the state of the game
