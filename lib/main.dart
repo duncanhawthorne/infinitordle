@@ -56,7 +56,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB) {
-    Future.delayed(Duration(milliseconds: durMult * 100 * i), () {
+    Future.delayed(Duration(milliseconds: delayMult * 250 * i), () {
       //flip to reveal the colors with pleasing animation
       flipReal((currentWord - 1) * 5 + i, toFOrB);
       setState(() {});
@@ -140,13 +140,13 @@ class _InfinitordleState extends State<Infinitordle> {
           }
 
           if (infMode && oneMatchingWordLocal) {
-            Future.delayed(Duration(milliseconds: durMult * 1500), () {
+            Future.delayed(Duration(milliseconds: delayMult * 1500), () {
               //Give time for above code to show visually, so we have flipped
               //Erase a row and step back
               oneStepBack(currentWordLocal);
               setState(() {});
 
-              Future.delayed(Duration(milliseconds: durMult * 1000), () {
+              Future.delayed(Duration(milliseconds: delayMult * 1000), () {
                 //include inside other future so definitely happens after rather relying on race
                 //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
                 //Log the word just got in success words, which gets green to shown
@@ -155,7 +155,7 @@ class _InfinitordleState extends State<Infinitordle> {
                 setState(() {});
 
                 if (streak()) {
-                  Future.delayed(Duration(milliseconds: durMult * 1000), () {
+                  Future.delayed(Duration(milliseconds: delayMult * 1000), () {
                     if (currentWord > 0) {
                       oneStepBack(currentWordLocal);
                       setState(() {});
@@ -359,7 +359,7 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget _cardFlipper(index, boardNumber) {
     return TweenAnimationBuilder(
         tween: Tween<double>(begin: 0, end: angles[index]),
-        duration: Duration(milliseconds: durMult * 500),
+        duration: Duration(milliseconds: durMult * 250),
         builder: (BuildContext context, double val, __) {
           return (Transform(
             alignment: Alignment.center,
