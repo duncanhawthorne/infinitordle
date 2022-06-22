@@ -236,7 +236,8 @@ Future<void> loadKeys() async {
       currentWord = game["currentWord"] ?? 0;
       typeCountInWord = game["typeCountInWord"] ?? 0;
       infSuccessWords = game["infSuccessWords"] ?? [];
-      infSuccessBoardsMatchingWords = game["infSuccessBoardsMatchingWords"] ?? [];
+      infSuccessBoardsMatchingWords =
+          game["infSuccessBoardsMatchingWords"] ?? [];
     } catch (error) {
       resetBoardReal();
     }
@@ -312,13 +313,14 @@ void detectAndUpdateForScreenSize(context) {
         MediaQuery.of(context)
             .padding
             .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
-    appBarHeight = min(56,max(40, scH * 0.075));
+    appBarHeight = min(56, max(40, scH * 0.075));
     vertSpaceAfterTitle =
         scH - appBarHeight - dividerHeight; //app bar and divider
     keyboardSingleKeyEffectiveMaxPixelHeight = min(
         keyAspectRatio * scW / 10,
-            min(keyboardSingleKeyUnconstrainedMaxPixelHeight,
-                keyAspectRatio * vertSpaceAfterTitle * 0.20 / 3));
+        min(
+            double.infinity, //keyboardSingleKeyUnconstrainedMaxPixelHeight,
+            keyAspectRatio * vertSpaceAfterTitle * 0.20 / 3));
     vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
     vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
@@ -340,12 +342,22 @@ void detectAndUpdateForScreenSize(context) {
             (scW - numSpacersAcross * boardSpacer) /
                 (numBoards ~/ numPresentationBigRowsOfBoards) /
                 5));
-    if (vertSpaceForGameboard > cardEffectiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards + numSpacersDown * boardSpacer) { //if still space left over, no point squashing keyboard for nothing
+    if (vertSpaceForGameboard >
+        cardEffectiveMaxPixel *
+                numRowsPerBoard *
+                numPresentationBigRowsOfBoards +
+            numSpacersDown * boardSpacer) {
+      //if still space left over, no point squashing keyboard for nothing
       keyboardSingleKeyEffectiveMaxPixelHeight = min(
           keyAspectRatio * scW / 10,
-          min(keyboardSingleKeyUnconstrainedMaxPixelHeight,
-              (vertSpaceAfterTitle - cardEffectiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards + numSpacersDown * boardSpacer)/3
-          ));
+          min(
+              double.infinity, //keyboardSingleKeyUnconstrainedMaxPixelHeight,
+              (vertSpaceAfterTitle -
+                      cardEffectiveMaxPixel *
+                          numRowsPerBoard *
+                          numPresentationBigRowsOfBoards +
+                      numSpacersDown * boardSpacer) /
+                  3));
     }
   }
 }

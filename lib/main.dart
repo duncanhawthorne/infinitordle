@@ -56,7 +56,8 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB) {
-    Future.delayed(Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
+    Future.delayed(
+        Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
       //flip to reveal the colors with pleasing animation
       flipCardReal((currentWord - 1) * 5 + i, toFOrB);
       setState(() {});
@@ -276,7 +277,10 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _titleWidget() {
-    var infText = infSuccessWords.isEmpty ? "o" : "∞" * (infSuccessWords.length ~/ 2) + "o" * (infSuccessWords.length % 2);
+    var infText = infSuccessWords.isEmpty
+        ? "o"
+        : "∞" * (infSuccessWords.length ~/ 2) +
+            "o" * (infSuccessWords.length % 2);
     return GestureDetector(
         onTap: () {
           showResetConfirmScreen();
@@ -295,7 +299,9 @@ class _InfinitordleState extends State<Infinitordle> {
                 TextSpan(
                     text: infText,
                     style: TextStyle(
-                        color: infSuccessWords.isEmpty ? Colors.white : Colors.green)),
+                        color: infSuccessWords.isEmpty
+                            ? Colors.white
+                            : Colors.green)),
                 TextSpan(text: appTitle3),
               ],
             ),
