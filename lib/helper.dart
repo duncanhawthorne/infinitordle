@@ -226,12 +226,17 @@ Future<void> loadKeys() async {
     try {
       game = json.decode(gameEncoded);
 
-      targetWords = game["targetWords"];
-      gameboardEntries = game["gameboardEntries"];
-      currentWord = game["currentWord"];
-      typeCountInWord = game["typeCountInWord"];
-      infSuccessWords = game["infSuccessWords"];
-      infSuccessBoardsMatchingWords = game["infSuccessBoardsMatchingWords"];
+      targetWords = game["targetWords"] ?? getTargetWords(numBoards);
+
+      var fallbackGameboardEntries = [];
+      fallbackGameboardEntries
+          .addAll(List<String>.generate((numRowsPerBoard * 5), (i) => ""));
+
+      gameboardEntries = game["gameboardEntries"] ?? fallbackGameboardEntries;
+      currentWord = game["currentWord"] ?? 0;
+      typeCountInWord = game["typeCountInWord"] ?? 0;
+      infSuccessWords = game["infSuccessWords"] ?? [];
+      infSuccessBoardsMatchingWords = game["infSuccessBoardsMatchingWords"] ?? [];
     } catch (error) {
       resetBoardReal();
     }
@@ -309,11 +314,10 @@ void detectAndUpdateForScreenSize(context) {
             .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
     vertSpaceAfterTitle =
         scH - appBarHeight - dividerHeight; //app bar and divider
-    keyboardSingleKeyEffectiveMaxPixelHeight = keyAspectRatio *
-        min(
-            scW / 10,
+    keyboardSingleKeyEffectiveMaxPixelHeight = min(
+        keyAspectRatio * scW / 10,
             min(keyboardSingleKeyUnconstrainedMaxPixelHeight,
-                vertSpaceAfterTitle * 0.25 / 3));
+                keyAspectRatio * vertSpaceAfterTitle * 0.20 / 3));
     vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
     vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;

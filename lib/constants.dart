@@ -4,7 +4,7 @@ import 'package:infinitordle/wordlist.dart';
 import 'package:flutter/foundation.dart';
 
 //Debug
-const bool cheatMode = false;
+const bool cheatMode = false; //
 
 //Branding
 String appTitle = "infinitordle";
@@ -22,7 +22,7 @@ const double boardSpacer = 8;
 
 //Helper text
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
-const cheatString = "";//"""maplewindyscourfightkebab";
+const cheatString = "maplewindyscourfightkebab";
 const cheatWords = ["scoff", "brunt", "armor", "tabby"];
 final legalWords = kLegalWordsText.split("\n");
 final finalWords = kFinalWordsText.split("\n");

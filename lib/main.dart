@@ -276,7 +276,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _titleWidget() {
-    var infText = infSuccessWords.isEmpty ? "o" : "∞" * infSuccessWords.length;
+    var infText = infSuccessWords.isEmpty ? "o" : "∞" * (infSuccessWords.length ~/ 2) + "o" * (infSuccessWords.length % 2);
     return GestureDetector(
         onTap: () {
           showResetConfirmScreen();
@@ -294,7 +294,7 @@ class _InfinitordleState extends State<Infinitordle> {
                 TextSpan(
                     text: infText,
                     style: TextStyle(
-                        color: infText == "o" ? Colors.white : Colors.green)),
+                        color: infSuccessWords.isEmpty ? Colors.white : Colors.green)),
                 TextSpan(text: appTitle3),
               ],
             ),
