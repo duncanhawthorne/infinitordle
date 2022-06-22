@@ -40,7 +40,6 @@ class Infinitordle extends StatefulWidget {
 class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
-
     super.initState();
     resetColorsCache();
     loadKeys();
@@ -49,7 +48,6 @@ class _InfinitordleState extends State<Infinitordle> {
       setState(
           () {}); //Hack, but makes sure state set right shortly after starting
     });
-
   }
 
   void flipCard(index, toFOrB) {
@@ -58,7 +56,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB) {
-    Future.delayed(Duration(milliseconds: delayMult * 250 * i), () {
+    Future.delayed(Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
       //flip to reveal the colors with pleasing animation
       flipCardReal((currentWord - 1) * 5 + i, toFOrB);
       setState(() {});
@@ -207,7 +205,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
-    detetctAndUpdateForScreenSize(context);
+    detectAndUpdateForScreenSize(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -325,7 +323,7 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget _cardFlipper(index, boardNumber) {
     return TweenAnimationBuilder(
         tween: Tween<double>(begin: 0, end: angles[index]),
-        duration: Duration(milliseconds: durMult * 250),
+        duration: Duration(milliseconds: durMult * 500),
         builder: (BuildContext context, double val, __) {
           return (Transform(
             alignment: Alignment.center,
@@ -461,30 +459,27 @@ class _InfinitordleState extends State<Infinitordle> {
               //),
               //        )
             ),
-            Container(
-              //decoration: BoxDecoration(color: Colors.pink), //debug
-              child: Center(
-                  child: keyboardList[index] == " "
-                      ? const SizedBox.shrink()
-                      : false && noAnimations
-                          ? GestureDetector(
+            Center(
+                child: keyboardList[index] == " "
+                    ? const SizedBox.shrink()
+                    // ignore: dead_code
+                    : false && noAnimations
+                        // ignore: dead_code
+                        ? GestureDetector(
+                            onTap: () {
+                              onKeyboardTapped(index);
+                            },
+                            child: _kbTextSquare(index),
+                          )
+                        : Material(
+                            color: Colors.transparent,
+                            child: InkWell(
                               onTap: () {
                                 onKeyboardTapped(index);
                               },
-                              child: _kbTextSquare(index),
-                            )
-                          : Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () {
-                                  onKeyboardTapped(index);
-                                },
-                                child: Container(
-                                    child: _kbTextSquare(index)
-                                ),
-                              ),
-                            )),
-            ),
+                              child: Container(child: _kbTextSquare(index)),
+                            ),
+                          )),
           ],
         ),
       ),

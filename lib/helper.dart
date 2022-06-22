@@ -202,91 +202,7 @@ void resetColorsCache() {
   }
 }
 
-Future<void> loadKeys() async {
-  loadMapKeys();
-  return;
-
-  final prefs = await SharedPreferences.getInstance();
-  targetWords = [];
-
-  //targetWords.add(prefs.getString('word0') ?? getTargetWord());
-  //targetWords.add(prefs.getString('word1') ?? getTargetWord());
-  //targetWords.add(prefs.getString('word2') ?? getTargetWord());
-  //targetWords.add(prefs.getString('word3') ?? getTargetWord());
-
-  String tmpWords = prefs.getString('word') ?? "";
-  List tmpWordsList = tmpWords.split(";");
-  for (var i = 0; i < numBoards; i++) {
-    if (tmpWordsList.length > i && tmpWordsList[i] != "") {
-      //
-      targetWords.add(tmpWordsList[i]);
-    } else {
-      targetWords.add(getTargetWord());
-    }
-  }
-
-  currentWord = prefs.getInt('currentWord') ?? 0;
-
-  var tmpinfSuccessWords = prefs.getString('infSuccessWords') ?? "";
-  for (var i = 0; i < tmpinfSuccessWords.length ~/ 5; i++) {
-    var j = i * 5;
-    infSuccessWords.add(tmpinfSuccessWords.substring(j, j + 5));
-    infSuccessBoardsMatchingWords.add(-1);
-  }
-
-  var tmpinfSuccessBoardsMatchingWords =
-      prefs.getString('infSuccessBoardsMatchingWords') ?? "";
-  for (var i = 0; i < tmpinfSuccessBoardsMatchingWords.length; i++) {
-    infSuccessBoardsMatchingWords[i] =
-        int.parse(tmpinfSuccessBoardsMatchingWords[i]);
-  }
-
-  var tmpGB1 = prefs.getString('gameboardEntries') ?? "";
-  for (var i = 0; i < tmpGB1.length; i++) {
-    gameboardEntries[i] = tmpGB1.substring(i, i + 1);
-  }
-  //for (var j = 0; j < (tmpGB1.length ~/ 5) * 5; j++) {
-  //  if (gameboardEntries[j] != "") {
-  //    flipCardReal(j, "f");
-  //  }
-  //}
-  initiateFlipState();
-  typeCountInWord = tmpGB1.length % 5;
-  saveKeys();
-}
-
 Future<void> saveKeys() async {
-  saveMapKeys();
-  return;
-
-  final prefs = await SharedPreferences.getInstance();
-  //await prefs.setString('word0', targetWords[0]);
-  //await prefs.setString('word1', targetWords[1]);
-  //await prefs.setString('word2', targetWords[2]);
-  //await prefs.setString('word3', targetWords[3]);
-
-  await prefs.setString('word', targetWords.join(";"));
-
-  await prefs.setInt('currentWord', currentWord);
-  await prefs.setString('infSuccessWords', infSuccessWords.join(""));
-
-  var tmpGB1 = "";
-  for (var i = 0; i < currentWord * 5; i++) {
-    tmpGB1 = tmpGB1 + gameboardEntries[i];
-  }
-  await prefs.setString('gameboardEntries', tmpGB1);
-
-  var tmpinfSuccessBoardsMatchingWords = "";
-  for (var i = 0; i < infSuccessBoardsMatchingWords.length; i++) {
-    tmpinfSuccessBoardsMatchingWords = tmpinfSuccessBoardsMatchingWords +
-        infSuccessBoardsMatchingWords[i].toString();
-  }
-
-  await prefs.setString(
-      'infSuccessBoardsMatchingWords', tmpinfSuccessBoardsMatchingWords);
-}
-
-Future<void> saveMapKeys() async {
   game = {};
   game["targetWords"] = targetWords;
   game["gameboardEntries"] = gameboardEntries;
@@ -300,7 +216,7 @@ Future<void> saveMapKeys() async {
   await prefs.setString('game', gameEncoded);
 }
 
-Future<void> loadMapKeys() async {
+Future<void> loadKeys() async {
   final prefs = await SharedPreferences.getInstance();
   String gameEncoded = prefs.getString('game') ?? "";
 
@@ -321,7 +237,7 @@ Future<void> loadMapKeys() async {
     }
   }
   initiateFlipState();
-  saveMapKeys();
+  saveKeys();
 }
 
 void resetBoardReal() {
@@ -380,7 +296,7 @@ void flipCardReal(index, toFOrB) {
   }
 }
 
-void detetctAndUpdateForScreenSize(context) {
+void detectAndUpdateForScreenSize(context) {
   if (scW != MediaQuery.of(context).size.width ||
       scH !=
           MediaQuery.of(context).size.height -
