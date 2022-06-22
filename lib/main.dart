@@ -206,10 +206,10 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   Widget build(BuildContext context) {
     detectAndUpdateForScreenSize(context);
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        toolbarHeight: appBarHeight,
         title: _titleWidget(),
       ),
       body: KeyboardListener(
@@ -282,6 +282,7 @@ class _InfinitordleState extends State<Infinitordle> {
           showResetConfirmScreen();
         },
         child: FittedBox(
+          //fit: BoxFit.fitHeight,
           child: RichText(
             text: TextSpan(
               style: const TextStyle(

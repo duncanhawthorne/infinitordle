@@ -312,6 +312,7 @@ void detectAndUpdateForScreenSize(context) {
         MediaQuery.of(context)
             .padding
             .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
+    appBarHeight = min(56,max(40, scH * 0.075));
     vertSpaceAfterTitle =
         scH - appBarHeight - dividerHeight; //app bar and divider
     keyboardSingleKeyEffectiveMaxPixelHeight = min(
@@ -339,5 +340,12 @@ void detectAndUpdateForScreenSize(context) {
             (scW - numSpacersAcross * boardSpacer) /
                 (numBoards ~/ numPresentationBigRowsOfBoards) /
                 5));
+    if (vertSpaceForGameboard > cardEffectiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards + numSpacersDown * boardSpacer) { //if still space left over, no point squashing keyboard for nothing
+      keyboardSingleKeyEffectiveMaxPixelHeight = min(
+          keyAspectRatio * scW / 10,
+          min(keyboardSingleKeyUnconstrainedMaxPixelHeight,
+              (vertSpaceAfterTitle - cardEffectiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards + numSpacersDown * boardSpacer)/3
+          ));
+    }
   }
 }

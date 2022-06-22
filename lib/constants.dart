@@ -67,7 +67,7 @@ double scH = -1; //default value only
 double vertSpaceAfterTitle = -1; //default value only
 double keyboardSingleKeyEffectiveMaxPixelHeight = -1; //default value only
 const double dividerHeight = 2;
-const double appBarHeight = 56;
+double appBarHeight = 56;
 double keyAspectRatio = 1.5;
 
 //Misc
