@@ -313,7 +313,7 @@ void detectAndUpdateForScreenSize(context) {
         MediaQuery.of(context)
             .padding
             .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
-    appBarHeight = scH * 0.05; //min(56, max(40, scH * 0.05));
+    appBarHeight = scH * 0.055; //min(56, max(40, scH * 0.05));
     vertSpaceAfterTitle =
         scH - appBarHeight - dividerHeight; //app bar and divider
     keyboardSingleKeyEffectiveMaxPixelHeight = min(
