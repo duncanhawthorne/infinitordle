@@ -320,7 +320,7 @@ void detectAndUpdateForScreenSize(context) {
         keyAspectRatio * scW / 10,
         min(
             double.infinity, //keyboardSingleKeyUnconstrainedMaxPixelHeight,
-            keyAspectRatio * vertSpaceAfterTitle * 0.20 / 3));
+            keyAspectRatio * vertSpaceAfterTitle * 0.17 / 3));
     vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
     vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
