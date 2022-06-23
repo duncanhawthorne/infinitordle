@@ -241,37 +241,155 @@ class _InfinitordleState extends State<Infinitordle> {
             }
           }
         },
-        child: Container(
-          color: bg,
-          child: Column(
+        child: _wrapStructure(),
+      ),
+    );
+  }
+
+  // ignore: unused_element
+  Widget _aspectRatioStructure() {
+    //bool tall = MediaQuery.of(context).size.width <
+    //    2 * 0.75 * (MediaQuery.of(context).size.height - 56);
+    return Center(
+      child: Container(
+        color: bg,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+                flex: 75,
+                child: Flex(
+                    direction: numPresentationBigRowsOfBoards == 2 ? Axis.vertical : Axis.horizontal,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                          flex: 50,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              //crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                    flex: 50,
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                            flex: 50,
+                                            child: AspectRatio(
+                                                aspectRatio: 5 / numRowsPerBoard,
+                                                child: _gameboardWidget(0))),
+                                      ],
+                                    )),
+                                Expanded(
+                                    flex: 50,
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                            flex: 50,
+                                            child: AspectRatio(
+                                                aspectRatio: 5 / numRowsPerBoard,
+                                                child: _gameboardWidget(0))),
+                                      ],
+                                    ))
+                              ])),
+                      Expanded(
+                          flex: 50,
+                          child: Row(
+                            //crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                    flex: 50,
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                            flex: 50,
+                                            child: AspectRatio(
+                                                aspectRatio: 5 / numRowsPerBoard,
+                                                child: _gameboardWidget(0))),
+                                      ],
+                                    )),
+                                Expanded(
+                                    flex: 50,
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                            flex: 50,
+                                            child: AspectRatio(
+                                                aspectRatio: 5 / numRowsPerBoard,
+                                                child: _gameboardWidget(0))),
+                                      ],
+                                    ))
+                              ])),
+                    ])),
+            Expanded(
+              flex: 25,
+              child:
+
+              AspectRatio(
+                  aspectRatio: 10 / (3 * keyAspectRatio),
+                  child: _keyboardWidget())
+              /*
+              Flex(
+                  direction: tall ? Axis.vertical : Axis.horizontal,
+                  children: [
+                    Expanded(
+                        flex: 100,
+                        child: Row(
+                          //crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                  flex: 100,
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                          flex: 100,
+                                          child: AspectRatio(
+                                              aspectRatio: 10 / (3 * keyAspectRatio),
+                                              child: _keyboardWidget())),
+                                    ],
+                                  )),
+
+                            ])),
+                  ]),
+        */
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ignore: unused_element
+  Widget _wrapStructure() {
+    return Container(
+      color: bg,
+      child: Column(
+        children: [
+          Wrap(
+            spacing: boardSpacer,
+            runSpacing: boardSpacer,
             children: [
+              //split into 2 so that don't get a wrap on 3 + 1 basis. Note that this is why 2 is hardcoded below
               Wrap(
                 spacing: boardSpacer,
                 runSpacing: boardSpacer,
-                children: [
-                  //split into 2 so that don't get a wrap on 3 + 1 basis. Note that this is why 2 is hardcoded below
-                  Wrap(
-                    spacing: boardSpacer,
-                    runSpacing: boardSpacer,
-                    children: List.generate(
-                        numBoards ~/ 2, (index) => _gameboardWidget(index)),
-                  ),
-                  Wrap(
-                    spacing: boardSpacer,
-                    runSpacing: boardSpacer,
-                    children: List.generate(numBoards ~/ 2,
-                        (index) => _gameboardWidget(numBoards ~/ 2 + index)),
-                  ),
-                ],
+                children: List.generate(
+                    numBoards ~/ 2, (index) => _gameboardWidget(index)),
               ),
-              const Divider(
-                color: Colors.transparent,
-                height: dividerHeight,
+              Wrap(
+                spacing: boardSpacer,
+                runSpacing: boardSpacer,
+                children: List.generate(numBoards ~/ 2,
+                    (index) => _gameboardWidget(numBoards ~/ 2 + index)),
               ),
-              _keyboardWidget(),
             ],
           ),
-        ),
+          const Divider(
+            color: Colors.transparent,
+            height: dividerHeight,
+          ),
+          _keyboardWidget(),
+        ],
       ),
     );
   }
@@ -289,10 +407,10 @@ class _InfinitordleState extends State<Infinitordle> {
           //fit: BoxFit.fitHeight,
           child: RichText(
             text: TextSpan(
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 40,
+                fontSize: appBarHeight * 40 / 56,
               ),
               children: <TextSpan>[
                 TextSpan(text: appTitle1),
@@ -312,8 +430,8 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget _gameboardWidget(boardNumber) {
     return Container(
       constraints: BoxConstraints(
-          maxWidth: 5 * cardEffectiveMaxPixel, //*0.97
-          maxHeight: numRowsPerBoard * cardEffectiveMaxPixel), //*0.97
+           maxWidth: 5 * cardEffectiveMaxPixel, //*0.97
+           maxHeight: numRowsPerBoard * cardEffectiveMaxPixel), //*0.97
       child: GridView.builder(
           physics:
               const NeverScrollableScrollPhysics(), //turns off ios scrolling
@@ -361,39 +479,38 @@ class _InfinitordleState extends State<Infinitordle> {
         infPreviousWin5 = true;
       }
     }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10 *
-          keyboardSingleKeyEffectiveMaxPixelHeight /
-          keyboardSingleKeyUnconstrainedMaxPixelHeight),
-      child: Container(
-        padding: const EdgeInsets.all(0.5),
-        height: 500, //oversize so it renders in full and so doesn't pixelate
-        width: 500, //oversize so it renders in full and so doesn't pixelate
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: bf == "b"
-                    ? Colors.transparent //bg
-                    : infPreviousWin5
-                        ? Colors.green
-                        : Colors.transparent, //bg
-                width: bf == "b"
-                    ? 0
-                    : infPreviousWin5
-                        ? 2
-                        : 0),
-            borderRadius: BorderRadius.circular(10 *
-                keyboardSingleKeyEffectiveMaxPixelHeight /
-                keyboardSingleKeyUnconstrainedMaxPixelHeight), //needed for green border
-            color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
-                ? Colors.transparent // bg //"hide" after solved board
-                : bf == "b"
-                    ? rowOfIndex == currentWord && !legalOrShort
-                        ? Colors.red
-                        : grey
-                    : getCardColor(index, boardNumber)),
-        child: FittedBox(
-          fit: BoxFit.fitHeight,
-          child: _cardText(index, boardNumber),
+    return Container(
+      padding: EdgeInsets.all(0.005 * cardEffectiveMaxPixel),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(0.2 * cardEffectiveMaxPixel),
+        child: Container(
+          //padding: const EdgeInsets.all(1),
+          //height: 500, //oversize so it renders in full and so doesn't pixelate
+          //width: 500, //oversize so it renders in full and so doesn't pixelate
+          decoration: BoxDecoration(
+              border: Border.all(
+                  color: bf == "b"
+                      ? Colors.transparent //bg
+                      : infPreviousWin5
+                          ? Colors.green
+                          : Colors.transparent, //bg
+                  width: bf == "b"
+                      ? 0
+                      : infPreviousWin5
+                          ? 0.05 * cardEffectiveMaxPixel //2
+                          : 0),
+              borderRadius: BorderRadius.circular(0.2 * cardEffectiveMaxPixel), //needed for green border
+              color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
+                  ? Colors.transparent // bg //"hide" after solved board
+                  : bf == "b"
+                      ? rowOfIndex == currentWord && !legalOrShort
+                          ? Colors.red
+                          : grey
+                      : getCardColor(index, boardNumber)),
+          child: FittedBox(
+            fit: BoxFit.fitHeight,
+            child: _cardText(index, boardNumber),
+          ),
         ),
       ),
     );
@@ -413,7 +530,7 @@ class _InfinitordleState extends State<Infinitordle> {
           ),
         ],
          */
-        fontSize: 30,
+        fontSize: cardEffectiveMaxPixel,
         color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
             ? Colors.transparent // bg //"hide" after being solved
             : Colors.white,
@@ -423,31 +540,29 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _keyboardWidget() {
-    return Expanded(
-      child: Container(
-        constraints: BoxConstraints(
-            maxWidth:
-                keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatio,
-            maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight * 3),
-        child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(), //ios fix
-            itemCount: 30,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 10,
-              childAspectRatio: 1 / keyAspectRatio,
-            ),
-            itemBuilder: (BuildContext context, int index) {
-              return _kbStackWithMiniGrid(index);
-            }),
-      ),
+    return Container(
+      constraints: BoxConstraints(
+          maxWidth:
+              keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatio,
+          maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight * 3),
+      child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(), //ios fix
+          itemCount: 30,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 10,
+            childAspectRatio: 1 / keyAspectRatio,
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            return _kbStackWithMiniGrid(index);
+          }),
     );
   }
 
   Widget _kbStackWithMiniGrid(index) {
     return Container(
-      padding: const EdgeInsets.all(0.5),
+      padding: EdgeInsets.all(0.005 * keyboardSingleKeyEffectiveMaxPixelHeight),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(0.1 * keyboardSingleKeyEffectiveMaxPixelHeight),
         //borderRadius: BorderRadius.circular(10),
         child: Stack(
           children: [

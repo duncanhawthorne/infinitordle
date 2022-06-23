@@ -313,7 +313,7 @@ void detectAndUpdateForScreenSize(context) {
         MediaQuery.of(context)
             .padding
             .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
-    appBarHeight = min(56, max(40, scH * 0.075));
+    appBarHeight = scH * 0.05; //min(56, max(40, scH * 0.05));
     vertSpaceAfterTitle =
         scH - appBarHeight - dividerHeight; //app bar and divider
     keyboardSingleKeyEffectiveMaxPixelHeight = min(
@@ -334,7 +334,7 @@ void detectAndUpdateForScreenSize(context) {
     int numSpacersAcross = (numBoards ~/ numPresentationBigRowsOfBoards) - 1;
     int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
     cardEffectiveMaxPixel = min(
-        keyboardSingleKeyUnconstrainedMaxPixelHeight,
+        double.infinity, // keyboardSingleKeyUnconstrainedMaxPixelHeight,
         min(
             (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
                 numPresentationBigRowsOfBoards /
