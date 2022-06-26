@@ -4,6 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:infinitordle/constants.dart';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 String getTargetWord() {
   return finalWords[random.nextInt(finalWords.length)];
 }
@@ -214,11 +218,35 @@ Future<void> saveKeys() async {
   String gameEncoded = json.encode(game);
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('game', gameEncoded);
+
+  fbSave(gameEncoded);
 }
 
 Future<void> loadKeys() async {
   final prefs = await SharedPreferences.getInstance();
-  String gameEncoded = prefs.getString('game') ?? "";
+  String gameEncoded = "";
+  if (false) {
+    gameEncoded = prefs.getString('game') ?? "";
+  }
+  else {
+    //await fbInit();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    db = FirebaseFirestore.instance;
+    gameEncoded = "";
+    await db.collection("states").get().then((event) {
+      for (var doc in event.docs) {
+        if (doc.id == gUser) {
+          //print(doc.data()["data"]);
+          gameEncoded = doc.data()["data"];
+        }
+      }
+    });
+  }
+
+  //gameEncoded = "";
+  //print("game "+gameEncoded);
 
   if (gameEncoded == "") {
     resetBoardReal();
@@ -242,8 +270,34 @@ Future<void> loadKeys() async {
       resetBoardReal();
     }
   }
+  //print([gameboardEntries, targetWords, currentWord, typeCountInWord, infSuccessWords, infSuccessBoardsMatchingWords]);
   initiateFlipState();
   saveKeys();
+}
+
+Future<void> fbSave(state) async {
+  // Create a new user with a first and last name
+  final dhState = <String, dynamic>{"data": state};
+
+  db
+      .collection("states")
+      .doc(gUser)
+      .set(dhState)
+      // ignore: avoid_print
+      .onError((e, _) => print("Error writing document: $e"));
+}
+
+Future<String> fbLoad() async {
+  // Create a new user with a first and last name
+  await db.collection("states").get().then((event) {
+    for (var doc in event.docs) {
+      if (doc.id == gUser) {
+        //print(doc.data()["data"]);
+        return doc.data()["data"];
+      }
+    }
+  });
+  return "";
 }
 
 void resetBoardReal() {
@@ -361,3 +415,12 @@ void detectAndUpdateForScreenSize(context) {
     }
   }
 }
+
+Future<void> fbInit() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  db = FirebaseFirestore.instance;
+}
+
+

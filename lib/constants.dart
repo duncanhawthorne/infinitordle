@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:infinitordle/wordlist.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 //Debug
 const bool cheatMode = false; //
 
@@ -74,3 +76,6 @@ double keyAspectRatio = 1.5;
 //Misc
 Random random = Random();
 //int lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
+
+var gUser = "JoeBloggs";
+var db = FirebaseFirestore.instance;

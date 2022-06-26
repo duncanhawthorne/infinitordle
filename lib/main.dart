@@ -42,12 +42,15 @@ class _InfinitordleState extends State<Infinitordle> {
   initState() {
     super.initState();
     resetColorsCache();
+    resetBoardReal();
     loadKeys();
     setState(() {});
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      setState(
-          () {}); //Hack, but makes sure state set right shortly after starting
-    });
+    for (int i = 0; i < 10; i++) {
+      Future.delayed(Duration(milliseconds: 1000 * i), () {
+        setState(
+                () {}); //Hack, but makes sure state set right shortly after starting
+      });
+    }
   }
 
   void flipCard(index, toFOrB) {
