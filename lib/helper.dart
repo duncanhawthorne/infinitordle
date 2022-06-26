@@ -272,6 +272,7 @@ Future<void> loadKeys() async {
   }
   //print([gameboardEntries, targetWords, currentWord, typeCountInWord, infSuccessWords, infSuccessBoardsMatchingWords]);
   initiateFlipState();
+  resetColorsCache();
   saveKeys();
 }
 

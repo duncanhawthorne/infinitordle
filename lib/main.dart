@@ -41,7 +41,6 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
     super.initState();
-    resetColorsCache();
     resetBoardReal();
     loadKeys();
     setState(() {});
