@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:infinitordle/helper.dart';
 import 'dart:math';
 import 'package:infinitordle/constants.dart';
+import 'package:infinitordle/secrets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 FocusNode focusNode = FocusNode();
 
@@ -38,18 +40,55 @@ class Infinitordle extends StatefulWidget {
 }
 
 class _InfinitordleState extends State<Infinitordle> {
+  GoogleSignInAccount? _currentUser;
+
   @override
   initState() {
     super.initState();
     resetBoardReal();
+
+    googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      _currentUser = account;
+      final GoogleSignInAccount? user = _currentUser;
+      if (user != null) {
+        gUser = user.email;
+      }
+      setState(() {});
+    });
+    googleSignIn.signInSilently();
+
     loadKeys();
     setState(() {});
     for (int i = 0; i < 10; i++) {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
         setState(
-                () {}); //Hack, but makes sure state set right shortly after starting
+            () {}); //Hack, but makes sure state set right shortly after starting
       });
     }
+  }
+
+  Future<void> _handleSignIn() async {
+    try {
+      await googleSignIn.signIn();
+      gUser = "SOMEONE";
+      print(gUser);
+
+      final GoogleSignInAccount? user = _currentUser;
+      if (user != null) {
+        gUser = user.email;
+      }
+
+    } catch (error) {
+      print(error);
+    }
+    setState(() {});
+  }
+
+  Future<void> _handleSignOut() async {
+    await googleSignIn.disconnect();
+    gUser = "JoeBloggs";
+    print(gUser);
+    setState(() {});
   }
 
   void flipCard(index, toFOrB) {
@@ -208,6 +247,11 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
+    //final GoogleSignInAccount? user = _currentUser;
+    //if (user != null) {
+    //  gUser = user.email;
+    //}
+
     detectAndUpdateForScreenSize(context);
     return Scaffold(
       appBar: AppBar(
@@ -262,13 +306,15 @@ class _InfinitordleState extends State<Infinitordle> {
             Expanded(
                 flex: 75,
                 child: Flex(
-                    direction: numPresentationBigRowsOfBoards == 2 ? Axis.vertical : Axis.horizontal,
+                    direction: numPresentationBigRowsOfBoards == 2
+                        ? Axis.vertical
+                        : Axis.horizontal,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                           flex: 50,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               //crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Expanded(
@@ -278,7 +324,8 @@ class _InfinitordleState extends State<Infinitordle> {
                                         Expanded(
                                             flex: 50,
                                             child: AspectRatio(
-                                                aspectRatio: 5 / numRowsPerBoard,
+                                                aspectRatio:
+                                                    5 / numRowsPerBoard,
                                                 child: _gameboardWidget(0))),
                                       ],
                                     )),
@@ -289,7 +336,8 @@ class _InfinitordleState extends State<Infinitordle> {
                                         Expanded(
                                             flex: 50,
                                             child: AspectRatio(
-                                                aspectRatio: 5 / numRowsPerBoard,
+                                                aspectRatio:
+                                                    5 / numRowsPerBoard,
                                                 child: _gameboardWidget(0))),
                                       ],
                                     ))
@@ -297,7 +345,7 @@ class _InfinitordleState extends State<Infinitordle> {
                       Expanded(
                           flex: 50,
                           child: Row(
-                            //crossAxisAlignment: CrossAxisAlignment.stretch,
+                              //crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Expanded(
                                     flex: 50,
@@ -306,7 +354,8 @@ class _InfinitordleState extends State<Infinitordle> {
                                         Expanded(
                                             flex: 50,
                                             child: AspectRatio(
-                                                aspectRatio: 5 / numRowsPerBoard,
+                                                aspectRatio:
+                                                    5 / numRowsPerBoard,
                                                 child: _gameboardWidget(0))),
                                       ],
                                     )),
@@ -317,20 +366,19 @@ class _InfinitordleState extends State<Infinitordle> {
                                         Expanded(
                                             flex: 50,
                                             child: AspectRatio(
-                                                aspectRatio: 5 / numRowsPerBoard,
+                                                aspectRatio:
+                                                    5 / numRowsPerBoard,
                                                 child: _gameboardWidget(0))),
                                       ],
                                     ))
                               ])),
                     ])),
             Expanded(
-              flex: 25,
-              child:
-
-              AspectRatio(
-                  aspectRatio: 10 / (3 * keyAspectRatio),
-                  child: _keyboardWidget())
-              /*
+                flex: 25,
+                child: AspectRatio(
+                    aspectRatio: 10 / (3 * keyAspectRatio),
+                    child: _keyboardWidget())
+                /*
               Flex(
                   direction: tall ? Axis.vertical : Axis.horizontal,
                   children: [
@@ -354,7 +402,7 @@ class _InfinitordleState extends State<Infinitordle> {
                             ])),
                   ]),
         */
-            ),
+                ),
           ],
         ),
       ),
@@ -432,8 +480,8 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget _gameboardWidget(boardNumber) {
     return Container(
       constraints: BoxConstraints(
-           maxWidth: 5 * cardEffectiveMaxPixel, //*0.97
-           maxHeight: numRowsPerBoard * cardEffectiveMaxPixel), //*0.97
+          maxWidth: 5 * cardEffectiveMaxPixel, //*0.97
+          maxHeight: numRowsPerBoard * cardEffectiveMaxPixel), //*0.97
       child: GridView.builder(
           physics:
               const NeverScrollableScrollPhysics(), //turns off ios scrolling
@@ -501,7 +549,8 @@ class _InfinitordleState extends State<Infinitordle> {
                       : infPreviousWin5
                           ? 0.05 * cardEffectiveMaxPixel //2
                           : 0),
-              borderRadius: BorderRadius.circular(0.2 * cardEffectiveMaxPixel), //needed for green border
+              borderRadius: BorderRadius.circular(
+                  0.2 * cardEffectiveMaxPixel), //needed for green border
               color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                   ? Colors.transparent // bg //"hide" after solved board
                   : bf == "b"
@@ -564,7 +613,8 @@ class _InfinitordleState extends State<Infinitordle> {
     return Container(
       padding: EdgeInsets.all(0.005 * keyboardSingleKeyEffectiveMaxPixelHeight),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(0.1 * keyboardSingleKeyEffectiveMaxPixelHeight),
+        borderRadius: BorderRadius.circular(
+            0.1 * keyboardSingleKeyEffectiveMaxPixelHeight),
         //borderRadius: BorderRadius.circular(10),
         child: Stack(
           children: [
@@ -683,7 +733,20 @@ class _InfinitordleState extends State<Infinitordle> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(appTitle),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(appTitle),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    gUser == "JoeBloggs" ? _handleSignIn() : _handleSignOut();
+                  });
+                },
+                child: Text(gUser == "JoeBloggs" ? 'SIGN IN' : (gUser.substring(0,1).toUpperCase())),
+              )
+            ],
+          ),
           // ignore: prefer_interpolation_to_compose_strings
           content: Text(
               // ignore: prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings
