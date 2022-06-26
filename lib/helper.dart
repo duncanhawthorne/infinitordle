@@ -225,6 +225,7 @@ Future<void> saveKeys() async {
 Future<void> loadKeys() async {
   final prefs = await SharedPreferences.getInstance();
   String gameEncoded = "";
+  // ignore: dead_code
   if (false) {
     gameEncoded = prefs.getString('game') ?? "";
   }
@@ -244,9 +245,6 @@ Future<void> loadKeys() async {
       }
     });
   }
-
-  //gameEncoded = "";
-  //print("game "+gameEncoded);
 
   if (gameEncoded == "") {
     resetBoardReal();
@@ -270,7 +268,6 @@ Future<void> loadKeys() async {
       resetBoardReal();
     }
   }
-  //print([gameboardEntries, targetWords, currentWord, typeCountInWord, infSuccessWords, infSuccessBoardsMatchingWords]);
   initiateFlipState();
   resetColorsCache();
   saveKeys();
@@ -286,19 +283,6 @@ Future<void> fbSave(state) async {
       .set(dhState)
       // ignore: avoid_print
       .onError((e, _) => print("Error writing document: $e"));
-}
-
-Future<String> fbLoad() async {
-  // Create a new user with a first and last name
-  await db.collection("states").get().then((event) {
-    for (var doc in event.docs) {
-      if (doc.id == gUser) {
-        //print(doc.data()["data"]);
-        return doc.data()["data"];
-      }
-    }
-  });
-  return "";
 }
 
 void resetBoardReal() {
