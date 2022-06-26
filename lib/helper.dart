@@ -225,16 +225,19 @@ Future<void> saveKeys() async {
 Future<void> loadKeys() async {
   final prefs = await SharedPreferences.getInstance();
   String gameEncoded = "";
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  db = FirebaseFirestore.instance;
+
   // ignore: dead_code
-  if (false) {
+  if (gUser == "JoeBloggs") {
     gameEncoded = prefs.getString('game') ?? "";
   }
   else {
     //await fbInit();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    db = FirebaseFirestore.instance;
+
     gameEncoded = "";
     await db.collection("states").get().then((event) {
       for (var doc in event.docs) {
@@ -247,7 +250,7 @@ Future<void> loadKeys() async {
   }
 
   if (gameEncoded == "") {
-    resetBoardReal();
+    resetBoardReal(true);
   } else {
     try {
       game = json.decode(gameEncoded);
@@ -265,7 +268,7 @@ Future<void> loadKeys() async {
       infSuccessBoardsMatchingWords =
           game["infSuccessBoardsMatchingWords"] ?? [];
     } catch (error) {
-      resetBoardReal();
+      resetBoardReal(true);
     }
   }
   initiateFlipState();
@@ -274,18 +277,20 @@ Future<void> loadKeys() async {
 }
 
 Future<void> fbSave(state) async {
-  // Create a new user with a first and last name
-  final dhState = <String, dynamic>{"data": state};
+  if (gUser != "JoeBloggs") {
+    // Create a new user with a first and last name
+    final dhState = <String, dynamic>{"data": state};
 
-  db
-      .collection("states")
-      .doc(gUser)
-      .set(dhState)
-      // ignore: avoid_print
-      .onError((e, _) => print("Error writing document: $e"));
+    db
+        .collection("states")
+        .doc(gUser)
+        .set(dhState)
+    // ignore: avoid_print
+        .onError((e, _) => print("Error writing document: $e"));
+  }
 }
 
-void resetBoardReal() {
+void resetBoardReal(save) {
   //   setState(() {
   //initialise on reset
   typeCountInWord = 0;
@@ -322,7 +327,9 @@ void resetBoardReal() {
   initiateFlipState();
   onStreakForKeyboardIndicatorCache = false;
   resetColorsCache();
-  saveKeys();
+  if (save) {
+    saveKeys();
+  }
 }
 
 void initiateFlipState() {

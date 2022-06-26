@@ -45,7 +45,7 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
     super.initState();
-    resetBoardReal();
+    resetBoardReal(false);
     initalSignIn();
     //loadKeys();
     setState(() {});
@@ -69,6 +69,12 @@ class _InfinitordleState extends State<Infinitordle> {
     });
     print(gUser);
     await googleSignIn.signInSilently();
+
+    final GoogleSignInAccount? user = _currentUser;
+    if (user != null) {
+      gUser = user.email;
+    }
+
     print(gUser);
     await loadKeys();
     print(gUser);
@@ -255,8 +261,8 @@ class _InfinitordleState extends State<Infinitordle> {
 //    });
   }
 
-  void resetBoard() {
-    resetBoardReal();
+  void resetBoard(saveReset) {
+    resetBoardReal(saveReset);
     setState(() {});
   }
 
@@ -756,6 +762,8 @@ class _InfinitordleState extends State<Infinitordle> {
                 onPressed: () {
                   setState(() {
                     gUser == "JoeBloggs" ? _handleSignIn() : _handleSignOut();
+                    focusNode.requestFocus();
+                    Navigator.pop(context);
                   });
                 },
                 child: Text(gUser == "JoeBloggs" ? 'SIGN IN' : (gUser.substring(0,1).toUpperCase())),
@@ -796,7 +804,7 @@ class _InfinitordleState extends State<Infinitordle> {
             ),
             TextButton(
               onPressed: () => {
-                resetBoard(),
+                resetBoard(true),
                 focusNode.requestFocus(),
                 Navigator.pop(context, 'OK')
               },
