@@ -46,18 +46,8 @@ class _InfinitordleState extends State<Infinitordle> {
   initState() {
     super.initState();
     resetBoardReal();
-
-    googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      _currentUser = account;
-      final GoogleSignInAccount? user = _currentUser;
-      if (user != null) {
-        gUser = user.email;
-      }
-      setState(() {});
-    });
-    googleSignIn.signInSilently();
-
-    loadKeys();
+    initalSignIn();
+    //loadKeys();
     setState(() {});
     for (int i = 0; i < 10; i++) {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
@@ -65,6 +55,25 @@ class _InfinitordleState extends State<Infinitordle> {
             () {}); //Hack, but makes sure state set right shortly after starting
       });
     }
+  }
+
+  Future<void> initalSignIn() async {
+    print(gUser);
+    googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      _currentUser = account;
+      final GoogleSignInAccount? user = _currentUser;
+      if (user != null) {
+        gUser = user.email;
+      }
+
+    });
+    print(gUser);
+    await googleSignIn.signInSilently();
+    print(gUser);
+    await loadKeys();
+    print(gUser);
+    initiateFlipState();
+    setState(() {});
   }
 
   Future<void> _handleSignIn() async {
@@ -77,10 +86,13 @@ class _InfinitordleState extends State<Infinitordle> {
       if (user != null) {
         gUser = user.email;
       }
+      print(gUser);
 
     } catch (error) {
       print(error);
     }
+    await loadKeys();
+    initiateFlipState();
     setState(() {});
   }
 
@@ -88,6 +100,8 @@ class _InfinitordleState extends State<Infinitordle> {
     await googleSignIn.disconnect();
     gUser = "JoeBloggs";
     print(gUser);
+    await loadKeys();
+    initiateFlipState();
     setState(() {});
   }
 
@@ -107,6 +121,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   void onKeyboardTapped(int index) {
     cheatPrintTargetWords();
+    print(gUser);
 
     if (keyboardList[index] == " ") {
       //ignore pressing of non-keys

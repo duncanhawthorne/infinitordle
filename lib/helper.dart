@@ -330,6 +330,9 @@ void initiateFlipState() {
     if (gameboardEntries[j] != "") {
       flipCardReal(j, "f");
     }
+    else {
+      flipCardReal(j, "b");
+    }
   }
 }
 
