@@ -78,4 +78,11 @@ Random random = Random();
 //int lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
 
 var gUser = "JoeBloggs";
+
 var db = FirebaseFirestore.instance;
+String gameEncodedLast = "";
+String snapshotLast = "XXXXXXX";
+
+bool dirty = false;
+
+Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();

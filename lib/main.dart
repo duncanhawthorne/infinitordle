@@ -5,10 +5,22 @@ import 'dart:math';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/secrets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 FocusNode focusNode = FocusNode();
 
-void main() {
+//void main() {
+//  runApp(const MyApp());
+//}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -45,9 +57,13 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
     super.initState();
+    fbInit();
     resetBoardReal(false);
     initalSignIn();
-    //loadKeys();
+    loadKeys();
+
+    usersStream = db.collection('states').snapshots();
+
     setState(() {});
     for (int i = 0; i < 10; i++) {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
@@ -65,7 +81,6 @@ class _InfinitordleState extends State<Infinitordle> {
       if (user != null) {
         gUser = user.email;
       }
-
     });
     print(gUser);
     await googleSignIn.signInSilently();
@@ -93,7 +108,6 @@ class _InfinitordleState extends State<Infinitordle> {
         gUser = user.email;
       }
       print(gUser);
-
     } catch (error) {
       print(error);
     }
@@ -272,8 +286,16 @@ class _InfinitordleState extends State<Infinitordle> {
     //if (user != null) {
     //  gUser = user.email;
     //}
-
+    //print(dirty);
     detectAndUpdateForScreenSize(context);
+    //if (dirty) {
+    //  setState(() {});
+    //  dirty = false;
+    //}
+    //loadKeys();
+
+
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -308,8 +330,36 @@ class _InfinitordleState extends State<Infinitordle> {
             }
           }
         },
-        child: _wrapStructure(),
+        child: sb(),
       ),
+    );
+  }
+
+  Widget sb() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: usersStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+
+        if (snapshot.hasError) {
+          return const Text('Something went wrong');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text("Loading");
+        }
+
+
+        Map<String, dynamic> dataTmp =
+            snapshot.data!.docs.first.data() as Map<String, dynamic>;
+        String data = dataTmp["data"].toString();
+        if (data != snapshotLast) {
+          print("sb" + data);
+          loadKeysReal(data);
+          dirty = true;
+          snapshotLast = data;
+        }
+        return _wrapStructure();
+      },
     );
   }
 
@@ -766,7 +816,9 @@ class _InfinitordleState extends State<Infinitordle> {
                     Navigator.pop(context);
                   });
                 },
-                child: Text(gUser == "JoeBloggs" ? 'SIGN IN' : (gUser.substring(0,1).toUpperCase())),
+                child: Text(gUser == "JoeBloggs"
+                    ? 'SIGN IN'
+                    : (gUser.substring(0, 1).toUpperCase())),
               )
             ],
           ),
