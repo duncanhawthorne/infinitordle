@@ -349,9 +349,43 @@ class _InfinitordleState extends State<Infinitordle> {
         }
 
 
+        String dataQ = "";
+        String data = "";
+        //print("hre");
+        var x = snapshot.data!.docs.map((DocumentSnapshot document) {
+          //print(document.id);
+          if (document.id == gUser) {
+            //print("match");
+            Map<String, dynamic> dataTmpQ = document.data()  as Map<String, dynamic>;
+            dataQ = dataTmpQ["data"].toString();
+            return dataQ;
+          }
+        }) .toList()
+            .cast();
+        //print(x);
+
+        for (int i = 0; i < x.length; i++) {
+          if (x[i] != null) {
+            data = x[i];
+          }
+        }
+
+
+        //print("data"+data);
+
+
+
+/*
         Map<String, dynamic> dataTmp =
-            snapshot.data!.docs.first.data() as Map<String, dynamic>;
+            snapshot.data!.docs.first.data() as Map<String, dynamic>; //FIXME use of first here is wrong
+        //Map<String, dynamic> dataTmp = snapshot.data!.doc(gUser).data() as Map<String, dynamic>;
         String data = dataTmp["data"].toString();
+
+
+
+ */
+
+
         if (data != snapshotLast) {
           print("sb" + data);
           loadKeysReal(data);
