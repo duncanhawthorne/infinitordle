@@ -100,15 +100,16 @@ class _InfinitordleState extends State<Infinitordle> {
     //print("signin");
     if (fakeLogin) {
       gUser = "X";
-    }
-    else {
+    } else {
       //print("real");
       try {
-        await googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+        await googleSignIn.onCurrentUserChanged
+            .listen((GoogleSignInAccount? account) {
           _currentUser = account;
         });
         await googleSignIn.signIn();
-        googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+        googleSignIn.onCurrentUserChanged
+            .listen((GoogleSignInAccount? account) {
           _currentUser = account;
         });
         //await initalSignIn();
@@ -132,12 +133,10 @@ class _InfinitordleState extends State<Infinitordle> {
   Future<void> _handleSignOut() async {
     //print("signout");
     if (fakeLogin) {
-
-    }
-    else {
+    } else {
       await googleSignIn.disconnect();
     }
-    gUser = "JoeBloggs";
+    gUser = gUserDefault;
     //print(gUser);
     await saveUser();
     resetBoardReal(true);
@@ -315,8 +314,6 @@ class _InfinitordleState extends State<Infinitordle> {
     //}
     //loadKeys();
 
-
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -360,8 +357,6 @@ class _InfinitordleState extends State<Infinitordle> {
     return StreamBuilder<QuerySnapshot>(
       stream: usersStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-
-
         if (snapshot.hasError) {
           return _wrapStructure();
         }
@@ -370,20 +365,21 @@ class _InfinitordleState extends State<Infinitordle> {
           return _wrapStructure();
         }
 
-
-
         String dataQ = "";
         String data = "";
         //print("hre");
-        var x = snapshot.data!.docs.map((DocumentSnapshot document) {
-          //print(document.id);
-          if (document.id == gUser) {
-            //print("match");
-            Map<String, dynamic> dataTmpQ = document.data()  as Map<String, dynamic>;
-            dataQ = dataTmpQ["data"].toString();
-            return dataQ;
-          }
-        }) .toList()
+        var x = snapshot.data!.docs
+            .map((DocumentSnapshot document) {
+              //print(document.id);
+              if (document.id == gUser) {
+                //print("match");
+                Map<String, dynamic> dataTmpQ =
+                    document.data() as Map<String, dynamic>;
+                dataQ = dataTmpQ["data"].toString();
+                return dataQ;
+              }
+            })
+            .toList()
             .cast();
         //print(x);
 
@@ -393,10 +389,7 @@ class _InfinitordleState extends State<Infinitordle> {
           }
         }
 
-
         //print("data"+data);
-
-
 
 /*
         Map<String, dynamic> dataTmp =
@@ -407,7 +400,6 @@ class _InfinitordleState extends State<Infinitordle> {
 
 
  */
-
 
         if (data != snapshotLast && gUser != gUserDefault) {
           //print("sb" + data);
@@ -868,18 +860,22 @@ class _InfinitordleState extends State<Infinitordle> {
             children: [
               Text(appTitle),
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    gUser == "JoeBloggs" ? _handleSignIn() : _handleSignOut();
-                    focusNode.requestFocus();
-                    Navigator.pop(context);
-                  });
-                },
-                child: gUser == "JoeBloggs" || user == null
-                    ? Icon(Icons.person, color: bg)
-                    : GoogleUserCircleAvatar(identity: user)
-                //Text((gUser.substring(0, 1).toUpperCase())),
-              )
+                  onTap: () {
+                    setState(() {
+                      gUser == gUserDefault
+                          ? _handleSignIn()
+                          : _handleSignOut();
+                      focusNode.requestFocus();
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: gUser == gUserDefault
+                      ? Icon(Icons.person, color: bg)
+                      : user == null
+                          ? Icon(Icons.account_circle, color: bg)
+                          : GoogleUserCircleAvatar(identity: user)
+                  //Text((gUser.substring(0, 1).toUpperCase())),
+                  )
             ],
           ),
           // ignore: prefer_interpolation_to_compose_strings

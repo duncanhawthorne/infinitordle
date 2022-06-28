@@ -227,7 +227,7 @@ Future<void> saveKeys() async {
 Future<void> loadUser() async {
   //print("load user");
   final prefs = await SharedPreferences.getInstance();
-  gUser = prefs.getString('gUser') ?? "JoeBloggs";
+  gUser = prefs.getString('gUser') ?? gUserDefault;
   //print(gUser);
 }
 
@@ -237,7 +237,6 @@ Future<void> saveUser() async {
   await prefs.setString('gUser', gUser);
   //print(gUser);
 }
-
 
 Future<void> loadKeys() async {
   //print("load keys called");
@@ -249,18 +248,16 @@ Future<void> loadKeys() async {
   //);
   //db = FirebaseFirestore.instance;
 
-  // ignore: dead_code
-  if (gUser == "JoeBloggs") {
+  if (gUser == gUserDefault) {
     gameEncoded = prefs.getString('game') ?? "";
     //print("gUser = Joe Bloggs - 1gameencoded" + gameEncoded);
-  }
-  else {
+  } else {
     //await fbInit();
 
     gameEncoded = "";
     final docRef = db.collection("states").doc(gUser);
     await docRef.get().then(
-          (DocumentSnapshot doc) {
+      (DocumentSnapshot doc) {
         final gameEncodedTmp = doc.data() as Map<String, dynamic>;
         gameEncoded = gameEncodedTmp["data"];
         //print(gameEncodedTmp);
@@ -289,9 +286,7 @@ Future<void> loadKeys() async {
 
   loadKeysReal(gameEncoded);
 
-
   //saveKeys();
-
 }
 
 void loadKeysReal(gameEncoded) {
@@ -310,7 +305,6 @@ void loadKeysReal(gameEncoded) {
         loadKeys(); //redo it using the new gUser (i.e. from the cloud)
         return;
       }
-
 
       targetWords = game["targetWords"] ?? getTargetWords(numBoards);
 
@@ -333,12 +327,10 @@ void loadKeysReal(gameEncoded) {
     //print(targetWords);
     gameEncodedLast = gameEncoded;
   }
-
 }
 
-
 Future<void> fbSave(state) async {
-  if (gUser != "JoeBloggs") {
+  if (gUser != gUserDefault) {
     // Create a new user with a first and last name
     final dhState = <String, dynamic>{"data": state};
 
@@ -346,7 +338,7 @@ Future<void> fbSave(state) async {
         .collection("states")
         .doc(gUser)
         .set(dhState)
-    // ignore: avoid_print
+        // ignore: avoid_print
         .onError((e, _) => print("Error writing document: $e"));
   }
 }
@@ -397,10 +389,9 @@ void resetBoardReal(save) {
 void initiateFlipState() {
   for (var j = 0; j < gameboardEntries.length; j++) {
     //if (gameboardEntries[(j ~/ 5) * 5] != "") {
-      if (currentWord > (j ~/ 5) ) {
+    if (currentWord > (j ~/ 5)) {
       flipCardReal(j, "f");
-    }
-    else {
+    } else {
       flipCardReal(j, "b");
     }
   }
@@ -482,4 +473,3 @@ Future<void> fbInit() async {
   db = FirebaseFirestore.instance;
 }
 */
-
