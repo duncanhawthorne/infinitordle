@@ -77,6 +77,8 @@ double keyAspectRatio = 1.5;
 Random random = Random();
 //int lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
 
+
+var gUserDefault = "JoeBloggs";
 var gUser = "JoeBloggs";
 
 var db = FirebaseFirestore.instance;
@@ -84,5 +86,6 @@ String gameEncodedLast = "";
 String snapshotLast = "XXXXXXX";
 
 bool dirty = false;
+bool fakeLogin = false;
 
 Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();

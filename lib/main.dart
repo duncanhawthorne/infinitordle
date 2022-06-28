@@ -6,7 +6,6 @@ import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/secrets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -21,6 +20,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  db = FirebaseFirestore.instance;
   runApp(const MyApp());
 }
 
@@ -57,8 +57,9 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
     super.initState();
-    fbInit();
+    //fbInit();
     resetBoardReal(false);
+    loadUser();
     initalSignIn();
     loadKeys();
 
@@ -74,16 +75,12 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Future<void> initalSignIn() async {
-    print(gUser);
     googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       _currentUser = account;
-      final GoogleSignInAccount? user = _currentUser;
-      if (user != null) {
-        gUser = user.email;
-      }
     });
-    print(gUser);
     await googleSignIn.signInSilently();
+    /*
+
 
     final GoogleSignInAccount? user = _currentUser;
     if (user != null) {
@@ -95,31 +92,55 @@ class _InfinitordleState extends State<Infinitordle> {
     print(gUser);
     initiateFlipState();
     setState(() {});
+
+     */
   }
 
   Future<void> _handleSignIn() async {
-    try {
-      await googleSignIn.signIn();
-      gUser = "SOMEONE";
-      print(gUser);
-
-      final GoogleSignInAccount? user = _currentUser;
-      if (user != null) {
-        gUser = user.email;
-      }
-      print(gUser);
-    } catch (error) {
-      print(error);
+    //print("signin");
+    if (fakeLogin) {
+      gUser = "X";
     }
+    else {
+      //print("real");
+      try {
+        await googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+          _currentUser = account;
+        });
+        await googleSignIn.signIn();
+        googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+          _currentUser = account;
+        });
+        //await initalSignIn();
+        final GoogleSignInAccount? user = _currentUser;
+        //print(user);
+        if (user != null) {
+          gUser = user.email;
+        }
+      } catch (error) {
+        //print(error);
+      }
+    }
+    //print("guser"+gUser);
+    await saveUser();
     await loadKeys();
     initiateFlipState();
     setState(() {});
+    //_handleSignIn();
   }
 
   Future<void> _handleSignOut() async {
-    await googleSignIn.disconnect();
+    //print("signout");
+    if (fakeLogin) {
+
+    }
+    else {
+      await googleSignIn.disconnect();
+    }
     gUser = "JoeBloggs";
-    print(gUser);
+    //print(gUser);
+    await saveUser();
+    resetBoardReal(true);
     await loadKeys();
     initiateFlipState();
     setState(() {});
@@ -141,7 +162,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   void onKeyboardTapped(int index) {
     cheatPrintTargetWords();
-    print(gUser);
+    //print(gUser);
 
     if (keyboardList[index] == " ") {
       //ignore pressing of non-keys
@@ -340,13 +361,15 @@ class _InfinitordleState extends State<Infinitordle> {
       stream: usersStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
 
+
         if (snapshot.hasError) {
-          return const Text('Something went wrong');
+          return _wrapStructure();
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text("Loading");
+          return _wrapStructure();
         }
+
 
 
         String dataQ = "";
@@ -386,8 +409,8 @@ class _InfinitordleState extends State<Infinitordle> {
  */
 
 
-        if (data != snapshotLast) {
-          print("sb" + data);
+        if (data != snapshotLast && gUser != gUserDefault) {
+          //print("sb" + data);
           loadKeysReal(data);
           dirty = true;
           snapshotLast = data;
@@ -833,6 +856,8 @@ class _InfinitordleState extends State<Infinitordle> {
       end = true;
     }
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
+    final GoogleSignInAccount? user = _currentUser;
+    print(user);
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -842,17 +867,18 @@ class _InfinitordleState extends State<Infinitordle> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(appTitle),
-              ElevatedButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
                   setState(() {
                     gUser == "JoeBloggs" ? _handleSignIn() : _handleSignOut();
                     focusNode.requestFocus();
                     Navigator.pop(context);
                   });
                 },
-                child: Text(gUser == "JoeBloggs"
-                    ? 'SIGN IN'
-                    : (gUser.substring(0, 1).toUpperCase())),
+                child: gUser == "JoeBloggs" || user == null
+                    ? Icon(Icons.person, color: bg)
+                    : GoogleUserCircleAvatar(identity: user)
+                //Text((gUser.substring(0, 1).toUpperCase())),
               )
             ],
           ),

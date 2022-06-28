@@ -5,8 +5,6 @@ import 'package:infinitordle/constants.dart';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 
 String getTargetWord() {
   return finalWords[random.nextInt(finalWords.length)];
@@ -226,6 +224,21 @@ Future<void> saveKeys() async {
   fbSave(gameEncoded);
 }
 
+Future<void> loadUser() async {
+  //print("load user");
+  final prefs = await SharedPreferences.getInstance();
+  gUser = prefs.getString('gUser') ?? "JoeBloggs";
+  //print(gUser);
+}
+
+Future<void> saveUser() async {
+  //print("save user");
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('gUser', gUser);
+  //print(gUser);
+}
+
+
 Future<void> loadKeys() async {
   //print("load keys called");
   final prefs = await SharedPreferences.getInstance();
@@ -234,7 +247,7 @@ Future<void> loadKeys() async {
   //await Firebase.initializeApp(
   //  options: DefaultFirebaseOptions.currentPlatform,
   //);
-  db = FirebaseFirestore.instance;
+  //db = FirebaseFirestore.instance;
 
   // ignore: dead_code
   if (gUser == "JoeBloggs") {
@@ -249,14 +262,16 @@ Future<void> loadKeys() async {
     await docRef.get().then(
           (DocumentSnapshot doc) {
         final gameEncodedTmp = doc.data() as Map<String, dynamic>;
+        gameEncoded = gameEncodedTmp["data"];
         //print(gameEncodedTmp);
-        if (gameEncodedTmp != null) {
-          gameEncoded = gameEncodedTmp["data"];
-          //print(gameEncoded);
-        }
+        //if (gameEncodedTmp != null) {
+        //  gameEncoded = gameEncodedTmp["data"];
+        //  //print(gameEncoded);
+        //}
 
         // ...
       },
+      // ignore: avoid_print
       onError: (e) => print("Error getting document: $e"),
     );
     /*
@@ -269,7 +284,7 @@ Future<void> loadKeys() async {
       }
     });
     */
-    print("gUser NOT Joe Bloggs - 1gameencoded" + gameEncoded);
+    //print("gUser NOT Joe Bloggs - 1gameencoded" + gameEncoded);
   }
 
   loadKeysReal(gameEncoded);
@@ -280,9 +295,9 @@ Future<void> loadKeys() async {
 }
 
 void loadKeysReal(gameEncoded) {
-  print("loadKeysReal"+gameEncoded);
+  //print("loadKeysReal"+gameEncoded);
   if (gameEncoded == "") {
-    print("ge empty");
+    //print("ge empty");
     resetBoardReal(true);
   } else if (gameEncoded != gameEncodedLast) {
     try {
@@ -290,7 +305,7 @@ void loadKeysReal(gameEncoded) {
 
       String tmpgUser = game["gUser"] ?? "Default";
       if (tmpgUser != gUser && tmpgUser != "Default") {
-        print("redoing load keys");
+        //print("redoing load keys");
         gUser = tmpgUser;
         loadKeys(); //redo it using the new gUser (i.e. from the cloud)
         return;
@@ -310,12 +325,12 @@ void loadKeysReal(gameEncoded) {
       infSuccessBoardsMatchingWords =
           game["infSuccessBoardsMatchingWords"] ?? [];
     } catch (error) {
-      print("ERROR");
+      //print("ERROR");
       resetBoardReal(true);
     }
     initiateFlipState();
     resetColorsCache();
-    print(targetWords);
+    //print(targetWords);
     gameEncodedLast = gameEncoded;
   }
 
@@ -374,14 +389,15 @@ void resetBoardReal(save) {
   onStreakForKeyboardIndicatorCache = false;
   resetColorsCache();
   if (save) {
-    print("reset called with instruction to save keys, and now saving keys");
+    //print("reset called with instruction to save keys, and now saving keys");
     saveKeys();
   }
 }
 
 void initiateFlipState() {
   for (var j = 0; j < gameboardEntries.length; j++) {
-    if (gameboardEntries[j] != "") {
+    //if (gameboardEntries[(j ~/ 5) * 5] != "") {
+      if (currentWord > (j ~/ 5) ) {
       flipCardReal(j, "f");
     }
     else {
@@ -458,11 +474,12 @@ void detectAndUpdateForScreenSize(context) {
   }
 }
 
+/*
 Future<void> fbInit() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   db = FirebaseFirestore.instance;
 }
-
+*/
 
