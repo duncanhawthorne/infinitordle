@@ -97,6 +97,11 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Future<void> _handleSignIn() async {
+    await _handleSignInReal();
+    await _handleSignInReal();
+  }
+
+  Future<void> _handleSignInReal() async {
     //print("signin");
     if (fakeLogin) {
       gUser = "X";
