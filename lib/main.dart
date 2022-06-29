@@ -104,10 +104,13 @@ class _InfinitordleState extends State<Infinitordle> {
   Future<void> _handleSignInReal() async {
     //print("signin");
     if (fakeLogin) {
+      // ignore: avoid_print
+      print("fakelogin");
       gUser = "X";
     } else {
       //print("real");
       try {
+        // ignore: await_only_futures
         await googleSignIn.onCurrentUserChanged
             .listen((GoogleSignInAccount? account) {
           _currentUser = account;
@@ -307,17 +310,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
-    //final GoogleSignInAccount? user = _currentUser;
-    //if (user != null) {
-    //  gUser = user.email;
-    //}
-    //print(dirty);
     detectAndUpdateForScreenSize(context);
-    //if (dirty) {
-    //  setState(() {});
-    //  dirty = false;
-    //}
-    //loadKeys();
 
     return Scaffold(
       appBar: AppBar(
@@ -325,92 +318,83 @@ class _InfinitordleState extends State<Infinitordle> {
         toolbarHeight: appBarHeight,
         title: _titleWidget(),
       ),
-      body: KeyboardListener(
-        focusNode: focusNode,
-        autofocus: true,
-        onKeyEvent: (keyEvent) {
-          if (keyEvent is KeyDownEvent) {
-            //if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
-            if (keyboardList.contains(keyEvent.character)) {
-              onKeyboardTapped(keyboardList.indexOf(keyEvent.character ?? " "));
-            }
-            if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
-              onKeyboardTapped(29);
-            }
-            if (keyEvent.logicalKey == LogicalKeyboardKey.backspace &&
-                backspaceSafe) {
-              if (backspaceSafe) {
-                // (DateTime.now().millisecondsSinceEpoch > lastTimePressedDelete + 200) {
-                //workaround to bug which was firing delete key twice
-                backspaceSafe = false;
-                onKeyboardTapped(20);
-                //lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
-              }
-            }
-          } else if (keyEvent is KeyUpEvent) {
-            if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
-              backspaceSafe = true;
-            }
-          }
-        },
-        child: sb(),
-      ),
+      body: keyboardListenerWrapper(),
     );
   }
 
-  Widget sb() {
+  Widget keyboardListenerWrapper() {
+    return KeyboardListener(
+      focusNode: focusNode,
+      autofocus: true,
+      onKeyEvent: (keyEvent) {
+        if (keyEvent is KeyDownEvent) {
+          //if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
+          if (keyboardList.contains(keyEvent.character)) {
+            onKeyboardTapped(keyboardList.indexOf(keyEvent.character ?? " "));
+          }
+          if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
+            onKeyboardTapped(29);
+          }
+          if (keyEvent.logicalKey == LogicalKeyboardKey.backspace &&
+              backspaceSafe) {
+            if (backspaceSafe) {
+              // (DateTime.now().millisecondsSinceEpoch > lastTimePressedDelete + 200) {
+              //workaround to bug which was firing delete key twice
+              backspaceSafe = false;
+              onKeyboardTapped(20);
+              //lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
+            }
+          }
+        } else if (keyEvent is KeyUpEvent) {
+          if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
+            backspaceSafe = true;
+          }
+        }
+      },
+      child: streamBuilderWrapperOnCollection(),
+    );
+  }
+
+  Widget streamBuilderWrapperOnDocument() {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: db.collection('states').doc(gUser).snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError || !snapshot.hasData) {
+
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
+
+        } else {
+          //print(snapshot);
+          var userDocument = snapshot.data;
+          //print(userDocument);
+          if (userDocument != null) {
+            String snapshotCurrent = userDocument["data"];
+            //print(snapshotCurrent);
+            if (snapshotCurrent != snapshotLast && gUser != gUserDefault) {
+              loadKeysReal(snapshotCurrent);
+              snapshotLast = snapshotCurrent;
+            }
+          }
+        }
+        return _wrapStructure();
+      },
+    );
+  }
+
+  Widget streamBuilderWrapperOnCollection() {
     return StreamBuilder<QuerySnapshot>(
       stream: usersStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
-          return _wrapStructure();
-        }
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _wrapStructure();
-        }
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
 
-        String dataQ = "";
-        String data = "";
-        //print("hre");
-        var x = snapshot.data!.docs
-            .map((DocumentSnapshot document) {
-              //print(document.id);
-              if (document.id == gUser) {
-                //print("match");
-                Map<String, dynamic> dataTmpQ =
-                    document.data() as Map<String, dynamic>;
-                dataQ = dataTmpQ["data"].toString();
-                return dataQ;
-              }
-            })
-            .toList()
-            .cast();
-        //print(x);
-
-        for (int i = 0; i < x.length; i++) {
-          if (x[i] != null) {
-            data = x[i];
+        } else {
+          String snapshotCurrent = getDataFromSnapshot(snapshot);
+          if (snapshotCurrent != snapshotLast && gUser != gUserDefault) {
+            loadKeysReal(snapshotCurrent);
+            snapshotLast = snapshotCurrent;
           }
-        }
-
-        //print("data"+data);
-
-/*
-        Map<String, dynamic> dataTmp =
-            snapshot.data!.docs.first.data() as Map<String, dynamic>; //FIXME use of first here is wrong
-        //Map<String, dynamic> dataTmp = snapshot.data!.doc(gUser).data() as Map<String, dynamic>;
-        String data = dataTmp["data"].toString();
-
-
-
- */
-
-        if (data != snapshotLast && gUser != gUserDefault) {
-          //print("sb" + data);
-          loadKeysReal(data);
-          dirty = true;
-          snapshotLast = data;
         }
         return _wrapStructure();
       },
@@ -854,6 +838,7 @@ class _InfinitordleState extends State<Infinitordle> {
     }
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
     final GoogleSignInAccount? user = _currentUser;
+    // ignore: avoid_print
     print(user);
     return showDialog<void>(
       context: context,
@@ -875,9 +860,9 @@ class _InfinitordleState extends State<Infinitordle> {
                     });
                   },
                   child: gUser == gUserDefault
-                      ? Icon(Icons.person, color: bg)
+                      ? const Icon(Icons.person_off, color: bg)
                       : user == null
-                          ? Icon(Icons.account_circle, color: bg)
+                          ? const Icon(Icons.face, color: bg)
                           : GoogleUserCircleAvatar(identity: user)
                   //Text((gUser.substring(0, 1).toUpperCase())),
                   )

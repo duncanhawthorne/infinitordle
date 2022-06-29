@@ -343,6 +343,22 @@ Future<void> fbSave(state) async {
   }
 }
 
+String getDataFromSnapshot(snapshot) {
+  String snapshotCurrent = "";
+  snapshot.data!.docs
+      .map((DocumentSnapshot document) {
+    if (document.id == gUser) {
+      Map<String, dynamic> dataTmpQ =
+      document.data() as Map<String, dynamic>;
+      snapshotCurrent = dataTmpQ["data"].toString();
+      return null;
+    }
+  })
+      .toList()
+      .cast();
+  return snapshotCurrent;
+}
+
 void resetBoardReal(save) {
   //   setState(() {
   //initialise on reset

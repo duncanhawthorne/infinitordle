@@ -84,7 +84,6 @@ var db = FirebaseFirestore.instance;
 String gameEncodedLast = "";
 String snapshotLast = "XXXXXXX";
 
-bool dirty = false;
 bool fakeLogin = false;
 
 Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();
