@@ -351,34 +351,38 @@ class _InfinitordleState extends State<Infinitordle> {
           }
         }
       },
-      child: streamBuilderWrapperOnCollection(),
+      child: streamBuilderWrapperOnDocument(),
     );
   }
 
   Widget streamBuilderWrapperOnDocument() {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: db.collection('states').doc(gUser).snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasError || !snapshot.hasData) {
-
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
-
-        } else {
-          //print(snapshot);
-          var userDocument = snapshot.data;
-          //print(userDocument);
-          if (userDocument != null) {
-            String snapshotCurrent = userDocument["data"];
-            //print(snapshotCurrent);
-            if (snapshotCurrent != snapshotLast && gUser != gUserDefault) {
-              loadKeysReal(snapshotCurrent);
-              snapshotLast = snapshotCurrent;
+    if (gUser == gUserDefault) {
+      return _wrapStructure();
+    } else {
+      return StreamBuilder<DocumentSnapshot>(
+        stream: db.collection('states').doc(gUser).snapshots(),
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasError || !snapshot.hasData) {
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+          } else {
+            //print(snapshot);
+            var userDocument = snapshot.data;
+            //print(userDocument);
+            if (userDocument != null && userDocument.exists) {
+              String snapshotCurrent = userDocument["data"];
+              //print(snapshotCurrent);
+              if (snapshotCurrent != snapshotLast && gUser != gUserDefault) {
+                loadKeysReal(snapshotCurrent);
+                snapshotLast = snapshotCurrent;
+              }
             }
           }
-        }
-        return _wrapStructure();
-      },
-    );
+
+          return _wrapStructure();
+        },
+      );
+    }
   }
 
   Widget streamBuilderWrapperOnCollection() {
@@ -386,9 +390,7 @@ class _InfinitordleState extends State<Infinitordle> {
       stream: usersStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
-
         } else if (snapshot.connectionState == ConnectionState.waiting) {
-
         } else {
           String snapshotCurrent = getDataFromSnapshot(snapshot);
           if (snapshotCurrent != snapshotLast && gUser != gUserDefault) {
