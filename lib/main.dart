@@ -652,7 +652,7 @@ class _InfinitordleState extends State<Infinitordle> {
       children: [
         AnimatedPositioned(
           curve: Curves.fastOutSlowIn,
-          duration: Duration(milliseconds: oneStepState * durMult * 250),
+          duration: Duration(milliseconds: oneStepState * durMult * 200),
           top: -cardEffectiveMaxPixel * oneStepState,
           child: SizedBox(
             height: cardEffectiveMaxPixel,
