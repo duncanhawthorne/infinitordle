@@ -650,17 +650,23 @@ class _InfinitordleState extends State<Infinitordle> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        AnimatedPositioned(
+        oneStepState == 0 ?
+        _sizedCard(index, boardNumber, val, bf)
+        : AnimatedPositioned(
           curve: Curves.fastOutSlowIn,
-          duration: Duration(milliseconds: oneStepState * durMult * 200),
+          duration: Duration(milliseconds: oneStepState * durMult * 200), //when oneStepState = 0 then will instantly transition
           top: -cardEffectiveMaxPixel * oneStepState,
-          child: SizedBox(
-            height: cardEffectiveMaxPixel,
-            width: cardEffectiveMaxPixel,
-            child: _card(index, boardNumber, val, bf),
-          ),
+          child: _sizedCard(index, boardNumber, val, bf),
         ),
       ],
+    );
+  }
+
+  Widget _sizedCard(index, boardNumber, val, bf) {
+    return SizedBox(
+      height: cardEffectiveMaxPixel,
+      width: cardEffectiveMaxPixel,
+      child: _card(index, boardNumber, val, bf),
     );
   }
 
