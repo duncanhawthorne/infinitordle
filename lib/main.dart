@@ -252,26 +252,42 @@ class _InfinitordleState extends State<Infinitordle> {
           if (infMode && oneMatchingWordLocal) {
             Future.delayed(Duration(milliseconds: delayMult * 1500), () {
               //Give time for above code to show visually, so we have flipped
-              //Erase a row and step back
-              oneStepBack(currentWordLocal);
+              //Slide the cards back visually, creating the illusion of stepping back
+              oneStepState = 1;
               setState(() {});
-
-              Future.delayed(Duration(milliseconds: delayMult * 1000), () {
-                //include inside other future so definitely happens after rather relying on race
-                //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
-                //Log the word just got in success words, which gets green to shown
-                logWinAndGetNewWord(
-                    enteredWordLocal, oneMatchingWordBoardLocal);
+              Future.delayed(Duration(milliseconds: durMult * 250), () {
+                //Undo the visual slide (and do this instanteously)
+                oneStepState = 0;
+                //Actually erase a row and step back, so state matches visual illusion above
+                oneStepBack(currentWordLocal);
                 setState(() {});
 
-                if (streak()) {
-                  Future.delayed(Duration(milliseconds: delayMult * 1000), () {
-                    if (currentWord > 0) {
-                      oneStepBack(currentWordLocal);
-                      setState(() {});
-                    }
-                  });
-                }
+                Future.delayed(Duration(milliseconds: delayMult * 1000), () {
+                  //include inside other future so definitely happens after rather relying on race
+                  //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
+                  //Log the word just got in success words, which gets green to shown
+                  logWinAndGetNewWord(
+                      enteredWordLocal, oneMatchingWordBoardLocal);
+                  setState(() {});
+
+                  if (streak()) {
+                    Future.delayed(Duration(milliseconds: delayMult * 750), () {
+                      if (currentWord > 0) {
+                        //Slide the cards back visually, creating the illusion of stepping back
+                        oneStepState = 1;
+                        setState(() {});
+                        Future.delayed(Duration(milliseconds: durMult * 250),
+                            () {
+                          //Undo the visual slide (and do this instanteously)
+                          oneStepState = 0;
+                          //Actually erase a row and step back, so state matches visual illusion above
+                          oneStepBack(currentWordLocal);
+                          setState(() {});
+                        });
+                      }
+                    });
+                  }
+                });
               });
             });
           }
@@ -632,10 +648,12 @@ class _InfinitordleState extends State<Infinitordle> {
 
   Widget _positionedCard(index, boardNumber, val, bf) {
     return Stack(
-      overflow: Overflow.visible,
+      clipBehavior: Clip.none,
       children: [
-        Positioned(
-          top: cardEffectiveMaxPixel / 2,
+        AnimatedPositioned(
+          curve: Curves.fastOutSlowIn,
+          duration: Duration(milliseconds: oneStepState * durMult * 250),
+          top: -cardEffectiveMaxPixel * oneStepState,
           child: SizedBox(
             height: cardEffectiveMaxPixel,
             width: cardEffectiveMaxPixel,
@@ -891,31 +909,26 @@ class _InfinitordleState extends State<Infinitordle> {
                   )
             ],
           ),
-
-          content: Text(
-              end
-                  ?
-
-                  "You got " +
-                      infSuccessWords.length.toString() +
-                      " word" +
-                      (infSuccessWords.length == 1 ? "" : "s") +
-                      ": " +
-                      infSuccessWords.join(", ") +
-                      "\n\nYou missed: " +
-                      targetWords.join(", ") +
-                      "\n\nReset the board?"
-
-                  : "You've got " +
-                      infSuccessWords.length.toString() +
-                      " word" +
-                      (infSuccessWords.length == 1 ? "" : "s") +
-                      ' so far' +
-                      (infSuccessWords.isNotEmpty ? ":" : "") +
-                      ' ' +
-                      infSuccessWords.join(", ") +
-                      "\n\n"
-                          'Lose your progress and reset the board?'),
+          content: Text(end
+              ? "You got " +
+                  infSuccessWords.length.toString() +
+                  " word" +
+                  (infSuccessWords.length == 1 ? "" : "s") +
+                  ": " +
+                  infSuccessWords.join(", ") +
+                  "\n\nYou missed: " +
+                  targetWords.join(", ") +
+                  "\n\nReset the board?"
+              : "You've got " +
+                  infSuccessWords.length.toString() +
+                  " word" +
+                  (infSuccessWords.length == 1 ? "" : "s") +
+                  ' so far' +
+                  (infSuccessWords.isNotEmpty ? ":" : "") +
+                  ' ' +
+                  infSuccessWords.join(", ") +
+                  "\n\n"
+                      'Lose your progress and reset the board?'),
           actions: <Widget>[
             TextButton(
               onPressed: () =>

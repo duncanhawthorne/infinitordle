@@ -10,7 +10,7 @@ const bool cheatMode = false; //
 
 //Branding
 String appTitle = "infinitordle";
-String appTitle1 = "infinit";
+String appTitle1 = cheatMode ? "cheat" : "infinit";
 String appTitle3 = "rdle";
 const Color bg = Color(0xff222222);
 const grey = Color(0xff555555);
@@ -85,5 +85,6 @@ String gameEncodedLast = "";
 String snapshotLast = "XXXXXXX";
 
 bool fakeLogin = false;
+int oneStepState = 0;
 
 Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();
