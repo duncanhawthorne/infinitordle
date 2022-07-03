@@ -10,7 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 void p(x) {
   //dev.log(x.toString());
-  //debugPrint("///// A "+x.toString());
+  debugPrint("///// A "+x.toString());
 }
 
 String getTargetWord() {

@@ -24,6 +24,7 @@ const double boardSpacer = 8;
 
 //Helper text
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
+//final keyboardList = "mapresc<>".split("");
 const cheatString = "maplewindyscourfightkebab";
 const cheatWords = ["scoff", "brunt", "armor", "tabby"];
 final legalWords = kLegalWordsText.split("\n");

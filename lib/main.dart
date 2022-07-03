@@ -812,8 +812,8 @@ class _InfinitordleState extends State<Infinitordle> {
 
   Widget _kbTextSquare(index) {
     return SizedBox(
-        height: keyboardSingleKeyEffectiveMaxPixelHeight, //500,
-        width: keyboardSingleKeyEffectiveMaxPixelHeight / keyAspectRatio, //500,
+        height: double.infinity, //keyboardSingleKeyEffectiveMaxPixelHeight, //500,
+        width: double.infinity, // keyboardSingleKeyEffectiveMaxPixelHeight / keyAspectRatio, //500,
         child: FittedBox(
             fit: BoxFit.fitHeight,
             child: keyboardList[index] == "<"
