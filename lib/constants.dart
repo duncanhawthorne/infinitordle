@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 //Debug
-const bool cheatMode = true; //
+const bool cheatMode = false; //
 
 //Branding
 String appTitle = "infinitordle";

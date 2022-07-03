@@ -5,7 +5,7 @@ import 'package:infinitordle/constants.dart';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:developer' as dev;
+//import 'dart:developer' as dev;
 
 
 void p(x) {

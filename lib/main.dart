@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinitordle/helper.dart';
@@ -622,10 +624,26 @@ class _InfinitordleState extends State<Infinitordle> {
                 : Transform(
                     alignment: Alignment.center,
                     transform: Matrix4.identity()..rotateX(pi),
-                    child: _card(index, boardNumber, val, "f"),
+                    child: _positionedCard(index, boardNumber, val, "f"),
                   ),
           ));
         });
+  }
+
+  Widget _positionedCard(index, boardNumber, val, bf) {
+    return Stack(
+      overflow: Overflow.visible,
+      children: [
+        Positioned(
+          top: cardEffectiveMaxPixel / 2,
+          child: SizedBox(
+            height: cardEffectiveMaxPixel,
+            width: cardEffectiveMaxPixel,
+            child: _card(index, boardNumber, val, bf),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _card(index, boardNumber, val, bf) {
@@ -873,12 +891,11 @@ class _InfinitordleState extends State<Infinitordle> {
                   )
             ],
           ),
-          // ignore: prefer_interpolation_to_compose_strings
+
           content: Text(
-              // ignore: prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings
               end
                   ?
-                  // ignore: prefer_interpolation_to_compose_strings
+
                   "You got " +
                       infSuccessWords.length.toString() +
                       " word" +
@@ -888,7 +905,7 @@ class _InfinitordleState extends State<Infinitordle> {
                       "\n\nYou missed: " +
                       targetWords.join(", ") +
                       "\n\nReset the board?"
-                  // ignore: prefer_interpolation_to_compose_strings
+
                   : "You've got " +
                       infSuccessWords.length.toString() +
                       " word" +
