@@ -102,14 +102,16 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Future<void> _handleSignInReal() async {
-    //print("signin");
+    p("_handleSignInReal()");
     if (fakeLogin) {
       // ignore: avoid_print
-      print("fakelogin");
+      p("fakelogin");
       gUser = "X";
     } else {
       //print("real");
       try {
+        p("try");
+        p("gUser" + gUser);
         // ignore: await_only_futures
         await googleSignIn.onCurrentUserChanged
             .listen((GoogleSignInAccount? account) {
@@ -126,8 +128,9 @@ class _InfinitordleState extends State<Infinitordle> {
         if (user != null) {
           gUser = user.email;
         }
+        p("gUser" + gUser);
       } catch (error) {
-        //print(error);
+        p(error);
       }
     }
     //print("guser"+gUser);

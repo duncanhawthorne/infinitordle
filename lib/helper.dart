@@ -5,6 +5,13 @@ import 'package:infinitordle/constants.dart';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:developer' as dev;
+
+
+void p(x) {
+  //dev.log(x.toString());
+  //debugPrint("///// A "+x.toString());
+}
 
 String getTargetWord() {
   return finalWords[random.nextInt(finalWords.length)];
