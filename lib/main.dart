@@ -508,7 +508,7 @@ class _InfinitordleState extends State<Infinitordle> {
             Expanded(
                 flex: 25,
                 child: AspectRatio(
-                    aspectRatio: 10 / (3 * keyAspectRatio),
+                    aspectRatio: 10 / (3 * keyAspectRatioDefault),
                     child: _keyboardWidget())
                 /*
               Flex(
@@ -570,7 +570,9 @@ class _InfinitordleState extends State<Infinitordle> {
             color: Colors.transparent,
             height: dividerHeight,
           ),
-          _keyboardWidget(),
+          _keyboardRowWidget(0, 10),
+          _keyboardRowWidget(10, 9),
+          _keyboardRowWidget(20, 9)
         ],
       ),
     );
@@ -751,22 +753,41 @@ class _InfinitordleState extends State<Infinitordle> {
     return Container(
       constraints: BoxConstraints(
           maxWidth:
-              keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatio,
+              keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatioLive,
           maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight * 3),
       child: GridView.builder(
           physics: const NeverScrollableScrollPhysics(), //ios fix
           itemCount: 30,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 10,
-            childAspectRatio: 1 / keyAspectRatio,
+            childAspectRatio: 1 / keyAspectRatioLive,
           ),
           itemBuilder: (BuildContext context, int index) {
-            return _kbStackWithMiniGrid(index);
+            return _kbStackWithMiniGrid(index, 10);
           }),
     );
   }
 
-  Widget _kbStackWithMiniGrid(index) {
+  Widget _keyboardRowWidget(keyBoardStartKey, length) {
+    return Container(
+      constraints: BoxConstraints(
+          maxWidth:
+          keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatioLive,
+          maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight),
+      child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(), //ios fix
+          itemCount: length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: length,
+            childAspectRatio: 1 / keyAspectRatioLive * (10/length),
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            return _kbStackWithMiniGrid(keyBoardStartKey + index, length);
+          }),
+    );
+  }
+
+  Widget _kbStackWithMiniGrid(index, length) {
     return Container(
       padding: EdgeInsets.all(0.005 * keyboardSingleKeyEffectiveMaxPixelHeight),
       child: ClipRRect(
@@ -786,7 +807,7 @@ class _InfinitordleState extends State<Infinitordle> {
               //  borderRadius: BorderRadius.circular(10),
               child: ["<", ">", " "].contains(keyboardList[index])
                   ? const SizedBox.shrink()
-                  : _kbMiniGridContainer(index),
+                  : _kbMiniGridContainer(index, length),
               //),
               //        )
             ),
@@ -849,7 +870,7 @@ class _InfinitordleState extends State<Infinitordle> {
                       )));
   }
 
-  Widget _kbMiniGridContainer(index) {
+  Widget _kbMiniGridContainer(index, length) {
     return GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         scrollDirection: Axis.vertical,
@@ -860,7 +881,7 @@ class _InfinitordleState extends State<Infinitordle> {
           childAspectRatio: 1 /
               ((numBoards / numPresentationBigRowsOfBoards) /
                   numPresentationBigRowsOfBoards) /
-              keyAspectRatio,
+              keyAspectRatioLive * (10/length),
         ),
         itemBuilder: (BuildContext context, int subIndex) {
           return _kbMiniSquareColor(index, subIndex);

@@ -445,10 +445,10 @@ void detectAndUpdateForScreenSize(context) {
     vertSpaceAfterTitle =
         scH - appBarHeight - dividerHeight; //app bar and divider
     keyboardSingleKeyEffectiveMaxPixelHeight = min(
-        keyAspectRatio * scW / 10,
+        keyAspectRatioDefault * scW / 10,
         min(
             double.infinity, //keyboardSingleKeyUnconstrainedMaxPixelHeight,
-            keyAspectRatio * vertSpaceAfterTitle * 0.17 / 3));
+            keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3));
     vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
     vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
@@ -477,7 +477,7 @@ void detectAndUpdateForScreenSize(context) {
             numSpacersDown * boardSpacer) {
       //if still space left over, no point squashing keyboard for nothing
       keyboardSingleKeyEffectiveMaxPixelHeight = min(
-          keyAspectRatio * scW / 10,
+          keyAspectRatioDefault * scW / 10,
           min(
               double.infinity, //keyboardSingleKeyUnconstrainedMaxPixelHeight,
               (vertSpaceAfterTitle -
@@ -488,6 +488,9 @@ void detectAndUpdateForScreenSize(context) {
                   3));
     }
   }
+
+  keyAspectRatioLive = max(0.75,keyboardSingleKeyEffectiveMaxPixelHeight / (scW / 10));
+
 }
 
 /*

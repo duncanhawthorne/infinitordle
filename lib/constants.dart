@@ -23,7 +23,7 @@ const infNumBacksteps = 1;
 const double boardSpacer = 8;
 
 //Helper text
-final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm >".split("");
+final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm> ".split("");
 //final keyboardList = "mapresc<>".split("");
 const cheatString = "maplewindyscourfightkebab";
 const cheatWords = ["scoff", "brunt", "armor", "tabby"];
@@ -72,7 +72,8 @@ double vertSpaceAfterTitle = -1; //default value only
 double keyboardSingleKeyEffectiveMaxPixelHeight = -1; //default value only
 const double dividerHeight = 2;
 double appBarHeight = 56;
-double keyAspectRatio = 1.5;
+double keyAspectRatioDefault = 1.5;
+double keyAspectRatioLive = -1;
 
 //Misc
 Random random = Random();
