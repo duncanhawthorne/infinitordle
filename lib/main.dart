@@ -128,7 +128,7 @@ class _InfinitordleState extends State<Infinitordle> {
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
     final GoogleSignInAccount? user = currentUser;
     // ignore: avoid_print
-    print(user);
+    print([user, gUser]);
     return showDialog<void>(
       context: context,
       barrierDismissible: true,

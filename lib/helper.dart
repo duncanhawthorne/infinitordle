@@ -2,6 +2,7 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:infinitordle/game_logic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:infinitordle/constants.dart';
 import 'dart:convert';
@@ -63,6 +64,7 @@ void oneStepBack(currentWordLocal) {
       flipCardReal(currentWord * 5 + j, "b");
     }
   }
+  initiateFlipState();
   resetColorsCache();
   saveKeys();
 }
@@ -220,9 +222,17 @@ void resetColorsCache() {
 }
 
 Future<void> saveKeys() async {
-  //print("called saveKeys");
-  //print(gUser);
-  //print(targetWords);
+
+  String gameEncoded = encodeCurrentGameState();
+  //p(["SAVE keys",gameEncoded]);
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('game', gameEncoded);
+
+  fbSave(gameEncoded);
+}
+
+String encodeCurrentGameState() {
+  Map<String, dynamic> game = {};
   game = {};
   game["targetWords"] = targetWords;
   game["gUser"] = gUser;
@@ -231,12 +241,7 @@ Future<void> saveKeys() async {
   game["typeCountInWord"] = typeCountInWord;
   game["infSuccessWords"] = infSuccessWords;
   game["infSuccessBoardsMatchingWords"] = infSuccessBoardsMatchingWords;
-
-  String gameEncoded = json.encode(game);
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('game', gameEncoded);
-
-  fbSave(gameEncoded);
+  return json.encode(game);
 }
 
 Future<void> loadUser() async {
@@ -299,18 +304,19 @@ Future<void> loadKeys() async {
     //print("gUser NOT Joe Bloggs - 1gameencoded" + gameEncoded);
   }
 
-  loadKeysReal(gameEncoded);
+  loadFromEncodedState(gameEncoded);
 
   //saveKeys();
 }
 
-void loadKeysReal(gameEncoded) {
+void loadFromEncodedState(gameEncoded) {
   //print("loadKeysReal"+gameEncoded);
   if (gameEncoded == "") {
     //print("ge empty");
     resetBoardReal(true);
   } else if (gameEncoded != gameEncodedLast) {
     try {
+      Map<String, dynamic> game = {};
       game = json.decode(gameEncoded);
 
       String tmpgUser = game["gUser"] ?? "Default";
@@ -320,6 +326,10 @@ void loadKeysReal(gameEncoded) {
         loadKeys(); //redo it using the new gUser (i.e. from the cloud)
         return;
       }
+
+      var currentLiveLettersHolder = [];
+      currentLiveLettersHolder = gameboardEntries.sublist(currentWord*5, (currentWord+1)*5);
+      //p(currentLiveLettersHolder);
 
       targetWords = game["targetWords"] ?? getTargetWords(numBoards);
 
@@ -333,8 +343,19 @@ void loadKeysReal(gameEncoded) {
       infSuccessWords = game["infSuccessWords"] ?? [];
       infSuccessBoardsMatchingWords =
           game["infSuccessBoardsMatchingWords"] ?? [];
+
+      typeCountInWord = 0;
+      for (var j = 0; j < currentLiveLettersHolder.length; j++) {
+        String liveLetter = currentLiveLettersHolder[j];
+        gameboardEntries[currentWord*5 + j] = liveLetter;
+        if (liveLetter != "") {
+          typeCountInWord++;
+        }
+      }
+
+
     } catch (error) {
-      //print("ERROR");
+      p(["ERROR", error]);
       resetBoardReal(true);
     }
     initiateFlipState();

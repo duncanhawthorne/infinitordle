@@ -64,8 +64,18 @@ Widget streamBuilderWrapperOnDocument() {
           if (userDocument != null && userDocument.exists) {
             String snapshotCurrent = userDocument["data"];
             //print(snapshotCurrent);
-            if (snapshotCurrent != snapshotLast && gUser != gUserDefault) {
-              loadKeysReal(snapshotCurrent);
+            if (gUser != gUserDefault && snapshotCurrent != snapshotLast) {
+              if (snapshotCurrent != encodeCurrentGameState()) {
+                /*
+                p([
+                  "load",
+                  snapshotCurrent,
+                  snapshotLast,
+                  encodeCurrentGameState()
+                ]);
+                 */
+                loadFromEncodedState(snapshotCurrent);
+              }
               snapshotLast = snapshotCurrent;
             }
           }

@@ -46,7 +46,7 @@ int currentWord = -1; //gets overridden by initState()
 int typeCountInWord = 0;
 var infSuccessWords = [];
 var infSuccessBoardsMatchingWords = [];
-Map<String, dynamic> game = {};
+
 
 //Visual state of the game
 var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);

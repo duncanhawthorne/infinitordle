@@ -45,13 +45,16 @@ void onKeyboardTapped(int index) {
 
         //Made a guess flip over the cards to see the colors
         for (int i = 0; i < 5; i++) {
-          //delayedFlipOnAbsoluteCard(currentWordLocal.toInt(), i, "f");
+          delayedFlipOnAbsoluteCard(currentWordLocal.toInt(), i, "f",ss);
+          /*
+          int tmp = currentWordLocal.toInt();
           Future.delayed(
               Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
             //flip to reveal the colors with pleasing animation
-            flipCardReal((currentWordLocal.toInt() - 1) * 5 + i, "f");
+            flipCardReal((tmp - 1) * 5 + i, "f");
             ss(); //setState(() {});
           });
+           */
         }
 
         //Test if it is correct word
@@ -60,7 +63,7 @@ void onKeyboardTapped(int index) {
         int oneMatchingWordBoardLocal =
         -1; //local variable to ensure threadsafe
         for (var board = 0; board < numBoards; board++) {
-          if (detectBoardSolvedByRow(board, currentWord)) {
+          if (targetWords[board] == enteredWordLocal) { //(detectBoardSolvedByRow(board, currentWord)) {
             //threadsafeBlockNewWord = true;
             oneMatchingWordLocal = true;
             oneMatchingWordForResetScreenCache = true;
@@ -164,4 +167,13 @@ void onKeyboardTapped(int index) {
     }
   }
 //    });
+}
+
+void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB, ss) {
+  Future.delayed(
+      Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
+    //flip to reveal the colors with pleasing animation
+    flipCardReal((currentWord - 1) * 5 + i, toFOrB);
+    ss(); // setState(() {});
+  });
 }
