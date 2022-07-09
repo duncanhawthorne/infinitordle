@@ -3,19 +3,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinitordle/helper.dart';
-import 'dart:math';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/secrets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:infinitordle/keyboard.dart';
+import 'package:infinitordle/gameboard.dart';
 
 FocusNode focusNode = FocusNode();
-
-//void main() {
-//  runApp(const MyApp());
-//}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,21 +78,6 @@ class _InfinitordleState extends State<Infinitordle> {
       _currentUser = account;
     });
     await googleSignIn.signInSilently();
-    /*
-
-
-    final GoogleSignInAccount? user = _currentUser;
-    if (user != null) {
-      gUser = user.email;
-    }
-
-    print(gUser);
-    await loadKeys();
-    print(gUser);
-    initiateFlipState();
-    setState(() {});
-
-     */
   }
 
   Future<void> _handleSignIn() async {
@@ -124,9 +106,7 @@ class _InfinitordleState extends State<Infinitordle> {
             .listen((GoogleSignInAccount? account) {
           _currentUser = account;
         });
-        //await initalSignIn();
         final GoogleSignInAccount? user = _currentUser;
-        //print(user);
         if (user != null) {
           gUser = user.email;
         }
@@ -135,12 +115,10 @@ class _InfinitordleState extends State<Infinitordle> {
         p(error);
       }
     }
-    //print("guser"+gUser);
     await saveUser();
     await loadKeys();
     initiateFlipState();
     setState(() {});
-    //_handleSignIn();
   }
 
   Future<void> _handleSignOut() async {
@@ -172,6 +150,10 @@ class _InfinitordleState extends State<Infinitordle> {
     });
   }
 
+  void ss() {
+    setState(() {});
+  }
+
   void onKeyboardTapped(int index) {
     cheatPrintTargetWords();
     //print(gUser);
@@ -184,7 +166,7 @@ class _InfinitordleState extends State<Infinitordle> {
       if (typeCountInWord > 0) {
         typeCountInWord--;
         gameboardEntries[currentWord * 5 + typeCountInWord] = "";
-        setState(() {});
+        ss(); // setState(() {});
       }
     } else if (keyboardList[index] == ">") {
       //submit guess
@@ -194,7 +176,8 @@ class _InfinitordleState extends State<Infinitordle> {
         String enteredWordLocal = gameboardEntries
             .sublist(currentWord * 5, (currentWord + 1) * 5)
             .join(""); //local variable to ensure threadsafe
-        if (legalWords.contains(enteredWordLocal)) {
+        if (quickIn(legalWords, enteredWordLocal)) {
+          //(legalWords.contains(enteredWordLocal)) {
           //Legal word, but not necessarily correct word
 
           //Legal word so step forward
@@ -254,13 +237,13 @@ class _InfinitordleState extends State<Infinitordle> {
               //Give time for above code to show visually, so we have flipped
               //Slide the cards back visually, creating the illusion of stepping back
               oneStepState = 1;
-              setState(() {});
+              ss(); //setState(() {});
               Future.delayed(Duration(milliseconds: durMult * 250), () {
                 //Undo the visual slide (and do this instanteously)
                 oneStepState = 0;
                 //Actually erase a row and step back, so state matches visual illusion above
                 oneStepBack(currentWordLocal);
-                setState(() {});
+                ss(); //setState(() {});
 
                 Future.delayed(Duration(milliseconds: delayMult * 1000), () {
                   //include inside other future so definitely happens after rather relying on race
@@ -268,21 +251,21 @@ class _InfinitordleState extends State<Infinitordle> {
                   //Log the word just got in success words, which gets green to shown
                   logWinAndGetNewWord(
                       enteredWordLocal, oneMatchingWordBoardLocal);
-                  setState(() {});
+                  ss(); //setState(() {});
 
                   if (streak()) {
                     Future.delayed(Duration(milliseconds: delayMult * 750), () {
                       if (currentWord > 0) {
                         //Slide the cards back visually, creating the illusion of stepping back
                         oneStepState = 1;
-                        setState(() {});
+                        ss(); //setState(() {});
                         Future.delayed(Duration(milliseconds: durMult * 250),
                             () {
                           //Undo the visual slide (and do this instanteously)
                           oneStepState = 0;
                           //Actually erase a row and step back, so state matches visual illusion above
                           oneStepBack(currentWordLocal);
-                          setState(() {});
+                          ss(); //setState(() {});
                         });
                       }
                     });
@@ -297,7 +280,7 @@ class _InfinitordleState extends State<Infinitordle> {
             gameboardEntries[currentWord * 5 + i] = "";
           }
           typeCountInWord = 0;
-          setState(() {});
+          ss(); //setState(() {});
         }
       }
     } else if (true) {
@@ -312,13 +295,16 @@ class _InfinitordleState extends State<Infinitordle> {
         oneLegalWordForRedCardsCache = false;
         if (typeCountInWord == 5) {
           //ignore if not completed whole word
-          if (legalWords.contains(gameboardEntries
-              .sublist(currentWord * 5, (currentWord + 1) * 5)
-              .join(""))) {
+          if (quickIn(
+              legalWords,
+              gameboardEntries
+                  .sublist(currentWord * 5, (currentWord + 1) * 5)
+                  .join(""))) {
+            // (legalWords.contains(gameboardEntries.sublist(currentWord * 5, (currentWord + 1) * 5).join(""))) {
             oneLegalWordForRedCardsCache = true;
           }
         }
-        setState(() {});
+        ss(); //setState(() {});
       }
     }
 //    });
@@ -351,10 +337,11 @@ class _InfinitordleState extends State<Infinitordle> {
         if (keyEvent is KeyDownEvent) {
           //if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
           if (keyboardList.contains(keyEvent.character)) {
-            onKeyboardTapped(keyboardList.indexOf(keyEvent.character ?? " "));
+            onKeyboardTapped(
+                keyboardList.indexOf(keyEvent.character ?? " "));
           }
           if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
-            onKeyboardTapped(29);
+            onKeyboardTapped(keyboardList.indexOf(">"));
           }
           if (keyEvent.logicalKey == LogicalKeyboardKey.backspace &&
               backspaceSafe) {
@@ -362,7 +349,7 @@ class _InfinitordleState extends State<Infinitordle> {
               // (DateTime.now().millisecondsSinceEpoch > lastTimePressedDelete + 200) {
               //workaround to bug which was firing delete key twice
               backspaceSafe = false;
-              onKeyboardTapped(20);
+              onKeyboardTapped(keyboardList.indexOf("<"));
               //lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
             }
           }
@@ -406,142 +393,6 @@ class _InfinitordleState extends State<Infinitordle> {
     }
   }
 
-  Widget streamBuilderWrapperOnCollection() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: usersStream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
-        } else {
-          String snapshotCurrent = getDataFromSnapshot(snapshot);
-          if (snapshotCurrent != snapshotLast && gUser != gUserDefault) {
-            loadKeysReal(snapshotCurrent);
-            snapshotLast = snapshotCurrent;
-          }
-        }
-        return _wrapStructure();
-      },
-    );
-  }
-
-  // ignore: unused_element
-  Widget _aspectRatioStructure() {
-    //bool tall = MediaQuery.of(context).size.width <
-    //    2 * 0.75 * (MediaQuery.of(context).size.height - 56);
-    return Center(
-      child: Container(
-        color: bg,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          //mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-                flex: 75,
-                child: Flex(
-                    direction: numPresentationBigRowsOfBoards == 2
-                        ? Axis.vertical
-                        : Axis.horizontal,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                          flex: 50,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              //crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                    flex: 50,
-                                    child: Column(
-                                      children: [
-                                        Expanded(
-                                            flex: 50,
-                                            child: AspectRatio(
-                                                aspectRatio:
-                                                    5 / numRowsPerBoard,
-                                                child: _gameboardWidget(0))),
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 50,
-                                    child: Column(
-                                      children: [
-                                        Expanded(
-                                            flex: 50,
-                                            child: AspectRatio(
-                                                aspectRatio:
-                                                    5 / numRowsPerBoard,
-                                                child: _gameboardWidget(0))),
-                                      ],
-                                    ))
-                              ])),
-                      Expanded(
-                          flex: 50,
-                          child: Row(
-                              //crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                    flex: 50,
-                                    child: Column(
-                                      children: [
-                                        Expanded(
-                                            flex: 50,
-                                            child: AspectRatio(
-                                                aspectRatio:
-                                                    5 / numRowsPerBoard,
-                                                child: _gameboardWidget(0))),
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 50,
-                                    child: Column(
-                                      children: [
-                                        Expanded(
-                                            flex: 50,
-                                            child: AspectRatio(
-                                                aspectRatio:
-                                                    5 / numRowsPerBoard,
-                                                child: _gameboardWidget(0))),
-                                      ],
-                                    ))
-                              ])),
-                    ])),
-            Expanded(
-                flex: 25,
-                child: AspectRatio(
-                    aspectRatio: 10 / (3 * keyAspectRatioDefault),
-                    child: _keyboardWidget())
-                /*
-              Flex(
-                  direction: tall ? Axis.vertical : Axis.horizontal,
-                  children: [
-                    Expanded(
-                        flex: 100,
-                        child: Row(
-                          //crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                  flex: 100,
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                          flex: 100,
-                                          child: AspectRatio(
-                                              aspectRatio: 10 / (3 * keyAspectRatio),
-                                              child: _keyboardWidget())),
-                                    ],
-                                  )),
-
-                            ])),
-                  ]),
-        */
-                ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ignore: unused_element
   Widget _wrapStructure() {
     return Container(
       color: bg,
@@ -556,13 +407,13 @@ class _InfinitordleState extends State<Infinitordle> {
                 spacing: boardSpacer,
                 runSpacing: boardSpacer,
                 children: List.generate(
-                    numBoards ~/ 2, (index) => _gameboardWidget(index)),
+                    numBoards ~/ 2, (index) => gameboardWidget(index)),
               ),
               Wrap(
                 spacing: boardSpacer,
                 runSpacing: boardSpacer,
                 children: List.generate(numBoards ~/ 2,
-                    (index) => _gameboardWidget(numBoards ~/ 2 + index)),
+                    (index) => gameboardWidget(numBoards ~/ 2 + index)),
               ),
             ],
           ),
@@ -570,9 +421,9 @@ class _InfinitordleState extends State<Infinitordle> {
             color: Colors.transparent,
             height: dividerHeight,
           ),
-          _keyboardRowWidget(0, 10),
-          _keyboardRowWidget(10, 9),
-          _keyboardRowWidget(20, 9)
+          keyboardRowWidget(0, 10, onKeyboardTapped),
+          keyboardRowWidget(10, 9, onKeyboardTapped),
+          keyboardRowWidget(20, 9, onKeyboardTapped)
         ],
       ),
     );
@@ -609,295 +460,6 @@ class _InfinitordleState extends State<Infinitordle> {
             ),
           ),
         ));
-  }
-
-  Widget _gameboardWidget(boardNumber) {
-    return Container(
-      constraints: BoxConstraints(
-          maxWidth: 5 * cardEffectiveMaxPixel, //*0.97
-          maxHeight: numRowsPerBoard * cardEffectiveMaxPixel), //*0.97
-      child: GridView.builder(
-          physics:
-              const NeverScrollableScrollPhysics(), //turns off ios scrolling
-          itemCount: numRowsPerBoard * 5,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 5,
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            return _cardFlipper(index, boardNumber);
-          }),
-    );
-  }
-
-  Widget _cardFlipper(index, boardNumber) {
-    return TweenAnimationBuilder(
-        tween: Tween<double>(begin: 0, end: angles[index]),
-        duration: Duration(milliseconds: durMult * 500),
-        builder: (BuildContext context, double val, __) {
-          return (Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..rotateX(val * (2 * pi)),
-            child: val <= 0.25
-                ? _card(index, boardNumber, val, "b")
-                : Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.identity()..rotateX(pi),
-                    child: _positionedCard(index, boardNumber, val, "f"),
-                  ),
-          ));
-        });
-  }
-
-  Widget _positionedCard(index, boardNumber, val, bf) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        //oneStepState == 0 ?
-        //_sizedCard(index, boardNumber, val, bf)
-        //:
-        AnimatedPositioned(
-          curve: Curves.fastOutSlowIn,
-          duration: Duration(milliseconds: oneStepState * durMult * 200), //when oneStepState = 0 then will instantly transition
-          top: -cardEffectiveMaxPixel * oneStepState,
-          child: _sizedCard(index, boardNumber, val, bf),
-        ),
-      ],
-    );
-  }
-
-  Widget _sizedCard(index, boardNumber, val, bf) {
-    return SizedBox(
-      height: cardEffectiveMaxPixel,
-      width: cardEffectiveMaxPixel,
-      child: _card(index, boardNumber, val, bf),
-    );
-  }
-
-  Widget _card(index, boardNumber, val, bf) {
-    int rowOfIndex = index ~/ 5;
-    var wordForRowOfIndex = gameboardEntries
-        .sublist((5 * rowOfIndex).toInt(), (5 * (rowOfIndex + 1)).toInt())
-        .join("");
-    bool legalOrShort = typeCountInWord != 5 || oneLegalWordForRedCardsCache;
-
-    bool infPreviousWin5 = false;
-    if (infSuccessWords.contains(wordForRowOfIndex)) {
-      if (infSuccessBoardsMatchingWords[
-              infSuccessWords.indexOf(wordForRowOfIndex)] ==
-          boardNumber) {
-        infPreviousWin5 = true;
-      }
-    }
-    return Container(
-      padding: EdgeInsets.all(0.005 * cardEffectiveMaxPixel),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(0.2 * cardEffectiveMaxPixel),
-        child: Container(
-          //padding: const EdgeInsets.all(1),
-          //height: 500, //oversize so it renders in full and so doesn't pixelate
-          //width: 500, //oversize so it renders in full and so doesn't pixelate
-          decoration: BoxDecoration(
-              border: Border.all(
-                  color: bf == "b"
-                      ? Colors.transparent //bg
-                      : infPreviousWin5
-                          ? Colors.green
-                          : Colors.transparent, //bg
-                  width: bf == "b"
-                      ? 0
-                      : infPreviousWin5
-                          ? 0.05 * cardEffectiveMaxPixel //2
-                          : 0),
-              borderRadius: BorderRadius.circular(
-                  0.2 * cardEffectiveMaxPixel), //needed for green border
-              color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
-                  ? Colors.transparent // bg //"hide" after solved board
-                  : bf == "b"
-                      ? rowOfIndex == currentWord && !legalOrShort
-                          ? Colors.red
-                          : grey
-                      : getCardColor(index, boardNumber)),
-          child: FittedBox(
-            fit: BoxFit.fitHeight,
-            child: _cardText(index, boardNumber),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _cardText(index, boardNumber) {
-    int rowOfIndex = index ~/ 5;
-    return Text(
-      gameboardEntries[index].toUpperCase(),
-      style: TextStyle(
-        /*
-        shadows: const <Shadow>[
-          Shadow(
-            offset: Offset(0, 0),
-            blurRadius: 1.0,
-            color: bg,
-          ),
-        ],
-         */
-        fontSize: cardEffectiveMaxPixel,
-        color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
-            ? Colors.transparent // bg //"hide" after being solved
-            : Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  Widget _keyboardWidget() {
-    return Container(
-      constraints: BoxConstraints(
-          maxWidth:
-              keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatioLive,
-          maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight * 3),
-      child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(), //ios fix
-          itemCount: 30,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 10,
-            childAspectRatio: 1 / keyAspectRatioLive,
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            return _kbStackWithMiniGrid(index, 10);
-          }),
-    );
-  }
-
-  Widget _keyboardRowWidget(keyBoardStartKey, length) {
-    return Container(
-      constraints: BoxConstraints(
-          maxWidth:
-          keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatioLive,
-          maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight),
-      child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(), //ios fix
-          itemCount: length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: length,
-            childAspectRatio: 1 / keyAspectRatioLive * (10/length),
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            return _kbStackWithMiniGrid(keyBoardStartKey + index, length);
-          }),
-    );
-  }
-
-  Widget _kbStackWithMiniGrid(index, length) {
-    return Container(
-      padding: EdgeInsets.all(0.005 * keyboardSingleKeyEffectiveMaxPixelHeight),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(
-            0.1 * keyboardSingleKeyEffectiveMaxPixelHeight),
-        //borderRadius: BorderRadius.circular(10),
-        child: Stack(
-          children: [
-            Center(
-              //child: Container(
-              //decoration: BoxDecoration(
-              //  //border: Border.all(color: bg, width: 1),
-              //),
-              //child:
-
-              //ClipRRect(
-              //  borderRadius: BorderRadius.circular(10),
-              child: ["<", ">", " "].contains(keyboardList[index])
-                  ? const SizedBox.shrink()
-                  : _kbMiniGridContainer(index, length),
-              //),
-              //        )
-            ),
-            Center(
-                child: keyboardList[index] == " "
-                    ? const SizedBox.shrink()
-                    // ignore: dead_code
-                    : false && noAnimations
-                        // ignore: dead_code
-                        ? GestureDetector(
-                            onTap: () {
-                              onKeyboardTapped(index);
-                            },
-                            child: _kbTextSquare(index),
-                          )
-                        : Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                onKeyboardTapped(index);
-                              },
-                              child: Container(child: _kbTextSquare(index)),
-                            ),
-                          )),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _kbTextSquare(index) {
-    return SizedBox(
-        height: double.infinity, //keyboardSingleKeyEffectiveMaxPixelHeight, //500,
-        width: double.infinity, // keyboardSingleKeyEffectiveMaxPixelHeight / keyAspectRatio, //500,
-        child: FittedBox(
-            fit: BoxFit.fitHeight,
-            child: keyboardList[index] == "<"
-                ? Container(
-                    padding: const EdgeInsets.all(7),
-                    child: const Icon(Icons.keyboard_backspace,
-                        color: Colors.white))
-                : keyboardList[index] == ">"
-                    ? Container(
-                        padding: const EdgeInsets.all(7),
-                        child: Icon(Icons.keyboard_return_sharp,
-                            color: onStreakForKeyboardIndicatorCache
-                                ? Colors.green
-                                : Colors.white))
-                    : Text(
-                        keyboardList[index].toUpperCase(),
-                        style: const TextStyle(
-                            color: Colors.white,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(0, 0),
-                                blurRadius: 1.0,
-                                color: bg,
-                              ),
-                            ]),
-                      )));
-  }
-
-  Widget _kbMiniGridContainer(index, length) {
-    return GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        itemCount: numBoards,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: numBoards ~/ numPresentationBigRowsOfBoards,
-          childAspectRatio: 1 /
-              ((numBoards / numPresentationBigRowsOfBoards) /
-                  numPresentationBigRowsOfBoards) /
-              keyAspectRatioLive * (10/length),
-        ),
-        itemBuilder: (BuildContext context, int subIndex) {
-          return _kbMiniSquareColor(index, subIndex);
-        });
-  }
-
-  Widget _kbMiniSquareColor(index, subIndex) {
-    //return AnimatedContainer(
-    //  duration: const Duration(milliseconds: 500),
-    //  curve: Curves.fastOutSlowIn,
-    return Container(
-      height: 1000,
-      decoration: BoxDecoration(
-        color: getBestColorForLetter(index, subIndex),
-      ),
-    );
   }
 
   Future<void> showResetConfirmScreen() async {

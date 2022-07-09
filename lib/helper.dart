@@ -5,10 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:infinitordle/constants.dart';
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 //import 'dart:developer' as dev;
 
+
+bool quickIn(list, bit) {
+  //p(["quickIn", "list", bit]);
+  return binarySearch(list, bit) != -1; //sorted list so this is faster than doing contains
+  //return list.contains(bit);
+}
 
 void p(x) {
   //dev.log(x.toString());
@@ -501,3 +507,4 @@ Future<void> fbInit() async {
   db = FirebaseFirestore.instance;
 }
 */
+
