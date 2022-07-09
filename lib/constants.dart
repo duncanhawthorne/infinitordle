@@ -90,3 +90,5 @@ bool fakeLogin = false;
 int oneStepState = 0;
 
 Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();
+
+var globalFunctions = [];

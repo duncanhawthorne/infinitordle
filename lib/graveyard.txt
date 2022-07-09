@@ -151,3 +151,24 @@ Widget _aspectRatioStructure() {
     ),
   );
 }
+
+  //void flipCard(index, toFOrB) {
+  //  flipCardReal(index, toFOrB);
+  //  setState(() {});
+  //}
+
+  /*
+  void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB) {
+    Future.delayed(
+        Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
+      //flip to reveal the colors with pleasing animation
+      flipCardReal((currentWord - 1) * 5 + i, toFOrB);
+      setState(() {});
+    });
+  }
+   */
+
+     void resetBoard(saveReset) {
+       resetBoardReal(saveReset);
+       setState(() {});
+     }
