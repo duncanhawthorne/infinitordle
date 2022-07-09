@@ -83,7 +83,7 @@ class _InfinitordleState extends State<Infinitordle> {
         toolbarHeight: appBarHeight,
         title: _titleWidget(),
       ),
-      body: keyboardListenerWrapper(),
+      body: bodyWidget(),
     );
   }
 

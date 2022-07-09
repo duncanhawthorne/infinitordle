@@ -5,8 +5,13 @@ import 'package:infinitordle/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:infinitordle/keyboard.dart';
 import 'package:infinitordle/gameboard.dart';
+import 'package:infinitordle/game_logic.dart';
 
 FocusNode focusNode = FocusNode();
+
+Widget bodyWidget() {
+  return keyboardListenerWrapper();
+}
 
 Widget keyboardListenerWrapper() {
   return KeyboardListener(
