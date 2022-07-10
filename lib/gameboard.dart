@@ -9,8 +9,7 @@ Widget gameboardWidget(boardNumber) {
         maxWidth: 5 * cardEffectiveMaxPixel, //*0.97
         maxHeight: numRowsPerBoard * cardEffectiveMaxPixel), //*0.97
     child: GridView.builder(
-        physics:
-        const NeverScrollableScrollPhysics(), //turns off ios scrolling
+        physics: const NeverScrollableScrollPhysics(), //turns off ios scrolling
         itemCount: numRowsPerBoard * 5,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 5,
@@ -32,10 +31,10 @@ Widget _cardFlipper(index, boardNumber) {
           child: val <= 0.25
               ? _card(index, boardNumber, val, "b")
               : Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()..rotateX(pi),
-            child: _positionedCard(index, boardNumber, val, "f"),
-          ),
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()..rotateX(pi),
+                  child: _positionedCard(index, boardNumber, val, "f"),
+                ),
         ));
       });
 }
@@ -49,7 +48,10 @@ Widget _positionedCard(index, boardNumber, val, bf) {
       //:
       AnimatedPositioned(
         curve: Curves.fastOutSlowIn,
-        duration: Duration(milliseconds: oneStepState * durMult * 200), //when oneStepState = 0 then will instantly transition
+        duration: Duration(
+            milliseconds: oneStepState *
+                durMult *
+                200), //when oneStepState = 0 then will instantly transition
         top: -cardEffectiveMaxPixel * oneStepState,
         child: _sizedCard(index, boardNumber, val, bf),
       ),
@@ -75,7 +77,7 @@ Widget _card(index, boardNumber, val, bf) {
   bool infPreviousWin5 = false;
   if (infSuccessWords.contains(wordForRowOfIndex)) {
     if (infSuccessBoardsMatchingWords[
-    infSuccessWords.indexOf(wordForRowOfIndex)] ==
+            infSuccessWords.indexOf(wordForRowOfIndex)] ==
         boardNumber) {
       infPreviousWin5 = true;
     }
@@ -93,22 +95,22 @@ Widget _card(index, boardNumber, val, bf) {
                 color: bf == "b"
                     ? Colors.transparent //bg
                     : infPreviousWin5
-                    ? Colors.green
-                    : Colors.transparent, //bg
+                        ? Colors.green
+                        : Colors.transparent, //bg
                 width: bf == "b"
                     ? 0
                     : infPreviousWin5
-                    ? 0.05 * cardEffectiveMaxPixel //2
-                    : 0),
+                        ? 0.05 * cardEffectiveMaxPixel //2
+                        : 0),
             borderRadius: BorderRadius.circular(
                 0.2 * cardEffectiveMaxPixel), //needed for green border
             color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
-                ? rowOfIndex == currentWord && !legalOrShort
-                ? Colors.red
-                : grey
-                : getCardColor(index, boardNumber)),
+                    ? rowOfIndex == currentWord && !legalOrShort
+                        ? Colors.red
+                        : grey
+                    : getCardColor(index, boardNumber)),
         child: FittedBox(
           fit: BoxFit.fitHeight,
           child: _cardText(index, boardNumber),

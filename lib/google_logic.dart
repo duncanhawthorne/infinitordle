@@ -36,8 +36,7 @@ Future<void> _handleSignInReal() async {
         currentUser = account;
       });
       await googleSignIn.signIn();
-      googleSignIn.onCurrentUserChanged
-          .listen((GoogleSignInAccount? account) {
+      googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
         currentUser = account;
       });
       final GoogleSignInAccount? user = currentUser;

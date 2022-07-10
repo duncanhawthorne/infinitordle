@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:infinitordle/wordlist.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 //Debug
@@ -46,7 +45,6 @@ int currentWord = -1; //gets overridden by initState()
 int typeCountInWord = 0;
 var infSuccessWords = [];
 var infSuccessBoardsMatchingWords = [];
-
 
 //Visual state of the game
 var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);

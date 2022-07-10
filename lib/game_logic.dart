@@ -169,11 +169,13 @@ void onKeyboardTapped(int index) {
 //    });
 }
 
-void delayedFlipOnAbsoluteCard(int currentWord, int i, toFOrB, ss) {
+void delayedFlipOnAbsoluteCard(int currentWordLocal, int i, toFOrB, ss) {
   Future.delayed(
       Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
-    //flip to reveal the colors with pleasing animation
-    flipCardReal((currentWord - 1) * 5 + i, toFOrB);
-    ss(); // setState(() {});
+        if (gameboardEntries[(currentWordLocal - 1) * 5 + i] != "") { //if have stepped back during delay may end up flipping wrong card so do this safety test
+          //flip to reveal the colors with pleasing animation
+          flipCardReal((currentWordLocal - 1) * 5 + i, toFOrB);
+          ss(); // setState(() {});
+        }
   });
 }
