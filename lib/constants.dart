@@ -60,7 +60,7 @@ bool backspaceSafe = true;
 //Screen constants
 const double keyboardSingleKeyUnconstrainedMaxPixelHeight = 80;
 double vertSpaceForGameboard = -1;
-double vertSpaceForCardNoWrap = -1;
+double vertSpaceForCardWithWrap = -1;
 double horizSpaceForCardNoWrap = -1;
 int numPresentationBigRowsOfBoards = -1;
 double cardEffectiveMaxPixel = -1;
@@ -69,7 +69,7 @@ double scH = -1; //default value only
 double vertSpaceAfterTitle = -1; //default value only
 double keyboardSingleKeyEffectiveMaxPixelHeight = -1; //default value only
 const double dividerHeight = 2;
-double appBarHeight = 56;
+double appBarHeight = -1;
 double keyAspectRatioDefault = 1.5;
 double keyAspectRatioLive = -1;
 

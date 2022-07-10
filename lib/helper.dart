@@ -10,16 +10,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 //import 'dart:developer' as dev;
 
-
 bool quickIn(list, bit) {
   //p(["quickIn", "list", bit]);
-  return binarySearch(list, bit) != -1; //sorted list so this is faster than doing contains
+  return binarySearch(list, bit) !=
+      -1; //sorted list so this is faster than doing contains
   //return list.contains(bit);
 }
 
 void p(x) {
   //dev.log(x.toString());
-  debugPrint("///// A "+x.toString());
+  debugPrint("///// A " + x.toString());
 }
 
 String getTargetWord() {
@@ -222,7 +222,6 @@ void resetColorsCache() {
 }
 
 Future<void> saveKeys() async {
-
   String gameEncoded = encodeCurrentGameState();
   //p(["SAVE keys",gameEncoded]);
   final prefs = await SharedPreferences.getInstance();
@@ -328,7 +327,8 @@ void loadFromEncodedState(gameEncoded) {
       }
 
       var currentLiveLettersHolder = [];
-      currentLiveLettersHolder = gameboardEntries.sublist(currentWord*5, (currentWord+1)*5);
+      currentLiveLettersHolder =
+          gameboardEntries.sublist(currentWord * 5, (currentWord + 1) * 5);
       //p(currentLiveLettersHolder);
 
       targetWords = game["targetWords"] ?? getTargetWords(numBoards);
@@ -347,13 +347,11 @@ void loadFromEncodedState(gameEncoded) {
       typeCountInWord = 0;
       for (var j = 0; j < currentLiveLettersHolder.length; j++) {
         String liveLetter = currentLiveLettersHolder[j];
-        gameboardEntries[currentWord*5 + j] = liveLetter;
+        gameboardEntries[currentWord * 5 + j] = liveLetter;
         if (liveLetter != "") {
           typeCountInWord++;
         }
       }
-
-
     } catch (error) {
       p(["ERROR", error]);
       resetBoardReal(true);
@@ -383,13 +381,13 @@ String getDataFromSnapshot(snapshot) {
   String snapshotCurrent = "";
   snapshot.data!.docs
       .map((DocumentSnapshot document) {
-    if (document.id == gUser) {
-      Map<String, dynamic> dataTmpQ =
-      document.data() as Map<String, dynamic>;
-      snapshotCurrent = dataTmpQ["data"].toString();
-      return null;
-    }
-  })
+        if (document.id == gUser) {
+          Map<String, dynamic> dataTmpQ =
+              document.data() as Map<String, dynamic>;
+          snapshotCurrent = dataTmpQ["data"].toString();
+          return null;
+        }
+      })
       .toList()
       .cast();
   return snapshotCurrent;
@@ -478,10 +476,11 @@ void detectAndUpdateForScreenSize(context) {
             keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3));
     vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
-    vertSpaceForCardNoWrap = vertSpaceForGameboard / numRowsPerBoard;
+    vertSpaceForCardWithWrap = ((vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
     horizSpaceForCardNoWrap =
         (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
-    if (vertSpaceForCardNoWrap > 2 * horizSpaceForCardNoWrap) {
+    //p([vertSpaceForCardNoWrap, 2 * horizSpaceForCardNoWrap]);
+    if (vertSpaceForCardWithWrap > horizSpaceForCardNoWrap) {
       numPresentationBigRowsOfBoards = 2;
     } else {
       numPresentationBigRowsOfBoards = 1;
@@ -497,6 +496,22 @@ void detectAndUpdateForScreenSize(context) {
             (scW - numSpacersAcross * boardSpacer) /
                 (numBoards ~/ numPresentationBigRowsOfBoards) /
                 5));
+    /*
+    p([
+      vertSpaceForCardNoWrapMinusOneSpacer,
+      2 * horizSpaceForCardNoWrap,
+      cardEffectiveMaxPixel,
+      scW,
+      scW - boardSpacer * 3,
+      cardEffectiveMaxPixel * 20,
+      (scW - numSpacersAcross * boardSpacer) /
+          (numBoards ~/ numPresentationBigRowsOfBoards) /
+          5,
+      (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
+          numPresentationBigRowsOfBoards /
+          numRowsPerBoard
+    ]);
+     */
     if (vertSpaceForGameboard >
         cardEffectiveMaxPixel *
                 numRowsPerBoard *
@@ -516,8 +531,8 @@ void detectAndUpdateForScreenSize(context) {
     }
   }
 
-  keyAspectRatioLive = max(0.75,keyboardSingleKeyEffectiveMaxPixelHeight / (scW / 10));
-
+  keyAspectRatioLive =
+      max(0.5, keyboardSingleKeyEffectiveMaxPixelHeight / (scW / 10));
 }
 
 /*
