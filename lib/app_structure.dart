@@ -21,8 +21,7 @@ Widget keyboardListenerWrapper() {
       if (keyEvent is KeyDownEvent) {
         //if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
         if (keyboardList.contains(keyEvent.character)) {
-          onKeyboardTapped(
-              keyboardList.indexOf(keyEvent.character ?? " "));
+          onKeyboardTapped(keyboardList.indexOf(keyEvent.character ?? " "));
         }
         if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
           onKeyboardTapped(keyboardList.indexOf(">"));
@@ -107,7 +106,7 @@ Widget _wrapStructure() {
               spacing: boardSpacer,
               runSpacing: boardSpacer,
               children: List.generate(numBoards ~/ 2,
-                      (index) => gameboardWidget(numBoards ~/ 2 + index)),
+                  (index) => gameboardWidget(numBoards ~/ 2 + index)),
             ),
           ],
         ),

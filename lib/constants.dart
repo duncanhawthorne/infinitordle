@@ -24,7 +24,8 @@ const double boardSpacer = 8;
 //Helper text
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm> ".split("");
 //final keyboardList = "mapresc<>".split("");
-const cheatString = "maplewindyscourfightkebab";
+//const cheatString = "maplewindyscourfightkebab";
+var cheatStringList = ["maple", "windy", "scour", "fight", "kebab"];
 const cheatWords = ["scoff", "brunt", "armor", "tabby"];
 final legalWords = kLegalWordsText.split("\n");
 final finalWords = kFinalWordsText.split("\n");
@@ -34,17 +35,16 @@ final isWebMobileReal = kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android);
 final noAnimations = true && isWebMobileReal;
-final int durMult = noAnimations ? 0 : 1;
+final int durMult = noAnimations ? 1 : 1;
 final int delayMult = noAnimations ? 1 : 1;
 
 //Effectively the state of the game
 var targetWords = []; //gets overridden by loadKeys()
-var gameboardEntries =
-    []; //List<String>.generate((numRowsPerBoard * 5), (i) => "");
-int currentWord = -1; //gets overridden by initState()
-int typeCountInWord = 0;
-var infSuccessWords = [];
-var infSuccessBoardsMatchingWords = [];
+
+var enteredWords = [];
+var winRecordBoards = [];
+var currentTyping = "";
+int offsetRollback = 0;
 
 //Visual state of the game
 var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
@@ -90,3 +90,5 @@ int oneStepState = 0;
 Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();
 
 var globalFunctions = [];
+
+//bool realPrint = true;

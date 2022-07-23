@@ -69,19 +69,17 @@ Widget _sizedCard(index, boardNumber, val, bf) {
 
 Widget _card(index, boardNumber, val, bf) {
   int rowOfIndex = index ~/ 5;
-  var wordForRowOfIndex = gameboardEntries
-      .sublist((5 * rowOfIndex).toInt(), (5 * (rowOfIndex + 1)).toInt())
-      .join("");
-  bool legalOrShort = typeCountInWord != 5 || oneLegalWordForRedCardsCache;
+  bool legalOrShort = currentTyping.length != 5 ||
+      oneLegalWordForRedCardsCache; //typeCountInWord != 5
 
   bool infPreviousWin5 = false;
-  if (infSuccessWords.contains(wordForRowOfIndex)) {
-    if (infSuccessBoardsMatchingWords[
-            infSuccessWords.indexOf(wordForRowOfIndex)] ==
-        boardNumber) {
-      infPreviousWin5 = true;
-    }
+
+  if (rowOfIndex + offsetRollback > 0 &&
+      winRecordBoards.length > rowOfIndex + offsetRollback &&
+      winRecordBoards[rowOfIndex + offsetRollback] == boardNumber) {
+    infPreviousWin5 = true;
   }
+
   return Container(
     padding: EdgeInsets.all(0.005 * cardEffectiveMaxPixel),
     child: ClipRRect(
@@ -107,7 +105,7 @@ Widget _card(index, boardNumber, val, bf) {
             color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
-                    ? rowOfIndex == currentWord && !legalOrShort
+                    ? rowOfIndex == getVisualCurrentRowInt() && !legalOrShort
                         ? Colors.red
                         : grey
                     : getCardColor(index, boardNumber)),
@@ -123,7 +121,8 @@ Widget _card(index, boardNumber, val, bf) {
 Widget _cardText(index, boardNumber) {
   int rowOfIndex = index ~/ 5;
   return Text(
-    gameboardEntries[index].toUpperCase(),
+    getVisualGBLetterAtIndexEntered(index).toUpperCase(),
+    //gameboardEntries[index].toUpperCase(),
     style: TextStyle(
       /*
         shadows: const <Shadow>[

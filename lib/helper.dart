@@ -2,7 +2,6 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:infinitordle/game_logic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:infinitordle/constants.dart';
 import 'dart:convert';
@@ -22,6 +21,44 @@ void p(x) {
   debugPrint("///// A " + x.toString());
 }
 
+List winWords() {
+  var log = [];
+  for (var i = 0; i < winRecordBoards.length; i++) {
+    if (winRecordBoards[i] != -1) {
+      log.add(enteredWords[i]);
+    }
+  }
+  return log;
+}
+
+int getVisualCurrentRowInt() {
+  return enteredWords.length - offsetRollback;
+}
+
+String getVisualGBLetterAtIndexEntered(index) {
+  int rowOfIndex = index ~/ 5;
+  try {
+    String letter = "";
+    if (rowOfIndex > getVisualCurrentRowInt()) {
+      letter = "";
+    } else if (rowOfIndex == getVisualCurrentRowInt()) {
+      if (currentTyping.length > (index % 5)) {
+        letter = currentTyping.substring(index % 5, (index % 5) + 1);
+      } else {
+        letter = "";
+      }
+    } else {
+      letter = enteredWords[index ~/ 5 + offsetRollback][index % 5];
+    }
+
+    return letter;
+  }
+  catch (e) {
+    p(["getVisualGBLetterAtIndexEntered", index, e]);
+    return "";
+  }
+}
+
 String getTargetWord() {
   return finalWords[random.nextInt(finalWords.length)];
 }
@@ -37,51 +74,67 @@ List getTargetWords(numberOfBoards) {
 void cheatPrintTargetWords() {
   if (cheatMode) {
     // ignore: avoid_print
-    print(targetWords);
+    p(targetWords);
   }
 }
 
-void logWinAndGetNewWord(enteredWord, oneMatchingWordBoard) {
+void logWinAndGetNewWord(
+    masterEnteredWordPositionLocal, oneMatchingWordBoardLocal) {
   //Log the word just got in success words, which gets green to shown
-  infSuccessWords.add(enteredWord);
-  infSuccessBoardsMatchingWords.add(oneMatchingWordBoard);
+  winRecordBoards[masterEnteredWordPositionLocal - 1] =
+      oneMatchingWordBoardLocal;
   //Create new target word for the board
-  targetWords[oneMatchingWordBoard] = getTargetWord();
+  targetWords[oneMatchingWordBoardLocal] = getTargetWord();
   resetColorsCache();
   saveKeys();
 }
 
 void oneStepBack(currentWordLocal) {
   //Erase a row and step back
+  offsetRollback++;
   for (var j = 0; j < infNumBacksteps; j++) {
-    for (var i = 0; i < 5; i++) {
-      gameboardEntries.removeAt(0);
-      gameboardEntries.add("");
-    }
-    currentWord--;
     //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
     for (var j = 0; j < 5; j++) {
-      flipCardReal(currentWord * 5 + j, "b");
+      flipCardReal(getVisualCurrentRowInt() * 5 + j, "b");
     }
   }
-  initiateFlipState();
+  initiateFlipState(); //in case anything is in the wrong state, fix here
   resetColorsCache();
   saveKeys();
 }
 
 bool streak() {
   bool isStreak = true;
-  if (infSuccessWords.isNotEmpty) {
+  /*
+  if (winRecordBoards.isNotEmpty) {
     isStreak = true;
   } else {
     isStreak = false;
   }
+   */
 
-  if (infSuccessWords.length >= min(3, currentWord)) {
-    for (int q = 0; q < min(3, currentWord); q++) {
-      int i = currentWord - 1 - q;
-      if (gameboardEntries.sublist(i * 5, i * 5 + 5).join("") !=
-          infSuccessWords[infSuccessWords.length - 1 - q]) {
+  if (winRecordBoards.isEmpty) {
+    isStreak = false;
+  }
+  else {
+    for (int q = 0; q < 3; q++) {
+      if (winRecordBoards.length - 1 - q < 0 ||
+          winRecordBoards[winRecordBoards.length - 1 - q] != -1) {
+        isStreak = true;
+      }
+      else {
+        isStreak = false;
+        break;
+      }
+    }
+  }
+
+  /*
+  if (winRecordBoards.length >= min(3, getVisualCurrentRowInt())) {
+    for (int q = 0; q < min(3, getVisualCurrentRowInt()); q++) {
+      int i = getVisualCurrentRowInt() - 1 - q;
+      if (winRecordBoards.length > i + offsetRollback - 1 &&
+          winRecordBoards[i + offsetRollback - 1] == -1) {
         isStreak = false;
         break;
       }
@@ -89,6 +142,7 @@ bool streak() {
   } else {
     isStreak = false;
   }
+   */
 
   onStreakForKeyboardIndicatorCache =
       isStreak; //cache the result for visual indicator on return key
@@ -102,15 +156,17 @@ Color getBestColorForLetter(index, boardNumber) {
   }
 
   Color? answer;
-
   String queryLetter = keyboardList[index];
+
   if (queryLetter == " ") {
     answer = Colors.transparent;
   }
   if (answer == null) {
     //get color for the keyboard based on best (green > yellow > grey) color on the grid
-    for (var gbPosition = 0; gbPosition < currentWord * 5; gbPosition++) {
-      if (gameboardEntries[gbPosition] == queryLetter) {
+    for (var gbPosition = 0;
+        gbPosition < getVisualCurrentRowInt() * 5;
+        gbPosition++) {
+      if (getVisualGBLetterAtIndexEntered(gbPosition) == queryLetter) {
         if (getCardColor(gbPosition, boardNumber) == Colors.green) {
           answer = Colors.green;
           break;
@@ -119,8 +175,10 @@ Color getBestColorForLetter(index, boardNumber) {
     }
   }
   if (answer == null) {
-    for (var gbPosition = 0; gbPosition < currentWord * 5; gbPosition++) {
-      if (gameboardEntries[gbPosition] == queryLetter) {
+    for (var gbPosition = 0;
+        gbPosition < getVisualCurrentRowInt() * 5;
+        gbPosition++) {
+      if (getVisualGBLetterAtIndexEntered(gbPosition) == queryLetter) {
         if (getCardColor(gbPosition, boardNumber) == Colors.amber) {
           answer = Colors.amber;
           break;
@@ -129,8 +187,10 @@ Color getBestColorForLetter(index, boardNumber) {
     }
   }
   if (answer == null) {
-    for (var gbPosition = 0; gbPosition < currentWord * 5; gbPosition++) {
-      if (gameboardEntries[gbPosition] == queryLetter) {
+    for (var gbPosition = 0;
+        gbPosition < getVisualCurrentRowInt() * 5;
+        gbPosition++) {
+      if (getVisualGBLetterAtIndexEntered(gbPosition) == queryLetter) {
         answer = Colors.transparent; //bg; //grey //used and no match
         break;
       }
@@ -151,11 +211,12 @@ Color getCardColor(index, boardNumber) {
   }
 
   Color? answer;
-  if (index >= (currentWord) * 5) {
+  if (index >= getVisualCurrentRowInt() * 5) {
     answer = Colors.transparent; //grey; //later rows
   } else {
     String targetWord = targetWords[boardNumber];
-    String testLetter = gameboardEntries[index];
+    String testLetter = getVisualGBLetterAtIndexEntered(
+        index); //newGameboardEntries[index ~/ 5][index % 5]//gameboardEntries[index];
     int testRow = index ~/ 5;
     int testColumn = index % 5;
     if (targetWord[testColumn] == testLetter) {
@@ -165,7 +226,7 @@ Color getCardColor(index, boardNumber) {
           testLetter.allMatches(targetWord).length;
       int numberOfYellowThisLetterToLeftInCardRow = 0;
       for (var i = 0; i < testColumn; i++) {
-        if (gameboardEntries[testRow * 5 + i] == testLetter &&
+        if (getVisualGBLetterAtIndexEntered(testRow * 5 + i) == testLetter &&
             getCardColor(testRow * 5 + i, boardNumber) == Colors.amber) {
           numberOfYellowThisLetterToLeftInCardRow++;
         }
@@ -173,8 +234,8 @@ Color getCardColor(index, boardNumber) {
 
       int numberOfGreenThisLetterInCardRow = 0;
       for (var i = 0; i < 5; i++) {
-        if (gameboardEntries[testRow * 5 + i] == testLetter &&
-            targetWord[i] == gameboardEntries[testRow * 5 + i]) {
+        if (getVisualGBLetterAtIndexEntered(testRow * 5 + i) == testLetter &&
+            targetWord[i] == getVisualGBLetterAtIndexEntered(testRow * 5 + i)) {
           numberOfGreenThisLetterInCardRow++;
         }
       }
@@ -197,7 +258,7 @@ Color getCardColor(index, boardNumber) {
 }
 
 bool detectBoardSolvedByRow(boardNumber, maxRowToCheck) {
-  for (var q = 0; q < min(currentWord, maxRowToCheck); q++) {
+  for (var q = 0; q < min(getVisualCurrentRowInt(), maxRowToCheck); q++) {
     bool result = true;
     for (var j = 0; j < 5; j++) {
       if (getCardColor(q * 5 + j, boardNumber) != Colors.green) {
@@ -235,11 +296,11 @@ String encodeCurrentGameState() {
   game = {};
   game["targetWords"] = targetWords;
   game["gUser"] = gUser;
-  game["gameboardEntries"] = gameboardEntries;
-  game["currentWord"] = currentWord;
-  game["typeCountInWord"] = typeCountInWord;
-  game["infSuccessWords"] = infSuccessWords;
-  game["infSuccessBoardsMatchingWords"] = infSuccessBoardsMatchingWords;
+
+  game["enteredWords"] = enteredWords;
+  game["offsetRollback"] = offsetRollback;
+  game["winRecordBoards"] = winRecordBoards;
+
   return json.encode(game);
 }
 
@@ -258,54 +319,25 @@ Future<void> saveUser() async {
 }
 
 Future<void> loadKeys() async {
-  //print("load keys called");
   final prefs = await SharedPreferences.getInstance();
   String gameEncoded = "";
 
-  //await Firebase.initializeApp(
-  //  options: DefaultFirebaseOptions.currentPlatform,
-  //);
-  //db = FirebaseFirestore.instance;
-
   if (gUser == gUserDefault) {
     gameEncoded = prefs.getString('game') ?? "";
-    //print("gUser = Joe Bloggs - 1gameencoded" + gameEncoded);
   } else {
-    //await fbInit();
-
     gameEncoded = "";
     final docRef = db.collection("states").doc(gUser);
     await docRef.get().then(
       (DocumentSnapshot doc) {
         final gameEncodedTmp = doc.data() as Map<String, dynamic>;
         gameEncoded = gameEncodedTmp["data"];
-        //print(gameEncodedTmp);
-        //if (gameEncodedTmp != null) {
-        //  gameEncoded = gameEncodedTmp["data"];
-        //  //print(gameEncoded);
-        //}
-
-        // ...
       },
       // ignore: avoid_print
       onError: (e) => print("Error getting document: $e"),
     );
-    /*
-    await db.collection("states").get().then((event) {
-      for (var doc in event.docs) {
-        if (doc.id == gUser) {
-          //print(doc.data()["data"]);
-          gameEncoded = doc.data()["data"];
-        }
-      }
-    });
-    */
-    //print("gUser NOT Joe Bloggs - 1gameencoded" + gameEncoded);
   }
 
   loadFromEncodedState(gameEncoded);
-
-  //saveKeys();
 }
 
 void loadFromEncodedState(gameEncoded) {
@@ -326,39 +358,17 @@ void loadFromEncodedState(gameEncoded) {
         return;
       }
 
-      var currentLiveLettersHolder = [];
-      currentLiveLettersHolder =
-          gameboardEntries.sublist(currentWord * 5, (currentWord + 1) * 5);
-      //p(currentLiveLettersHolder);
-
       targetWords = game["targetWords"] ?? getTargetWords(numBoards);
 
-      var fallbackGameboardEntries = [];
-      fallbackGameboardEntries
-          .addAll(List<String>.generate((numRowsPerBoard * 5), (i) => ""));
-
-      gameboardEntries = game["gameboardEntries"] ?? fallbackGameboardEntries;
-      currentWord = game["currentWord"] ?? 0;
-      typeCountInWord = game["typeCountInWord"] ?? 0;
-      infSuccessWords = game["infSuccessWords"] ?? [];
-      infSuccessBoardsMatchingWords =
-          game["infSuccessBoardsMatchingWords"] ?? [];
-
-      typeCountInWord = 0;
-      for (var j = 0; j < currentLiveLettersHolder.length; j++) {
-        String liveLetter = currentLiveLettersHolder[j];
-        gameboardEntries[currentWord * 5 + j] = liveLetter;
-        if (liveLetter != "") {
-          typeCountInWord++;
-        }
-      }
+      enteredWords = game["enteredWords"] ?? [];
+      offsetRollback = game["offsetRollback"] ?? 0;
+      winRecordBoards = game["winRecordBoards"] ?? [];
     } catch (error) {
       p(["ERROR", error]);
       resetBoardReal(true);
     }
     initiateFlipState();
     resetColorsCache();
-    //print(targetWords);
     gameEncodedLast = gameEncoded;
   }
 }
@@ -394,18 +404,13 @@ String getDataFromSnapshot(snapshot) {
 }
 
 void resetBoardReal(save) {
-  //   setState(() {
   //initialise on reset
-  typeCountInWord = 0;
-  currentWord = 0;
-  gameboardEntries.clear();
-  gameboardEntries
-      .addAll(List<String>.generate((numRowsPerBoard * 5), (i) => ""));
-  //print(gameboardEntries);
-  //gameboardEntries = ;
+  enteredWords = [];
+  currentTyping = "";
+  offsetRollback = 0;
+  winRecordBoards = [];
+
   targetWords = getTargetWords(numBoards);
-  infSuccessWords.clear();
-  infSuccessBoardsMatchingWords.clear();
 
   for (var j = 0; j < numRowsPerBoard * 5; j++) {
     flipCardReal(j, "b");
@@ -421,11 +426,10 @@ void resetBoardReal(save) {
       }
     }
 
-    for (var j = 0; j < cheatString.length; j++) {
-      gameboardEntries[j] = cheatString[j];
+    for (var j = 0; j < cheatStringList.length; j++) {
+      enteredWords.add(cheatStringList[j]);
+      winRecordBoards.add(-1);
     }
-
-    currentWord = cheatString.length ~/ 5;
   }
   initiateFlipState();
   onStreakForKeyboardIndicatorCache = false;
@@ -437,9 +441,8 @@ void resetBoardReal(save) {
 }
 
 void initiateFlipState() {
-  for (var j = 0; j < gameboardEntries.length; j++) {
-    //if (gameboardEntries[(j ~/ 5) * 5] != "") {
-    if (currentWord > (j ~/ 5)) {
+  for (var j = 0; j < numRowsPerBoard * 5; j++) {
+    if (getVisualCurrentRowInt() > (j ~/ 5)) {
       flipCardReal(j, "f");
     } else {
       flipCardReal(j, "b");
@@ -476,7 +479,8 @@ void detectAndUpdateForScreenSize(context) {
             keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3));
     vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
-    vertSpaceForCardWithWrap = ((vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
+    vertSpaceForCardWithWrap =
+        ((vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
     horizSpaceForCardNoWrap =
         (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
     //p([vertSpaceForCardNoWrap, 2 * horizSpaceForCardNoWrap]);

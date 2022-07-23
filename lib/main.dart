@@ -88,10 +88,10 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _titleWidget() {
-    var infText = infSuccessWords.isEmpty
+    int numberWinsCache = winWords().length;
+    var infText = numberWinsCache == 0
         ? "o"
-        : "∞" * (infSuccessWords.length ~/ 2) +
-            "o" * (infSuccessWords.length % 2);
+        : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
     return GestureDetector(
         onTap: () {
           showResetConfirmScreen();
@@ -110,7 +110,7 @@ class _InfinitordleState extends State<Infinitordle> {
                 TextSpan(
                     text: infText,
                     style: TextStyle(
-                        color: infSuccessWords.isEmpty
+                        color: numberWinsCache == 0
                             ? Colors.white
                             : Colors.green)),
                 TextSpan(text: appTitle3),
@@ -121,8 +121,11 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Future<void> showResetConfirmScreen() async {
+    List winWordsCache = winWords();
+    int numberWinsCache = winWordsCache.length;
     bool end = false;
-    if (!oneMatchingWordForResetScreenCache && currentWord >= numRowsPerBoard) {
+    if (!oneMatchingWordForResetScreenCache &&
+        getVisualCurrentRowInt() >= numRowsPerBoard) {
       end = true;
     }
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
@@ -157,22 +160,22 @@ class _InfinitordleState extends State<Infinitordle> {
           ),
           content: Text(end
               ? "You got " +
-                  infSuccessWords.length.toString() +
+                  numberWinsCache.toString() +
                   " word" +
-                  (infSuccessWords.length == 1 ? "" : "s") +
+                  (numberWinsCache == 1 ? "" : "s") +
                   ": " +
-                  infSuccessWords.join(", ") +
+                  winWordsCache.join(", ") +
                   "\n\nYou missed: " +
                   targetWords.join(", ") +
                   "\n\nReset the board?"
               : "You've got " +
-                  infSuccessWords.length.toString() +
+                  numberWinsCache.toString() +
                   " word" +
-                  (infSuccessWords.length == 1 ? "" : "s") +
+                  (numberWinsCache == 1 ? "" : "s") +
                   ' so far' +
-                  (infSuccessWords.isNotEmpty ? ":" : "") +
+                  (numberWinsCache != 0 ? ":" : "") +
                   ' ' +
-                  infSuccessWords.join(", ") +
+                  winWordsCache.join(", ") +
                   "\n\n"
                       'Lose your progress and reset the board?'),
           actions: <Widget>[
