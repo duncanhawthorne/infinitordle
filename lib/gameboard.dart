@@ -122,7 +122,6 @@ Widget _cardText(index, boardNumber) {
   int rowOfIndex = index ~/ 5;
   return Text(
     getVisualGBLetterAtIndexEntered(index).toUpperCase(),
-    //gameboardEntries[index].toUpperCase(),
     style: TextStyle(
       /*
         shadows: const <Shadow>[

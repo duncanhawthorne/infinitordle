@@ -52,8 +52,7 @@ String getVisualGBLetterAtIndexEntered(index) {
     }
 
     return letter;
-  }
-  catch (e) {
+  } catch (e) {
     p(["getVisualGBLetterAtIndexEntered", index, e]);
     return "";
   }
@@ -105,44 +104,20 @@ void oneStepBack(currentWordLocal) {
 
 bool streak() {
   bool isStreak = true;
-  /*
-  if (winRecordBoards.isNotEmpty) {
-    isStreak = true;
-  } else {
-    isStreak = false;
-  }
-   */
 
   if (winRecordBoards.isEmpty) {
     isStreak = false;
-  }
-  else {
+  } else {
     for (int q = 0; q < 3; q++) {
       if (winRecordBoards.length - 1 - q < 0 ||
           winRecordBoards[winRecordBoards.length - 1 - q] != -1) {
         isStreak = true;
-      }
-      else {
+      } else {
         isStreak = false;
         break;
       }
     }
   }
-
-  /*
-  if (winRecordBoards.length >= min(3, getVisualCurrentRowInt())) {
-    for (int q = 0; q < min(3, getVisualCurrentRowInt()); q++) {
-      int i = getVisualCurrentRowInt() - 1 - q;
-      if (winRecordBoards.length > i + offsetRollback - 1 &&
-          winRecordBoards[i + offsetRollback - 1] == -1) {
-        isStreak = false;
-        break;
-      }
-    }
-  } else {
-    isStreak = false;
-  }
-   */
 
   onStreakForKeyboardIndicatorCache =
       isStreak; //cache the result for visual indicator on return key
@@ -483,7 +458,6 @@ void detectAndUpdateForScreenSize(context) {
         ((vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
     horizSpaceForCardNoWrap =
         (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
-    //p([vertSpaceForCardNoWrap, 2 * horizSpaceForCardNoWrap]);
     if (vertSpaceForCardWithWrap > horizSpaceForCardNoWrap) {
       numPresentationBigRowsOfBoards = 2;
     } else {
@@ -500,22 +474,7 @@ void detectAndUpdateForScreenSize(context) {
             (scW - numSpacersAcross * boardSpacer) /
                 (numBoards ~/ numPresentationBigRowsOfBoards) /
                 5));
-    /*
-    p([
-      vertSpaceForCardNoWrapMinusOneSpacer,
-      2 * horizSpaceForCardNoWrap,
-      cardEffectiveMaxPixel,
-      scW,
-      scW - boardSpacer * 3,
-      cardEffectiveMaxPixel * 20,
-      (scW - numSpacersAcross * boardSpacer) /
-          (numBoards ~/ numPresentationBigRowsOfBoards) /
-          5,
-      (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
-          numPresentationBigRowsOfBoards /
-          numRowsPerBoard
-    ]);
-     */
+
     if (vertSpaceForGameboard >
         cardEffectiveMaxPixel *
                 numRowsPerBoard *
@@ -538,12 +497,3 @@ void detectAndUpdateForScreenSize(context) {
   keyAspectRatioLive =
       max(0.5, keyboardSingleKeyEffectiveMaxPixelHeight / (scW / 10));
 }
-
-/*
-Future<void> fbInit() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  db = FirebaseFirestore.instance;
-}
-*/
