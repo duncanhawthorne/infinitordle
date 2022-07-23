@@ -53,17 +53,7 @@ void onKeyboardTapped(int index) {
 
         //Made a guess flip over the cards to see the colors
         for (int i = 0; i < 5; i++) {
-          delayedFlipOnAbsoluteCard(
-              getVisualCurrentRowIntLocal.toInt(), i, "f", ss);
-          /*
-          int tmp = currentWordLocal.toInt();
-          Future.delayed(
-              Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
-            //flip to reveal the colors with pleasing animation
-            flipCardReal((tmp - 1) * 5 + i, "f");
-            ss(); //setState(() {});
-          });
-           */
+          delayedFlipOnAbsoluteCard(getVisualCurrentRowIntLocal, i, "f", ss);
         }
 
         //Test if it is correct word

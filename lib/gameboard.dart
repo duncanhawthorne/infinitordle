@@ -72,13 +72,7 @@ Widget _card(index, boardNumber, val, bf) {
   bool legalOrShort = currentTyping.length != 5 ||
       oneLegalWordForRedCardsCache; //typeCountInWord != 5
 
-  bool infPreviousWin5 = false;
-
-  if (rowOfIndex + offsetRollback > 0 &&
-      winRecordBoards.length > rowOfIndex + offsetRollback &&
-      winRecordBoards[rowOfIndex + offsetRollback] == boardNumber) {
-    infPreviousWin5 = true;
-  }
+  bool historicalWin = testHistoricalWin(rowOfIndex, boardNumber);
 
   return Container(
     padding: EdgeInsets.all(0.005 * cardEffectiveMaxPixel),
@@ -92,12 +86,12 @@ Widget _card(index, boardNumber, val, bf) {
             border: Border.all(
                 color: bf == "b"
                     ? Colors.transparent //bg
-                    : infPreviousWin5
+                    : historicalWin
                         ? Colors.green
                         : Colors.transparent, //bg
                 width: bf == "b"
                     ? 0
-                    : infPreviousWin5
+                    : historicalWin
                         ? 0.05 * cardEffectiveMaxPixel //2
                         : 0),
             borderRadius: BorderRadius.circular(

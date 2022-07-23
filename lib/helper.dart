@@ -31,6 +31,15 @@ List winWords() {
   return log;
 }
 
+bool testHistoricalWin(rowOfIndex, boardNumber) {
+  if (rowOfIndex + offsetRollback > 0 &&
+      winRecordBoards.length > rowOfIndex + offsetRollback &&
+      winRecordBoards[rowOfIndex + offsetRollback] == boardNumber) {
+    return true;
+  }
+  return false;
+}
+
 int getVisualCurrentRowInt() {
   return enteredWords.length - offsetRollback;
 }
