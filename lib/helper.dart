@@ -7,13 +7,33 @@ import 'package:infinitordle/constants.dart';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
-//import 'dart:developer' as dev;
 
 bool quickIn(list, bit) {
   //p(["quickIn", "list", bit]);
   return binarySearch(list, bit) !=
       -1; //sorted list so this is faster than doing contains
   //return list.contains(bit);
+}
+
+bool legalWord(word) {
+
+  if (word.length != 5) {
+    return false;
+  }
+
+  if (legalWordTestedWord == word) {
+    return oneLegalWordForRedCardsCache;
+  }
+  else {
+    //blank the cache
+    legalWordTestedWord = word;
+    oneLegalWordForRedCardsCache = false;
+  }
+
+  bool answer = quickIn(legalWords, currentTyping);
+  oneLegalWordForRedCardsCache = answer;
+
+  return answer;
 }
 
 void p(x) {
@@ -59,7 +79,6 @@ String getVisualGBLetterAtIndexEntered(index) {
     } else {
       letter = enteredWords[index ~/ 5 + offsetRollback][index % 5];
     }
-
     return letter;
   } catch (e) {
     p(["getVisualGBLetterAtIndexEntered", index, e]);
@@ -93,25 +112,35 @@ void logWinAndGetNewWord(
       oneMatchingWordBoardLocal;
   //Create new target word for the board
   targetWords[oneMatchingWordBoardLocal] = getTargetWord();
-  resetColorsCache();
+  //resetColorsCache();
   saveKeys();
 }
 
 void oneStepBack(currentWordLocal) {
   //Erase a row and step back
-  offsetRollback++;
   for (var j = 0; j < infNumBacksteps; j++) {
     //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
+    offsetRollback++;
     for (var j = 0; j < 5; j++) {
       flipCardReal(getVisualCurrentRowInt() * 5 + j, "b");
     }
   }
   initiateFlipState(); //in case anything is in the wrong state, fix here
-  resetColorsCache();
+  //resetColorsCache();
   saveKeys();
 }
 
-bool streak() {
+bool isStreak() {
+
+  if (onStreakTestedState == saveKeysCount) {
+    return onStreakCache;
+  }
+  else {
+    //blank the cache
+    onStreakTestedState = saveKeysCount;
+    onStreakCache = false;
+  }
+
   bool isStreak = true;
 
   if (winRecordBoards.isEmpty) {
@@ -127,16 +156,26 @@ bool streak() {
       }
     }
   }
+  onStreakCache = isStreak;
 
-  onStreakForKeyboardIndicatorCache =
-      isStreak; //cache the result for visual indicator on return key
   return isStreak;
 }
 
 Color getBestColorForLetter(index, boardNumber) {
-  Color? cacheAnswer = keyColorsCache[boardNumber][index];
-  if (cacheAnswer != null) {
-    return cacheAnswer;
+
+  if (keyAndCardColorsTestedState == saveKeysCount) {
+    Color? cacheAnswer = keyColorsCache[boardNumber][index];
+    if (cacheAnswer != null) {
+      return cacheAnswer;
+    }
+    else {
+      //Haven't cached that get, so do so in the function below
+    }
+  }
+  else {
+    //blank the cache
+    keyAndCardColorsTestedState = saveKeysCount;
+    resetColorsCache();
   }
 
   Color? answer;
@@ -189,9 +228,20 @@ Color getBestColorForLetter(index, boardNumber) {
 }
 
 Color getCardColor(index, boardNumber) {
-  Color? cacheAnswer = cardColorsCache[boardNumber][index];
-  if (cacheAnswer != null) {
-    return cacheAnswer;
+
+  if (keyAndCardColorsTestedState == saveKeysCount) {
+    Color? cacheAnswer = cardColorsCache[boardNumber][index];
+    if (cacheAnswer != null) {
+      return cacheAnswer;
+    }
+    else {
+      //Haven't cached that get, so do so in the function below
+    }
+  }
+  else {
+    //blank the cache
+    keyAndCardColorsTestedState = saveKeysCount;
+    resetColorsCache();
   }
 
   Color? answer;
@@ -266,13 +316,53 @@ void resetColorsCache() {
   }
 }
 
-Future<void> saveKeys() async {
-  String gameEncoded = encodeCurrentGameState();
-  //p(["SAVE keys",gameEncoded]);
+Future<void> loadUser() async {
+  //print("load user");
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('game', gameEncoded);
+  gUser = prefs.getString('gUser') ?? gUserDefault;
+  //print(gUser);
+}
 
-  fbSave(gameEncoded);
+Future<void> saveUser() async {
+  //print("save user");
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('gUser', gUser);
+  //print(gUser);
+}
+
+void loadFromEncodedState(gameEncoded) {
+  //print("loadKeysReal"+gameEncoded);
+  if (gameEncoded == "") {
+    //first time through or error state
+    //print("ge empty");
+    resetBoardReal(true);
+  } else if (gameEncoded != gameEncodedLast) {
+    try {
+      Map<String, dynamic> game = {};
+      game = json.decode(gameEncoded);
+
+      String tmpgUser = game["gUser"] ?? "Default";
+      if (tmpgUser != gUser && tmpgUser != "Default") {
+        //print("redoing load keys");
+        //Error state, so set gUser properly and redo loadKeys from firebase
+        gUser = tmpgUser;
+        loadKeys();
+        return;
+      }
+
+      targetWords = game["targetWords"] ?? getTargetWords(numBoards);
+
+      enteredWords = game["enteredWords"] ?? [];
+      offsetRollback = game["offsetRollback"] ?? 0;
+      winRecordBoards = game["winRecordBoards"] ?? [];
+    } catch (error) {
+      p(["ERROR", error]);
+      resetBoardReal(true);
+    }
+    initiateFlipState();
+    //resetColorsCache();
+    gameEncodedLast = gameEncoded;
+  }
 }
 
 String encodeCurrentGameState() {
@@ -288,27 +378,15 @@ String encodeCurrentGameState() {
   return json.encode(game);
 }
 
-Future<void> loadUser() async {
-  //print("load user");
-  final prefs = await SharedPreferences.getInstance();
-  gUser = prefs.getString('gUser') ?? gUserDefault;
-  //print(gUser);
-}
-
-Future<void> saveUser() async {
-  //print("save user");
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('gUser', gUser);
-  //print(gUser);
-}
-
 Future<void> loadKeys() async {
   final prefs = await SharedPreferences.getInstance();
   String gameEncoded = "";
 
   if (gUser == gUserDefault) {
+    //load from local save
     gameEncoded = prefs.getString('game') ?? "";
   } else {
+    //load from firebase
     gameEncoded = "";
     final docRef = db.collection("states").doc(gUser);
     await docRef.get().then(
@@ -320,48 +398,23 @@ Future<void> loadKeys() async {
       onError: (e) => print("Error getting document: $e"),
     );
   }
-
   loadFromEncodedState(gameEncoded);
 }
 
-void loadFromEncodedState(gameEncoded) {
-  //print("loadKeysReal"+gameEncoded);
-  if (gameEncoded == "") {
-    //print("ge empty");
-    resetBoardReal(true);
-  } else if (gameEncoded != gameEncodedLast) {
-    try {
-      Map<String, dynamic> game = {};
-      game = json.decode(gameEncoded);
+Future<void> saveKeys() async {
+  saveKeysCount++;
+  String gameEncoded = encodeCurrentGameState();
+  //p(["SAVE keys",gameEncoded]);
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('game', gameEncoded);
 
-      String tmpgUser = game["gUser"] ?? "Default";
-      if (tmpgUser != gUser && tmpgUser != "Default") {
-        //print("redoing load keys");
-        gUser = tmpgUser;
-        loadKeys(); //redo it using the new gUser (i.e. from the cloud)
-        return;
-      }
-
-      targetWords = game["targetWords"] ?? getTargetWords(numBoards);
-
-      enteredWords = game["enteredWords"] ?? [];
-      offsetRollback = game["offsetRollback"] ?? 0;
-      winRecordBoards = game["winRecordBoards"] ?? [];
-    } catch (error) {
-      p(["ERROR", error]);
-      resetBoardReal(true);
-    }
-    initiateFlipState();
-    resetColorsCache();
-    gameEncodedLast = gameEncoded;
-  }
+  firebasePush(gameEncoded);
 }
 
-Future<void> fbSave(state) async {
+Future<void> firebasePush(state) async {
   if (gUser != gUserDefault) {
     // Create a new user with a first and last name
     final dhState = <String, dynamic>{"data": state};
-
     db
         .collection("states")
         .doc(gUser)
@@ -371,7 +424,7 @@ Future<void> fbSave(state) async {
   }
 }
 
-String getDataFromSnapshot(snapshot) {
+String firebasePull(snapshot) {
   String snapshotCurrent = "";
   snapshot.data!.docs
       .map((DocumentSnapshot document) {
@@ -388,6 +441,7 @@ String getDataFromSnapshot(snapshot) {
 }
 
 void resetBoardReal(save) {
+  p("Reset board");
   //initialise on reset
   enteredWords = [];
   currentTyping = "";
@@ -396,30 +450,26 @@ void resetBoardReal(save) {
 
   targetWords = getTargetWords(numBoards);
 
-  for (var j = 0; j < numRowsPerBoard * 5; j++) {
-    flipCardReal(j, "b");
-  }
-
   //speed initialise entries using cheat mode for debugging
   if (cheatMode) {
     for (var j = 0; j < numBoards; j++) {
-      if (cheatWords.length > j) {
-        targetWords[j] = cheatWords[j];
+      if (cheatTargetWordsInitial.length > j) {
+        targetWords[j] = cheatTargetWordsInitial[j];
       } else {
         targetWords[j] = getTargetWord();
       }
     }
-
-    for (var j = 0; j < cheatStringList.length; j++) {
-      enteredWords.add(cheatStringList[j]);
+    for (var j = 0; j < cheatEnteredWordsInitial.length; j++) {
+      enteredWords.add(cheatEnteredWordsInitial[j]);
       winRecordBoards.add(-1);
     }
   }
+
   initiateFlipState();
-  onStreakForKeyboardIndicatorCache = false;
+  isStreak(); //reset streakCache
   resetColorsCache();
   if (save) {
-    //print("reset called with instruction to save keys, and now saving keys");
+    print("Reset board called with instruction to save keys, and now saving keys");
     saveKeys();
   }
 }

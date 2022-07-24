@@ -121,6 +121,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Future<void> showResetConfirmScreen() async {
+    silentSignIn();
     List winWordsCache = winWords();
     int numberWinsCache = winWordsCache.length;
     bool end = false;

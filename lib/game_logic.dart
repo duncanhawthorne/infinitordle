@@ -35,25 +35,20 @@ void onKeyboardTapped(int index) {
         //Legal word, but not necessarily correct word
 
         //Legal word so step forward
-        resetColorsCache();
-        int getVisualCurrentRowIntLocal = getVisualCurrentRowInt();
+        //resetColorsCache();
+        int visualCurrentRowIntLocalPreGuess = getVisualCurrentRowInt();
         currentTyping = "";
 
         enteredWords.add(enteredWordLocal);
         winRecordBoards.add(
             -1); //to avoid a race condition with delayed code, add this immediately, and then change it later
-        int masterEnteredWordPositionLocal = winRecordBoards.length;
-
-        if (onStreakForKeyboardIndicatorCache) {
-          //purely for the visual indicator on the return key. Test this every legal word, rather than every correct word
-          onStreakForKeyboardIndicatorCache = streak();
-        }
+        int masterEnteredWordPositionLocalAfterGuess = winRecordBoards.length;
 
         saveKeys();
 
         //Made a guess flip over the cards to see the colors
         for (int i = 0; i < 5; i++) {
-          delayedFlipOnAbsoluteCard(getVisualCurrentRowIntLocal, i, "f", ss);
+          delayedFlipOnAbsoluteCard(visualCurrentRowIntLocalPreGuess, i, "f", ss);
         }
 
         //Test if it is correct word
@@ -96,13 +91,13 @@ void onKeyboardTapped(int index) {
           Future.delayed(Duration(milliseconds: delayMult * 1500), () {
             //Give time for above code to show visually, so we have flipped
             //Slide the cards back visually, creating the illusion of stepping back
-            oneStepState = 1;
+            visualOneStepState = 1;
             ss(); //setState(() {});
             Future.delayed(Duration(milliseconds: durMult * 250), () {
               //Undo the visual slide (and do this instantaneously)
-              oneStepState = 0;
+              visualOneStepState = 0;
               //Actually erase a row and step back, so state matches visual illusion above
-              oneStepBack(getVisualCurrentRowIntLocal);
+              oneStepBack(visualCurrentRowIntLocalPreGuess);
 
               ss(); //setState(() {});
 
@@ -111,20 +106,20 @@ void onKeyboardTapped(int index) {
                 //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
                 //Log the word just got in success words, which gets green to shown
                 logWinAndGetNewWord(
-                    masterEnteredWordPositionLocal, oneMatchingWordBoardLocal);
+                    masterEnteredWordPositionLocalAfterGuess, oneMatchingWordBoardLocal);
                 ss(); //setState(() {});
 
-                if (streak()) {
+                if (isStreak()) {
                   Future.delayed(Duration(milliseconds: delayMult * 750), () {
                     if (getVisualCurrentRowInt() > 0) {
                       //Slide the cards back visually, creating the illusion of stepping back
-                      oneStepState = 1;
+                      visualOneStepState = 1;
                       ss(); //setState(() {});
                       Future.delayed(Duration(milliseconds: durMult * 250), () {
                         //Undo the visual slide (and do this instantaneously)
-                        oneStepState = 0;
+                        visualOneStepState = 0;
                         //Actually erase a row and step back, so state matches visual illusion above
-                        oneStepBack(getVisualCurrentRowIntLocal);
+                        oneStepBack(visualCurrentRowIntLocalPreGuess);
 
                         ss(); //setState(() {});
                       });
@@ -145,21 +140,8 @@ void onKeyboardTapped(int index) {
     //pressing regular key, as other options already dealt with above
     if (currentTyping.length < 5 &&
         getVisualCurrentRowInt() < numRowsPerBoard) {
-      //typeCountInWord < 5
       //still typing out word, else ignore
       currentTyping = currentTyping + keyboardList[index];
-
-      //doing this once rather than live inside the widget for speed
-      oneLegalWordForRedCardsCache = false;
-      if (currentTyping.length == 5) {
-        //typeCountInWord == 5
-        //ignore if not completed whole word
-        if (quickIn(legalWords, currentTyping)) {
-          //gameboardEntries.sublist(currentWord * 5, (currentWord + 1) * 5).join("")
-          // (legalWords.contains(gameboardEntries.sublist(currentWord * 5, (currentWord + 1) * 5).join(""))) {
-          oneLegalWordForRedCardsCache = true;
-        }
-      }
       ss(); //setState(() {});
     }
   }

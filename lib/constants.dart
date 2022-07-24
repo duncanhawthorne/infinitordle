@@ -11,7 +11,7 @@ const bool cheatMode = false; //
 String appTitle = "infinitordle";
 String appTitle1 = cheatMode ? "cheat" : "infinit";
 String appTitle3 = "rdle";
-const Color bg = Color(0xff222222);
+const bg = Color(0xff222222);
 const grey = Color(0xff555555);
 
 //Game design
@@ -24,9 +24,8 @@ const double boardSpacer = 8;
 //Helper text
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm> ".split("");
 //final keyboardList = "mapresc<>".split("");
-//const cheatString = "maplewindyscourfightkebab";
-var cheatStringList = ["maple", "windy", "scour", "fight", "kebab"];
-const cheatWords = ["scoff", "brunt", "armor", "tabby"];
+var cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
+const cheatTargetWordsInitial = ["scoff", "brunt", "armor", "tabby"];
 final legalWords = kLegalWordsText.split("\n");
 final finalWords = kFinalWordsText.split("\n");
 
@@ -48,47 +47,52 @@ int offsetRollback = 0;
 
 //Visual state of the game
 var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+int visualOneStepState = 0;
 
 //Helpers for state of the game
+int saveKeysCount = 0;
+
 bool oneLegalWordForRedCardsCache = false;
+String legalWordTestedWord = "";
+
 bool oneMatchingWordForResetScreenCache = false;
-bool onStreakForKeyboardIndicatorCache = false;
+
 var cardColorsCache = [];
 var keyColorsCache = [];
+int keyAndCardColorsTestedState = 0;
+
 bool backspaceSafe = true;
+
+bool onStreakCache = false;
+int onStreakTestedState = 0;
 
 //Screen constants
 const double keyboardSingleKeyUnconstrainedMaxPixelHeight = 80;
+const double dividerHeight = 2;
+double keyAspectRatioDefault = 1.5;
+
+//default values for sizing
 double vertSpaceForGameboard = -1;
 double vertSpaceForCardWithWrap = -1;
 double horizSpaceForCardNoWrap = -1;
 int numPresentationBigRowsOfBoards = -1;
 double cardEffectiveMaxPixel = -1;
-double scW = -1; //default value only
-double scH = -1; //default value only
-double vertSpaceAfterTitle = -1; //default value only
-double keyboardSingleKeyEffectiveMaxPixelHeight = -1; //default value only
-const double dividerHeight = 2;
+double scW = -1;
+double scH = -1;
+double vertSpaceAfterTitle = -1;
+double keyboardSingleKeyEffectiveMaxPixelHeight = -1;
 double appBarHeight = -1;
-double keyAspectRatioDefault = 1.5;
 double keyAspectRatioLive = -1;
 
-//Misc
-Random random = Random();
-//int lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
-
+bool debugFakeLogin = false;
 var gUserDefault = "JoeBloggs";
 var gUser = "JoeBloggs";
 
 var db = FirebaseFirestore.instance;
 String gameEncodedLast = "";
 String snapshotLast = "XXXXXXX";
-
-bool fakeLogin = false;
-int oneStepState = 0;
-
 Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();
 
+//Misc
+Random random = Random();
 var globalFunctions = [];
-
-//bool realPrint = true;

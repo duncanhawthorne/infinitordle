@@ -80,7 +80,7 @@ Widget _kbTextSquare(index) {
                   ? Container(
                       padding: const EdgeInsets.all(7),
                       child: Icon(Icons.keyboard_return_sharp,
-                          color: onStreakForKeyboardIndicatorCache
+                          color: isStreak()
                               ? Colors.green
                               : Colors.white))
                   : Text(

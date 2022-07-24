@@ -65,21 +65,12 @@ Widget streamBuilderWrapperOnDocument() {
             //print(snapshotCurrent);
             if (gUser != gUserDefault && snapshotCurrent != snapshotLast) {
               if (snapshotCurrent != encodeCurrentGameState()) {
-                /*
-                p([
-                  "load",
-                  snapshotCurrent,
-                  snapshotLast,
-                  encodeCurrentGameState()
-                ]);
-                 */
                 loadFromEncodedState(snapshotCurrent);
               }
               snapshotLast = snapshotCurrent;
             }
           }
         }
-
         return _wrapStructure();
       },
     );
@@ -105,7 +96,7 @@ Widget _wrapStructure() {
             Wrap(
               spacing: boardSpacer,
               runSpacing: boardSpacer,
-              children: List.generate(numBoards ~/ 2,
+              children: List.generate(numBoards - (numBoards ~/ 2),
                   (index) => gameboardWidget(numBoards ~/ 2 + index)),
             ),
           ],

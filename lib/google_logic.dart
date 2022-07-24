@@ -11,7 +11,11 @@ Future<void> initalSignIn() async {
   googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
     currentUser = account;
   });
-  await googleSignIn.signInSilently();
+  await silentSignIn();
+}
+
+Future<void> silentSignIn() async {
+  googleSignIn.signInSilently();
 }
 
 Future<void> handleSignIn() async {
@@ -21,7 +25,7 @@ Future<void> handleSignIn() async {
 
 Future<void> _handleSignInReal() async {
   p("_handleSignInReal()");
-  if (fakeLogin) {
+  if (debugFakeLogin) {
     // ignore: avoid_print
     p("fakelogin");
     gUser = "X";
@@ -55,7 +59,7 @@ Future<void> _handleSignInReal() async {
 
 Future<void> handleSignOut() async {
   //print("signout");
-  if (fakeLogin) {
+  if (debugFakeLogin) {
   } else {
     await googleSignIn.disconnect();
   }

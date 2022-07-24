@@ -49,10 +49,10 @@ Widget _positionedCard(index, boardNumber, val, bf) {
       AnimatedPositioned(
         curve: Curves.fastOutSlowIn,
         duration: Duration(
-            milliseconds: oneStepState *
+            milliseconds: visualOneStepState *
                 durMult *
                 200), //when oneStepState = 0 then will instantly transition
-        top: -cardEffectiveMaxPixel * oneStepState,
+        top: -cardEffectiveMaxPixel * visualOneStepState,
         child: _sizedCard(index, boardNumber, val, bf),
       ),
     ],
@@ -69,9 +69,6 @@ Widget _sizedCard(index, boardNumber, val, bf) {
 
 Widget _card(index, boardNumber, val, bf) {
   int rowOfIndex = index ~/ 5;
-  bool legalOrShort = currentTyping.length != 5 ||
-      oneLegalWordForRedCardsCache; //typeCountInWord != 5
-
   bool historicalWin = testHistoricalWin(rowOfIndex, boardNumber);
 
   return Container(
@@ -99,7 +96,7 @@ Widget _card(index, boardNumber, val, bf) {
             color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
-                    ? rowOfIndex == getVisualCurrentRowInt() && !legalOrShort
+                    ? rowOfIndex == getVisualCurrentRowInt() && currentTyping.length == 5 && !legalWord(currentTyping)
                         ? Colors.red
                         : grey
                     : getCardColor(index, boardNumber)),
