@@ -54,7 +54,7 @@ Future<void> _handleSignInReal() async {
   }
   await saveUser();
   await loadKeys();
-  initiateFlipState();
+  //initiateFlipState();
 }
 
 Future<void> handleSignOut() async {
@@ -68,5 +68,5 @@ Future<void> handleSignOut() async {
   await saveUser();
   resetBoardReal(true);
   await loadKeys();
-  initiateFlipState();
+  //initiateFlipState();
 }

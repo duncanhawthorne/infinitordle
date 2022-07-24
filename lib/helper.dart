@@ -467,7 +467,7 @@ void resetBoardReal(save) {
   }
 
   initiateFlipState();
-  isStreak(); //reset streakCache
+  //isStreak(); //reset streakCache
   //resetColorsCache();
   saveKeysCount++;
   if (save) {
