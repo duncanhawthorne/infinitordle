@@ -55,6 +55,7 @@ class _InfinitordleState extends State<Infinitordle> {
     loadUser();
     initalSignIn();
     loadKeys();
+    saveKeysCount++;
     globalFunctions.add(ss);
     globalFunctions.add(showResetConfirmScreen);
 
