@@ -18,7 +18,10 @@ Future<void> initalSignIn() async {
 Future<void> silentSignIn() async {
   p("1silentSignIn()");
   currentUser = await googleSignIn.signInSilently(suppressErrors: false);
-  p(["1silentSignIn()",currentUser]);
+  p(["1silentSignIn()", currentUser]);
+  if (gUser != gUserDefault) {
+    handleSignIn();
+  }
 }
 
 Future<void> handleSignIn() async {
@@ -52,7 +55,7 @@ Future<void> _handleSignInReal() async {
       }
       p("gUser" + gUser);
     } catch (error) {
-      p(["error",error]);
+      p(["error", error]);
     }
   }
   await saveUser();
