@@ -19,9 +19,9 @@ Future<void> silentSignIn() async {
   p("1silentSignIn()");
   currentUser = await googleSignIn.signInSilently(suppressErrors: false);
   p(["1silentSignIn()", currentUser]);
-  if (gUser != gUserDefault) {
-    handleSignIn();
-  }
+  //if (gUser != gUserDefault) {
+  //  handleSignIn();
+  //}
 }
 
 Future<void> handleSignIn() async {

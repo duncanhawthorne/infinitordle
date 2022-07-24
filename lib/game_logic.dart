@@ -131,9 +131,12 @@ void onKeyboardTapped(int index) {
           });
         }
       } else {
-        //not a legal word so just clear current word
+        //not a legal word so do nothing
+        /*
+        //not a legal word so clear text
         currentTyping = "";
         ss(); //setState(() {});
+         */
       }
     }
   } else if (true) {
