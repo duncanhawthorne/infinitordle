@@ -362,6 +362,7 @@ void loadFromEncodedState(gameEncoded) {
     initiateFlipState();
     //resetColorsCache();
     gameEncodedLast = gameEncoded;
+    saveKeysCount++;
   }
 }
 
@@ -467,7 +468,8 @@ void resetBoardReal(save) {
 
   initiateFlipState();
   isStreak(); //reset streakCache
-  resetColorsCache();
+  //resetColorsCache();
+  saveKeysCount++;
   if (save) {
     print("Reset board called with instruction to save keys, and now saving keys");
     saveKeys();
