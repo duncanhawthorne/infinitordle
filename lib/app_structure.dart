@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:infinitordle/keyboard.dart';
 import 'package:infinitordle/gameboard.dart';
 import 'package:infinitordle/game_logic.dart';
@@ -42,39 +40,8 @@ Widget keyboardListenerWrapper() {
         }
       }
     },
-    child: streamBuilderWrapperOnDocument(),
+    child: _wrapStructure(),
   );
-}
-
-Widget streamBuilderWrapperOnDocument() {
-  if (gUser == gUserDefault) {
-    return _wrapStructure();
-  } else {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: db.collection('states').doc(gUser).snapshots(),
-      builder:
-          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasError || !snapshot.hasData) {
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
-        } else {
-          //print(snapshot);
-          var userDocument = snapshot.data;
-          //print(userDocument);
-          if (userDocument != null && userDocument.exists) {
-            String snapshotCurrent = userDocument["data"];
-            //print(snapshotCurrent);
-            if (gUser != gUserDefault && snapshotCurrent != snapshotLast) {
-              if (snapshotCurrent != encodeCurrentGameState()) {
-                loadFromEncodedState(snapshotCurrent);
-              }
-              snapshotLast = snapshotCurrent;
-            }
-          }
-        }
-        return _wrapStructure();
-      },
-    );
-  }
 }
 
 Widget _wrapStructure() {

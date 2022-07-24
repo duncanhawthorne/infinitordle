@@ -471,7 +471,7 @@ void resetBoardReal(save) {
   //resetColorsCache();
 
   if (save) {
-    print("Reset board called with instruction to save keys, and now saving keys");
+    p("Reset board called with instruction to save keys, and now saving keys");
     saveKeys();
   }
   else {

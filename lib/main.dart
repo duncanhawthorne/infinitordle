@@ -78,6 +78,41 @@ class _InfinitordleState extends State<Infinitordle> {
   Widget build(BuildContext context) {
     detectAndUpdateForScreenSize(context);
 
+    return streamBuilderWrapperOnDocument();
+  }
+
+  Widget streamBuilderWrapperOnDocument() {
+    if (gUser == gUserDefault) {
+      return _scaffold();
+    } else {
+      return StreamBuilder<DocumentSnapshot>(
+        stream: db.collection('states').doc(gUser).snapshots(),
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasError || !snapshot.hasData) {
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+          } else {
+            //print(snapshot);
+            var userDocument = snapshot.data;
+            //print(userDocument);
+            if (userDocument != null && userDocument.exists) {
+              String snapshotCurrent = userDocument["data"];
+              //print(snapshotCurrent);
+              if (gUser != gUserDefault && snapshotCurrent != snapshotLast) {
+                if (snapshotCurrent != encodeCurrentGameState()) {
+                  loadFromEncodedState(snapshotCurrent);
+                }
+                snapshotLast = snapshotCurrent;
+              }
+            }
+          }
+          return _scaffold();
+        },
+      );
+    }
+  }
+
+  Widget _scaffold() {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
