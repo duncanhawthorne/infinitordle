@@ -469,10 +469,14 @@ void resetBoardReal(save) {
   initiateFlipState();
   //isStreak(); //reset streakCache
   //resetColorsCache();
-  saveKeysCount++;
+
   if (save) {
     print("Reset board called with instruction to save keys, and now saving keys");
     saveKeys();
+  }
+  else {
+    //only runs at startup
+    saveKeysCount++;
   }
 }
 
