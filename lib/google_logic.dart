@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 GoogleSignInAccount? currentUser;
 
 Future<void> initalSignIn() async {
+  p("initalSignIn()");
   googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
     currentUser = account;
   });
@@ -15,7 +16,9 @@ Future<void> initalSignIn() async {
 }
 
 Future<void> silentSignIn() async {
-  googleSignIn.signInSilently();
+  p("1silentSignIn()");
+  currentUser = await googleSignIn.signInSilently(suppressErrors: false);
+  p(["1silentSignIn()",currentUser]);
 }
 
 Future<void> handleSignIn() async {
@@ -49,7 +52,7 @@ Future<void> _handleSignInReal() async {
       }
       p("gUser" + gUser);
     } catch (error) {
-      p(error);
+      p(["error",error]);
     }
   }
   await saveUser();
