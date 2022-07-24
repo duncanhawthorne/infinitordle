@@ -65,8 +65,8 @@ class _InfinitordleState extends State<Infinitordle> {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
         setState(
             () {}); //Hack, but makes sure state set right shortly after starting
+        saveKeysCount++;
       });
-      saveKeysCount++;
     }
   }
 
