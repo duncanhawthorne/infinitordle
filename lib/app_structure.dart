@@ -25,18 +25,18 @@ Widget keyboardListenerWrapper() {
           onKeyboardTapped(keyboardList.indexOf(">"));
         }
         if (keyEvent.logicalKey == LogicalKeyboardKey.backspace &&
-            backspaceSafe) {
-          if (backspaceSafe) {
+            backspaceSafeCache) {
+          if (backspaceSafeCache) {
             // (DateTime.now().millisecondsSinceEpoch > lastTimePressedDelete + 200) {
             //workaround to bug which was firing delete key twice
-            backspaceSafe = false;
+            backspaceSafeCache = false;
             onKeyboardTapped(keyboardList.indexOf("<"));
             //lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
           }
         }
       } else if (keyEvent is KeyUpEvent) {
         if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
-          backspaceSafe = true;
+          backspaceSafeCache = true;
         }
       }
     },

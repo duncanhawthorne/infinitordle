@@ -22,7 +22,7 @@ Widget gameboardWidget(boardNumber) {
 
 Widget _cardFlipper(index, boardNumber) {
   return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: angles[index]),
+      tween: Tween<double>(begin: 0, end: cardFlipAngles[index]),
       duration: Duration(milliseconds: durMult * 500),
       builder: (BuildContext context, double val, __) {
         return (Transform(
@@ -40,19 +40,15 @@ Widget _cardFlipper(index, boardNumber) {
 }
 
 Widget _positionedCard(index, boardNumber, val, bf) {
+  //if offset 1, do gradually. if offset 0, do instantaneously
+  int speedOfSlide = visualOffset;
   return Stack(
     clipBehavior: Clip.none,
     children: [
-      //oneStepState == 0 ?
-      //_sizedCard(index, boardNumber, val, bf)
-      //:
       AnimatedPositioned(
         curve: Curves.fastOutSlowIn,
-        duration: Duration(
-            milliseconds: visualOneStepState *
-                durMult *
-                200), //when oneStepState = 0 then will instantly transition
-        top: -cardLiveMaxPixel * visualOneStepState,
+        duration: Duration(milliseconds: speedOfSlide * durMult * 200),
+        top: -cardLiveMaxPixel * visualOffset,
         child: _sizedCard(index, boardNumber, val, bf),
       ),
     ],
@@ -84,7 +80,7 @@ Widget _card(index, boardNumber, val, bf) {
                 color: bf == "b"
                     ? Colors.transparent //bg
                     : historicalWin
-                        ? Colors.green
+                        ? green
                         : Colors.transparent, //bg
                 width: bf == "b"
                     ? 0
@@ -96,7 +92,9 @@ Widget _card(index, boardNumber, val, bf) {
             color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
-                    ? rowOfIndex == getVisualCurrentRowInt() && currentTyping.length == 5 && !legalWord(currentTyping)
+                    ? rowOfIndex == getVisualCurrentRowInt() &&
+                            currentTyping.length == 5 &&
+                            !legalWord(currentTyping)
                         ? Colors.red
                         : grey
                     : getCardColor(index, boardNumber)),
@@ -112,7 +110,7 @@ Widget _card(index, boardNumber, val, bf) {
 Widget _cardText(index, boardNumber) {
   int rowOfIndex = index ~/ 5;
   return Text(
-    getVisualGBLetterAtIndexEntered(index).toUpperCase(),
+    getCardLetterAtIndex(index).toUpperCase(),
     style: TextStyle(
       /*
         shadows: const <Shadow>[

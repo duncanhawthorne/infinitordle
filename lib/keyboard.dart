@@ -81,7 +81,7 @@ Widget _kbTextSquare(index) {
                       padding: const EdgeInsets.all(7),
                       child: Icon(Icons.keyboard_return_sharp,
                           color: isStreak()
-                              ? Colors.green
+                              ? green
                               : Colors.white))
                   : Text(
                       keyboardList[index].toUpperCase(),

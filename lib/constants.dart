@@ -13,6 +13,8 @@ String appTitle1 = cheatMode ? "cheat" : "infinit";
 String appTitle3 = "rdle";
 const bg = Color(0xff222222);
 const grey = Color(0xff555555);
+const amber = Colors.amber;
+const green = Colors.green;
 
 //Game design
 const numBoards = 4;
@@ -39,32 +41,26 @@ final int delayMult = noAnimations ? 1 : 1;
 
 //Effectively the state of the game
 var targetWords = []; //gets overridden by loadKeys()
-
 var enteredWords = [];
 var winRecordBoards = [];
 var currentTyping = "";
 int offsetRollback = 0;
 
 //Visual state of the game
-var angles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
-int visualOneStepState = 0;
+var cardFlipAngles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+int visualOffset = 0;
 
 //Helpers for state of the game
-int saveKeysCount = 0;
-
+int saveOrLoadKeysCountCache = 0;
 bool oneLegalWordForRedCardsCache = false;
-String legalWordTestedWord = "";
-
-bool oneMatchingWordForResetScreenCache = false;
-
+String legalWordTestedWordCache = "";
+bool aboutToWinCache = false;
 var cardColorsCache = [];
 var keyColorsCache = [];
-int keyAndCardColorsTestedState = 0;
-
-bool backspaceSafe = true;
-
+int keyAndCardColorsTestedStateCache = 0;
+bool backspaceSafeCache = true;
 bool onStreakCache = false;
-int onStreakTestedState = 0;
+int onStreakTestedStateCache = 0;
 
 //Screen constants
 //const double keyboardSingleKeyUnconstrainedMaxPixelHeight = 80;
@@ -91,7 +87,7 @@ var gUser = "JoeBloggs";
 var db = FirebaseFirestore.instance;
 String gameEncodedLast = "";
 String snapshotLast = "XXXXXXX";
-Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();
+//Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();
 
 //Misc
 Random random = Random();

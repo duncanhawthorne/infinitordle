@@ -16,17 +16,15 @@ bool quickIn(list, bit) {
 }
 
 bool legalWord(word) {
-
   if (word.length != 5) {
     return false;
   }
 
-  if (legalWordTestedWord == word) {
+  if (legalWordTestedWordCache == word) {
     return oneLegalWordForRedCardsCache;
-  }
-  else {
+  } else {
     //blank the cache
-    legalWordTestedWord = word;
+    legalWordTestedWordCache = word;
     oneLegalWordForRedCardsCache = false;
   }
 
@@ -64,7 +62,7 @@ int getVisualCurrentRowInt() {
   return enteredWords.length - offsetRollback;
 }
 
-String getVisualGBLetterAtIndexEntered(index) {
+String getCardLetterAtIndex(index) {
   int rowOfIndex = index ~/ 5;
   try {
     String letter = "";
@@ -101,41 +99,44 @@ List getTargetWords(numberOfBoards) {
 void cheatPrintTargetWords() {
   if (cheatMode) {
     // ignore: avoid_print
-    p(targetWords);
+    p([
+      targetWords,
+      enteredWords,
+      winRecordBoards,
+      currentTyping,
+      offsetRollback
+    ]);
   }
 }
 
-void logWinAndGetNewWord(
-    masterEnteredWordPositionLocal, oneMatchingWordBoardLocal) {
+void logWinAndGetNewWord(winRecordBoardsIndexToFix, winningBoard) {
   //Log the word just got in success words, which gets green to shown
-  winRecordBoards[masterEnteredWordPositionLocal - 1] =
-      oneMatchingWordBoardLocal;
+  //Fix the fact that we stored a -1 in this place temporarily
+  winRecordBoards[winRecordBoardsIndexToFix] = winningBoard;
   //Create new target word for the board
-  targetWords[oneMatchingWordBoardLocal] = getTargetWord();
+  targetWords[winningBoard] = getTargetWord();
   saveKeys();
 }
 
-void oneStepBack(currentWordLocal) {
+void oneStepBack() {
   //Erase a row and step back
   for (var j = 0; j < infNumBacksteps; j++) {
     //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
     offsetRollback++;
-    for (var j = 0; j < 5; j++) {
-      flipCardReal(getVisualCurrentRowInt() * 5 + j, "b");
-    }
+    //for (var j = 0; j < 5; j++) {
+    //  flipCard(getVisualCurrentRowInt() * 5 + j, "b");
+    //}
   }
   initiateFlipState(); //in case anything is in the wrong state, fix here
   saveKeys();
 }
 
 bool isStreak() {
-
-  if (onStreakTestedState == saveKeysCount) {
+  if (onStreakTestedStateCache == saveOrLoadKeysCountCache) {
     return onStreakCache;
-  }
-  else {
+  } else {
     //blank the cache
-    onStreakTestedState = saveKeysCount;
+    onStreakTestedStateCache = saveOrLoadKeysCountCache;
     onStreakCache = false;
   }
 
@@ -160,19 +161,16 @@ bool isStreak() {
 }
 
 Color getBestColorForLetter(index, boardNumber) {
-
-  if (keyAndCardColorsTestedState == saveKeysCount) {
+  if (keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
     Color? cacheAnswer = keyColorsCache[boardNumber][index];
     if (cacheAnswer != null) {
       return cacheAnswer;
-    }
-    else {
+    } else {
       //Haven't cached that get, so do so in the function below
     }
-  }
-  else {
+  } else {
     //blank the cache
-    keyAndCardColorsTestedState = saveKeysCount;
+    keyAndCardColorsTestedStateCache = saveOrLoadKeysCountCache;
     resetColorsCache();
   }
 
@@ -187,9 +185,9 @@ Color getBestColorForLetter(index, boardNumber) {
     for (var gbPosition = 0;
         gbPosition < getVisualCurrentRowInt() * 5;
         gbPosition++) {
-      if (getVisualGBLetterAtIndexEntered(gbPosition) == queryLetter) {
-        if (getCardColor(gbPosition, boardNumber) == Colors.green) {
-          answer = Colors.green;
+      if (getCardLetterAtIndex(gbPosition) == queryLetter) {
+        if (getCardColor(gbPosition, boardNumber) == green) {
+          answer = green;
           break;
         }
       }
@@ -199,9 +197,9 @@ Color getBestColorForLetter(index, boardNumber) {
     for (var gbPosition = 0;
         gbPosition < getVisualCurrentRowInt() * 5;
         gbPosition++) {
-      if (getVisualGBLetterAtIndexEntered(gbPosition) == queryLetter) {
-        if (getCardColor(gbPosition, boardNumber) == Colors.amber) {
-          answer = Colors.amber;
+      if (getCardLetterAtIndex(gbPosition) == queryLetter) {
+        if (getCardColor(gbPosition, boardNumber) == amber) {
+          answer = amber;
           break;
         }
       }
@@ -211,7 +209,7 @@ Color getBestColorForLetter(index, boardNumber) {
     for (var gbPosition = 0;
         gbPosition < getVisualCurrentRowInt() * 5;
         gbPosition++) {
-      if (getVisualGBLetterAtIndexEntered(gbPosition) == queryLetter) {
+      if (getCardLetterAtIndex(gbPosition) == queryLetter) {
         answer = Colors.transparent; //bg; //grey //used and no match
         break;
       }
@@ -226,19 +224,16 @@ Color getBestColorForLetter(index, boardNumber) {
 }
 
 Color getCardColor(index, boardNumber) {
-
-  if (keyAndCardColorsTestedState == saveKeysCount) {
+  if (keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
     Color? cacheAnswer = cardColorsCache[boardNumber][index];
     if (cacheAnswer != null) {
       return cacheAnswer;
-    }
-    else {
+    } else {
       //Haven't cached that get, so do so in the function below
     }
-  }
-  else {
+  } else {
     //blank the cache
-    keyAndCardColorsTestedState = saveKeysCount;
+    keyAndCardColorsTestedStateCache = saveOrLoadKeysCountCache;
     resetColorsCache();
   }
 
@@ -247,27 +242,27 @@ Color getCardColor(index, boardNumber) {
     answer = Colors.transparent; //grey; //later rows
   } else {
     String targetWord = targetWords[boardNumber];
-    String testLetter = getVisualGBLetterAtIndexEntered(
+    String testLetter = getCardLetterAtIndex(
         index); //newGameboardEntries[index ~/ 5][index % 5]//gameboardEntries[index];
     int testRow = index ~/ 5;
     int testColumn = index % 5;
     if (targetWord[testColumn] == testLetter) {
-      answer = Colors.green;
+      answer = green;
     } else if (targetWord.contains(testLetter)) {
       int numberOfThisLetterInTargetWord =
           testLetter.allMatches(targetWord).length;
       int numberOfYellowThisLetterToLeftInCardRow = 0;
       for (var i = 0; i < testColumn; i++) {
-        if (getVisualGBLetterAtIndexEntered(testRow * 5 + i) == testLetter &&
-            getCardColor(testRow * 5 + i, boardNumber) == Colors.amber) {
+        if (getCardLetterAtIndex(testRow * 5 + i) == testLetter &&
+            getCardColor(testRow * 5 + i, boardNumber) == amber) {
           numberOfYellowThisLetterToLeftInCardRow++;
         }
       }
 
       int numberOfGreenThisLetterInCardRow = 0;
       for (var i = 0; i < 5; i++) {
-        if (getVisualGBLetterAtIndexEntered(testRow * 5 + i) == testLetter &&
-            targetWord[i] == getVisualGBLetterAtIndexEntered(testRow * 5 + i)) {
+        if (getCardLetterAtIndex(testRow * 5 + i) == testLetter &&
+            targetWord[i] == getCardLetterAtIndex(testRow * 5 + i)) {
           numberOfGreenThisLetterInCardRow++;
         }
       }
@@ -276,7 +271,7 @@ Color getCardColor(index, boardNumber) {
           numberOfYellowThisLetterToLeftInCardRow +
               numberOfGreenThisLetterInCardRow) {
         //full logic to deal with repeating letters. If only one letter matching targetWord, then always returns Amber
-        answer = Colors.amber;
+        answer = amber;
       } else {
         answer = Colors.transparent;
       }
@@ -293,7 +288,7 @@ bool detectBoardSolvedByRow(boardNumber, maxRowToCheck) {
   for (var q = 0; q < min(getVisualCurrentRowInt(), maxRowToCheck); q++) {
     bool result = true;
     for (var j = 0; j < 5; j++) {
-      if (getCardColor(q * 5 + j, boardNumber) != Colors.green) {
+      if (getCardColor(q * 5 + j, boardNumber) != green) {
         result = false;
       }
     }
@@ -333,7 +328,7 @@ void loadFromEncodedState(gameEncoded) {
   if (gameEncoded == "") {
     //first time through or error state
     //print("ge empty");
-    resetBoardReal(true);
+    //resetBoardReal(true);
   } else if (gameEncoded != gameEncodedLast) {
     try {
       Map<String, dynamic> game = {};
@@ -355,11 +350,11 @@ void loadFromEncodedState(gameEncoded) {
       winRecordBoards = game["winRecordBoards"] ?? [];
     } catch (error) {
       p(["ERROR", error]);
-      resetBoardReal(true);
+      //resetBoardReal(true);
     }
     initiateFlipState();
     gameEncodedLast = gameEncoded;
-    saveKeysCount++;
+    saveOrLoadKeysCountCache++;
   }
 }
 
@@ -400,7 +395,7 @@ Future<void> loadKeys() async {
 }
 
 Future<void> saveKeys() async {
-  saveKeysCount++;
+  saveOrLoadKeysCountCache++;
   String gameEncoded = encodeCurrentGameState();
   //p(["SAVE keys",gameEncoded]);
   final prefs = await SharedPreferences.getInstance();
@@ -438,7 +433,7 @@ String firebasePull(snapshot) {
   return snapshotCurrent;
 }
 
-void resetBoardReal(save) {
+void resetBoard(save) {
   p("Reset board");
   //initialise on reset
   enteredWords = [];
@@ -468,28 +463,27 @@ void resetBoardReal(save) {
   if (save) {
     p("Reset board called with instruction to save keys, and now saving keys");
     saveKeys();
-  }
-  else {
+  } else {
     //only runs at startup
-    saveKeysCount++;
+    saveOrLoadKeysCountCache++;
   }
 }
 
 void initiateFlipState() {
   for (var j = 0; j < numRowsPerBoard * 5; j++) {
     if (getVisualCurrentRowInt() > (j ~/ 5)) {
-      flipCardReal(j, "f");
+      flipCard(j, "f");
     } else {
-      flipCardReal(j, "b");
+      flipCard(j, "b");
     }
   }
 }
 
-void flipCardReal(index, toFOrB) {
+void flipCard(index, toFOrB) {
   if (toFOrB == "b") {
-    angles[index] = 0;
+    cardFlipAngles[index] = 0;
   } else {
-    angles[index] = 0.5;
+    cardFlipAngles[index] = 0.5;
   }
 }
 
@@ -508,9 +502,8 @@ void detectAndUpdateForScreenSize(context) {
     vertSpaceAfterTitle =
         scH - appBarHeight - dividerHeight; //app bar and divider
 
-    keyboardSingleKeyLiveMaxPixelHeight = min(
-        keyAspectRatioDefault * scW / 10,
-            keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3); //
+    keyboardSingleKeyLiveMaxPixelHeight = min(keyAspectRatioDefault * scW / 10,
+        keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3); //
     vertSpaceForGameboard =
         vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
     vertSpaceForCardWithWrap =
@@ -525,27 +518,25 @@ void detectAndUpdateForScreenSize(context) {
     int numSpacersAcross = (numBoards ~/ numPresentationBigRowsOfBoards) - 1;
     int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
     cardLiveMaxPixel = min(
-            (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
-                numPresentationBigRowsOfBoards /
-                numRowsPerBoard,
-            (scW - numSpacersAcross * boardSpacer) /
-                (numBoards ~/ numPresentationBigRowsOfBoards) /
-                5);
+        (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
+            numPresentationBigRowsOfBoards /
+            numRowsPerBoard,
+        (scW - numSpacersAcross * boardSpacer) /
+            (numBoards ~/ numPresentationBigRowsOfBoards) /
+            5);
 
     if (vertSpaceForGameboard >
-        cardLiveMaxPixel *
-                numRowsPerBoard *
-                numPresentationBigRowsOfBoards +
+        cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
             numSpacersDown * boardSpacer) {
       //if still space left over, no point squashing keyboard for nothing
       keyboardSingleKeyLiveMaxPixelHeight = min(
           keyAspectRatioDefault * scW / 10,
-              (vertSpaceAfterTitle -
-                      cardLiveMaxPixel *
-                          numRowsPerBoard *
-                          numPresentationBigRowsOfBoards +
-                      numSpacersDown * boardSpacer) /
-                  3);
+          (vertSpaceAfterTitle -
+                  cardLiveMaxPixel *
+                      numRowsPerBoard *
+                      numPresentationBigRowsOfBoards +
+                  numSpacersDown * boardSpacer) /
+              3);
     }
   }
 

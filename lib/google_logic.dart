@@ -73,6 +73,6 @@ Future<void> handleSignOut() async {
   gUser = gUserDefault;
   //print(gUser);
   await saveUser();
-  resetBoardReal(true);
+  resetBoard(true);
   await loadKeys();
 }

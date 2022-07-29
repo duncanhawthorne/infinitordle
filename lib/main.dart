@@ -51,14 +51,14 @@ class _InfinitordleState extends State<Infinitordle> {
   initState() {
     super.initState();
     //fbInit();
-    resetBoardReal(false);
+    resetBoard(false);
     loadUser();
     initalSignIn();
     loadKeys();
     globalFunctions.add(ss);
     globalFunctions.add(showResetConfirmScreen);
 
-    usersStream = db.collection('states').snapshots();
+    //usersStream = db.collection('states').snapshots();
 
     setState(() {});
     for (int i = 0; i < 10; i++) {
@@ -148,7 +148,7 @@ class _InfinitordleState extends State<Infinitordle> {
                     style: TextStyle(
                         color: numberWinsCache == 0
                             ? Colors.white
-                            : Colors.green)),
+                            : green)),
                 TextSpan(text: appTitle3),
               ],
             ),
@@ -161,7 +161,7 @@ class _InfinitordleState extends State<Infinitordle> {
     List winWordsCache = winWords();
     int numberWinsCache = winWordsCache.length;
     bool end = false;
-    if (!oneMatchingWordForResetScreenCache &&
+    if (!aboutToWinCache &&
         getVisualCurrentRowInt() >= numRowsPerBoard) {
       end = true;
     }
@@ -227,7 +227,7 @@ class _InfinitordleState extends State<Infinitordle> {
             ),
             TextButton(
               onPressed: () => {
-                resetBoardReal(true),
+                resetBoard(true),
                 focusNode.requestFocus(),
                 Navigator.pop(context, 'OK'),
                 setState(() {})

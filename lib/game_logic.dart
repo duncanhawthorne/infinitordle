@@ -4,13 +4,14 @@ import 'package:infinitordle/constants.dart';
 void onKeyboardTapped(int index) {
   var ss = globalFunctions[0];
   var showResetConfirmScreen = globalFunctions[1];
+  String letter = keyboardList[index];
 
   cheatPrintTargetWords();
 
-  if (keyboardList[index] == " ") {
+  if (letter == " ") {
     //ignore pressing of non-keys
 
-  } else if (keyboardList[index] == "<") {
+  } else if (letter == "<") {
     //backspace
     // ignore: prefer_is_empty
     if (currentTyping.length > 0) {
@@ -18,56 +19,52 @@ void onKeyboardTapped(int index) {
       currentTyping = currentTyping.substring(0, currentTyping.length - 1);
       ss(); // setState(() {});
     }
-  } else if (keyboardList[index] == ">") {
+  } else if (letter == ">") {
     //submit guess
     if (currentTyping.length == 5) {
       //typeCountInWord == 5
       //&& threadsafeBlockNewWord == false
       //ignore if not completed whole word
-      String enteredWordLocal =
-          currentTyping; //local variable to ensure threadsafe
+      //due to "delay" functions, need to take local copies of various global variable so they are still "right" when the delayed functions run
+      String enteredWordLocal = currentTyping;
       if (quickIn(legalWords, enteredWordLocal)) {
         //Legal word, but not necessarily correct word
 
         //Legal word so step forward
-        int visualCurrentRowIntLocalPreGuess = getVisualCurrentRowInt();
+        int cardRowPreGuess = getVisualCurrentRowInt();
         currentTyping = "";
 
         enteredWords.add(enteredWordLocal);
-        winRecordBoards.add(
-            -1); //to avoid a race condition with delayed code, add this immediately, and then change it later
-        int masterEnteredWordPositionLocalAfterGuess = winRecordBoards.length;
+        //to avoid a race condition with delayed code, add to winRecordBoards immediately as a fail, and then change it later to a win
+        winRecordBoards.add(-1);
+        int winRecordBoardsIndexToFix = winRecordBoards.length - 1;
 
         saveKeys();
 
         //Made a guess flip over the cards to see the colors
-        for (int i = 0; i < 5; i++) {
-          delayedFlipOnAbsoluteCard(visualCurrentRowIntLocalPreGuess, i, "f", ss);
-        }
+        gradualRevealRow(cardRowPreGuess);
 
         //Test if it is correct word
-        bool oneMatchingWordLocal = false;
-        oneMatchingWordForResetScreenCache = false;
-        int oneMatchingWordBoardLocal =
-            -1; //local variable to ensure threadsafe
+        bool isWin = false;
+        aboutToWinCache = false;
+        int winningBoard = -1; //local variable to ensure threadsafe
         for (var board = 0; board < numBoards; board++) {
           if (targetWords[board] == enteredWordLocal) {
             //(detectBoardSolvedByRow(board, currentWord)) {
             //threadsafeBlockNewWord = true;
-            oneMatchingWordLocal = true;
-            oneMatchingWordForResetScreenCache = true;
-            oneMatchingWordBoardLocal = board;
+            isWin = true;
+            aboutToWinCache = true;
+            winningBoard = board;
           }
         }
 
         //Code for losing game
-        if (!oneMatchingWordLocal &&
-            getVisualCurrentRowInt() >= numRowsPerBoard) {
+        if (!isWin && getVisualCurrentRowInt() >= numRowsPerBoard) {
           //didn't get it in time
           showResetConfirmScreen();
         }
 
-        if (!infMode && oneMatchingWordLocal) {
+        if (!infMode && isWin) {
           //Code for totally winning game across all boards
           bool totallySolvedLocal = true;
           for (var i = 0; i < numBoards; i++) {
@@ -81,17 +78,17 @@ void onKeyboardTapped(int index) {
           }
         }
 
-        if (infMode && oneMatchingWordLocal) {
+        if (infMode && isWin) {
           Future.delayed(Duration(milliseconds: delayMult * 1500), () {
             //Give time for above code to show visually, so we have flipped
             //Slide the cards back visually, creating the illusion of stepping back
-            visualOneStepState = 1;
+            visualOffset = 1;
             ss(); //setState(() {});
             Future.delayed(Duration(milliseconds: durMult * 250), () {
               //Undo the visual slide (and do this instantaneously)
-              visualOneStepState = 0;
+              visualOffset = 0;
               //Actually erase a row and step back, so state matches visual illusion above
-              oneStepBack(visualCurrentRowIntLocalPreGuess);
+              oneStepBack();
 
               ss(); //setState(() {});
 
@@ -99,21 +96,20 @@ void onKeyboardTapped(int index) {
                 //include inside other future so definitely happens after rather relying on race
                 //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
                 //Log the word just got in success words, which gets green to shown
-                logWinAndGetNewWord(
-                    masterEnteredWordPositionLocalAfterGuess, oneMatchingWordBoardLocal);
+                logWinAndGetNewWord(winRecordBoardsIndexToFix, winningBoard);
                 ss(); //setState(() {});
 
                 if (isStreak()) {
                   Future.delayed(Duration(milliseconds: delayMult * 750), () {
                     if (getVisualCurrentRowInt() > 0) {
                       //Slide the cards back visually, creating the illusion of stepping back
-                      visualOneStepState = 1;
+                      visualOffset = 1;
                       ss(); //setState(() {});
                       Future.delayed(Duration(milliseconds: durMult * 250), () {
                         //Undo the visual slide (and do this instantaneously)
-                        visualOneStepState = 0;
+                        visualOffset = 0;
                         //Actually erase a row and step back, so state matches visual illusion above
-                        oneStepBack(visualCurrentRowIntLocalPreGuess);
+                        oneStepBack();
 
                         ss(); //setState(() {});
                       });
@@ -132,30 +128,33 @@ void onKeyboardTapped(int index) {
         ss(); //setState(() {});
          */
       }
+    } else {
+      //not 5 letters long so ignore
     }
   } else if (true) {
     //pressing regular key, as other options already dealt with above
-    if (currentTyping.length < 5 &&
-        getVisualCurrentRowInt() < numRowsPerBoard) {
+    if (currentTyping.length < 5) {
+      //&& getVisualCurrentRowInt() < numRowsPerBoard
       //still typing out word, else ignore
-      currentTyping = currentTyping + keyboardList[index];
+      currentTyping = currentTyping + letter;
       ss(); //setState(() {});
     }
   }
 //    });
 }
 
-void delayedFlipOnAbsoluteCard(
-    int getVisualCurrentRowIntLocal, int i, toFOrB, ss) {
-  Future.delayed(
-      Duration(milliseconds: delayMult * i * (durMult == 1 ? 100 : 250)), () {
-    if (getVisualGBLetterAtIndexEntered(
-            (getVisualCurrentRowIntLocal) * 5 + i) !=
-        "") {
-      //if have stepped back during delay may end up flipping wrong card so do this safety test
-      //flip to reveal the colors with pleasing animation
-      flipCardReal((getVisualCurrentRowIntLocal) * 5 + i, toFOrB);
-      ss(); // setState(() {});
-    }
-  });
+void gradualRevealRow(row) {
+  //flip to reveal the colors with pleasing animation
+  var ss = globalFunctions[0];
+  var delay = delayMult * (durMult == 1 ? 100 : 250);
+  for (int i = 0; i < 5; i++) {
+    //delayedFlipOnCard(row, i);
+    Future.delayed(Duration(milliseconds: delay * i), () {
+      if (getCardLetterAtIndex(row * 5 + i) != "") {
+        //if have stepped back during delay may end up flipping wrong card so do this safety test
+        flipCard(row * 5 + i, "f");
+        ss(); // setState(() {});
+      }
+    });
+  }
 }
