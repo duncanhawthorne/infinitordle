@@ -6,8 +6,8 @@ import 'package:infinitordle/constants.dart';
 Widget gameboardWidget(boardNumber) {
   return Container(
     constraints: BoxConstraints(
-        maxWidth: 5 * cardEffectiveMaxPixel, //*0.97
-        maxHeight: numRowsPerBoard * cardEffectiveMaxPixel), //*0.97
+        maxWidth: 5 * cardLiveMaxPixel, //*0.97
+        maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
     child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(), //turns off ios scrolling
         itemCount: numRowsPerBoard * 5,
@@ -52,7 +52,7 @@ Widget _positionedCard(index, boardNumber, val, bf) {
             milliseconds: visualOneStepState *
                 durMult *
                 200), //when oneStepState = 0 then will instantly transition
-        top: -cardEffectiveMaxPixel * visualOneStepState,
+        top: -cardLiveMaxPixel * visualOneStepState,
         child: _sizedCard(index, boardNumber, val, bf),
       ),
     ],
@@ -61,8 +61,8 @@ Widget _positionedCard(index, boardNumber, val, bf) {
 
 Widget _sizedCard(index, boardNumber, val, bf) {
   return SizedBox(
-    height: cardEffectiveMaxPixel,
-    width: cardEffectiveMaxPixel,
+    height: cardLiveMaxPixel,
+    width: cardLiveMaxPixel,
     child: _card(index, boardNumber, val, bf),
   );
 }
@@ -72,9 +72,9 @@ Widget _card(index, boardNumber, val, bf) {
   bool historicalWin = testHistoricalWin(rowOfIndex, boardNumber);
 
   return Container(
-    padding: EdgeInsets.all(0.005 * cardEffectiveMaxPixel),
+    padding: EdgeInsets.all(0.005 * cardLiveMaxPixel),
     child: ClipRRect(
-      borderRadius: BorderRadius.circular(0.2 * cardEffectiveMaxPixel),
+      borderRadius: BorderRadius.circular(0.2 * cardLiveMaxPixel),
       child: Container(
         //padding: const EdgeInsets.all(1),
         //height: 500, //oversize so it renders in full and so doesn't pixelate
@@ -89,10 +89,10 @@ Widget _card(index, boardNumber, val, bf) {
                 width: bf == "b"
                     ? 0
                     : historicalWin
-                        ? 0.05 * cardEffectiveMaxPixel //2
-                        : 0),
+                        ? 0.05 * cardLiveMaxPixel
+                        : 0.05 * cardLiveMaxPixel),
             borderRadius: BorderRadius.circular(
-                0.2 * cardEffectiveMaxPixel), //needed for green border
+                0.2 * cardLiveMaxPixel), //needed for green border
             color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
@@ -123,7 +123,7 @@ Widget _cardText(index, boardNumber) {
           ),
         ],
          */
-      fontSize: cardEffectiveMaxPixel,
+      fontSize: cardLiveMaxPixel,
       color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
           ? Colors.transparent // bg //"hide" after being solved
           : Colors.white,

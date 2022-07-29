@@ -7,8 +7,8 @@ Widget keyboardRowWidget(keyBoardStartKey, length) {
   return Container(
     constraints: BoxConstraints(
         maxWidth:
-            keyboardSingleKeyEffectiveMaxPixelHeight * 10 / keyAspectRatioLive,
-        maxHeight: keyboardSingleKeyEffectiveMaxPixelHeight),
+            keyboardSingleKeyLiveMaxPixelHeight * 10 / keyAspectRatioLive,
+        maxHeight: keyboardSingleKeyLiveMaxPixelHeight),
     child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(), //ios fix
         itemCount: length,
@@ -24,10 +24,10 @@ Widget keyboardRowWidget(keyBoardStartKey, length) {
 
 Widget _kbStackWithMiniGrid(index, length) {
   return Container(
-    padding: EdgeInsets.all(0.005 * keyboardSingleKeyEffectiveMaxPixelHeight),
+    padding: EdgeInsets.all(0.005 * keyboardSingleKeyLiveMaxPixelHeight),
     child: ClipRRect(
       borderRadius:
-          BorderRadius.circular(0.1 * keyboardSingleKeyEffectiveMaxPixelHeight),
+          BorderRadius.circular(0.1 * keyboardSingleKeyLiveMaxPixelHeight),
       //borderRadius: BorderRadius.circular(10),
       child: Stack(
         children: [

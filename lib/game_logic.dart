@@ -7,10 +7,6 @@ void onKeyboardTapped(int index) {
 
   cheatPrintTargetWords();
 
-  //p([enteredWords, currentTyping, offsetRollback, winRecordBoards]);
-
-  //print(gUser);
-
   if (keyboardList[index] == " ") {
     //ignore pressing of non-keys
 
@@ -29,13 +25,11 @@ void onKeyboardTapped(int index) {
       //&& threadsafeBlockNewWord == false
       //ignore if not completed whole word
       String enteredWordLocal =
-          currentTyping; // gameboardEntries.sublist(currentWord * 5, (currentWord + 1) * 5).join(""); //local variable to ensure threadsafe
+          currentTyping; //local variable to ensure threadsafe
       if (quickIn(legalWords, enteredWordLocal)) {
-        //(legalWords.contains(enteredWordLocal)) {
         //Legal word, but not necessarily correct word
 
         //Legal word so step forward
-        //resetColorsCache();
         int visualCurrentRowIntLocalPreGuess = getVisualCurrentRowInt();
         currentTyping = "";
 

@@ -67,7 +67,7 @@ bool onStreakCache = false;
 int onStreakTestedState = 0;
 
 //Screen constants
-const double keyboardSingleKeyUnconstrainedMaxPixelHeight = 80;
+//const double keyboardSingleKeyUnconstrainedMaxPixelHeight = 80;
 const double dividerHeight = 2;
 double keyAspectRatioDefault = 1.5;
 
@@ -76,11 +76,11 @@ double vertSpaceForGameboard = -1;
 double vertSpaceForCardWithWrap = -1;
 double horizSpaceForCardNoWrap = -1;
 int numPresentationBigRowsOfBoards = -1;
-double cardEffectiveMaxPixel = -1;
+double cardLiveMaxPixel = -1;
 double scW = -1;
 double scH = -1;
 double vertSpaceAfterTitle = -1;
-double keyboardSingleKeyEffectiveMaxPixelHeight = -1;
+double keyboardSingleKeyLiveMaxPixelHeight = -1;
 double appBarHeight = -1;
 double keyAspectRatioLive = -1;
 

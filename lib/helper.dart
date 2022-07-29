@@ -112,7 +112,6 @@ void logWinAndGetNewWord(
       oneMatchingWordBoardLocal;
   //Create new target word for the board
   targetWords[oneMatchingWordBoardLocal] = getTargetWord();
-  //resetColorsCache();
   saveKeys();
 }
 
@@ -126,7 +125,6 @@ void oneStepBack(currentWordLocal) {
     }
   }
   initiateFlipState(); //in case anything is in the wrong state, fix here
-  //resetColorsCache();
   saveKeys();
 }
 
@@ -360,7 +358,6 @@ void loadFromEncodedState(gameEncoded) {
       resetBoardReal(true);
     }
     initiateFlipState();
-    //resetColorsCache();
     gameEncodedLast = gameEncoded;
     saveKeysCount++;
   }
@@ -467,8 +464,6 @@ void resetBoardReal(save) {
   }
 
   initiateFlipState();
-  //isStreak(); //reset streakCache
-  //resetColorsCache();
 
   if (save) {
     p("Reset board called with instruction to save keys, and now saving keys");
@@ -512,13 +507,12 @@ void detectAndUpdateForScreenSize(context) {
     appBarHeight = scH * 0.055; //min(56, max(40, scH * 0.05));
     vertSpaceAfterTitle =
         scH - appBarHeight - dividerHeight; //app bar and divider
-    keyboardSingleKeyEffectiveMaxPixelHeight = min(
+
+    keyboardSingleKeyLiveMaxPixelHeight = min(
         keyAspectRatioDefault * scW / 10,
-        min(
-            double.infinity, //keyboardSingleKeyUnconstrainedMaxPixelHeight,
-            keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3));
+            keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3); //
     vertSpaceForGameboard =
-        vertSpaceAfterTitle - keyboardSingleKeyEffectiveMaxPixelHeight * 3;
+        vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
     vertSpaceForCardWithWrap =
         ((vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
     horizSpaceForCardNoWrap =
@@ -530,35 +524,31 @@ void detectAndUpdateForScreenSize(context) {
     }
     int numSpacersAcross = (numBoards ~/ numPresentationBigRowsOfBoards) - 1;
     int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
-    cardEffectiveMaxPixel = min(
-        double.infinity, // keyboardSingleKeyUnconstrainedMaxPixelHeight,
-        min(
+    cardLiveMaxPixel = min(
             (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
                 numPresentationBigRowsOfBoards /
                 numRowsPerBoard,
             (scW - numSpacersAcross * boardSpacer) /
                 (numBoards ~/ numPresentationBigRowsOfBoards) /
-                5));
+                5);
 
     if (vertSpaceForGameboard >
-        cardEffectiveMaxPixel *
+        cardLiveMaxPixel *
                 numRowsPerBoard *
                 numPresentationBigRowsOfBoards +
             numSpacersDown * boardSpacer) {
       //if still space left over, no point squashing keyboard for nothing
-      keyboardSingleKeyEffectiveMaxPixelHeight = min(
+      keyboardSingleKeyLiveMaxPixelHeight = min(
           keyAspectRatioDefault * scW / 10,
-          min(
-              double.infinity, //keyboardSingleKeyUnconstrainedMaxPixelHeight,
               (vertSpaceAfterTitle -
-                      cardEffectiveMaxPixel *
+                      cardLiveMaxPixel *
                           numRowsPerBoard *
                           numPresentationBigRowsOfBoards +
                       numSpacersDown * boardSpacer) /
-                  3));
+                  3);
     }
   }
 
   keyAspectRatioLive =
-      max(0.5, keyboardSingleKeyEffectiveMaxPixelHeight / (scW / 10));
+      max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
 }

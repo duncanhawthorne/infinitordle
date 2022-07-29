@@ -25,8 +25,10 @@ Future<void> silentSignIn() async {
 }
 
 Future<void> handleSignIn() async {
+  var ss = globalFunctions[0];
   await _handleSignInReal();
   await _handleSignInReal();
+  ss();
 }
 
 Future<void> _handleSignInReal() async {
@@ -60,7 +62,6 @@ Future<void> _handleSignInReal() async {
   }
   await saveUser();
   await loadKeys();
-  //initiateFlipState();
 }
 
 Future<void> handleSignOut() async {
@@ -74,5 +75,4 @@ Future<void> handleSignOut() async {
   await saveUser();
   resetBoardReal(true);
   await loadKeys();
-  //initiateFlipState();
 }

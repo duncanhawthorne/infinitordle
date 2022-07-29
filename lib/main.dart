@@ -65,7 +65,6 @@ class _InfinitordleState extends State<Infinitordle> {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
         setState(
             () {}); //Hack, but makes sure state set right shortly after starting
-        //saveKeysCount++;
       });
     }
   }
@@ -130,6 +129,7 @@ class _InfinitordleState extends State<Infinitordle> {
         : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
     return GestureDetector(
         onTap: () {
+          //showLogoutConfirmationScreen();
           showResetConfirmScreen();
         },
         child: FittedBox(
@@ -181,9 +181,13 @@ class _InfinitordleState extends State<Infinitordle> {
               GestureDetector(
                   onTap: () {
                     setState(() {
-                      gUser == gUserDefault ? handleSignIn() : handleSignOut();
+                      if (gUser == gUserDefault) {
+                        handleSignIn();
+                        Navigator.pop(context, 'OK');
+                      } else {
+                        showLogoutConfirmationScreen(context);
+                      }
                       focusNode.requestFocus();
-                      Navigator.pop(context);
                     });
                   },
                   child: gUser == gUserDefault
@@ -229,6 +233,37 @@ class _InfinitordleState extends State<Infinitordle> {
                 setState(() {})
               },
               child: const Text('Reset', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> showLogoutConfirmationScreen(context) async {
+    //Navigator.pop(context);
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Do you want to log out?"),
+          content: Text("Logged in as " + gUser),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => {
+                Navigator.pop(context, 'Cancel')
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => {
+                handleSignOut(),
+        Navigator.pop(context, 'OK'),
+        Navigator.pop(context, 'OK'),
+        setState(() {})
+              },
+              child: const Text('Log out', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
