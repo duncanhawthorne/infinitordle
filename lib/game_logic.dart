@@ -27,7 +27,7 @@ void onKeyboardTapped(int index) {
       //ignore if not completed whole word
       //due to "delay" functions, need to take local copies of various global variable so they are still "right" when the delayed functions run
       String enteredWordLocal = currentTyping;
-      if (quickIn(legalWords, enteredWordLocal)) {
+      if (listContains(legalWords, enteredWordLocal)) {
         //Legal word, but not necessarily correct word
 
         //Legal word so step forward
@@ -36,10 +36,8 @@ void onKeyboardTapped(int index) {
 
         enteredWords.add(enteredWordLocal);
         //to avoid a race condition with delayed code, add to winRecordBoards immediately as a fail, and then change it later to a win
-        winRecordBoards.add(-1);
+        winRecordBoards.add(-2);
         int winRecordBoardsIndexToFix = winRecordBoards.length - 1;
-
-        saveKeys();
 
         //Made a guess flip over the cards to see the colors
         gradualRevealRow(cardRowPreGuess);
@@ -57,6 +55,13 @@ void onKeyboardTapped(int index) {
             winningBoard = board;
           }
         }
+
+        if (!isWin) {
+          //change -2 to -1 to confirm no win
+          winRecordBoards[winRecordBoardsIndexToFix] = -1;
+        }
+
+        saveKeys();
 
         //Code for losing game
         if (!isWin && getVisualCurrentRowInt() >= numRowsPerBoard) {

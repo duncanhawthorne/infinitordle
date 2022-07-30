@@ -127,13 +127,12 @@ class _InfinitordleState extends State<Infinitordle> {
     var infText = numberWinsCache == 0
         ? "o"
         : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
+    //String extra = isStreak() ? "🔥" : "";
     return GestureDetector(
         onTap: () {
-          //showLogoutConfirmationScreen();
           showResetConfirmScreen();
         },
         child: FittedBox(
-          //fit: BoxFit.fitHeight,
           child: RichText(
             text: TextSpan(
               style: TextStyle(
@@ -195,7 +194,6 @@ class _InfinitordleState extends State<Infinitordle> {
                       : user == null
                           ? const Icon(Icons.face, color: bg)
                           : GoogleUserCircleAvatar(identity: user)
-                  //Text((gUser.substring(0, 1).toUpperCase())),
                   )
             ],
           ),

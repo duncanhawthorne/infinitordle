@@ -6,8 +6,7 @@ import 'package:infinitordle/game_logic.dart';
 Widget keyboardRowWidget(keyBoardStartKey, length) {
   return Container(
     constraints: BoxConstraints(
-        maxWidth:
-            keyboardSingleKeyLiveMaxPixelHeight * 10 / keyAspectRatioLive,
+        maxWidth: keyboardSingleKeyLiveMaxPixelHeight * 10 / keyAspectRatioLive,
         maxHeight: keyboardSingleKeyLiveMaxPixelHeight),
     child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(), //ios fix
@@ -79,10 +78,11 @@ Widget _kbTextSquare(index) {
               : keyboardList[index] == ">"
                   ? Container(
                       padding: const EdgeInsets.all(7),
-                      child: Icon(Icons.keyboard_return_sharp,
-                          color: isStreak()
-                              ? green
-                              : Colors.white))
+                      child: Icon(
+                          isStreak()
+                              ? Icons.fast_forward
+                              : Icons.keyboard_return_sharp,
+                          color: isStreak() ? green : Colors.white))
                   : Text(
                       keyboardList[index].toUpperCase(),
                       style: const TextStyle(

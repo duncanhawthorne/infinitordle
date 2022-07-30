@@ -63,7 +63,6 @@ bool onStreakCache = false;
 int onStreakTestedStateCache = 0;
 
 //Screen constants
-//const double keyboardSingleKeyUnconstrainedMaxPixelHeight = 80;
 const double dividerHeight = 2;
 double keyAspectRatioDefault = 1.5;
 
@@ -87,7 +86,6 @@ var gUser = "JoeBloggs";
 var db = FirebaseFirestore.instance;
 String gameEncodedLast = "";
 String snapshotLast = "XXXXXXX";
-//Stream<QuerySnapshot> usersStream = db.collection('states').snapshots();
 
 //Misc
 Random random = Random();

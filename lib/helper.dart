@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 
-bool quickIn(list, bit) {
+bool listContains(list, bit) {
   //p(["quickIn", "list", bit]);
   return binarySearch(list, bit) !=
       -1; //sorted list so this is faster than doing contains
@@ -28,7 +28,7 @@ bool legalWord(word) {
     oneLegalWordForRedCardsCache = false;
   }
 
-  bool answer = quickIn(legalWords, currentTyping);
+  bool answer = listContains(legalWords, currentTyping);
   oneLegalWordForRedCardsCache = answer;
 
   return answer;
