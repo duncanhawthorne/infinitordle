@@ -38,6 +38,7 @@ final isWebMobileReal = kIsWeb &&
 final noAnimations = true && isWebMobileReal;
 final int durMult = noAnimations ? 1 : 1;
 final int delayMult = noAnimations ? 1 : 1;
+final gradualRevealDelay = delayMult * (durMult == 1 ? 100 : 250);
 
 //Effectively the state of the game
 var targetWords = []; //gets overridden by loadKeys()

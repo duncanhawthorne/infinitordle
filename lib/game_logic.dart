@@ -66,7 +66,9 @@ void onKeyboardTapped(int index) {
         //Code for losing game
         if (!isWin && getVisualCurrentRowInt() >= numRowsPerBoard) {
           //didn't get it in time
-          showResetConfirmScreen();
+          Future.delayed(Duration(milliseconds: gradualRevealDelay * 5 + durMult * 500), () {
+            showResetConfirmScreen();
+          });
         }
 
         if (!infMode && isWin) {
@@ -151,10 +153,10 @@ void onKeyboardTapped(int index) {
 void gradualRevealRow(row) {
   //flip to reveal the colors with pleasing animation
   var ss = globalFunctions[0];
-  var delay = delayMult * (durMult == 1 ? 100 : 250);
+  //var gradualRevealDelay = delayMult * (durMult == 1 ? 100 : 250);
   for (int i = 0; i < 5; i++) {
     //delayedFlipOnCard(row, i);
-    Future.delayed(Duration(milliseconds: delay * i), () {
+    Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
       if (getCardLetterAtIndex(row * 5 + i) != "") {
         //if have stepped back during delay may end up flipping wrong card so do this safety test
         flipCard(row * 5 + i, "f");
