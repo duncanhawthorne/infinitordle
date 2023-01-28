@@ -11,7 +11,9 @@ Future<void> gSignIn() async {
   var ss = globalFunctions[0];
   p("gSignIn()");
 
-  await googleSignIn.signInSilently();
+  if (!isiOSMobile) {
+    await googleSignIn.signInSilently();
+  }
   await googleSignIn.signIn();
 
   GoogleSignInAccount? user = googleSignIn.currentUser;

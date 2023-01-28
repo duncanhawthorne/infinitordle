@@ -35,6 +35,7 @@ final finalWords = kFinalWordsText.split("\n");
 final isWebMobileReal = kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android);
+final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 final noAnimations = true && isWebMobileReal;
 final int durMult = noAnimations ? 1 : 1;
 final int delayMult = noAnimations ? 1 : 1;
