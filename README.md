@@ -1,1 +1,1 @@
-# infinitordle
+Play infinitordle at https://duncanhawthorne.github.io/#/ 
