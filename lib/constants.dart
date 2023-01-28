@@ -83,6 +83,8 @@ double keyAspectRatioLive = -1;
 bool debugFakeLogin = false;
 var gUserDefault = "JoeBloggs";
 var gUser = "JoeBloggs";
+var gUserIconDefault = "JoeBloggs";
+var gUserIcon = "JoeBloggs";
 
 var db = FirebaseFirestore.instance;
 String gameEncodedLast = "";

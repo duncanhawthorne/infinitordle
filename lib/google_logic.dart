@@ -7,71 +7,32 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 GoogleSignInAccount? currentUser;
 
-Future<void> initalSignIn() async {
-  p("initalSignIn()");
-  googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-    currentUser = account;
-  });
-  await silentSignIn();
-}
-
-Future<void> silentSignIn() async {
-  p("1silentSignIn()");
-  currentUser = await googleSignIn.signInSilently(suppressErrors: false);
-  p(["1silentSignIn()", currentUser]);
-  //if (gUser != gUserDefault) {
-  //  handleSignIn();
-  //}
-}
-
-Future<void> handleSignIn() async {
+Future<void> gSignIn() async {
   var ss = globalFunctions[0];
-  await _handleSignInReal();
-  await _handleSignInReal();
+  p("gSignIn()");
+
+  await googleSignIn.signInSilently();
+  await googleSignIn.signIn();
+
+  GoogleSignInAccount? user = googleSignIn.currentUser;
+  if (user != null) {
+    gUser = user.email;
+    if (user.photoUrl != null) {
+      gUserIcon = user.photoUrl ?? gUserDefault;
+    }
+    currentUser = user;
+    await saveUser();
+    await loadKeys();
+  }
   ss();
 }
 
-Future<void> _handleSignInReal() async {
-  p("_handleSignInReal()");
-  if (debugFakeLogin) {
-    // ignore: avoid_print
-    p("fakelogin");
-    gUser = "X";
-  } else {
-    //print("real");
-    try {
-      p("try");
-      p("gUser" + gUser);
-      // ignore: await_only_futures
-      await googleSignIn.onCurrentUserChanged
-          .listen((GoogleSignInAccount? account) {
-        currentUser = account;
-      });
-      await googleSignIn.signIn();
-      googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-        currentUser = account;
-      });
-      final GoogleSignInAccount? user = currentUser;
-      if (user != null) {
-        gUser = user.email;
-      }
-      p("gUser" + gUser);
-    } catch (error) {
-      p(["error", error]);
-    }
-  }
-  await saveUser();
-  await loadKeys();
-}
-
-Future<void> handleSignOut() async {
-  //print("signout");
+Future<void> gSignOut() async {
   if (debugFakeLogin) {
   } else {
     await googleSignIn.disconnect();
   }
   gUser = gUserDefault;
-  //print(gUser);
   await saveUser();
   resetBoard(true);
   await loadKeys();

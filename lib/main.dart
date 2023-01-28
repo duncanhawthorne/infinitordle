@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -53,7 +52,6 @@ class _InfinitordleState extends State<Infinitordle> {
     //fbInit();
     resetBoard(false);
     loadUser();
-    initalSignIn();
     loadKeys();
     globalFunctions.add(ss);
     globalFunctions.add(showResetConfirmScreen);
@@ -145,9 +143,7 @@ class _InfinitordleState extends State<Infinitordle> {
                 TextSpan(
                     text: infText,
                     style: TextStyle(
-                        color: numberWinsCache == 0
-                            ? Colors.white
-                            : green)),
+                        color: numberWinsCache == 0 ? Colors.white : green)),
                 TextSpan(text: appTitle3),
               ],
             ),
@@ -156,18 +152,14 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Future<void> showResetConfirmScreen() async {
-    initalSignIn();
     List winWordsCache = winWords();
     int numberWinsCache = winWordsCache.length;
     bool end = false;
-    if (!aboutToWinCache &&
-        getVisualCurrentRowInt() >= numRowsPerBoard) {
+    if (!aboutToWinCache && getVisualCurrentRowInt() >= numRowsPerBoard) {
       end = true;
     }
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
-    final GoogleSignInAccount? user = currentUser;
-    // ignore: avoid_print
-    print([user, gUser]);
+
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -181,7 +173,7 @@ class _InfinitordleState extends State<Infinitordle> {
                   onTap: () {
                     setState(() {
                       if (gUser == gUserDefault) {
-                        handleSignIn();
+                        gSignIn();
                         Navigator.pop(context, 'OK');
                       } else {
                         showLogoutConfirmationScreen(context);
@@ -191,9 +183,11 @@ class _InfinitordleState extends State<Infinitordle> {
                   },
                   child: gUser == gUserDefault
                       ? const Icon(Icons.person_off, color: bg)
-                      : user == null
+                      : gUserIcon == gUserIconDefault
                           ? const Icon(Icons.face, color: bg)
-                          : GoogleUserCircleAvatar(identity: user)
+                          : CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  gUserIcon)) //  GoogleUserCircleAvatar(identity: currentUser)
                   )
             ],
           ),
@@ -249,17 +243,15 @@ class _InfinitordleState extends State<Infinitordle> {
           content: Text("Logged in as " + gUser),
           actions: <Widget>[
             TextButton(
-              onPressed: () => {
-                Navigator.pop(context, 'Cancel')
-              },
+              onPressed: () => {Navigator.pop(context, 'Cancel')},
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () => {
-                handleSignOut(),
-        Navigator.pop(context, 'OK'),
-        Navigator.pop(context, 'OK'),
-        setState(() {})
+                gSignOut(),
+                Navigator.pop(context, 'OK'),
+                Navigator.pop(context, 'OK'),
+                setState(() {})
               },
               child: const Text('Log out', style: TextStyle(color: Colors.red)),
             ),

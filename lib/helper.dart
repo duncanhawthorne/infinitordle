@@ -310,17 +310,17 @@ void resetColorsCache() {
 }
 
 Future<void> loadUser() async {
-  //print("load user");
   final prefs = await SharedPreferences.getInstance();
   gUser = prefs.getString('gUser') ?? gUserDefault;
-  //print(gUser);
+  gUserIcon = prefs.getString('gUserIcon') ?? gUserIconDefault;
+  p(["loadUser",gUser, gUserIcon]);
 }
 
 Future<void> saveUser() async {
-  //print("save user");
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('gUser', gUser);
-  //print(gUser);
+  await prefs.setString('gUserIcon', gUserIcon);
+  p(["saveUser", gUser, gUserIcon]);
 }
 
 void loadFromEncodedState(gameEncoded) {
@@ -392,6 +392,8 @@ Future<void> loadKeys() async {
     );
   }
   loadFromEncodedState(gameEncoded);
+  var ss = globalFunctions[0];
+  ss();
 }
 
 Future<void> saveKeys() async {
