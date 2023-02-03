@@ -12,11 +12,19 @@ Future<void> gSignIn() async {
   p("gSignIn()");
 
   if (!isiOSMobile) {
-    await googleSignIn.signInSilently();
+    GoogleSignInAccount? googleSignInAccount = await googleSignIn.signInSilently();
+    /*
+    p(googleSignIn);
+    p(googleSignInAccount);
+    GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
+    p(googleSignInAuthentication);
+    p(googleSignInAuthentication!.idToken);
+     */
   }
-  await googleSignIn.signIn();
+  await googleSignIn.signIn(); //
 
   GoogleSignInAccount? user = googleSignIn.currentUser;
+
   if (user != null) {
     gUser = user.email;
     if (user.photoUrl != null) {
