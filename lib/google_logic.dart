@@ -12,6 +12,7 @@ Future<void> gSignIn() async {
   p("gSignIn()");
 
   if (!isiOSMobile) {
+    // ignore: unused_local_variable
     GoogleSignInAccount? googleSignInAccount = await googleSignIn.signInSilently();
     /*
     p(googleSignIn);

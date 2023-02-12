@@ -47,6 +47,7 @@ var enteredWords = [];
 var winRecordBoards = [];
 var currentTyping = "";
 int offsetRollback = 0;
+var highlightedboard = -1;
 
 //Visual state of the game
 var cardFlipAngles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);

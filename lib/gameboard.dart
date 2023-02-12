@@ -4,20 +4,23 @@ import 'dart:math';
 import 'package:infinitordle/constants.dart';
 
 Widget gameboardWidget(boardNumber) {
-  return Container(
-    constraints: BoxConstraints(
-        maxWidth: 5 * cardLiveMaxPixel, //*0.97
-        maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
-    child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(), //turns off ios scrolling
-        itemCount: numRowsPerBoard * 5,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 5,
-        ),
-        itemBuilder: (BuildContext context, int index) {
-          return _cardFlipper(index, boardNumber);
-        }),
-  );
+  return GestureDetector(
+      onTap: () {highlightedboard = boardNumber},
+      child: Container(
+        constraints: BoxConstraints(
+            maxWidth: 5 * cardLiveMaxPixel, //*0.97
+            maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
+        child: GridView.builder(
+            physics:
+                const NeverScrollableScrollPhysics(), //turns off ios scrolling
+            itemCount: numRowsPerBoard * 5,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              return _cardFlipper(index, boardNumber);
+            }),
+      ));
 }
 
 Widget _cardFlipper(index, boardNumber) {
