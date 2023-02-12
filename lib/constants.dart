@@ -13,6 +13,7 @@ String appTitle1 = cheatMode ? "cheat" : "infinit";
 String appTitle3 = "rdle";
 const bg = Color(0xff222222);
 const grey = Color(0xff555555);
+const offWhite = Color(0xff999999);
 const amber = Colors.amber;
 const green = Colors.green;
 
@@ -47,7 +48,7 @@ var enteredWords = [];
 var winRecordBoards = [];
 var currentTyping = "";
 int offsetRollback = 0;
-var highlightedboard = -1;
+var highlightedBoard = -1;
 
 //Visual state of the game
 var cardFlipAngles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);

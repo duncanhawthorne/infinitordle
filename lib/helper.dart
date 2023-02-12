@@ -161,6 +161,9 @@ bool isStreak() {
 }
 
 Color getBestColorForLetter(index, boardNumber) {
+  if (highlightedBoard != -1) {
+    boardNumber = highlightedBoard;
+  }
   if (keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
     Color? cacheAnswer = keyColorsCache[boardNumber][index];
     if (cacheAnswer != null) {

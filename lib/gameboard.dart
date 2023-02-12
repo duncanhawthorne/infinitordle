@@ -5,7 +5,15 @@ import 'package:infinitordle/constants.dart';
 
 Widget gameboardWidget(boardNumber) {
   return GestureDetector(
-      onTap: () {highlightedboard = boardNumber},
+      onTap: () {
+        var ss = globalFunctions[0];
+        if (highlightedBoard == boardNumber) {
+          highlightedBoard = -1; //if already set turn off
+        } else {
+          highlightedBoard = boardNumber;
+        }
+        ss();
+      },
       child: Container(
         constraints: BoxConstraints(
             maxWidth: 5 * cardLiveMaxPixel, //*0.97
@@ -127,7 +135,11 @@ Widget _cardText(index, boardNumber) {
       fontSize: cardLiveMaxPixel,
       color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
           ? Colors.transparent // bg //"hide" after being solved
-          : Colors.white,
+          : highlightedBoard == -1
+              ? Colors.white
+              : highlightedBoard == boardNumber
+                  ? Colors.white
+                  : offWhite,
       fontWeight: FontWeight.bold,
     ),
   );
