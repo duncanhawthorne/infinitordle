@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: appTitle,
       theme: ThemeData(
+        useMaterial3: false,
         fontFamily:
             '-apple-system', //https://github.com/flutter/flutter/issues/93140
         appBarTheme: const AppBarTheme(

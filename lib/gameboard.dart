@@ -4,31 +4,36 @@ import 'dart:math';
 import 'package:infinitordle/constants.dart';
 
 Widget gameboardWidget(boardNumber) {
-  return GestureDetector(
-      onTap: () {
-        var ss = globalFunctions[0];
-        if (highlightedBoard == boardNumber) {
-          highlightedBoard = -1; //if already set turn off
-        } else {
-          highlightedBoard = boardNumber;
-        }
-        ss();
-      },
-      child: Container(
-        constraints: BoxConstraints(
-            maxWidth: 5 * cardLiveMaxPixel, //*0.97
-            maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
-        child: GridView.builder(
-            physics:
-                const NeverScrollableScrollPhysics(), //turns off ios scrolling
-            itemCount: numRowsPerBoard * 5,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-            ),
-            itemBuilder: (BuildContext context, int index) {
-              return _cardFlipper(index, boardNumber);
-            }),
-      ));
+  return ClipRRect(
+      borderRadius: BorderRadius.circular(0.2 * cardLiveMaxPixel),
+      child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+              onTap: () {
+                var ss = globalFunctions[0];
+                if (highlightedBoard == boardNumber) {
+                  highlightedBoard = -1; //if already set turn off
+                } else {
+                  highlightedBoard = boardNumber;
+                }
+                ss();
+              },
+              child: Container(
+                constraints: BoxConstraints(
+                    maxWidth: 5 * cardLiveMaxPixel, //*0.97
+                    maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
+                child: GridView.builder(
+                    physics:
+                        const NeverScrollableScrollPhysics(), //turns off ios scrolling
+                    itemCount: numRowsPerBoard * 5,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 5,
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      return _cardFlipper(index, boardNumber);
+                    }),
+              ))));
 }
 
 Widget _cardFlipper(index, boardNumber) {
