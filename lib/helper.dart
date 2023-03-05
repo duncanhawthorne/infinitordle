@@ -110,7 +110,7 @@ void cheatPrintTargetWords() {
 }
 
 void logWinAndGetNewWord(winRecordBoardsIndexToFix, winningBoard) {
-  //Log the word just got in success words, which gets green to shown
+  //Log the word just got in success words, which gets green to show
   //Fix the fact that we stored a -1 in this place temporarily
   winRecordBoards[winRecordBoardsIndexToFix] = winningBoard;
   //Create new target word for the board
