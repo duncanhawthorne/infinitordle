@@ -5,15 +5,19 @@ import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/secrets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-GoogleSignInAccount? currentUser;
+//GoogleSignInAccount? currentUser;
 
 Future<void> gSignIn() async {
   var ss = globalFunctions[0];
   p("gSignIn()");
 
-  if (!isiOSMobile) {
+  GoogleSignInAccount? user;
+
+  /*
+  if (true || !isiOSMobile) {
     // ignore: unused_local_variable
-    GoogleSignInAccount? googleSignInAccount = await googleSignIn.signInSilently();
+    await googleSignIn.signInSilently();
+    user = googleSignIn.currentUser;
     /*
     p(googleSignIn);
     p(googleSignInAccount);
@@ -22,16 +26,24 @@ Future<void> gSignIn() async {
     p(googleSignInAuthentication!.idToken);
      */
   }
-  await googleSignIn.signIn(); //
+  //// await googleSignIn.signIn(); //
 
-  GoogleSignInAccount? user = googleSignIn.currentUser;
+   */
+
+  await googleSignIn.signInSilently();
+  user = googleSignIn.currentUser;
+
+  if (user == null) {
+    await googleSignIn.signIn(); //
+    user = googleSignIn.currentUser;
+  }
 
   if (user != null) {
     gUser = user.email;
     if (user.photoUrl != null) {
-      gUserIcon = user.photoUrl ?? gUserDefault;
+      gUserIcon = user.photoUrl ?? gUserIconDefault;
     }
-    currentUser = user;
+    //currentUser = user;
     await saveUser();
     await loadKeys();
   }
