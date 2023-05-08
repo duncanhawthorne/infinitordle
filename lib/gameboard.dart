@@ -56,7 +56,10 @@ Widget _cardFlipper(index, boardNumber) {
 }
 
 Widget _positionedCard(index, boardNumber, val, bf) {
-  //if offset 1, do gradually. if offset 0, do instantaneously
+  // if offset 1, do gradually. if offset 0, do instantaneously
+  // so slide visual cards into new position slowly
+  // then do a real switch to what is in each card to move one place forward
+  // and move visual cards back to original position instantly
   int speedOfSlide = visualOffset;
   return Stack(
     clipBehavior: Clip.none,
