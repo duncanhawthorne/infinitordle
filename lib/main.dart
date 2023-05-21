@@ -8,9 +8,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/app_structure.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Future.delayed(const Duration(milliseconds: 1000 * 5), () {
+    FlutterNativeSplash.remove(); //Hack, but makes sure removed shortly after starting
+  });
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
