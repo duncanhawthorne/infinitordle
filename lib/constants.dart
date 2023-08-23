@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 //Debug
-const bool cheatMode = false; //
+const bool cheatMode = true; //
 
 //Branding
 String appTitle = "infinitordle";
@@ -49,6 +49,8 @@ var winRecordBoards = [];
 var currentTyping = "";
 int offsetRollback = 0;
 var highlightedBoard = -1;
+
+var extraRows = [2,2,2,2];
 
 //Visual state of the game
 var cardFlipAngles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);

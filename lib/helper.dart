@@ -58,28 +58,36 @@ bool testHistoricalWin(rowOfIndex, boardNumber) {
   return false;
 }
 
-int getVisualCurrentRowInt() {
+int toAI(vindex) {
+  return vindex + offsetRollback * 5;
+}
+
+int toRI(aindex) {
+  return aindex - offsetRollback * 5;
+}
+
+int getVCurrentRowBeingTypedInt() {
   return enteredWords.length - offsetRollback;
 }
 
-String getCardLetterAtIndex(index) {
-  int rowOfIndex = index ~/ 5;
+String getCardLetterAtVIndex(vIndex) {
+  int rowOfVIndex = vIndex ~/ 5;
   try {
     String letter = "";
-    if (rowOfIndex > getVisualCurrentRowInt()) {
+    if (rowOfVIndex > getVCurrentRowBeingTypedInt()) {
       letter = "";
-    } else if (rowOfIndex == getVisualCurrentRowInt()) {
-      if (currentTyping.length > (index % 5)) {
-        letter = currentTyping.substring(index % 5, (index % 5) + 1);
+    } else if (rowOfVIndex == getVCurrentRowBeingTypedInt()) {
+      if (currentTyping.length > (vIndex % 5)) {
+        letter = currentTyping.substring(vIndex % 5, (vIndex % 5) + 1);
       } else {
         letter = "";
       }
     } else {
-      letter = enteredWords[index ~/ 5 + offsetRollback][index % 5];
+      letter = enteredWords[vIndex ~/ 5 + offsetRollback][vIndex % 5];
     }
     return letter;
   } catch (e) {
-    p(["getVisualGBLetterAtIndexEntered", index, e]);
+    p(["getCardLetterAtVIndex", vIndex, e]);
     return "";
   }
 }
@@ -186,9 +194,9 @@ Color getBestColorForLetter(index, boardNumber) {
   if (answer == null) {
     //get color for the keyboard based on best (green > yellow > grey) color on the grid
     for (var gbPosition = 0;
-        gbPosition < getVisualCurrentRowInt() * 5;
+        gbPosition < getVCurrentRowBeingTypedInt() * 5;
         gbPosition++) {
-      if (getCardLetterAtIndex(gbPosition) == queryLetter) {
+      if (getCardLetterAtVIndex(gbPosition) == queryLetter) {
         if (getCardColor(gbPosition, boardNumber) == green) {
           answer = green;
           break;
@@ -198,9 +206,9 @@ Color getBestColorForLetter(index, boardNumber) {
   }
   if (answer == null) {
     for (var gbPosition = 0;
-        gbPosition < getVisualCurrentRowInt() * 5;
+        gbPosition < getVCurrentRowBeingTypedInt() * 5;
         gbPosition++) {
-      if (getCardLetterAtIndex(gbPosition) == queryLetter) {
+      if (getCardLetterAtVIndex(gbPosition) == queryLetter) {
         if (getCardColor(gbPosition, boardNumber) == amber) {
           answer = amber;
           break;
@@ -210,9 +218,9 @@ Color getBestColorForLetter(index, boardNumber) {
   }
   if (answer == null) {
     for (var gbPosition = 0;
-        gbPosition < getVisualCurrentRowInt() * 5;
+        gbPosition < getVCurrentRowBeingTypedInt() * 5;
         gbPosition++) {
-      if (getCardLetterAtIndex(gbPosition) == queryLetter) {
+      if (getCardLetterAtVIndex(gbPosition) == queryLetter) {
         answer = Colors.transparent; //bg; //grey //used and no match
         break;
       }
@@ -241,11 +249,11 @@ Color getCardColor(index, boardNumber) {
   }
 
   Color? answer;
-  if (index >= getVisualCurrentRowInt() * 5) {
+  if (index >= getVCurrentRowBeingTypedInt() * 5) {
     answer = Colors.transparent; //grey; //later rows
   } else {
     String targetWord = targetWords[boardNumber];
-    String testLetter = getCardLetterAtIndex(
+    String testLetter = getCardLetterAtVIndex(
         index); //newGameboardEntries[index ~/ 5][index % 5]//gameboardEntries[index];
     int testRow = index ~/ 5;
     int testColumn = index % 5;
@@ -256,7 +264,7 @@ Color getCardColor(index, boardNumber) {
           testLetter.allMatches(targetWord).length;
       int numberOfYellowThisLetterToLeftInCardRow = 0;
       for (var i = 0; i < testColumn; i++) {
-        if (getCardLetterAtIndex(testRow * 5 + i) == testLetter &&
+        if (getCardLetterAtVIndex(testRow * 5 + i) == testLetter &&
             getCardColor(testRow * 5 + i, boardNumber) == amber) {
           numberOfYellowThisLetterToLeftInCardRow++;
         }
@@ -264,8 +272,8 @@ Color getCardColor(index, boardNumber) {
 
       int numberOfGreenThisLetterInCardRow = 0;
       for (var i = 0; i < 5; i++) {
-        if (getCardLetterAtIndex(testRow * 5 + i) == testLetter &&
-            targetWord[i] == getCardLetterAtIndex(testRow * 5 + i)) {
+        if (getCardLetterAtVIndex(testRow * 5 + i) == testLetter &&
+            targetWord[i] == getCardLetterAtVIndex(testRow * 5 + i)) {
           numberOfGreenThisLetterInCardRow++;
         }
       }
@@ -288,7 +296,7 @@ Color getCardColor(index, boardNumber) {
 }
 
 bool detectBoardSolvedByRow(boardNumber, maxRowToCheck) {
-  for (var q = 0; q < min(getVisualCurrentRowInt(), maxRowToCheck); q++) {
+  for (var q = 0; q < min(getVCurrentRowBeingTypedInt(), maxRowToCheck); q++) {
     bool result = true;
     for (var j = 0; j < 5; j++) {
       if (getCardColor(q * 5 + j, boardNumber) != green) {
@@ -476,7 +484,7 @@ void resetBoard(save) {
 
 void initiateFlipState() {
   for (var j = 0; j < numRowsPerBoard * 5; j++) {
-    if (getVisualCurrentRowInt() > (j ~/ 5)) {
+    if (getVCurrentRowBeingTypedInt() > (j ~/ 5)) {
       flipCard(j, "f");
     } else {
       flipCard(j, "b");

@@ -111,7 +111,7 @@ Widget _card(index, boardNumber, val, bf) {
             color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
-                    ? rowOfIndex == getVisualCurrentRowInt() &&
+                    ? rowOfIndex == getVCurrentRowBeingTypedInt() &&
                             currentTyping.length == 5 &&
                             !legalWord(currentTyping)
                         ? Colors.red
@@ -126,10 +126,10 @@ Widget _card(index, boardNumber, val, bf) {
   );
 }
 
-Widget _cardText(index, boardNumber) {
-  int rowOfIndex = index ~/ 5;
+Widget _cardText(vindex, boardNumber) {
+  int rowOfVIndex = vindex ~/ 5;
   return Text(
-    getCardLetterAtIndex(index).toUpperCase(),
+    getCardLetterAtVIndex(vindex).toUpperCase(),
     style: TextStyle(
       /*
         shadows: const <Shadow>[
@@ -141,7 +141,7 @@ Widget _cardText(index, boardNumber) {
         ],
          */
       fontSize: cardLiveMaxPixel,
-      color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfIndex)
+      color: !infMode && detectBoardSolvedByRow(boardNumber, rowOfVIndex)
           ? Colors.transparent // bg //"hide" after being solved
           : highlightedBoard == -1
               ? Colors.white
