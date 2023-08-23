@@ -31,7 +31,7 @@ void onKeyboardTapped(int index) {
         //Legal word, but not necessarily correct word
 
         //Legal word so step forward
-        int cardRowPreGuess = getVCurrentRowBeingTypedInt();
+        int cardRowPreGuess = getVisualCurrentRowInt();
         currentTyping = "";
 
         enteredWords.add(enteredWordLocal);
@@ -64,7 +64,7 @@ void onKeyboardTapped(int index) {
         saveKeys();
 
         //Code for losing game
-        if (!isWin && getVCurrentRowBeingTypedInt() >= numRowsPerBoard) {
+        if (!isWin && getVisualCurrentRowInt() >= numRowsPerBoard) {
           //didn't get it in time
           Future.delayed(Duration(milliseconds: gradualRevealDelay * 5 + durMult * 500), () {
             showResetConfirmScreen();
@@ -75,7 +75,7 @@ void onKeyboardTapped(int index) {
           //Code for totally winning game across all boards
           bool totallySolvedLocal = true;
           for (var i = 0; i < numBoards; i++) {
-            if (!detectBoardSolvedByRow(i, getVCurrentRowBeingTypedInt())) {
+            if (!detectBoardSolvedByRow(i, getVisualCurrentRowInt())) {
               totallySolvedLocal = false;
             }
           }
@@ -108,7 +108,7 @@ void onKeyboardTapped(int index) {
 
                 if (isStreak()) {
                   Future.delayed(Duration(milliseconds: delayMult * 750), () {
-                    if (getVCurrentRowBeingTypedInt() > 0) {
+                    if (getVisualCurrentRowInt() > 0) {
                       //Slide the cards back visually, creating the illusion of stepping back
                       visualOffset = 1;
                       ss(); //setState(() {});
@@ -157,7 +157,7 @@ void gradualRevealRow(row) {
   for (int i = 0; i < 5; i++) {
     //delayedFlipOnCard(row, i);
     Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
-      if (getCardLetterAtVIndex(row * 5 + i) != "") {
+      if (getCardLetterAtIndex(row * 5 + i) != "") {
         //if have stepped back during delay may end up flipping wrong card so do this safety test
         flipCard(row * 5 + i, "f");
         ss(); // setState(() {});

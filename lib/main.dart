@@ -161,7 +161,7 @@ class _InfinitordleState extends State<Infinitordle> {
     List winWordsCache = winWords();
     int numberWinsCache = winWordsCache.length;
     bool end = false;
-    if (!aboutToWinCache && getVCurrentRowBeingTypedInt() >= numRowsPerBoard) {
+    if (!aboutToWinCache && getVisualCurrentRowInt() >= numRowsPerBoard) {
       end = true;
     }
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
