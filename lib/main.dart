@@ -28,6 +28,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return MaterialApp(
       title: appTitle,
       theme: ThemeData(
@@ -79,6 +82,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
+    fixTitle(context);
     detectAndUpdateForScreenSize(context);
 
     return streamBuilderWrapperOnDocument();

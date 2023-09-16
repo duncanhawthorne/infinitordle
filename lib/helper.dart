@@ -7,6 +7,7 @@ import 'package:infinitordle/constants.dart';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/services.dart';
 
 bool listContains(list, bit) {
   //p(["quickIn", "list", bit]);
@@ -316,7 +317,7 @@ Future<void> loadUser() async {
   final prefs = await SharedPreferences.getInstance();
   gUser = prefs.getString('gUser') ?? gUserDefault;
   gUserIcon = prefs.getString('gUserIcon') ?? gUserIconDefault;
-  p(["loadUser",gUser, gUserIcon]);
+  p(["loadUser", gUser, gUserIcon]);
 }
 
 Future<void> saveUser() async {
@@ -547,4 +548,16 @@ void detectAndUpdateForScreenSize(context) {
 
   keyAspectRatioLive =
       max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
+}
+
+void fixTitle(context) {
+  //https://github.com/flutter/flutter/issues/98248
+  if (scW == -1) { //one-off
+    SystemChrome.setApplicationSwitcherDescription(
+        ApplicationSwitcherDescription(
+      label: appTitle,
+      primaryColor:
+          Theme.of(context).primaryColor.value, // This line is required
+    ));
+  }
 }
