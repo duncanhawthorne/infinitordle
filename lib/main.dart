@@ -82,7 +82,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
-    fixTitle(context);
+    //fixTitle(context);
     detectAndUpdateForScreenSize(context);
 
     return streamBuilderWrapperOnDocument();
