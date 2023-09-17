@@ -556,8 +556,7 @@ void fixTitle(context) {
     SystemChrome.setApplicationSwitcherDescription(
         ApplicationSwitcherDescription(
       label: appTitle,
-      primaryColor:
-          Theme.of(context).primaryColor.value, // This line is required
+      primaryColor: bg.value //Theme.of(context).primaryColor.value, // This line is required
     ));
   }
 }
