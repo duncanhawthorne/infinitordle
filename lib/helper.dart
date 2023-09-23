@@ -551,9 +551,9 @@ void detectAndUpdateForScreenSize(context) {
 }
 
 
-void fixTitle(context) {
+void fixTitle() {
   //https://github.com/flutter/flutter/issues/98248
-  if (scW == -1) { //one-off
+  if (true) { //scW == -1) { //one-off
     SystemChrome.setApplicationSwitcherDescription(
         ApplicationSwitcherDescription(
       label: appTitle,

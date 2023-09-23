@@ -70,6 +70,7 @@ class _InfinitordleState extends State<Infinitordle> {
     setState(() {});
     for (int i = 0; i < 10; i++) {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
+        fixTitle();
         setState(
             () {}); //Hack, but makes sure state set right shortly after starting
       });
@@ -82,7 +83,6 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
-    fixTitle(context);
     detectAndUpdateForScreenSize(context);
 
     return streamBuilderWrapperOnDocument();
