@@ -7,7 +7,7 @@ import 'package:infinitordle/constants.dart';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
-//import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 
 bool listContains(list, bit) {
   //p(["quickIn", "list", bit]);
@@ -550,7 +550,7 @@ void detectAndUpdateForScreenSize(context) {
       max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
 }
 
-/*
+
 void fixTitle(context) {
   //https://github.com/flutter/flutter/issues/98248
   if (scW == -1) { //one-off
@@ -561,4 +561,4 @@ void fixTitle(context) {
     ));
   }
 }
- */
+
