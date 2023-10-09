@@ -17,7 +17,7 @@ How to play
 &nbsp;&nbsp;
 * When you get a word right for a board, all five cards will turn green.   
 * As a reward, the cards will then slide up, and give you a new row of cards, giving you back a life.   
-* The secret word for that board will change to a new secret word, and the cards on that board will change colors to help you find the new secret board.  
+* The secret word for that board will change to a new secret word, and the cards on that board will change colors to help you find the new secret word.  
 &nbsp;&nbsp;
 * If you get three words right in a row, the cards will start sliding back two rows at a time, giving you back two lives, and giving you the chance to clear the board.  
 &nbsp;&nbsp;
