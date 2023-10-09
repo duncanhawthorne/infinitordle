@@ -13,7 +13,7 @@ How to play
 * infintitordle features four boards each with a secret five-letter word to guess. 
 * Try guessing the word: a green card means you have a letter in the right place, a yellow card means you have a matching letter but in the wrong place. 
 * You have a life for each row of cards. 
-* Be sure to match the words before you run out of lives. 
+* Be sure to match the words before you run out of lives.  
 &nbsp;&nbsp;
 * When you get a word right for a board, all five cards will turn green.   
 * As a reward, the cards will then slide up, and give you a new row of cards, giving you back a life.   
