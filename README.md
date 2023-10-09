@@ -20,7 +20,7 @@ How to play
 * The secret word for that board will change to a new secret word, and the cards on that board will change colors to help you find the new secret word.
 * Continue solving each board, and be careful to use your lives wisely.  
 &nbsp;&nbsp;
-* If you get solve three boards in sequence, you are on a winning streak
+* If you get solve three boards in sequence, you are on a winning streak.
 * On a streak, the cards will slide back two rows at a time, giving you back two lives, and giving you the chance to clear the board.
 * Time your streaks carefully for maximum impact.   
 &nbsp;&nbsp;
