@@ -26,4 +26,4 @@ How to play
 
 Features
 -----------
-* Sign in with your Google account to sve your progress and play across devices. 
+* Sign in with your Google account to save your progress and play across devices. 
