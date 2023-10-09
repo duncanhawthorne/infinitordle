@@ -10,7 +10,7 @@ infinitordle is a cross between Wordle and Tetris. Solve as many words as you ca
 How to play
 -----------
 
-* infintitordle features four boards each with a secret five-letter word to guess. 
+* infinitordle features four boards each with a secret five-letter word to guess. 
 * Try guessing the word: a green card means you have a letter in the right place, a yellow card means you have a matching letter but in the wrong place. 
 * You have a life for each row of cards. 
 * Be sure to match the words before you run out of lives.  
