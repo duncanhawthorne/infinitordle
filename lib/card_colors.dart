@@ -96,7 +96,10 @@ class CardColors {
     }
 
     Color? answer;
-    if (index >= getVisualCurrentRowInt() * 5) {
+    if (index ~/ 5 < game.getFirstVisualRowToShowOnBoard(boardNumber)) {
+      answer = Colors.transparent;
+    }
+    else if (index >= getVisualCurrentRowInt() * 5) {
       answer = Colors.transparent; //grey; //later rows
     } else {
       String targetWord = game.getTargetWordForBoard(boardNumber);
