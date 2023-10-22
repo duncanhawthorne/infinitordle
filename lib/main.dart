@@ -301,7 +301,8 @@ class _InfinitordleState extends State<Infinitordle> {
                 Navigator.pop(context, 'OK'),
                 setState(() {})
               },
-              child: const Text('Sign out', style: TextStyle(color: Colors.red)),
+              child:
+                  const Text('Sign out', style: TextStyle(color: Colors.red)),
             ),
           ],
         );

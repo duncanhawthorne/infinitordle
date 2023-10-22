@@ -122,7 +122,8 @@ Widget _card(index, boardNumber, val, bf) {
             color: (!infMode &&
                         game.getDetectBoardSolvedByRow(
                             boardNumber, rowOfIndex)) ||
-                    rowOfIndex < game.getFirstVisualRowToShowOnBoard(boardNumber)
+                    rowOfIndex <
+                        game.getFirstVisualRowToShowOnBoard(boardNumber)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
                     ? rowOfIndex == game.getVisualCurrentRowInt() &&
