@@ -412,28 +412,23 @@ class Game {
   }
 
   int getExtraRows() {
-    if (expandingBoard) {
-      return pushUpSteps - firstKnowledge.cast<int>().reduce(min);
-    } else {
-      return 0;
-    }
+    return pushUpSteps - getPushOffBoardRows();
   }
 
   int getLiveNumRowsPerBoard() {
-    return numRowsPerBoard + getExtraRows(); //extraRows;
+    return numRowsPerBoard + getExtraRows();
   }
 
-  int firstVRowToShow(boardNumber) {
-    return firstKnowledge[boardNumber] -
-        getPushOffBoardRows(); //offsetRollback;
+  int getFirstVisualRowToShowOnBoard(boardNumber) {
+    return firstKnowledge[boardNumber] - getPushOffBoardRows();
   }
 
   int getAbsoluteRowFromBoardRow(rowOfIndex) {
-    return rowOfIndex + getPushOffBoardRows(); //offsetRollback;
+    return rowOfIndex + getPushOffBoardRows();
   }
 
   int getVisualCurrentRowInt() {
-    return enteredWords.length - getPushOffBoardRows(); //offsetRollback;
+    return enteredWords.length - getPushOffBoardRows();
   }
 }
 

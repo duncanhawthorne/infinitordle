@@ -122,7 +122,7 @@ Widget _card(index, boardNumber, val, bf) {
             color: (!infMode &&
                         game.getDetectBoardSolvedByRow(
                             boardNumber, rowOfIndex)) ||
-                    rowOfIndex < game.firstVRowToShow(boardNumber)
+                    rowOfIndex < game.getFirstVisualRowToShowOnBoard(boardNumber)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
                     ? rowOfIndex == game.getVisualCurrentRowInt() &&
@@ -157,7 +157,7 @@ Widget _cardText(index, boardNumber) {
       fontSize: cardLiveMaxPixel,
       color: (!infMode &&
                   game.getDetectBoardSolvedByRow(boardNumber, rowOfIndex)) ||
-              rowOfIndex < game.firstVRowToShow(boardNumber)
+              rowOfIndex < game.getFirstVisualRowToShowOnBoard(boardNumber)
           ? Colors.transparent // bg //"hide" after being solved
           : highlightedBoard == -1
               ? Colors.white
