@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/game_logic.dart';
+import 'dart:math';
 
 class CardColors {
   var cardColorsCache = [];
@@ -32,13 +33,14 @@ class CardColors {
 
     Color? answer;
     String queryLetter = keyboardList[index];
+    int gbStart = 5 * max(0, game.getFirstVisualRowToShowOnBoard(boardNumber));
 
     if (queryLetter == " ") {
       answer = Colors.transparent;
     }
     if (answer == null) {
       //get color for the keyboard based on best (green > yellow > grey) color on the grid
-      for (var gbPosition = 0;
+      for (var gbPosition = gbStart;
           gbPosition < getVisualCurrentRowInt() * 5;
           gbPosition++) {
         if (getCardLetterAtIndex(gbPosition) == queryLetter) {
@@ -50,7 +52,7 @@ class CardColors {
       }
     }
     if (answer == null) {
-      for (var gbPosition = 0;
+      for (var gbPosition = gbStart;
           gbPosition < getVisualCurrentRowInt() * 5;
           gbPosition++) {
         if (getCardLetterAtIndex(gbPosition) == queryLetter) {
@@ -62,7 +64,7 @@ class CardColors {
       }
     }
     if (answer == null) {
-      for (var gbPosition = 0;
+      for (var gbPosition = gbStart;
           gbPosition < getVisualCurrentRowInt() * 5;
           gbPosition++) {
         if (getCardLetterAtIndex(gbPosition) == queryLetter) {
@@ -96,10 +98,11 @@ class CardColors {
     }
 
     Color? answer;
-    if (index ~/ 5 < game.getFirstVisualRowToShowOnBoard(boardNumber)) {
-      answer = Colors.transparent;
-    }
-    else if (index >= getVisualCurrentRowInt() * 5) {
+    //if (index ~/ 5 < game.getFirstVisualRowToShowOnBoard(boardNumber)) {
+    //  answer = Colors.transparent;
+    //}
+    //else
+    if (index >= getVisualCurrentRowInt() * 5) {
       answer = Colors.transparent; //grey; //later rows
     } else {
       String targetWord = game.getTargetWordForBoard(boardNumber);
