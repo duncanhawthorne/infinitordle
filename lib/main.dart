@@ -181,57 +181,55 @@ class _InfinitordleState extends State<Infinitordle> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(appTitle),
-              Wrap(
-                spacing: boardSpacer,
-                children: [
-                  Tooltip(
-                    message: expandingBoard
-                        ? "Turn off easy mode"
-                        : "Turn on easy mode",
-                    child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (expandingBoard) {
-                              expandingBoard = false;
-                            } else {
-                              expandingBoard = true;
-                            }
-                            focusNode.requestFocus();
-                            Navigator.pop(context, 'Cancel');
-                            ss();
-                          });
-                        },
-                        child: expandingBoard
-                            ? const Icon(Icons.visibility, color: bg)
-                            : const Icon(Icons.visibility_off,
-                                color:
-                                    bg) //  GoogleUserCircleAvatar(identity: currentUser)
-                        ),
-                  ),
-                  Tooltip(
-                    message: gUser == gUserDefault ? "Sign in" : "Sign out",
-                    child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (gUser == gUserDefault) {
-                              gSignIn();
-                              Navigator.pop(context, 'OK');
-                            } else {
-                              showLogoutConfirmationScreen(context);
-                            }
-                            focusNode.requestFocus();
-                          });
-                        },
-                        child: gUser == gUserDefault
-                            ? const Icon(Icons.lock, color: bg)
-                            : gUserIcon == gUserIconDefault
-                                ? const Icon(Icons.face, color: bg)
-                                : CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        gUserIcon)) //  GoogleUserCircleAvatar(identity: currentUser)
-                        ),
-                  )
-                ],
+              Spacer(flex: 10),
+              Tooltip(
+                message: expandingBoard
+                    ? "Turn off additional visibility mode"
+                    : "Turn on additional visbility mode",
+                child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (expandingBoard) {
+                          expandingBoard = false;
+                        } else {
+                          expandingBoard = true;
+                        }
+                        focusNode.requestFocus();
+                        Navigator.pop(context, 'Cancel');
+                        ss();
+                      });
+                    },
+                    child: expandingBoard
+                        ? const Icon(Icons.visibility, color: bg)
+                        : const Icon(Icons.visibility_off,
+                            color:
+                                bg) //  GoogleUserCircleAvatar(identity: currentUser)
+                    ),
+              ),
+              //const Spacer(flex: 1),
+              Spacer(flex: 1),
+              Tooltip(
+                message: gUser == gUserDefault ? "Sign in" : "Sign out",
+                child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (gUser == gUserDefault) {
+                          gSignIn();
+                          Navigator.pop(context, 'OK');
+                        } else {
+                          showLogoutConfirmationScreen(context);
+                        }
+                        focusNode.requestFocus();
+                      });
+                    },
+                    child: gUser == gUserDefault
+                        ? const Icon(Icons.lock, color: bg)
+                        : gUserIcon == gUserIconDefault
+                            ? const Icon(Icons.face, color: bg)
+                            : CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    gUserIcon)) //  GoogleUserCircleAvatar(identity: currentUser)
+                    ),
               ),
             ],
           ),
