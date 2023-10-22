@@ -19,7 +19,6 @@ class Game {
   bool aboutToWinCache = false;
 
   void onKeyboardTapped(int index) {
-    p([getVisualCurrentRowInt(), getLiveNumRowsPerBoard()]);
     //var ss = globalFunctions[0];
     //var showResetConfirmScreen = globalFunctions[1];
     String letter = keyboardList[index];
