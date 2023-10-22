@@ -3,10 +3,12 @@
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/secrets.dart';
+import 'package:infinitordle/game_logic.dart';
+import 'package:infinitordle/saves.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 Future<void> gSignIn() async {
-  var ss = globalFunctions[0];
+  //var ss = globalFunctions[0];
   p("gSignIn()");
 
   GoogleSignInAccount? user;
@@ -14,7 +16,8 @@ Future<void> gSignIn() async {
   await googleSignIn.signInSilently();
   user = googleSignIn.currentUser;
 
-  if (user == null) { //if sign in silently didn't work
+  if (user == null) {
+    //if sign in silently didn't work
     await googleSignIn.signIn(); //
     user = googleSignIn.currentUser;
   }
@@ -24,8 +27,8 @@ Future<void> gSignIn() async {
     if (user.photoUrl != null) {
       gUserIcon = user.photoUrl ?? gUserIconDefault;
     }
-    await saveUser();
-    await loadKeys();
+    await save.saveUser();
+    await save.loadKeys();
   }
   ss();
 }
@@ -36,7 +39,7 @@ Future<void> gSignOut() async {
     await googleSignIn.disconnect();
   }
   gUser = gUserDefault;
-  await saveUser();
-  resetBoard(true);
-  await loadKeys();
+  await save.saveUser();
+  game.resetBoard(true);
+  await save.loadKeys();
 }

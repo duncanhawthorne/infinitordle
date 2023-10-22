@@ -42,35 +42,21 @@ final int durMult = noAnimations ? 1 : 1;
 final int delayMult = noAnimations ? 1 : 1;
 final gradualRevealDelay = delayMult * (durMult == 1 ? 100 : 250);
 
-//Effectively the state of the game
-var targetWords = []; //gets overridden by loadKeys()
-var enteredWords = [];
-var winRecordBoards = [];
-var currentTyping = "";
-int offsetRollback = 0;
+//Visual state of the game
+int temporaryVisualOffsetForSlide = 0;
 var highlightedBoard = -1;
 
-//Visual state of the game
-var cardFlipAngles = List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
-int visualOffset = 0;
-
-//Helpers for state of the game
+//Volatile helpers for state of the game
 int saveOrLoadKeysCountCache = 0;
 bool oneLegalWordForRedCardsCache = false;
 String legalWordTestedWordCache = "";
-bool aboutToWinCache = false;
-var cardColorsCache = [];
-var keyColorsCache = [];
-int keyAndCardColorsTestedStateCache = 0;
 bool backspaceSafeCache = true;
-bool onStreakCache = false;
-int onStreakTestedStateCache = 0;
 
 //Screen constants
 const double dividerHeight = 2;
-double keyAspectRatioDefault = 1.5;
+const double keyAspectRatioDefault = 1.5;
 
-//default values for sizing
+//Volatile default values for sizing
 double vertSpaceForGameboard = -1;
 double vertSpaceForCardWithWrap = -1;
 double horizSpaceForCardNoWrap = -1;
@@ -96,3 +82,11 @@ String snapshotLast = "XXXXXXX";
 //Misc
 Random random = Random();
 var globalFunctions = [];
+
+void ss() {
+  globalFunctions[0]();
+}
+
+void showResetConfirmScreen() {
+  globalFunctions[1]();
+}

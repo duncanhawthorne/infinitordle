@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/game_logic.dart';
+import 'package:infinitordle/card_colors.dart';
 
 Widget keyboardRowWidget(keyBoardStartKey, length) {
   return Container(
@@ -43,7 +43,7 @@ Widget _kbStackWithMiniGrid(index, length) {
                       // ignore: dead_code
                       ? GestureDetector(
                           onTap: () {
-                            onKeyboardTapped(index);
+                            game.onKeyboardTapped(index);
                           },
                           child: _kbTextSquare(index),
                         )
@@ -51,7 +51,7 @@ Widget _kbStackWithMiniGrid(index, length) {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () {
-                              onKeyboardTapped(index);
+                              game.onKeyboardTapped(index);
                             },
                             child: Container(child: _kbTextSquare(index)),
                           ),
@@ -79,10 +79,10 @@ Widget _kbTextSquare(index) {
                   ? Container(
                       padding: const EdgeInsets.all(7),
                       child: Icon(
-                          isStreak()
+                          game.getIsStreak()
                               ? Icons.fast_forward
                               : Icons.keyboard_return_sharp,
-                          color: isStreak() ? green : Colors.white))
+                          color: game.getIsStreak() ? green : Colors.white))
                   : Text(
                       keyboardList[index].toUpperCase(),
                       style: const TextStyle(
@@ -123,7 +123,7 @@ Widget _kbMiniSquareColor(index, subIndex) {
   return Container(
     height: 1000,
     decoration: BoxDecoration(
-      color: getBestColorForLetter(index, subIndex),
+      color: cardColors.getBestColorForLetter(index, subIndex),
     ),
   );
 }

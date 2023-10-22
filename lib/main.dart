@@ -9,11 +9,14 @@ import 'firebase_options.dart';
 import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/app_structure.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:infinitordle/game_logic.dart';
+import 'package:infinitordle/saves.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Future.delayed(const Duration(milliseconds: 1000 * 5), () {
-    FlutterNativeSplash.remove(); //Hack, but makes sure removed shortly after starting
+    FlutterNativeSplash
+        .remove(); //Hack, but makes sure removed shortly after starting
   });
 
   await Firebase.initializeApp(
@@ -28,9 +31,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     return MaterialApp(
       title: appTitle,
       theme: ThemeData(
@@ -59,9 +59,9 @@ class _InfinitordleState extends State<Infinitordle> {
   initState() {
     super.initState();
     //fbInit();
-    resetBoard(false);
-    loadUser();
-    loadKeys();
+    game.resetBoard(false);
+    save.loadUser();
+    save.loadKeys();
     globalFunctions.add(ss);
     globalFunctions.add(showResetConfirmScreen);
 
@@ -106,8 +106,8 @@ class _InfinitordleState extends State<Infinitordle> {
               String snapshotCurrent = userDocument["data"];
               //print(snapshotCurrent);
               if (gUser != gUserDefault && snapshotCurrent != snapshotLast) {
-                if (snapshotCurrent != encodeCurrentGameState()) {
-                  loadFromEncodedState(snapshotCurrent);
+                if (snapshotCurrent != game.getEncodeCurrentGameState()) {
+                  game.loadFromEncodedState(snapshotCurrent);
                 }
                 snapshotLast = snapshotCurrent;
               }
@@ -131,7 +131,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget _titleWidget() {
-    int numberWinsCache = winWords().length;
+    int numberWinsCache = game.getWinWords().length;
     var infText = numberWinsCache == 0
         ? "o"
         : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
@@ -162,10 +162,10 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Future<void> showResetConfirmScreen() async {
-    List winWordsCache = winWords();
+    List winWordsCache = game.getWinWords();
     int numberWinsCache = winWordsCache.length;
     bool end = false;
-    if (!aboutToWinCache && getVisualCurrentRowInt() >= numRowsPerBoard) {
+    if (!game.getAboutToWinCache() && game.getVisualCurrentRowInt() >= numRowsPerBoard) {
       end = true;
     }
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
@@ -209,7 +209,7 @@ class _InfinitordleState extends State<Infinitordle> {
                   ": " +
                   winWordsCache.join(", ") +
                   "\n\nYou missed: " +
-                  targetWords.join(", ") +
+                  game.targetWords.join(", ") +
                   "\n\nReset the board?"
               : "You've got " +
                   numberWinsCache.toString() +
@@ -229,7 +229,7 @@ class _InfinitordleState extends State<Infinitordle> {
             ),
             TextButton(
               onPressed: () => {
-                resetBoard(true),
+                game.resetBoard(true),
                 focusNode.requestFocus(),
                 Navigator.pop(context, 'OK'),
                 setState(() {})

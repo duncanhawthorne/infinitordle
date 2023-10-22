@@ -19,10 +19,11 @@ Widget keyboardListenerWrapper() {
       if (keyEvent is KeyDownEvent) {
         //if (keyEvent.runtimeType.toString() == 'KeyDownEvent') {
         if (keyboardList.contains(keyEvent.character)) {
-          onKeyboardTapped(keyboardList.indexOf(keyEvent.character ?? " "));
+          game.onKeyboardTapped(
+              keyboardList.indexOf(keyEvent.character ?? " "));
         }
         if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
-          onKeyboardTapped(keyboardList.indexOf(">"));
+          game.onKeyboardTapped(keyboardList.indexOf(">"));
         }
         if (keyEvent.logicalKey == LogicalKeyboardKey.backspace &&
             backspaceSafeCache) {
@@ -30,7 +31,7 @@ Widget keyboardListenerWrapper() {
             // (DateTime.now().millisecondsSinceEpoch > lastTimePressedDelete + 200) {
             //workaround to bug which was firing delete key twice
             backspaceSafeCache = false;
-            onKeyboardTapped(keyboardList.indexOf("<"));
+            game.onKeyboardTapped(keyboardList.indexOf("<"));
             //lastTimePressedDelete = DateTime.now().millisecondsSinceEpoch;
           }
         }
