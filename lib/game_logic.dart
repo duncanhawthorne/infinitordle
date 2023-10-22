@@ -12,9 +12,8 @@ class Game {
   var enteredWords = [];
   var winRecordBoards = [];
   var currentTyping = "";
-  int offsetRollback = 0;
-  int extraRows = 0;
   var firstKnowledge = [];
+  int pushUpSteps = 0;
 
   bool aboutToWinCache = false;
 
@@ -83,8 +82,8 @@ class Game {
           if (!isWin && getVisualCurrentRowInt() >= getLiveNumRowsPerBoard()) {
             //didn't get it in time
             Future.delayed(
-                Duration(milliseconds: gradualRevealDelay * 5 + durMult * 500),
-                () {
+                const Duration(
+                    milliseconds: gradualRevealDelay * 5 + durMult * 500), () {
               showResetConfirmScreen();
             });
           }
@@ -104,12 +103,12 @@ class Game {
           }
 
           if (infMode && isWin) {
-            Future.delayed(Duration(milliseconds: delayMult * 1500), () {
+            Future.delayed(const Duration(milliseconds: delayMult * 1500), () {
               //Give time for above code to show visually, so we have flipped
               //Slide the cards back visually, creating the illusion of stepping back
               temporaryVisualOffsetForSlide = 1;
               ss(); //setState(() {});
-              Future.delayed(Duration(milliseconds: durMult * 250), () {
+              Future.delayed(const Duration(milliseconds: durMult * 250), () {
                 //Undo the visual slide (and do this instantaneously)
                 temporaryVisualOffsetForSlide = 0;
                 //Actually erase a row and step back, so state matches visual illusion above
@@ -117,7 +116,8 @@ class Game {
 
                 ss(); //setState(() {});
 
-                Future.delayed(Duration(milliseconds: delayMult * 1000), () {
+                Future.delayed(const Duration(milliseconds: delayMult * 1000),
+                    () {
                   //include inside other future so definitely happens after rather relying on race
                   //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
                   //Log the word just got in success words, which gets green to shown
@@ -125,13 +125,14 @@ class Game {
                   ss(); //setState(() {});
 
                   if (getIsStreak()) {
-                    Future.delayed(Duration(milliseconds: delayMult * 750), () {
+                    Future.delayed(
+                        const Duration(milliseconds: delayMult * 750), () {
                       if (getVisualCurrentRowInt() > 0) {
                         //Slide the cards back visually, creating the illusion of stepping back
                         temporaryVisualOffsetForSlide = 1;
                         ss(); //setState(() {});
-                        Future.delayed(Duration(milliseconds: durMult * 250),
-                            () {
+                        Future.delayed(
+                            const Duration(milliseconds: durMult * 250), () {
                           //Undo the visual slide (and do this instantaneously)
                           temporaryVisualOffsetForSlide = 0;
                           //Actually erase a row and step back, so state matches visual illusion above
@@ -173,11 +174,7 @@ class Game {
     //Erase a row and step back
     for (var j = 0; j < infNumBacksteps; j++) {
       //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
-      if (expandingBoard) {
-        extraRows++;
-      } else {
-        offsetRollback++;
-      }
+      pushUpSteps++;
       //for (var j = 0; j < 5; j++) {
       //  flipCard(getVisualCurrentRowInt() * 5 + j, "b");
       //}
@@ -198,26 +195,8 @@ class Game {
     //Create new target word for the board
     targetWords[winningBoard] = getTargetWord();
 
-    fixOffsetRollBackAndExtraRows();
-
-    save.saveKeys();
-  }
-
-  void fixOffsetRollBackAndExtraRows() {
-    while (offsetRollback < firstKnowledge.cast<int>().reduce(min)) {
-      offsetRollback++;
-      extraRows--;
-    }
-    while (!expandingBoard && extraRows > 0) {
-      offsetRollback++;
-      extraRows--;
-    }
-    while (expandingBoard &&
-        offsetRollback > firstKnowledge.cast<int>().reduce(min)) {
-      offsetRollback--;
-      extraRows++;
-    }
     flips.initiateFlipState();
+    save.saveKeys();
   }
 
   void resetBoard(shouldSave) {
@@ -225,9 +204,8 @@ class Game {
     //initialise on reset
     enteredWords = [];
     currentTyping = "";
-    offsetRollback = 0;
     winRecordBoards = [];
-    extraRows = 0;
+    pushUpSteps = 0;
 
     targetWords = getTargetWords(numBoards);
     firstKnowledge = getBlankFirstKnowledge(numBoards);
@@ -260,6 +238,7 @@ class Game {
 
   String getCardLetterAtIndex(index) {
     int rowOfIndex = index ~/ 5;
+    int absoluteRowOfIndex = getAbsoluteRowFromBoardRow(rowOfIndex);
     try {
       String letter = "";
       if (rowOfIndex > getVisualCurrentRowInt()) {
@@ -271,7 +250,7 @@ class Game {
           letter = "";
         }
       } else {
-        letter = enteredWords[index ~/ 5 + offsetRollback][index % 5];
+        letter = enteredWords[absoluteRowOfIndex][index % 5];
       }
       return letter;
     } catch (e) {
@@ -281,9 +260,10 @@ class Game {
   }
 
   bool getTestHistoricalWin(rowOfIndex, boardNumber) {
-    if (rowOfIndex + offsetRollback > 0 &&
-        winRecordBoards.length > rowOfIndex + offsetRollback &&
-        winRecordBoards[rowOfIndex + offsetRollback] == boardNumber) {
+    int absoluteRowOfIndex = getAbsoluteRowFromBoardRow(rowOfIndex);
+    if (absoluteRowOfIndex > 0 &&
+        winRecordBoards.length > absoluteRowOfIndex &&
+        winRecordBoards[absoluteRowOfIndex] == boardNumber) {
       return true;
     }
     return false;
@@ -330,24 +310,8 @@ class Game {
     return isStreak;
   }
 
-  int getVisualCurrentRowInt() {
-    return enteredWords.length - offsetRollback;
-  }
-
   String getCurrentTyping() {
     return currentTyping;
-  }
-
-  int getExtrRows() {
-    return extraRows;
-  }
-
-  int getLiveNumRowsPerBoard() {
-    return numRowsPerBoard + extraRows;
-  }
-
-  String getTargetWordForBoard(boardNumber) {
-    return targetWords[boardNumber];
   }
 
   bool getDetectBoardSolvedByRow(boardNumber, maxRowToCheck) {
@@ -387,11 +351,10 @@ class Game {
 
         targetWords = gameTmp["targetWords"] ?? getTargetWords(numBoards);
         enteredWords = gameTmp["enteredWords"] ?? [];
-        offsetRollback = gameTmp["offsetRollback"] ?? 0;
         winRecordBoards = gameTmp["winRecordBoards"] ?? [];
-        extraRows = gameTmp["extraRows"] ?? 0;
         firstKnowledge =
             gameTmp["firstKnowledge"] ?? getBlankFirstKnowledge(numBoards);
+        pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
       } catch (error) {
         p(["ERROR", error]);
         //resetBoardReal(true);
@@ -409,25 +372,25 @@ class Game {
     gameTmp["gUser"] = gUser;
 
     gameTmp["enteredWords"] = enteredWords;
-    gameTmp["offsetRollback"] = offsetRollback;
     gameTmp["winRecordBoards"] = winRecordBoards;
-    gameTmp["extraRows"] = extraRows;
     gameTmp["firstKnowledge"] = firstKnowledge;
+    gameTmp["pushUpSteps"] = pushUpSteps;
 
     return json.encode(gameTmp);
   }
 
   void printCheatTargetWords() {
     if (cheatMode) {
-      // ignore: avoid_print
       p([
         targetWords,
         enteredWords,
         winRecordBoards,
         currentTyping,
-        offsetRollback,
-        extraRows,
-        firstKnowledge
+        firstKnowledge,
+        getPushOffBoardRows(),
+        getExtraRows(),
+        pushUpSteps,
+        getLiveNumRowsPerBoard(),
       ]);
     }
   }
@@ -436,8 +399,41 @@ class Game {
     return aboutToWinCache;
   }
 
+  String getTargetWordForBoard(boardNumber) {
+    return targetWords[boardNumber];
+  }
+
+  int getPushOffBoardRows() {
+    if (expandingBoard) {
+      return firstKnowledge.cast<int>().reduce(min);
+    } else {
+      return pushUpSteps;
+    }
+  }
+
+  int getExtraRows() {
+    if (expandingBoard) {
+      return pushUpSteps - firstKnowledge.cast<int>().reduce(min);
+    } else {
+      return 0;
+    }
+  }
+
+  int getLiveNumRowsPerBoard() {
+    return numRowsPerBoard + getExtraRows(); //extraRows;
+  }
+
   int firstVRowToShow(boardNumber) {
-    return firstKnowledge[boardNumber] - offsetRollback;
+    return firstKnowledge[boardNumber] -
+        getPushOffBoardRows(); //offsetRollback;
+  }
+
+  int getAbsoluteRowFromBoardRow(rowOfIndex) {
+    return rowOfIndex + getPushOffBoardRows(); //offsetRollback;
+  }
+
+  int getVisualCurrentRowInt() {
+    return enteredWords.length - getPushOffBoardRows(); //offsetRollback;
   }
 }
 

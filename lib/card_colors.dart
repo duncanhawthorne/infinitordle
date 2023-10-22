@@ -15,7 +15,7 @@ class CardColors {
     if (highlightedBoard != -1) {
       boardNumber = highlightedBoard;
     }
-    if (keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
+    if (boardNumber < keyColorsCache.length && index < keyColorsCache[boardNumber].length && keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
       Color? cacheAnswer = keyColorsCache[boardNumber][index];
       if (cacheAnswer != null) {
         return cacheAnswer;
@@ -78,7 +78,7 @@ class CardColors {
   }
 
   Color getCardColor(index, boardNumber) {
-    if (keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
+    if (boardNumber < cardColorsCache.length && index < cardColorsCache[boardNumber].length && keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
       Color? cacheAnswer = cardColorsCache[boardNumber][index];
       if (cacheAnswer != null) {
         return cacheAnswer;

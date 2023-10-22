@@ -50,7 +50,7 @@ Widget gameboardWidget(boardNumber) {
 Widget _cardFlipper(index, boardNumber) {
   return TweenAnimationBuilder(
       tween: Tween<double>(begin: 0, end: flips.getFlipAngle(index)),
-      duration: Duration(milliseconds: durMult * 500),
+      duration: const Duration(milliseconds: durMult * 500),
       builder: (BuildContext context, double val, __) {
         return (Transform(
           alignment: Alignment.center,

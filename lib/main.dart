@@ -11,6 +11,7 @@ import 'package:infinitordle/app_structure.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:infinitordle/game_logic.dart';
 import 'package:infinitordle/saves.dart';
+import 'package:infinitordle/card_flips.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,7 +85,9 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   Widget build(BuildContext context) {
     detectAndUpdateForScreenSize(context);
-    game.fixOffsetRollBackAndExtraRows();
+
+    //game.fixOffsetRollBackAndExtraRows();
+    //flips.initiateFlipState();
 
     return streamBuilderWrapperOnDocument();
   }
@@ -181,7 +184,7 @@ class _InfinitordleState extends State<Infinitordle> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(appTitle),
-              Spacer(flex: 10),
+              const Spacer(flex: 10),
               Tooltip(
                 message: expandingBoard
                     ? "Turn off additional visibility mode"
@@ -194,7 +197,10 @@ class _InfinitordleState extends State<Infinitordle> {
                         } else {
                           expandingBoard = true;
                         }
+                        flips.initiateFlipState();
+                        saveOrLoadKeysCountCache++;
                         focusNode.requestFocus();
+
                         Navigator.pop(context, 'Cancel');
                         ss();
                       });
@@ -207,7 +213,7 @@ class _InfinitordleState extends State<Infinitordle> {
                     ),
               ),
               //const Spacer(flex: 1),
-              Spacer(flex: 1),
+              const Spacer(flex: 1),
               Tooltip(
                 message: gUser == gUserDefault ? "Sign in" : "Sign out",
                 child: GestureDetector(
