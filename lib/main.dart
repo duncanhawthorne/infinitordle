@@ -84,6 +84,7 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   Widget build(BuildContext context) {
     detectAndUpdateForScreenSize(context);
+    game.fixOffsetRollBackAndExtraRows();
 
     return streamBuilderWrapperOnDocument();
   }
@@ -165,7 +166,8 @@ class _InfinitordleState extends State<Infinitordle> {
     List winWordsCache = game.getWinWords();
     int numberWinsCache = winWordsCache.length;
     bool end = false;
-    if (!game.getAboutToWinCache() && game.getVisualCurrentRowInt() >= numRowsPerBoard) {
+    if (!game.getAboutToWinCache() &&
+        game.getVisualCurrentRowInt() >= game.getLiveNumRowsPerBoard()) {
       end = true;
     }
     //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
@@ -179,26 +181,58 @@ class _InfinitordleState extends State<Infinitordle> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(appTitle),
-              GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (gUser == gUserDefault) {
-                        gSignIn();
-                        Navigator.pop(context, 'OK');
-                      } else {
-                        showLogoutConfirmationScreen(context);
-                      }
-                      focusNode.requestFocus();
-                    });
-                  },
-                  child: gUser == gUserDefault
-                      ? const Icon(Icons.person_off, color: bg)
-                      : gUserIcon == gUserIconDefault
-                          ? const Icon(Icons.face, color: bg)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  gUserIcon)) //  GoogleUserCircleAvatar(identity: currentUser)
+              Wrap(
+                spacing: boardSpacer,
+                children: [
+                  Tooltip(
+                    message: expandingBoard
+                        ? "Turn off easy mode"
+                        : "Turn on easy mode",
+                    child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (expandingBoard) {
+                              expandingBoard = false;
+                            } else {
+                              expandingBoard = true;
+                            }
+                            focusNode.requestFocus();
+                            Navigator.pop(context, 'Cancel');
+                            ss();
+                          });
+                        },
+                        child: expandingBoard
+                            ? const Icon(Icons.visibility, color: bg)
+                            : const Icon(Icons.visibility_off,
+                                color:
+                                    bg) //  GoogleUserCircleAvatar(identity: currentUser)
+                        ),
+                  ),
+                  Tooltip(
+                    message: gUser == gUserDefault ? "Sign in" : "Sign out",
+                    child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (gUser == gUserDefault) {
+                              gSignIn();
+                              Navigator.pop(context, 'OK');
+                            } else {
+                              showLogoutConfirmationScreen(context);
+                            }
+                            focusNode.requestFocus();
+                          });
+                        },
+                        child: gUser == gUserDefault
+                            ? const Icon(Icons.lock, color: bg)
+                            : gUserIcon == gUserIconDefault
+                                ? const Icon(Icons.face, color: bg)
+                                : CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        gUserIcon)) //  GoogleUserCircleAvatar(identity: currentUser)
+                        ),
                   )
+                ],
+              ),
             ],
           ),
           content: Text(end

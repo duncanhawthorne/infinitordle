@@ -13,7 +13,6 @@ bool isListContains(list, bit) {
   //return list.contains(bit);
 }
 
-
 bool isLegalWord(word) {
   if (word.length != 5) {
     return false;
@@ -50,7 +49,9 @@ List getTargetWords(numberOfBoards) {
   return starterList;
 }
 
-
+List getBlankFirstKnowledge(numberOfBoards) {
+  return List.filled(numberOfBoards, 0);
+}
 
 void detectAndUpdateForScreenSize(context) {
   if (scW != MediaQuery.of(context).size.width ||

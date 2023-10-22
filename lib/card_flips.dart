@@ -2,9 +2,8 @@ import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/game_logic.dart';
 
 class Flips {
-
-  var cardFlipAngles =
-  List<double>.generate((numRowsPerBoard * 5 * numBoards), (i) => 0);
+  var cardFlipAngles = List<double>.generate(
+      (game.getLiveNumRowsPerBoard() * 5 * numBoards), (i) => 0);
 
   double getFlipAngle(index) {
     return cardFlipAngles[index];
@@ -27,13 +26,16 @@ class Flips {
   }
 
   void initiateFlipState() {
-    for (var j = 0; j < numRowsPerBoard * 5; j++) {
+    cardFlipAngles = List<double>.generate(
+        (game.getLiveNumRowsPerBoard() * 5 * numBoards), (i) => 0);
+    for (var j = 0; j < game.getLiveNumRowsPerBoard() * 5; j++) {
       if (game.getVisualCurrentRowInt() > (j ~/ 5)) {
         flipCard(j, "f");
       } else {
         flipCard(j, "b");
       }
     }
+    //ap(cardFlipAngles);
   }
 
   void flipCard(index, toFOrB) {
@@ -43,7 +45,6 @@ class Flips {
       cardFlipAngles[index] = 0.5;
     }
   }
-
 }
 
 Flips flips = Flips();

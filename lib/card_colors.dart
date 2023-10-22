@@ -3,13 +3,13 @@ import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/game_logic.dart';
 
 class CardColors {
-
   var cardColorsCache = [];
   var keyColorsCache = [];
   int keyAndCardColorsTestedStateCache = 0;
 
   var getCardLetterAtIndex = game.getCardLetterAtIndex; //for typing ease only
-  var getVisualCurrentRowInt = game.getVisualCurrentRowInt; //for typing ease only
+  var getVisualCurrentRowInt =
+      game.getVisualCurrentRowInt; //for typing ease only
 
   Color getBestColorForLetter(index, boardNumber) {
     if (highlightedBoard != -1) {
@@ -142,12 +142,11 @@ class CardColors {
     cardColorsCache = [];
     keyColorsCache = [];
     for (int i = 0; i < numBoards; i++) {
-      cardColorsCache
-          .add(List<Color?>.generate((numRowsPerBoard * 5), (i) => null));
+      cardColorsCache.add(List<Color?>.generate(
+          (game.getLiveNumRowsPerBoard() * 5), (i) => null));
       keyColorsCache.add(List<Color?>.generate((30), (i) => null));
     }
   }
-
 }
 
 CardColors cardColors = CardColors();

@@ -26,15 +26,23 @@ Widget gameboardWidget(boardNumber) {
                     maxWidth: 5 * cardLiveMaxPixel, //*0.97
                     maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
                 child: GridView.builder(
-                    physics:
-                        const NeverScrollableScrollPhysics(), //turns off ios scrolling
-                    itemCount: numRowsPerBoard * 5,
+                    reverse: expandingBoard ? true : false,
+                    physics: expandingBoard
+                        ? const AlwaysScrollableScrollPhysics()
+                        : const NeverScrollableScrollPhysics(), //turns off ios scrolling
+                    itemCount: game.getLiveNumRowsPerBoard() * 5,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
                     ),
                     itemBuilder: (BuildContext context, int index) {
-                      return _cardFlipper(index, boardNumber);
+                      return expandingBoard
+                          ? _cardFlipper(
+                              (game.getLiveNumRowsPerBoard() - index ~/ 5 - 1) *
+                                      5 +
+                                  index % 5,
+                              boardNumber)
+                          : _cardFlipper(index, boardNumber);
                     }),
               ))));
 }
@@ -111,8 +119,10 @@ Widget _card(index, boardNumber, val, bf) {
                         : 0.05 * cardLiveMaxPixel),
             borderRadius: BorderRadius.circular(
                 0.2 * cardLiveMaxPixel), //needed for green border
-            color: !infMode &&
-                    game.getDetectBoardSolvedByRow(boardNumber, rowOfIndex)
+            color: (!infMode &&
+                        game.getDetectBoardSolvedByRow(
+                            boardNumber, rowOfIndex)) ||
+                    rowOfIndex < game.firstVRowToShow(boardNumber)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
                     ? rowOfIndex == game.getVisualCurrentRowInt() &&
@@ -145,7 +155,9 @@ Widget _cardText(index, boardNumber) {
         ],
          */
       fontSize: cardLiveMaxPixel,
-      color: !infMode && game.getDetectBoardSolvedByRow(boardNumber, rowOfIndex)
+      color: (!infMode &&
+                  game.getDetectBoardSolvedByRow(boardNumber, rowOfIndex)) ||
+              rowOfIndex < game.firstVRowToShow(boardNumber)
           ? Colors.transparent // bg //"hide" after being solved
           : highlightedBoard == -1
               ? Colors.white

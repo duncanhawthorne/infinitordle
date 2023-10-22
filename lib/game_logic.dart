@@ -13,10 +13,13 @@ class Game {
   var winRecordBoards = [];
   var currentTyping = "";
   int offsetRollback = 0;
+  int extraRows = 0;
+  var firstKnowledge = [];
 
   bool aboutToWinCache = false;
 
   void onKeyboardTapped(int index) {
+    p([getVisualCurrentRowInt(), getLiveNumRowsPerBoard()]);
     //var ss = globalFunctions[0];
     //var showResetConfirmScreen = globalFunctions[1];
     String letter = keyboardList[index];
@@ -78,7 +81,7 @@ class Game {
           save.saveKeys();
 
           //Code for losing game
-          if (!isWin && getVisualCurrentRowInt() >= numRowsPerBoard) {
+          if (!isWin && getVisualCurrentRowInt() >= getLiveNumRowsPerBoard()) {
             //didn't get it in time
             Future.delayed(
                 Duration(milliseconds: gradualRevealDelay * 5 + durMult * 500),
@@ -171,12 +174,17 @@ class Game {
     //Erase a row and step back
     for (var j = 0; j < infNumBacksteps; j++) {
       //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
-      offsetRollback++;
+      if (expandingBoard) {
+        extraRows++;
+      } else {
+        offsetRollback++;
+      }
       //for (var j = 0; j < 5; j++) {
       //  flipCard(getVisualCurrentRowInt() * 5 + j, "b");
       //}
     }
-    flips.initiateFlipState(); //in case anything is in the wrong state, fix here
+    flips
+        .initiateFlipState(); //in case anything is in the wrong state, fix here
     save.saveKeys();
   }
 
@@ -184,20 +192,47 @@ class Game {
     //Log the word just got in success words, which gets green to show
     //Fix the fact that we stored a -1 in this place temporarily
     winRecordBoards[winRecordBoardsIndexToFix] = winningBoard;
+    firstKnowledge[winningBoard] = enteredWords.length -
+        (numRowsPerBoard -
+            (getLiveNumRowsPerBoard() - getVisualCurrentRowInt())) -
+        1;
     //Create new target word for the board
     targetWords[winningBoard] = getTargetWord();
+
+    fixOffsetRollBackAndExtraRows();
+
     save.saveKeys();
   }
 
-  void resetBoard(save) {
+  void fixOffsetRollBackAndExtraRows() {
+    while (offsetRollback < firstKnowledge.cast<int>().reduce(min)) {
+      offsetRollback++;
+      extraRows--;
+    }
+    while (!expandingBoard && extraRows > 0) {
+      offsetRollback++;
+      extraRows--;
+    }
+    while (expandingBoard &&
+        offsetRollback > firstKnowledge.cast<int>().reduce(min)) {
+      offsetRollback--;
+      extraRows++;
+    }
+    save.saveKeys();
+    flips.initiateFlipState();
+  }
+
+  void resetBoard(shouldSave) {
     p("Reset board");
     //initialise on reset
     enteredWords = [];
     currentTyping = "";
     offsetRollback = 0;
     winRecordBoards = [];
+    extraRows = 0;
 
     targetWords = getTargetWords(numBoards);
+    firstKnowledge = getBlankFirstKnowledge(numBoards);
 
     //speed initialise entries using cheat mode for debugging
     if (cheatMode) {
@@ -216,7 +251,7 @@ class Game {
 
     flips.initiateFlipState();
 
-    if (save) {
+    if (shouldSave) {
       p("Reset board called with instruction to save keys, and now saving keys");
       save.saveKeys();
     } else {
@@ -305,6 +340,14 @@ class Game {
     return currentTyping;
   }
 
+  int getExtrRows() {
+    return extraRows;
+  }
+
+  int getLiveNumRowsPerBoard() {
+    return numRowsPerBoard + extraRows;
+  }
+
   String getTargetWordForBoard(boardNumber) {
     return targetWords[boardNumber];
   }
@@ -345,10 +388,12 @@ class Game {
         }
 
         targetWords = gameTmp["targetWords"] ?? getTargetWords(numBoards);
-
         enteredWords = gameTmp["enteredWords"] ?? [];
         offsetRollback = gameTmp["offsetRollback"] ?? 0;
         winRecordBoards = gameTmp["winRecordBoards"] ?? [];
+        extraRows = gameTmp["extraRows"] ?? 0;
+        firstKnowledge =
+            gameTmp["firstKnowledge"] ?? getBlankFirstKnowledge(numBoards);
       } catch (error) {
         p(["ERROR", error]);
         //resetBoardReal(true);
@@ -368,6 +413,8 @@ class Game {
     gameTmp["enteredWords"] = enteredWords;
     gameTmp["offsetRollback"] = offsetRollback;
     gameTmp["winRecordBoards"] = winRecordBoards;
+    gameTmp["extraRows"] = extraRows;
+    gameTmp["firstKnowledge"] = firstKnowledge;
 
     return json.encode(gameTmp);
   }
@@ -380,7 +427,9 @@ class Game {
         enteredWords,
         winRecordBoards,
         currentTyping,
-        offsetRollback
+        offsetRollback,
+        extraRows,
+        firstKnowledge
       ]);
     }
   }
@@ -389,6 +438,9 @@ class Game {
     return aboutToWinCache;
   }
 
+  int firstVRowToShow(boardNumber) {
+    return firstKnowledge[boardNumber] - offsetRollback;
+  }
 }
 
 Game game = Game();
