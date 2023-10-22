@@ -281,8 +281,8 @@ class _InfinitordleState extends State<Infinitordle> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Do you want to log out?"),
-          content: Text("Logged in as " + gUser),
+          title: const Text("Do you want to sign out?"),
+          content: Text("Signed in as " + gUser),
           actions: <Widget>[
             TextButton(
               onPressed: () => {Navigator.pop(context, 'Cancel')},
@@ -295,7 +295,7 @@ class _InfinitordleState extends State<Infinitordle> {
                 Navigator.pop(context, 'OK'),
                 setState(() {})
               },
-              child: const Text('Log out', style: TextStyle(color: Colors.red)),
+              child: const Text('Sign out', style: TextStyle(color: Colors.red)),
             ),
           ],
         );

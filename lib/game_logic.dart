@@ -217,7 +217,6 @@ class Game {
       offsetRollback--;
       extraRows++;
     }
-    save.saveKeys();
     flips.initiateFlipState();
   }
 
