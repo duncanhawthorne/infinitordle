@@ -184,59 +184,67 @@ class _InfinitordleState extends State<Infinitordle> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(appTitle),
-              const Spacer(flex: 10),
-              Tooltip(
-                message: expandingBoard
-                    ? "Turn off additional visibility mode"
-                    : "Turn on additional visbility mode",
-                child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (expandingBoard) {
-                          expandingBoard = false;
-                        } else {
-                          expandingBoard = true;
-                        }
-                        flips.initiateFlipState();
-                        saveOrLoadKeysCountCache++;
-                        focusNode.requestFocus();
+              SizedBox(
+                width: 90,
+                //height: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Tooltip(
+                      message: expandingBoard
+                          ? "Turn off additional visibility mode"
+                          : "Turn on additional visbility mode",
+                      child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (expandingBoard) {
+                                expandingBoard = false;
+                              } else {
+                                expandingBoard = true;
+                              }
+                              flips.initiateFlipState();
+                              saveOrLoadKeysCountCache++;
+                              focusNode.requestFocus();
 
-                        Navigator.pop(context, 'Cancel');
-                        ss();
-                      });
-                    },
-                    child: expandingBoard
-                        ? const Icon(Icons.visibility, color: bg)
-                        : const Icon(Icons.visibility_off,
-                            color:
-                                bg) //  GoogleUserCircleAvatar(identity: currentUser)
+                              Navigator.pop(context, 'Cancel');
+                              ss();
+                            });
+                          },
+                          child: expandingBoard
+                              ? const Icon(Icons.visibility, color: bg)
+                              : const Icon(Icons.visibility_off,
+                                  color:
+                                      bg) //  GoogleUserCircleAvatar(identity: currentUser)
+                          ),
                     ),
+                    SizedBox(width: 20),
+                    Tooltip(
+                      message: gUser == gUserDefault ? "Sign in" : "Sign out",
+                      child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (gUser == gUserDefault) {
+                                gSignIn();
+                                Navigator.pop(context, 'OK');
+                              } else {
+                                showLogoutConfirmationScreen(context);
+                              }
+                              focusNode.requestFocus();
+                            });
+                          },
+                          child: gUser == gUserDefault
+                              ? const Icon(Icons.lock, color: bg)
+                              : gUserIcon == gUserIconDefault
+                                  ? const Icon(Icons.face, color: bg)
+                                  : CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          gUserIcon)) //  GoogleUserCircleAvatar(identity: currentUser)
+                          ),
+                    )
+                  ],
+                ),
               ),
               //const Spacer(flex: 1),
-              const Spacer(flex: 1),
-              Tooltip(
-                message: gUser == gUserDefault ? "Sign in" : "Sign out",
-                child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (gUser == gUserDefault) {
-                          gSignIn();
-                          Navigator.pop(context, 'OK');
-                        } else {
-                          showLogoutConfirmationScreen(context);
-                        }
-                        focusNode.requestFocus();
-                      });
-                    },
-                    child: gUser == gUserDefault
-                        ? const Icon(Icons.lock, color: bg)
-                        : gUserIcon == gUserIconDefault
-                            ? const Icon(Icons.face, color: bg)
-                            : CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    gUserIcon)) //  GoogleUserCircleAvatar(identity: currentUser)
-                    ),
-              ),
             ],
           ),
           content: Text(end

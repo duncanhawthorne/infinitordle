@@ -354,7 +354,17 @@ class Game {
         winRecordBoards = gameTmp["winRecordBoards"] ?? [];
         firstKnowledge =
             gameTmp["firstKnowledge"] ?? getBlankFirstKnowledge(numBoards);
+
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
+
+        //TRANSITIONARY logic from old variable naming convention
+        int offsetRollback = gameTmp["offsetRollback"] ?? 0;
+        if (offsetRollback != 0) {
+          p(["One-off migration"]);
+          pushUpSteps = offsetRollback;
+        }
+        //TRANSITIONARY logic from old variable naming convention
+
       } catch (error) {
         p(["ERROR", error]);
         //resetBoardReal(true);
