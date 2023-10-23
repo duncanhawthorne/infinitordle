@@ -8,7 +8,7 @@ class Flips {
 
   double getFlipAngle(index) {
     if (index >= cardFlipAngles.length) {
-      p("FLIP ANGLES RESET");
+      p("getFlipAngle reset");
       p([game.getLiveNumRowsPerBoard() * 5 * numBoards, index]);
       initiateFlipState();
       return 0;

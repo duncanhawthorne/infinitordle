@@ -14,6 +14,8 @@ class Game {
   var currentTyping = "";
   var firstKnowledge = [];
   int pushUpSteps = 0;
+  bool expandingBoard = false;
+  bool expandingBoardEver = false;
 
   bool aboutToWinCache = false;
 
@@ -210,6 +212,9 @@ class Game {
     targetWords = getTargetWords(numBoards);
     firstKnowledge = getBlankFirstKnowledge(numBoards);
 
+    expandingBoard = false;
+    expandingBoardEver = false;
+
     //speed initialise entries using cheat mode for debugging
     if (cheatMode) {
       for (var j = 0; j < numBoards; j++) {
@@ -254,7 +259,7 @@ class Game {
       }
       return letter;
     } catch (e) {
-      p(["getVisualGBLetterAtIndexEntered", index, e]);
+      p(["Crash getCardLetterAtIndex", index, e]);
       return "";
     }
   }
@@ -356,6 +361,8 @@ class Game {
             gameTmp["firstKnowledge"] ?? getBlankFirstKnowledge(numBoards);
 
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
+        expandingBoard = gameTmp["expandingBoard"] ?? false;
+        expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
 
         //TRANSITIONARY logic from old variable naming convention
         int offsetRollback = gameTmp["offsetRollback"] ?? 0;
@@ -364,7 +371,6 @@ class Game {
           pushUpSteps = offsetRollback;
         }
         //TRANSITIONARY logic from old variable naming convention
-
       } catch (error) {
         p(["ERROR", error]);
         //resetBoardReal(true);
@@ -385,6 +391,8 @@ class Game {
     gameTmp["winRecordBoards"] = winRecordBoards;
     gameTmp["firstKnowledge"] = firstKnowledge;
     gameTmp["pushUpSteps"] = pushUpSteps;
+    gameTmp["expandingBoard"] = expandingBoard;
+    gameTmp["expandingBoardEver"] = expandingBoardEver;
 
     return json.encode(gameTmp);
   }
@@ -423,6 +431,22 @@ class Game {
 
   int getExtraRows() {
     return pushUpSteps - getPushOffBoardRows();
+  }
+
+  bool getExpandingBoard() {
+    return expandingBoard;
+  }
+
+  void setExpandingBoard(tf) {
+    expandingBoard = tf;
+  }
+
+  bool getExpandingBoardEver() {
+    return expandingBoardEver;
+  }
+
+  void setExpandingBoardEver(tf) {
+    expandingBoardEver = tf;
   }
 
   int getLiveNumRowsPerBoard() {

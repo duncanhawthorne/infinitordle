@@ -23,7 +23,6 @@ const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 bool infMode = true;
 const infNumBacksteps = 1;
 const double boardSpacer = 8;
-bool expandingBoard = false; //true;
 
 //Helper text
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm> ".split("");

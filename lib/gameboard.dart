@@ -26,8 +26,8 @@ Widget gameboardWidget(boardNumber) {
                     maxWidth: 5 * cardLiveMaxPixel, //*0.97
                     maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
                 child: GridView.builder(
-                    reverse: expandingBoard ? true : false,
-                    physics: expandingBoard
+                    reverse: game.getExpandingBoard() ? true : false,
+                    physics: game.getExpandingBoard()
                         ? const AlwaysScrollableScrollPhysics()
                         : const NeverScrollableScrollPhysics(), //turns off ios scrolling
                     itemCount: game.getLiveNumRowsPerBoard() * 5,
@@ -36,7 +36,7 @@ Widget gameboardWidget(boardNumber) {
                       crossAxisCount: 5,
                     ),
                     itemBuilder: (BuildContext context, int index) {
-                      return expandingBoard
+                      return game.getExpandingBoard()
                           ? _cardFlipper(
                               (game.getLiveNumRowsPerBoard() - index ~/ 5 - 1) *
                                       5 +

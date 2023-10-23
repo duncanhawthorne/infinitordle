@@ -157,7 +157,10 @@ class _InfinitordleState extends State<Infinitordle> {
                 TextSpan(
                     text: infText,
                     style: TextStyle(
-                        color: numberWinsCache == 0 ? Colors.white : green)),
+                        color:
+                            numberWinsCache == 0 || game.getExpandingBoardEver()
+                                ? Colors.white
+                                : green)),
                 TextSpan(text: appTitle3),
               ],
             ),
@@ -191,16 +194,17 @@ class _InfinitordleState extends State<Infinitordle> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Tooltip(
-                      message: expandingBoard
-                          ? "Turn off additional visibility mode"
-                          : "Turn on additional visbility mode",
+                      message: game.getExpandingBoard()
+                          ? "Turn off expanding board"
+                          : "Turn on expanding board",
                       child: GestureDetector(
                           onTap: () {
                             setState(() {
-                              if (expandingBoard) {
-                                expandingBoard = false;
+                              if (game.getExpandingBoard()) {
+                                game.setExpandingBoard(false);
                               } else {
-                                expandingBoard = true;
+                                game.setExpandingBoard(true);
+                                game.setExpandingBoardEver(true);
                               }
                               flips.initiateFlipState();
                               saveOrLoadKeysCountCache++;
@@ -210,14 +214,14 @@ class _InfinitordleState extends State<Infinitordle> {
                               ss();
                             });
                           },
-                          child: expandingBoard
+                          child: game.getExpandingBoard()
                               ? const Icon(Icons.visibility, color: bg)
                               : const Icon(Icons.visibility_off,
                                   color:
                                       bg) //  GoogleUserCircleAvatar(identity: currentUser)
                           ),
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     Tooltip(
                       message: gUser == gUserDefault ? "Sign in" : "Sign out",
                       child: GestureDetector(
