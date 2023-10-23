@@ -26,7 +26,7 @@ Widget gameboardWidget(boardNumber) {
                     maxWidth: 5 * cardLiveMaxPixel, //*0.97
                     maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
                 child: GridView.builder(
-                    cacheExtent: 1000, //prevents top card reloading (and flipping) on scroll
+                    cacheExtent: 10000, //prevents top card reloading (and flipping) on scroll
                     reverse: game.getExpandingBoard() ? true : false,
                     physics: game.getExpandingBoard()
                         ? const AlwaysScrollableScrollPhysics()
