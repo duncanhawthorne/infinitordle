@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
+import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/helper.dart';
 import 'dart:math';
 
@@ -13,8 +14,8 @@ class CardColors {
       game.getVisualCurrentRowInt; //for typing ease only
 
   Color getBestColorForLetter(index, boardNumber) {
-    if (highlightedBoard != -1) {
-      boardNumber = highlightedBoard;
+    if (game.getHighlightedBoard() != -1) {
+      boardNumber = game.getHighlightedBoard();
     }
     if (boardNumber < keyColorsCache.length &&
         index < keyColorsCache[boardNumber].length &&

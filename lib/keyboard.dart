@@ -5,14 +5,14 @@ import 'package:infinitordle/helper.dart';
 Widget keyboardRowWidget(keyBoardStartKey, length) {
   return Container(
     constraints: BoxConstraints(
-        maxWidth: keyboardSingleKeyLiveMaxPixelHeight * 10 / keyAspectRatioLive,
-        maxHeight: keyboardSingleKeyLiveMaxPixelHeight),
+        maxWidth: screen.keyboardSingleKeyLiveMaxPixelHeight * 10 / screen.keyAspectRatioLive,
+        maxHeight: screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(), //ios fix
         itemCount: length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: length,
-          childAspectRatio: 1 / keyAspectRatioLive * (10 / length),
+          childAspectRatio: 1 / screen.keyAspectRatioLive * (10 / length),
         ),
         itemBuilder: (BuildContext context, int index) {
           return _kbStackWithMiniGrid(keyBoardStartKey + index, length);
@@ -22,10 +22,10 @@ Widget keyboardRowWidget(keyBoardStartKey, length) {
 
 Widget _kbStackWithMiniGrid(index, length) {
   return Container(
-    padding: EdgeInsets.all(0.005 * keyboardSingleKeyLiveMaxPixelHeight),
+    padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: ClipRRect(
       borderRadius:
-          BorderRadius.circular(0.1 * keyboardSingleKeyLiveMaxPixelHeight),
+          BorderRadius.circular(0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight),
       //borderRadius: BorderRadius.circular(10),
       child: Stack(
         children: [
@@ -103,11 +103,11 @@ Widget _kbMiniGridContainer(index, length) {
       shrinkWrap: true,
       itemCount: numBoards,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: numBoards ~/ numPresentationBigRowsOfBoards,
+        crossAxisCount: numBoards ~/ screen.numPresentationBigRowsOfBoards,
         childAspectRatio: 1 /
-            ((numBoards / numPresentationBigRowsOfBoards) /
-                numPresentationBigRowsOfBoards) /
-            keyAspectRatioLive *
+            ((numBoards / screen.numPresentationBigRowsOfBoards) /
+                screen.numPresentationBigRowsOfBoards) /
+            screen.keyAspectRatioLive *
             (10 / length),
       ),
       itemBuilder: (BuildContext context, int subIndex) {

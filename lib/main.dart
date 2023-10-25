@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
+import 'package:infinitordle/globals.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -90,11 +91,11 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget streamBuilderWrapperOnDocument() {
-    if (!signedIn()) {
+    if (!google.signedIn()) {
       return _scaffold();
     } else {
       return StreamBuilder<DocumentSnapshot>(
-        stream: db.collection('states').doc(gUser).snapshots(),
+        stream: db.collection('states').doc(google.getgUser()).snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError || !snapshot.hasData) {
@@ -106,7 +107,7 @@ class _InfinitordleState extends State<Infinitordle> {
             if (userDocument != null && userDocument.exists) {
               String snapshotCurrent = userDocument["data"];
               //print(snapshotCurrent);
-              if (signedIn() && snapshotCurrent != snapshotLast) {
+              if (google.signedIn() && snapshotCurrent != snapshotLast) {
                 if (snapshotCurrent != game.getEncodeCurrentGameState()) {
                   game.loadFromEncodedState(snapshotCurrent);
                 }
@@ -124,7 +125,7 @@ class _InfinitordleState extends State<Infinitordle> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        toolbarHeight: appBarHeight,
+        toolbarHeight: screen.appBarHeight,
         title: _titleWidget(),
       ),
       body: bodyWidget(),
@@ -147,7 +148,7 @@ class _InfinitordleState extends State<Infinitordle> {
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: appBarHeight * 40 / 56,
+                fontSize: screen.appBarHeight * 40 / 56,
               ),
               children: <TextSpan>[
                 const TextSpan(text: appTitle1),
@@ -204,7 +205,7 @@ class _InfinitordleState extends State<Infinitordle> {
                                 game.setExpandingBoardEver(true);
                               }
                               flips.initiateFlipState();
-                              saveOrLoadKeysCountCache++;
+                              save.saveKeys();
                               focusNode.requestFocus();
 
                               Navigator.pop(context, 'Cancel');
@@ -220,12 +221,12 @@ class _InfinitordleState extends State<Infinitordle> {
                     ),
                     const SizedBox(width: 20),
                     Tooltip(
-                      message: !signedIn() ? "Sign in" : "Sign out",
+                      message: !google.signedIn() ? "Sign in" : "Sign out",
                       child: GestureDetector(
                           onTap: () {
                             setState(() {
-                              if (!signedIn()) {
-                                gSignIn();
+                              if (!google.signedIn()) {
+                                google.gSignIn();
                                 Navigator.pop(context, 'OK');
                               } else {
                                 showLogoutConfirmationScreen(context);
@@ -233,13 +234,13 @@ class _InfinitordleState extends State<Infinitordle> {
                               focusNode.requestFocus();
                             });
                           },
-                          child: !signedIn()
+                          child: !google.signedIn()
                               ? const Icon(Icons.lock, color: bg)
-                              : gUserIcon == gUserIconDefault
+                              : google.getgUserIcon() == gUserIconDefault
                                   ? const Icon(Icons.face, color: bg)
                                   : CircleAvatar(
                                       backgroundImage: NetworkImage(
-                                          gUserIcon)) //  GoogleUserCircleAvatar(identity: currentUser)
+                                          google.getgUserIcon())) //  GoogleUserCircleAvatar(identity: currentUser)
                           ),
                     )
                   ],
@@ -297,7 +298,7 @@ class _InfinitordleState extends State<Infinitordle> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Do you want to sign out?"),
-          content: Text("Signed in as " + gUser),
+          content: Text("Signed in as " + google.getgUser()),
           actions: <Widget>[
             TextButton(
               onPressed: () => {Navigator.pop(context, 'Cancel')},
@@ -305,7 +306,7 @@ class _InfinitordleState extends State<Infinitordle> {
             ),
             TextButton(
               onPressed: () => {
-                gSignOut(),
+                google.gSignOut(),
                 Navigator.pop(context, 'OK'),
                 Navigator.pop(context, 'OK'),
                 setState(() {})

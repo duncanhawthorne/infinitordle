@@ -43,33 +43,15 @@ const int delayMult = noAnimations ? 0 : 1;
 const gradualRevealDelay = delayMult * (durMult == 1 ? 100 : 250);
 //int flipTimeOverrideFactor = 1;
 
-//Volatile visual state of the game
-var highlightedBoard = -1;
-
-//Volatile helpers for state of the game
-int saveOrLoadKeysCountCache = 0;
-bool oneLegalWordForRedCardsCache = false;
-String legalWordTestedWordCache = "";
-bool backspaceSafeCache = true;
-
 //Screen constants
 const double dividerHeight = 2;
 const double keyAspectRatioDefault = 1.5;
 
-double appBarHeight = -1;
-double cardLiveMaxPixel = -1;
-double keyAspectRatioLive = -1;
-double keyboardSingleKeyLiveMaxPixelHeight = -1;
-int numPresentationBigRowsOfBoards = -1;
-
 const bool debugFakeLogin = false;
 const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
-var gUser = "JoeBloggs";
-var gUserIcon = "JoeBloggs";
 
 FirebaseFirestore db = FirebaseFirestore.instance;
-String snapshotLast = "XXXXXXX";
 
 //Misc
 final Random random = Random();
@@ -82,3 +64,5 @@ void ss() {
 void showResetConfirmScreen() {
   globalFunctions[1]();
 }
+
+

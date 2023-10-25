@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinitordle/constants.dart';
+import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/keyboard.dart';
 import 'package:infinitordle/gameboard.dart';
 import 'package:infinitordle/helper.dart';

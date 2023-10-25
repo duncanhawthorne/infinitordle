@@ -1,5 +1,7 @@
 import 'package:infinitordle/constants.dart';
+import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/helper.dart';
+import 'package:infinitordle/google_logic.dart';
 
 import 'dart:math';
 import 'dart:convert';
@@ -19,6 +21,7 @@ class Game {
   bool aboutToWinCache = false;
   int temporaryVisualOffsetForSlide = 0;
   String gameEncodedLast = "";
+  int highlightedBoard = -1;
 
   void onKeyboardTapped(int index) {
     //var ss = globalFunctions[0];
@@ -45,7 +48,7 @@ class Game {
         //ignore if not completed whole word
         //due to "delay" functions, need to take local copies of various global variable so they are still "right" when the delayed functions run
         String enteredWordLocal = currentTyping;
-        if (isListContains(legalWords, enteredWordLocal)) {
+        if (isLegalWord(enteredWordLocal)) {
           //Legal word, but not necessarily correct word
 
           //Legal word so step forward
@@ -347,10 +350,10 @@ class Game {
         gameTmp = json.decode(gameEncoded);
 
         String tmpgUser = gameTmp["gUser"] ?? "Default";
-        if (tmpgUser != gUser && tmpgUser != "Default") {
+        if (tmpgUser != google.getgUser() && tmpgUser != "Default") {
           //print("redoing load keys");
           //Error state, so set gUser properly and redo loadKeys from firebase
-          gUser = tmpgUser;
+          google.setgUser(tmpgUser);
           save.loadKeys();
           return;
         }
@@ -385,7 +388,7 @@ class Game {
     Map<String, dynamic> gameTmp = {};
     gameTmp = {};
     gameTmp["targetWords"] = targetWords;
-    gameTmp["gUser"] = gUser;
+    gameTmp["gUser"] = google.getgUser();
 
     gameTmp["enteredWords"] = enteredWords;
     gameTmp["winRecordBoards"] = winRecordBoards;
@@ -479,6 +482,14 @@ class Game {
 
   int getTemporaryVisualOffsetForSlide() {
     return temporaryVisualOffsetForSlide;
+  }
+
+  int getHighlightedBoard() {
+    return highlightedBoard;
+  }
+
+  void setHighlightedBoard(hb) {
+    highlightedBoard = hb;
   }
 
 }

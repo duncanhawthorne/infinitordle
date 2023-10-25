@@ -8,8 +8,14 @@ import 'package:flutter/material.dart';
 
 class Screen {
 
+  //Variables used outside of class
+  double appBarHeight = -1;
+  double cardLiveMaxPixel = -1;
+  double keyAspectRatioLive = -1;
+  double keyboardSingleKeyLiveMaxPixelHeight = -1;
+  int numPresentationBigRowsOfBoards = -1;
 
-  //Volatile default values for sizing
+  //Variable used only inside of class
   double vertSpaceForGameboard = -1;
   double vertSpaceForCardWithWrap = -1;
   double horizSpaceForCardNoWrap = -1;

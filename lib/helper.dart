@@ -27,7 +27,8 @@ bool isLegalWord(word) {
   if (word.length != 5) {
     return false;
   }
-
+  return isListContains(legalWords, word);
+  /*
   if (legalWordTestedWordCache == word) {
     return oneLegalWordForRedCardsCache;
   } else {
@@ -40,6 +41,7 @@ bool isLegalWord(word) {
   oneLegalWordForRedCardsCache = answer;
 
   return answer;
+   */
 }
 
 void p(x) {
@@ -47,9 +49,7 @@ void p(x) {
   debugPrint("///// A " + x.toString());
 }
 
-bool signedIn() {
-  return gUser != gUserDefault;
-}
+
 
 List getBlankFirstKnowledge(numberOfBoards) {
   return List.filled(numberOfBoards, 0);

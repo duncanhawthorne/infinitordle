@@ -5,23 +5,23 @@ import 'package:infinitordle/constants.dart';
 
 Widget gameboardWidget(boardNumber) {
   return ClipRRect(
-      borderRadius: BorderRadius.circular(0.2 * cardLiveMaxPixel),
+      borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
       child: Material(
           color: Colors.transparent,
           child: InkWell(
               onTap: () {
                 //var ss = globalFunctions[0];
-                if (highlightedBoard == boardNumber) {
-                  highlightedBoard = -1; //if already set turn off
+                if (game.getHighlightedBoard() == boardNumber) {
+                  game.setHighlightedBoard(-1); //if already set turn off
                 } else {
-                  highlightedBoard = boardNumber;
+                  game.setHighlightedBoard(boardNumber);
                 }
                 ss();
               },
               child: Container(
                 constraints: BoxConstraints(
-                    maxWidth: 5 * cardLiveMaxPixel, //*0.97
-                    maxHeight: numRowsPerBoard * cardLiveMaxPixel), //*0.97
+                    maxWidth: 5 * screen.cardLiveMaxPixel, //*0.97
+                    maxHeight: numRowsPerBoard * screen.cardLiveMaxPixel), //*0.97
                 child: GridView.builder(
                     cacheExtent: 10000, //prevents top card reloading (and flipping) on scroll
                     reverse: game.getExpandingBoard() ? true : false,
@@ -76,7 +76,7 @@ Widget _positionedCard(index, boardNumber, val, bf) {
       AnimatedPositioned(
         curve: Curves.fastOutSlowIn,
         duration: Duration(milliseconds: speedOfSlide * durMult * 200),
-        top: -cardLiveMaxPixel * game.getTemporaryVisualOffsetForSlide(),
+        top: -screen.cardLiveMaxPixel * game.getTemporaryVisualOffsetForSlide(),
         child: _sizedCard(index, boardNumber, val, bf),
       ),
     ],
@@ -85,8 +85,8 @@ Widget _positionedCard(index, boardNumber, val, bf) {
 
 Widget _sizedCard(index, boardNumber, val, bf) {
   return SizedBox(
-    height: cardLiveMaxPixel,
-    width: cardLiveMaxPixel,
+    height: screen.cardLiveMaxPixel,
+    width: screen.cardLiveMaxPixel,
     child: _card(index, boardNumber, val, bf),
   );
 }
@@ -96,9 +96,9 @@ Widget _card(index, boardNumber, val, bf) {
   bool historicalWin = game.getTestHistoricalWin(rowOfIndex, boardNumber);
 
   return Container(
-    padding: EdgeInsets.all(0.005 * cardLiveMaxPixel),
+    padding: EdgeInsets.all(0.005 * screen.cardLiveMaxPixel),
     child: ClipRRect(
-      borderRadius: BorderRadius.circular(0.2 * cardLiveMaxPixel),
+      borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
       child: Container(
         //padding: const EdgeInsets.all(1),
         //height: 500, //oversize so it renders in full and so doesn't pixelate
@@ -113,10 +113,10 @@ Widget _card(index, boardNumber, val, bf) {
                 width: bf == "b"
                     ? 0
                     : historicalWin
-                        ? 0.05 * cardLiveMaxPixel
-                        : 0.05 * cardLiveMaxPixel),
+                        ? 0.05 * screen.cardLiveMaxPixel
+                        : 0.05 * screen.cardLiveMaxPixel),
             borderRadius: BorderRadius.circular(
-                0.2 * cardLiveMaxPixel), //needed for green border
+                0.2 * screen.cardLiveMaxPixel), //needed for green border
             color: (!infMode &&
                         game.getDetectBoardSolvedByRow(
                             boardNumber, rowOfIndex)) ||
@@ -153,14 +153,14 @@ Widget _cardText(index, boardNumber) {
           ),
         ],
          */
-      fontSize: cardLiveMaxPixel,
+      fontSize: screen.cardLiveMaxPixel,
       color: (!infMode &&
                   game.getDetectBoardSolvedByRow(boardNumber, rowOfIndex)) ||
               rowOfIndex < game.getFirstVisualRowToShowOnBoard(boardNumber)
           ? Colors.transparent // bg //"hide" after being solved
-          : highlightedBoard == -1
+          : game.getHighlightedBoard() == -1
               ? Colors.white
-              : highlightedBoard == boardNumber
+              : game.getHighlightedBoard() == boardNumber
                   ? Colors.white
                   : offWhite,
       fontWeight: FontWeight.bold,
