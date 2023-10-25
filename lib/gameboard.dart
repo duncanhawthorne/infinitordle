@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:infinitordle/helper.dart';
 import 'dart:math';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/game_logic.dart';
-import 'package:infinitordle/card_colors.dart';
-import 'package:infinitordle/card_flips.dart';
 
 Widget gameboardWidget(boardNumber) {
   return ClipRRect(
@@ -72,14 +69,14 @@ Widget _positionedCard(index, boardNumber, val, bf) {
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
   // and move visual cards back to original position instantly
-  int speedOfSlide = temporaryVisualOffsetForSlide;
+  int speedOfSlide = game.getTemporaryVisualOffsetForSlide();
   return Stack(
     clipBehavior: Clip.none,
     children: [
       AnimatedPositioned(
         curve: Curves.fastOutSlowIn,
         duration: Duration(milliseconds: speedOfSlide * durMult * 200),
-        top: -cardLiveMaxPixel * temporaryVisualOffsetForSlide,
+        top: -cardLiveMaxPixel * game.getTemporaryVisualOffsetForSlide(),
         child: _sizedCard(index, boardNumber, val, bf),
       ),
     ],

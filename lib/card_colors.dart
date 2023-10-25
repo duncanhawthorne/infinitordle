@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/game_logic.dart';
+import 'package:infinitordle/helper.dart';
 import 'dart:math';
 
 class CardColors {
@@ -159,4 +159,4 @@ class CardColors {
   }
 }
 
-CardColors cardColors = CardColors();
+

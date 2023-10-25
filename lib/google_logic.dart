@@ -3,8 +3,6 @@
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/secrets.dart';
-import 'package:infinitordle/game_logic.dart';
-import 'package:infinitordle/saves.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 Future<void> gSignIn() async {

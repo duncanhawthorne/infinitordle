@@ -3,11 +3,9 @@ import 'package:infinitordle/helper.dart';
 
 import 'dart:math';
 import 'dart:convert';
-import 'package:infinitordle/saves.dart';
-import 'package:infinitordle/card_colors.dart';
-import 'package:infinitordle/card_flips.dart';
 
 class Game {
+  //State to save
   var targetWords = []; //gets overridden by loadKeys()
   var enteredWords = [];
   var winRecordBoards = [];
@@ -17,7 +15,10 @@ class Game {
   bool expandingBoard = false;
   bool expandingBoardEver = false;
 
+  //Other state
   bool aboutToWinCache = false;
+  int temporaryVisualOffsetForSlide = 0;
+  String gameEncodedLast = "";
 
   void onKeyboardTapped(int index) {
     //var ss = globalFunctions[0];
@@ -359,7 +360,6 @@ class Game {
         winRecordBoards = gameTmp["winRecordBoards"] ?? [];
         firstKnowledge =
             gameTmp["firstKnowledge"] ?? getBlankFirstKnowledge(numBoards);
-
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
         expandingBoard = gameTmp["expandingBoard"] ?? false;
         expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
@@ -464,6 +464,23 @@ class Game {
   int getVisualCurrentRowInt() {
     return enteredWords.length - getPushOffBoardRows();
   }
+
+  String getTargetWord() {
+    return finalWords[random.nextInt(finalWords.length)];
+  }
+
+  List getTargetWords(numberOfBoards) {
+    var starterList = [];
+    for (var i = 0; i < numberOfBoards; i++) {
+      starterList.add(getTargetWord());
+    }
+    return starterList;
+  }
+
+  int getTemporaryVisualOffsetForSlide() {
+    return temporaryVisualOffsetForSlide;
+  }
+
 }
 
-Game game = Game();
+

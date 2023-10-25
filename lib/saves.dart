@@ -1,6 +1,5 @@
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/game_logic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -23,7 +22,7 @@ class Save {
     final prefs = await SharedPreferences.getInstance();
     String gameEncoded = "";
 
-    if (gUser == gUserDefault) {
+    if (!signedIn()) {
       //load from local save
       gameEncoded = prefs.getString('game') ?? "";
     } else {
@@ -55,7 +54,7 @@ class Save {
   }
 
   Future<void> firebasePush(state) async {
-    if (gUser != gUserDefault) {
+    if (signedIn()) {
       // Create a new user with a first and last name
       final dhState = <String, dynamic>{"data": state};
       db
@@ -84,4 +83,4 @@ class Save {
   }
 }
 
-Save save = Save();
+

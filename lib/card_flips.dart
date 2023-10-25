@@ -1,5 +1,4 @@
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/game_logic.dart';
 import 'package:infinitordle/helper.dart';
 
 class Flips {
@@ -57,4 +56,4 @@ class Flips {
   }
 }
 
-Flips flips = Flips();
+

@@ -9,9 +9,6 @@ import 'firebase_options.dart';
 import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/app_structure.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:infinitordle/game_logic.dart';
-import 'package:infinitordle/saves.dart';
-import 'package:infinitordle/card_flips.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,7 +81,7 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
-    detectAndUpdateForScreenSize(context);
+    screen.detectAndUpdateForScreenSize(context);
 
     //game.fixOffsetRollBackAndExtraRows();
     //flips.initiateFlipState();
@@ -93,7 +90,7 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget streamBuilderWrapperOnDocument() {
-    if (gUser == gUserDefault) {
+    if (!signedIn()) {
       return _scaffold();
     } else {
       return StreamBuilder<DocumentSnapshot>(
@@ -109,7 +106,7 @@ class _InfinitordleState extends State<Infinitordle> {
             if (userDocument != null && userDocument.exists) {
               String snapshotCurrent = userDocument["data"];
               //print(snapshotCurrent);
-              if (gUser != gUserDefault && snapshotCurrent != snapshotLast) {
+              if (signedIn() && snapshotCurrent != snapshotLast) {
                 if (snapshotCurrent != game.getEncodeCurrentGameState()) {
                   game.loadFromEncodedState(snapshotCurrent);
                 }
@@ -153,7 +150,7 @@ class _InfinitordleState extends State<Infinitordle> {
                 fontSize: appBarHeight * 40 / 56,
               ),
               children: <TextSpan>[
-                TextSpan(text: appTitle1),
+                const TextSpan(text: appTitle1),
                 TextSpan(
                     text: infText,
                     style: TextStyle(
@@ -161,7 +158,7 @@ class _InfinitordleState extends State<Infinitordle> {
                             numberWinsCache == 0 || game.getExpandingBoardEver()
                                 ? Colors.white
                                 : green)),
-                TextSpan(text: appTitle3),
+                const TextSpan(text: appTitle3),
               ],
             ),
           ),
@@ -186,7 +183,7 @@ class _InfinitordleState extends State<Infinitordle> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(appTitle),
+              const Text(appTitle),
               SizedBox(
                 width: 90,
                 //height: 0,
@@ -223,11 +220,11 @@ class _InfinitordleState extends State<Infinitordle> {
                     ),
                     const SizedBox(width: 20),
                     Tooltip(
-                      message: gUser == gUserDefault ? "Sign in" : "Sign out",
+                      message: !signedIn() ? "Sign in" : "Sign out",
                       child: GestureDetector(
                           onTap: () {
                             setState(() {
-                              if (gUser == gUserDefault) {
+                              if (!signedIn()) {
                                 gSignIn();
                                 Navigator.pop(context, 'OK');
                               } else {
@@ -236,7 +233,7 @@ class _InfinitordleState extends State<Infinitordle> {
                               focusNode.requestFocus();
                             });
                           },
-                          child: gUser == gUserDefault
+                          child: !signedIn()
                               ? const Icon(Icons.lock, color: bg)
                               : gUserIcon == gUserIconDefault
                                   ? const Icon(Icons.face, color: bg)

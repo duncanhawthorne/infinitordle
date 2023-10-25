@@ -8,9 +8,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 const bool cheatMode = false; //
 
 //Branding
-String appTitle = "infinitordle";
-String appTitle1 = cheatMode ? "cheat" : "infinit";
-String appTitle3 = "rdle";
+const String appTitle = "infinitordle";
+const String appTitle1 = cheatMode ? "cheat" : "infinit";
+const String appTitle3 = "rdle";
 const bg = Color(0xff222222);
 const grey = Color(0xff555555);
 const offWhite = Color(0xff999999);
@@ -20,14 +20,14 @@ const green = Colors.green;
 //Game design
 const numBoards = 4;
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
-bool infMode = true;
+const bool infMode = true;
 const infNumBacksteps = 1;
 const double boardSpacer = 8;
 
 //Helper text
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm> ".split("");
 //final keyboardList = "mapresc<>".split("");
-var cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
+const cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
 const cheatTargetWordsInitial = ["scoff", "brunt", "armor", "tabby"];
 final legalWords = kLegalWordsText.split("\n");
 final finalWords = kFinalWordsText.split("\n");
@@ -41,10 +41,9 @@ const noAnimations = false; //guc true && isWebMobileReal;
 const int durMult = noAnimations ? 0 : 1;
 const int delayMult = noAnimations ? 0 : 1;
 const gradualRevealDelay = delayMult * (durMult == 1 ? 100 : 250);
-int flipTimeOverrideFactor = 1;
+//int flipTimeOverrideFactor = 1;
 
-//Visual state of the game
-int temporaryVisualOffsetForSlide = 0;
+//Volatile visual state of the game
 var highlightedBoard = -1;
 
 //Volatile helpers for state of the game
@@ -57,31 +56,23 @@ bool backspaceSafeCache = true;
 const double dividerHeight = 2;
 const double keyAspectRatioDefault = 1.5;
 
-//Volatile default values for sizing
-double vertSpaceForGameboard = -1;
-double vertSpaceForCardWithWrap = -1;
-double horizSpaceForCardNoWrap = -1;
-int numPresentationBigRowsOfBoards = -1;
-double cardLiveMaxPixel = -1;
-double scW = -1;
-double scH = -1;
-double vertSpaceAfterTitle = -1;
-double keyboardSingleKeyLiveMaxPixelHeight = -1;
 double appBarHeight = -1;
+double cardLiveMaxPixel = -1;
 double keyAspectRatioLive = -1;
+double keyboardSingleKeyLiveMaxPixelHeight = -1;
+int numPresentationBigRowsOfBoards = -1;
 
-bool debugFakeLogin = false;
-var gUserDefault = "JoeBloggs";
+const bool debugFakeLogin = false;
+const String gUserDefault = "JoeBloggs";
+const String gUserIconDefault = "JoeBloggs";
 var gUser = "JoeBloggs";
-var gUserIconDefault = "JoeBloggs";
 var gUserIcon = "JoeBloggs";
 
-var db = FirebaseFirestore.instance;
-String gameEncodedLast = "";
+FirebaseFirestore db = FirebaseFirestore.instance;
 String snapshotLast = "XXXXXXX";
 
 //Misc
-Random random = Random();
+final Random random = Random();
 var globalFunctions = [];
 
 void ss() {

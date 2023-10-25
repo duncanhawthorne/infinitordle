@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/keyboard.dart';
 import 'package:infinitordle/gameboard.dart';
-import 'package:infinitordle/game_logic.dart';
+import 'package:infinitordle/helper.dart';
 
 FocusNode focusNode = FocusNode();
 
