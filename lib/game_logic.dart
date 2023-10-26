@@ -288,20 +288,18 @@ class Game {
     return log;
   }
 
-  bool onStreakCache = false;
-  int onStreakTestedStateCache = 0;
+  var streakCache = {};
   bool getIsStreak() {
-    if (onStreakTestedStateCache == saveOrLoadKeysCountCache) {
-      return onStreakCache;
-    } else {
-      //blank the cache
-      onStreakTestedStateCache = saveOrLoadKeysCountCache;
-      onStreakCache = false;
+    if (!streakCache.containsKey(winRecordBoards.length)) {
+      streakCache = {}; //reset cache
+      streakCache[winRecordBoards.length] = isStreakReal();
     }
+    return streakCache[winRecordBoards.length];
+  }
 
+  bool isStreakReal() {
     bool isStreak = true;
-
-    if (winRecordBoards.isEmpty) {
+    if (winRecordBoards.length < 3) {
       isStreak = false;
     } else {
       for (int q = 0; q < 3; q++) {
@@ -314,8 +312,6 @@ class Game {
         }
       }
     }
-    onStreakCache = isStreak;
-
     return isStreak;
   }
 
@@ -350,10 +346,10 @@ class Game {
         gameTmp = json.decode(gameEncoded);
 
         String tmpgUser = gameTmp["gUser"] ?? "Default";
-        if (tmpgUser != google.getgUser() && tmpgUser != "Default") {
+        if (tmpgUser != g.getUser() && tmpgUser != "Default") {
           //print("redoing load keys");
           //Error state, so set gUser properly and redo loadKeys from firebase
-          google.setgUser(tmpgUser);
+          g.setUser(tmpgUser);
           save.loadKeys();
           return;
         }
@@ -388,7 +384,7 @@ class Game {
     Map<String, dynamic> gameTmp = {};
     gameTmp = {};
     gameTmp["targetWords"] = targetWords;
-    gameTmp["gUser"] = google.getgUser();
+    gameTmp["gUser"] = g.getUser();
 
     gameTmp["enteredWords"] = enteredWords;
     gameTmp["winRecordBoards"] = winRecordBoards;
@@ -491,7 +487,4 @@ class Game {
   void setHighlightedBoard(hb) {
     highlightedBoard = hb;
   }
-
 }
-
-

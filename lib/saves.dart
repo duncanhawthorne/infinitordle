@@ -8,29 +8,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Save {
   Future<void> loadUser() async {
     final prefs = await SharedPreferences.getInstance();
-    google.setgUser(prefs.getString('gUser') ?? gUserDefault);
-    google.setgUserIcon(prefs.getString('gUserIcon') ?? gUserIconDefault);
-    p(["loadUser", google.getgUser(), google.getgUserIcon()]);
+    g.setUser(prefs.getString('gUser') ?? gUserDefault);
+    g.setUserIcon(prefs.getString('gUserIcon') ?? gUserIconDefault);
+    p(["loadUser", g.getUser(), g.getUserIcon()]);
   }
 
   Future<void> saveUser() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('gUser', google.getgUser());
-    await prefs.setString('gUserIcon', google.getgUserIcon());
-    p(["saveUser", google.getgUser(), google.getgUserIcon()]);
+    await prefs.setString('gUser', g.getUser());
+    await prefs.setString('gUserIcon', g.getUserIcon());
+    p(["saveUser", g.getUser(), g.getUserIcon()]);
   }
 
   Future<void> loadKeys() async {
     final prefs = await SharedPreferences.getInstance();
     String gameEncoded = "";
 
-    if (!google.signedIn()) {
+    if (!g.signedIn()) {
       //load from local save
       gameEncoded = prefs.getString('game') ?? "";
     } else {
       //load from firebase
       gameEncoded = "";
-      final docRef = db.collection("states").doc(google.getgUser());
+      final docRef = db.collection("states").doc(g.getUser());
       await docRef.get().then(
         (DocumentSnapshot doc) {
           final gameEncodedTmp = doc.data() as Map<String, dynamic>;
@@ -56,12 +56,12 @@ class Save {
   }
 
   Future<void> firebasePush(state) async {
-    if (google.signedIn()) {
+    if (g.signedIn()) {
       // Create a new user with a first and last name
       final dhState = <String, dynamic>{"data": state};
       db
           .collection("states")
-          .doc(google.getgUser())
+          .doc(g.getUser())
           .set(dhState)
           // ignore: avoid_print
           .onError((e, _) => print("Error writing document: $e"));
@@ -72,7 +72,7 @@ class Save {
     String snapshotCurrent = "";
     snapshot.data!.docs
         .map((DocumentSnapshot document) {
-          if (document.id == google.getgUser()) {
+          if (document.id == g.getUser()) {
             Map<String, dynamic> dataTmpQ =
                 document.data() as Map<String, dynamic>;
             snapshotCurrent = dataTmpQ["data"].toString();
@@ -84,5 +84,3 @@ class Save {
     return snapshotCurrent;
   }
 }
-
-

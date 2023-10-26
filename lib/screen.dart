@@ -1,13 +1,9 @@
-
 import 'package:infinitordle/constants.dart';
 
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-
-
 class Screen {
-
   //Variables used outside of class
   double appBarHeight = -1;
   double cardLiveMaxPixel = -1;
@@ -38,7 +34,8 @@ class Screen {
       vertSpaceAfterTitle =
           scH - appBarHeight - dividerHeight; //app bar and divider
 
-      keyboardSingleKeyLiveMaxPixelHeight = min(keyAspectRatioDefault * scW / 10,
+      keyboardSingleKeyLiveMaxPixelHeight = min(
+          keyAspectRatioDefault * scW / 10,
           keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3); //
       vertSpaceForGameboard =
           vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
@@ -68,10 +65,10 @@ class Screen {
         keyboardSingleKeyLiveMaxPixelHeight = min(
             keyAspectRatioDefault * scW / 10,
             (vertSpaceAfterTitle -
-                cardLiveMaxPixel *
-                    numRowsPerBoard *
-                    numPresentationBigRowsOfBoards +
-                numSpacersDown * boardSpacer) /
+                    cardLiveMaxPixel *
+                        numRowsPerBoard *
+                        numPresentationBigRowsOfBoards +
+                    numSpacersDown * boardSpacer) /
                 3);
       }
     }
@@ -79,6 +76,4 @@ class Screen {
     keyAspectRatioLive =
         max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
   }
-
 }
-

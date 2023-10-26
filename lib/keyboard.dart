@@ -5,7 +5,9 @@ import 'package:infinitordle/helper.dart';
 Widget keyboardRowWidget(keyBoardStartKey, length) {
   return Container(
     constraints: BoxConstraints(
-        maxWidth: screen.keyboardSingleKeyLiveMaxPixelHeight * 10 / screen.keyAspectRatioLive,
+        maxWidth: screen.keyboardSingleKeyLiveMaxPixelHeight *
+            10 /
+            screen.keyAspectRatioLive,
         maxHeight: screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(), //ios fix
@@ -24,8 +26,8 @@ Widget _kbStackWithMiniGrid(index, length) {
   return Container(
     padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: ClipRRect(
-      borderRadius:
-          BorderRadius.circular(0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight),
+      borderRadius: BorderRadius.circular(
+          0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight),
       //borderRadius: BorderRadius.circular(10),
       child: Stack(
         children: [

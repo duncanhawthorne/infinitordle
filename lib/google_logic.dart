@@ -6,7 +6,6 @@ import 'package:infinitordle/secrets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class Google {
-
   var gUser = "JoeBloggs";
   var gUserIcon = "JoeBloggs";
 
@@ -14,23 +13,23 @@ class Google {
     return gUser != gUserDefault;
   }
 
-  String getgUser() {
+  String getUser() {
     return gUser;
   }
 
-  void setgUser(g) {
+  void setUser(g) {
     gUser = g;
   }
 
-  String getgUserIcon() {
+  String getUserIcon() {
     return gUserIcon;
   }
 
-  void setgUserIcon(gui) {
+  void setUserIcon(gui) {
     gUserIcon = gui;
   }
 
-  Future<void> gSignIn() async {
+  Future<void> signIn() async {
     //var ss = globalFunctions[0];
     p("gSignIn()");
 
@@ -56,7 +55,7 @@ class Google {
     ss();
   }
 
-  Future<void> gSignOut() async {
+  Future<void> signOut() async {
     if (debugFakeLogin) {
     } else {
       await googleSignIn.disconnect();
@@ -68,4 +67,4 @@ class Google {
   }
 }
 
-Google google = Google();
+Google g = Google();

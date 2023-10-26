@@ -23,39 +23,34 @@ bool isListContains(list, bit) {
   //return list.contains(bit);
 }
 
-bool isLegalWord(word) {
-  if (word.length != 5) {
-    return false;
+// Memoisation
+class LegalWord {
+  var cache = {};
+  bool call(String word) {
+    if (word.length != 5) {
+      return false;
+    }
+    if (!cache.containsKey(word)) {
+      if (cache.length > 5) {
+        //reset cache
+        cache = {};
+      }
+      cache[word] = isListContains(legalWords, word);
+    }
+    return cache[word]!;
   }
-  return isListContains(legalWords, word);
-  /*
-  if (legalWordTestedWordCache == word) {
-    return oneLegalWordForRedCardsCache;
-  } else {
-    //blank the cache
-    legalWordTestedWordCache = word;
-    oneLegalWordForRedCardsCache = false;
-  }
-
-  bool answer = isListContains(legalWords, word);
-  oneLegalWordForRedCardsCache = answer;
-
-  return answer;
-   */
 }
+
+LegalWord isLegalWord = LegalWord();
 
 void p(x) {
   //dev.log(x.toString());
   debugPrint("///// A " + x.toString());
 }
 
-
-
 List getBlankFirstKnowledge(numberOfBoards) {
   return List.filled(numberOfBoards, 0);
 }
-
-
 
 void fixTitle() {
   //https://github.com/flutter/flutter/issues/98248

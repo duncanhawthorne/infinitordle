@@ -91,11 +91,11 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Widget streamBuilderWrapperOnDocument() {
-    if (!google.signedIn()) {
+    if (!g.signedIn()) {
       return _scaffold();
     } else {
       return StreamBuilder<DocumentSnapshot>(
-        stream: db.collection('states').doc(google.getgUser()).snapshots(),
+        stream: db.collection('states').doc(g.getUser()).snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError || !snapshot.hasData) {
@@ -107,7 +107,7 @@ class _InfinitordleState extends State<Infinitordle> {
             if (userDocument != null && userDocument.exists) {
               String snapshotCurrent = userDocument["data"];
               //print(snapshotCurrent);
-              if (google.signedIn() && snapshotCurrent != snapshotLast) {
+              if (g.signedIn() && snapshotCurrent != snapshotLast) {
                 if (snapshotCurrent != game.getEncodeCurrentGameState()) {
                   game.loadFromEncodedState(snapshotCurrent);
                 }
@@ -221,12 +221,12 @@ class _InfinitordleState extends State<Infinitordle> {
                     ),
                     const SizedBox(width: 20),
                     Tooltip(
-                      message: !google.signedIn() ? "Sign in" : "Sign out",
+                      message: !g.signedIn() ? "Sign in" : "Sign out",
                       child: GestureDetector(
                           onTap: () {
                             setState(() {
-                              if (!google.signedIn()) {
-                                google.gSignIn();
+                              if (!g.signedIn()) {
+                                g.signIn();
                                 Navigator.pop(context, 'OK');
                               } else {
                                 showLogoutConfirmationScreen(context);
@@ -234,13 +234,13 @@ class _InfinitordleState extends State<Infinitordle> {
                               focusNode.requestFocus();
                             });
                           },
-                          child: !google.signedIn()
+                          child: !g.signedIn()
                               ? const Icon(Icons.lock, color: bg)
-                              : google.getgUserIcon() == gUserIconDefault
+                              : g.getUserIcon() == gUserIconDefault
                                   ? const Icon(Icons.face, color: bg)
                                   : CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                          google.getgUserIcon())) //  GoogleUserCircleAvatar(identity: currentUser)
+                                      backgroundImage: NetworkImage(g
+                                          .getUserIcon())) //  GoogleUserCircleAvatar(identity: currentUser)
                           ),
                     )
                   ],
@@ -298,7 +298,7 @@ class _InfinitordleState extends State<Infinitordle> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Do you want to sign out?"),
-          content: Text("Signed in as " + google.getgUser()),
+          content: Text("Signed in as " + g.getUser()),
           actions: <Widget>[
             TextButton(
               onPressed: () => {Navigator.pop(context, 'Cancel')},
@@ -306,7 +306,7 @@ class _InfinitordleState extends State<Infinitordle> {
             ),
             TextButton(
               onPressed: () => {
-                google.gSignOut(),
+                g.signOut(),
                 Navigator.pop(context, 'OK'),
                 Navigator.pop(context, 'OK'),
                 setState(() {})

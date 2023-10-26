@@ -64,5 +64,3 @@ void ss() {
 void showResetConfirmScreen() {
   globalFunctions[1]();
 }
-
-
