@@ -1,9 +1,9 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/secrets.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class Google {
   var gUser = "JoeBloggs";
@@ -30,7 +30,6 @@ class Google {
   }
 
   Future<void> signIn() async {
-    //var ss = globalFunctions[0];
     p("gSignIn()");
 
     GoogleSignInAccount? user;
@@ -62,7 +61,7 @@ class Google {
     }
     gUser = gUserDefault;
     await save.saveUser();
-    game.resetBoard(true);
+    game.resetBoard();
     await save.loadKeys();
   }
 }

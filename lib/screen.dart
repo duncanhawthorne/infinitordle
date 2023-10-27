@@ -1,7 +1,6 @@
-import 'package:infinitordle/constants.dart';
-
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:infinitordle/constants.dart';
 
 class Screen {
   //Variables used outside of class

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:infinitordle/wordlist.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:infinitordle/wordlist.dart';
 
 //Debug
 const bool cheatMode = false; //
@@ -18,7 +18,7 @@ const amber = Colors.amber;
 const green = Colors.green;
 
 //Game design
-const numBoards = 4;
+const numBoards = 4; //must be divisible by 2
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
 const bool infMode = true;
 const infNumBacksteps = 1;

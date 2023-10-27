@@ -1,6 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:infinitordle/helper.dart';
-import 'dart:math';
 import 'package:infinitordle/constants.dart';
 
 Widget gameboardWidget(boardNumber) {
@@ -10,7 +10,6 @@ Widget gameboardWidget(boardNumber) {
           color: Colors.transparent,
           child: InkWell(
               onTap: () {
-                //var ss = globalFunctions[0];
                 if (game.getHighlightedBoard() == boardNumber) {
                   game.setHighlightedBoard(-1); //if already set turn off
                 } else {
@@ -20,9 +19,9 @@ Widget gameboardWidget(boardNumber) {
               },
               child: Container(
                 constraints: BoxConstraints(
-                    maxWidth: 5 * screen.cardLiveMaxPixel, //*0.97
+                    maxWidth: 5 * screen.cardLiveMaxPixel,
                     maxHeight:
-                        numRowsPerBoard * screen.cardLiveMaxPixel), //*0.97
+                        numRowsPerBoard * screen.cardLiveMaxPixel),
                 child: GridView.builder(
                     cacheExtent:
                         10000, //prevents top card reloading (and flipping) on scroll
@@ -102,9 +101,6 @@ Widget _card(index, boardNumber, val, bf) {
     child: ClipRRect(
       borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
       child: Container(
-        //padding: const EdgeInsets.all(1),
-        //height: 500, //oversize so it renders in full and so doesn't pixelate
-        //width: 500, //oversize so it renders in full and so doesn't pixelate
         decoration: BoxDecoration(
             border: Border.all(
                 color: bf == "b"
@@ -146,15 +142,6 @@ Widget _cardText(index, boardNumber) {
   return Text(
     game.getCardLetterAtIndex(index).toUpperCase(),
     style: TextStyle(
-      /*
-        shadows: const <Shadow>[
-          Shadow(
-            offset: Offset(0, 0),
-            blurRadius: 1.0,
-            color: bg,
-          ),
-        ],
-         */
       fontSize: screen.cardLiveMaxPixel,
       color: (!infMode &&
                   game.getDetectBoardSolvedByRow(boardNumber, rowOfIndex)) ||

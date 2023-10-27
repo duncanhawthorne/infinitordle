@@ -1,15 +1,15 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'package:flutter/material.dart';
-import 'package:infinitordle/helper.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/globals.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/app_structure.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:infinitordle/helper.dart';
+import 'package:infinitordle/constants.dart';
+import 'package:infinitordle/globals.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,15 +57,11 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
     super.initState();
-    //fbInit();
-    game.resetBoard(false);
+    game.initiateBoard();
     save.loadUser();
     save.loadKeys();
     globalFunctions.add(ss);
     globalFunctions.add(showResetConfirmScreen);
-
-    //usersStream = db.collection('states').snapshots();
-
     setState(() {});
     for (int i = 0; i < 10; i++) {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
@@ -83,10 +79,6 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   Widget build(BuildContext context) {
     screen.detectAndUpdateForScreenSize(context);
-
-    //game.fixOffsetRollBackAndExtraRows();
-    //flips.initiateFlipState();
-
     return streamBuilderWrapperOnDocument();
   }
 
@@ -137,7 +129,6 @@ class _InfinitordleState extends State<Infinitordle> {
     var infText = numberWinsCache == 0
         ? "o"
         : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
-    //String extra = isStreak() ? "🔥" : "";
     return GestureDetector(
         onTap: () {
           showResetConfirmScreen();
@@ -174,8 +165,6 @@ class _InfinitordleState extends State<Infinitordle> {
         game.getVisualCurrentRowInt() >= game.getLiveNumRowsPerBoard()) {
       end = true;
     }
-    //var _helperText =  "Solve 4 boards at once. \n\nWhen you solve a board, the target word will be changed, and you get an extra guess.\n\nCan you keep going forever and reach infinitordle?\n\n";
-
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -187,7 +176,6 @@ class _InfinitordleState extends State<Infinitordle> {
               const Text(appTitle),
               SizedBox(
                 width: 90,
-                //height: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -207,7 +195,6 @@ class _InfinitordleState extends State<Infinitordle> {
                               flips.initiateFlipState();
                               save.saveKeys();
                               focusNode.requestFocus();
-
                               Navigator.pop(context, 'Cancel');
                               ss();
                             });
@@ -277,7 +264,7 @@ class _InfinitordleState extends State<Infinitordle> {
             ),
             TextButton(
               onPressed: () => {
-                game.resetBoard(true),
+                game.resetBoard(),
                 focusNode.requestFocus(),
                 Navigator.pop(context, 'OK'),
                 setState(() {})

@@ -1,14 +1,14 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'package:flutter/material.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
+import 'package:collection/collection.dart';
 import 'package:infinitordle/card_flips.dart';
 import 'package:infinitordle/card_colors.dart';
 import 'package:infinitordle/saves.dart';
 import 'package:infinitordle/game_logic.dart';
 import 'package:infinitordle/screen.dart';
+import 'package:infinitordle/constants.dart';
 
 Game game = Game();
 Save save = Save();

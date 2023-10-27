@@ -1,21 +1,34 @@
+import 'dart:math';
+import 'dart:convert';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/google_logic.dart';
 
-import 'dart:math';
-import 'dart:convert';
-
 class Game {
   //State to save
-  var targetWords = []; //gets overridden by loadKeys()
-  var enteredWords = [];
-  var winRecordBoards = [];
-  var currentTyping = "";
-  var firstKnowledge = [];
-  int pushUpSteps = 0;
+  List<dynamic> targetWords = ["x"]; //gets overridden by loadKeys()
+  List<dynamic> enteredWords = ["x"];
+  var winRecordBoards = [-1];
+  var currentTyping = "x";
+  List<dynamic> firstKnowledge = ["x"];
+  int pushUpSteps = -1;
   bool expandingBoard = false;
   bool expandingBoardEver = false;
+
+  void initiateBoard() {
+    targetWords = getTargetWords(numBoards);
+    enteredWords = [];
+    winRecordBoards = [];
+    currentTyping = "";
+    firstKnowledge = getBlankFirstKnowledge(numBoards);
+    pushUpSteps = 0;
+    expandingBoard = false;
+    expandingBoardEver = false;
+    if (cheatMode) {
+      cheatInitiate();
+    }
+  }
 
   //Other state
   bool aboutToWinCache = false;
@@ -24,8 +37,6 @@ class Game {
   int highlightedBoard = -1;
 
   void onKeyboardTapped(int index) {
-    //var ss = globalFunctions[0];
-    //var showResetConfirmScreen = globalFunctions[1];
     String letter = keyboardList[index];
 
     printCheatTargetWords();
@@ -68,7 +79,7 @@ class Game {
           aboutToWinCache = false;
           int winningBoard = -1; //local variable to ensure threadsafe
           for (var board = 0; board < numBoards; board++) {
-            if (targetWords[board] == enteredWordLocal) {
+            if (getTargetWordForBoard(board) == enteredWordLocal) {
               //(detectBoardSolvedByRow(board, currentWord)) {
               //threadsafeBlockNewWord = true;
               isWin = true;
@@ -178,15 +189,8 @@ class Game {
 
   void takeOneStepBack() {
     //Erase a row and step back
-    for (var j = 0; j < infNumBacksteps; j++) {
-      //Reverse flip the card on the next row back to backside (after earlier having flipped them the right way)
-      pushUpSteps++;
-      //for (var j = 0; j < 5; j++) {
-      //  flipCard(getVisualCurrentRowInt() * 5 + j, "b");
-      //}
-    }
-    flips
-        .initiateFlipState(); //in case anything is in the wrong state, fix here
+    pushUpSteps++;
+    flips.initiateFlipState(); //fix any loose states
     save.saveKeys();
   }
 
@@ -205,44 +209,26 @@ class Game {
     save.saveKeys();
   }
 
-  void resetBoard(shouldSave) {
+  void cheatInitiate() {
+    //Speed initialise known entries using cheat mode for debugging
+    for (var j = 0; j < numBoards; j++) {
+      if (cheatTargetWordsInitial.length > j) {
+        targetWords[j] = cheatTargetWordsInitial[j];
+      } else {
+        targetWords[j] = getTargetWord();
+      }
+    }
+    for (var j = 0; j < cheatEnteredWordsInitial.length; j++) {
+      enteredWords.add(cheatEnteredWordsInitial[j]);
+      winRecordBoards.add(-1);
+    }
+  }
+
+  void resetBoard() {
     p("Reset board");
-    //initialise on reset
-    enteredWords = [];
-    currentTyping = "";
-    winRecordBoards = [];
-    pushUpSteps = 0;
-
-    targetWords = getTargetWords(numBoards);
-    firstKnowledge = getBlankFirstKnowledge(numBoards);
-
-    expandingBoard = false;
-    expandingBoardEver = false;
-
-    //speed initialise entries using cheat mode for debugging
-    if (cheatMode) {
-      for (var j = 0; j < numBoards; j++) {
-        if (cheatTargetWordsInitial.length > j) {
-          targetWords[j] = cheatTargetWordsInitial[j];
-        } else {
-          targetWords[j] = getTargetWord();
-        }
-      }
-      for (var j = 0; j < cheatEnteredWordsInitial.length; j++) {
-        enteredWords.add(cheatEnteredWordsInitial[j]);
-        winRecordBoards.add(-1);
-      }
-    }
-
+    initiateBoard();
     flips.initiateFlipState();
-
-    if (shouldSave) {
-      p("Reset board called with instruction to save keys, and now saving keys");
-      save.saveKeys();
-    } else {
-      //only runs at startup
-      saveOrLoadKeysCountCache++;
-    }
+    save.saveKeys();
   }
 
   String getCardLetterAtIndex(index) {
@@ -335,11 +321,8 @@ class Game {
   }
 
   void loadFromEncodedState(gameEncoded) {
-    //print("loadKeysReal"+gameEncoded);
     if (gameEncoded == "") {
-      //first time through or error state
-      //print("ge empty");
-      //resetBoardReal(true);
+      p(["loadFromEncodedState empty"]);
     } else if (gameEncoded != gameEncodedLast) {
       try {
         Map<String, dynamic> gameTmp = {};
@@ -347,7 +330,6 @@ class Game {
 
         String tmpgUser = gameTmp["gUser"] ?? "Default";
         if (tmpgUser != g.getUser() && tmpgUser != "Default") {
-          //print("redoing load keys");
           //Error state, so set gUser properly and redo loadKeys from firebase
           g.setUser(tmpgUser);
           save.loadKeys();
@@ -371,7 +353,7 @@ class Game {
         }
         //TRANSITIONARY logic from old variable naming convention
       } catch (error) {
-        p(["ERROR", error]);
+        p(["loadFromEncodedState error", error]);
         //resetBoardReal(true);
       }
       flips.initiateFlipState();
@@ -416,10 +398,6 @@ class Game {
     return aboutToWinCache;
   }
 
-  String getTargetWordForBoard(boardNumber) {
-    return targetWords[boardNumber];
-  }
-
   int getPushOffBoardRows() {
     if (expandingBoard) {
       return firstKnowledge.cast<int>().reduce(min);
@@ -430,6 +408,15 @@ class Game {
 
   int getExtraRows() {
     return pushUpSteps - getPushOffBoardRows();
+  }
+
+  String getTargetWordForBoard(boardNumber) {
+    if (boardNumber < targetWords.length) {
+    } else {
+      p("getCurrentTargetWordForBoard error");
+      targetWords = getTargetWords(numBoards);
+    }
+    return targetWords[boardNumber];
   }
 
   bool getExpandingBoard() {
@@ -453,7 +440,13 @@ class Game {
   }
 
   int getFirstVisualRowToShowOnBoard(boardNumber) {
-    return firstKnowledge[boardNumber] - getPushOffBoardRows();
+    if (boardNumber < firstKnowledge.length) {
+      return firstKnowledge[boardNumber] - getPushOffBoardRows();
+    } else {
+      firstKnowledge = getBlankFirstKnowledge(numBoards);
+      p("getFirstVisualRowToShowOnBoard error");
+      return 0;
+    }
   }
 
   int getAbsoluteRowFromBoardRow(rowOfIndex) {

@@ -1,8 +1,8 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/helper.dart';
-import 'dart:math';
 
 class CardColors {
   var cardColorsCache = [];
@@ -99,10 +99,6 @@ class CardColors {
     }
 
     Color? answer;
-    //if (index ~/ 5 < game.getFirstVisualRowToShowOnBoard(boardNumber)) {
-    //  answer = Colors.transparent;
-    //}
-    //else
     if (index >= getVisualCurrentRowInt() * 5) {
       answer = Colors.transparent; //grey; //later rows
     } else {

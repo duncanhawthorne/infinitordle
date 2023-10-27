@@ -17,10 +17,8 @@ class Flips {
 
   void gradualRevealRow(row) {
     //flip to reveal the colors with pleasing animation
-    //var ss = globalFunctions[0];
     //var gradualRevealDelay = delayMult * (durMult == 1 ? 100 : 250);
     for (int i = 0; i < 5; i++) {
-      //delayedFlipOnCard(row, i);
       Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
         if (game.getCardLetterAtIndex(row * 5 + i) != "") {
           //if have stepped back during delay may end up flipping wrong card so do this safety test
@@ -41,7 +39,6 @@ class Flips {
         flipCard(j, "b");
       }
     }
-    //ap(cardFlipAngles);
   }
 
   void flipCard(index, toFOrB) {
