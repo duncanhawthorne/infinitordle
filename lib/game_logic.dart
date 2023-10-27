@@ -228,6 +228,7 @@ class Game {
     p("Reset board");
     initiateBoard();
     flips.initiateFlipState();
+    analytics.logLevelStart(levelName: "Reset");
     save.saveKeys();
   }
 

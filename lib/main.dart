@@ -5,6 +5,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/app_structure.dart';
 import 'package:infinitordle/helper.dart';
@@ -21,6 +22,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  analytics = FirebaseAnalytics.instance;
   db = FirebaseFirestore.instance;
   runApp(const MyApp());
 }

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:infinitordle/wordlist.dart';
 
 //Debug
@@ -52,6 +53,7 @@ const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
 
 FirebaseFirestore db = FirebaseFirestore.instance;
+FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 //Misc
 final Random random = Random();
