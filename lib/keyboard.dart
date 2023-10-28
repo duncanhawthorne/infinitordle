@@ -117,14 +117,14 @@ Widget _kbMiniGridContainer(index, length) {
       });
 }
 
-Widget _kbMiniSquareColor(index, subIndex) {
+Widget _kbMiniSquareColor(kbIndex, subIndex) {
   //return AnimatedContainer(
   //  duration: const Duration(milliseconds: 500),
   //  curve: Curves.fastOutSlowIn,
   return Container(
     height: 1000,
     decoration: BoxDecoration(
-      color: cardColors.getBestColorForLetter(index, subIndex),
+      color: cardColors.getBestColorForLetter(kbIndex, subIndex),
     ),
   );
 }

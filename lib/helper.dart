@@ -44,8 +44,17 @@ class LegalWord {
 LegalWord isLegalWord = LegalWord();
 
 void resetCaches() {
-  cardColors.resetColorsCache();
-  flips.initiateFlipState();
+  //cardColors.resetColorsCache();
+  //flips.initiateFlipState();
+}
+
+bool listEqual(a, b) {
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void p(x) {
@@ -66,4 +75,20 @@ void fixTitle() {
             .value //Theme.of(context).primaryColor.value, // This line is required
         ));
   }
+}
+
+int getABRowFromGBRow(gbRow) {
+  return gbRow + game.getPushOffBoardRows();
+}
+
+int getGBRowFromABRow(abRow) {
+  return abRow - game.getPushOffBoardRows();
+}
+
+int getABIndexFromGBIndex(gbIndex) {
+  return gbIndex + 5 * game.getPushOffBoardRows();
+}
+
+int getGBIndexFromABIndex(abIndex) {
+  return abIndex - 5 * game.getPushOffBoardRows();
 }

@@ -20,52 +20,49 @@ Widget gameboardWidget(boardNumber) {
               child: Container(
                 constraints: BoxConstraints(
                     maxWidth: 5 * screen.cardLiveMaxPixel,
-                    maxHeight:
-                        numRowsPerBoard * screen.cardLiveMaxPixel),
+                    maxHeight: numRowsPerBoard * screen.cardLiveMaxPixel),
                 child: GridView.builder(
                     cacheExtent:
                         10000, //prevents top card reloading (and flipping) on scroll
-                    reverse: game.getExpandingBoard() ? true : false,
+                    reverse: true, // game.getExpandingBoard() ? true : false,
                     physics: game.getExpandingBoard()
                         ? const AlwaysScrollableScrollPhysics()
                         : const NeverScrollableScrollPhysics(), //turns off ios scrolling
-                    itemCount: game.getLiveNumRowsPerBoard() * 5,
+                    itemCount: game.getGbLiveNumRowsPerBoard() * 5,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
                     ),
                     itemBuilder: (BuildContext context, int index) {
-                      return game.getExpandingBoard()
-                          ? _cardFlipper(
-                              (game.getLiveNumRowsPerBoard() - index ~/ 5 - 1) *
-                                      5 +
-                                  index % 5,
-                              boardNumber)
-                          : _cardFlipper(index, boardNumber);
+                      return _cardFlipper(
+                          (game.getAbLiveNumRowsPerBoard() - index ~/ 5 - 1) *
+                                  5 +
+                              index % 5,
+                          boardNumber);
                     }),
               ))));
 }
 
-Widget _cardFlipper(index, boardNumber) {
+Widget _cardFlipper(abIndex, boardNumber) {
   return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: flips.getFlipAngle(index)),
+      tween: Tween<double>(begin: 0, end: flips.getFlipAngle(abIndex)),
       duration: const Duration(milliseconds: durMult * 500),
       builder: (BuildContext context, double val, __) {
         return (Transform(
           alignment: Alignment.center,
           transform: Matrix4.identity()..rotateX(val * (2 * pi)),
           child: val <= 0.25
-              ? _card(index, boardNumber, val, "b")
+              ? _card(abIndex, boardNumber, val, "b")
               : Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()..rotateX(pi),
-                  child: _positionedCard(index, boardNumber, val, "f"),
+                  child: _positionedCard(abIndex, boardNumber, val, "f"),
                 ),
         ));
       });
 }
 
-Widget _positionedCard(index, boardNumber, val, bf) {
+Widget _positionedCard(abIndex, boardNumber, val, bf) {
   // if offset 1, do gradually. if offset 0, do instantaneously
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
@@ -78,23 +75,23 @@ Widget _positionedCard(index, boardNumber, val, bf) {
         curve: Curves.fastOutSlowIn,
         duration: Duration(milliseconds: speedOfSlide * durMult * 200),
         top: -screen.cardLiveMaxPixel * game.getTemporaryVisualOffsetForSlide(),
-        child: _sizedCard(index, boardNumber, val, bf),
+        child: _sizedCard(abIndex, boardNumber, val, bf),
       ),
     ],
   );
 }
 
-Widget _sizedCard(index, boardNumber, val, bf) {
+Widget _sizedCard(abIndex, boardNumber, val, bf) {
   return SizedBox(
     height: screen.cardLiveMaxPixel,
     width: screen.cardLiveMaxPixel,
-    child: _card(index, boardNumber, val, bf),
+    child: _card(abIndex, boardNumber, val, bf),
   );
 }
 
-Widget _card(index, boardNumber, val, bf) {
-  int rowOfIndex = index ~/ 5;
-  bool historicalWin = game.getTestHistoricalWin(rowOfIndex, boardNumber);
+Widget _card(abIndex, boardNumber, val, bf) {
+  int rowOfAbIndex = abIndex ~/ 5;
+  bool historicalWin = game.getTestHistoricalAbWin(rowOfAbIndex, boardNumber);
 
   return Container(
     padding: EdgeInsets.all(0.005 * screen.cardLiveMaxPixel),
@@ -116,36 +113,39 @@ Widget _card(index, boardNumber, val, bf) {
             borderRadius: BorderRadius.circular(
                 0.2 * screen.cardLiveMaxPixel), //needed for green border
             color: (!infMode &&
-                        game.getDetectBoardSolvedByRow(
-                            boardNumber, rowOfIndex)) ||
-                    rowOfIndex <
-                        game.getFirstVisualRowToShowOnBoard(boardNumber)
+                        game.getDetectBoardSolvedByABRow(
+                            boardNumber, rowOfAbIndex)) ||
+                    rowOfAbIndex <
+                        game.getFirstAbRowToShowOnBoardDueToKnowledge(
+                            boardNumber)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
-                    ? rowOfIndex == game.getVisualCurrentRowInt() &&
+                    ? rowOfAbIndex == game.getAbCurrentRowInt() &&
                             game.getCurrentTyping().length == 5 &&
                             !isLegalWord(game.getCurrentTyping())
                         ? Colors.red
                         : grey
-                    : cardColors.getCardColor(index, boardNumber)),
+                    : cardColors.getAbCardColor(abIndex, boardNumber)),
         child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: _cardText(index, boardNumber),
+          child: _cardText(abIndex, boardNumber),
         ),
       ),
     ),
   );
 }
 
-Widget _cardText(index, boardNumber) {
-  int rowOfIndex = index ~/ 5;
+Widget _cardText(abIndex, boardNumber) {
+  int rowOfAbIndex = abIndex ~/ 5;
   return Text(
-    game.getCardLetterAtIndex(index).toUpperCase(),
+    game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
     style: TextStyle(
       fontSize: screen.cardLiveMaxPixel,
       color: (!infMode &&
-                  game.getDetectBoardSolvedByRow(boardNumber, rowOfIndex)) ||
-              rowOfIndex < game.getFirstVisualRowToShowOnBoard(boardNumber)
+                  game.getDetectBoardSolvedByABRow(
+                      boardNumber, rowOfAbIndex)) ||
+              rowOfAbIndex <
+                  game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
           ? Colors.transparent // bg //"hide" after being solved
           : game.getHighlightedBoard() == -1
               ? Colors.white

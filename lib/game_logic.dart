@@ -16,7 +16,7 @@ class Game {
   bool expandingBoardEver = false;
 
   void initiateBoard() {
-    targetWords = getTargetWords(numBoards);
+    targetWords = getNewTargetWords(numBoards);
     enteredWords = [];
     winRecordBoards = [];
     currentTyping = "";
@@ -62,7 +62,7 @@ class Game {
           //Legal word, but not necessarily correct word
 
           //Legal word so step forward
-          int cardRowPreGuess = getVisualCurrentRowInt();
+          int cardAbRowPreGuess = getAbCurrentRowInt();
           currentTyping = "";
 
           enteredWords.add(enteredWordLocal);
@@ -71,7 +71,7 @@ class Game {
           int winRecordBoardsIndexToFix = winRecordBoards.length - 1;
 
           //Made a guess flip over the cards to see the colors
-          flips.gradualRevealRow(cardRowPreGuess);
+          flips.gradualRevealAbRow(cardAbRowPreGuess);
 
           //Test if it is correct word
           bool isWin = false;
@@ -92,10 +92,10 @@ class Game {
             winRecordBoards[winRecordBoardsIndexToFix] = -1;
           }
 
-          //save.saveKeys();
+          save.saveKeys();
 
           //Code for losing game
-          if (!isWin && getVisualCurrentRowInt() >= getLiveNumRowsPerBoard()) {
+          if (!isWin && getAbCurrentRowInt() >= getAbLiveNumRowsPerBoard()) {
             //didn't get it in time
             Future.delayed(
                 const Duration(
@@ -108,7 +108,7 @@ class Game {
             //Code for totally winning game across all boards
             bool totallySolvedLocal = true;
             for (var i = 0; i < numBoards; i++) {
-              if (!getDetectBoardSolvedByRow(i, getVisualCurrentRowInt())) {
+              if (!getDetectBoardSolvedByABRow(i, getAbCurrentRowInt())) {
                 totallySolvedLocal = false;
               }
             }
@@ -143,7 +143,8 @@ class Game {
                   if (getIsStreak()) {
                     Future.delayed(
                         const Duration(milliseconds: delayMult * 750), () {
-                      if (getVisualCurrentRowInt() > 0) {
+                      if (getGbCurrentRowInt() > 0) {
+                        //GB
                         //Slide the cards back visually, creating the illusion of stepping back
                         temporaryVisualOffsetForSlide = 1;
                         ss(); //setState(() {});
@@ -199,7 +200,7 @@ class Game {
     winRecordBoards[winRecordBoardsIndexToFix] = winningBoard;
     firstKnowledge[winningBoard] = enteredWords.length -
         (numRowsPerBoard -
-            (getLiveNumRowsPerBoard() - getVisualCurrentRowInt())) -
+            (getAbLiveNumRowsPerBoard() - getAbCurrentRowInt())) -
         1;
     //Create new target word for the board
     targetWords[winningBoard] = getTargetWord();
@@ -232,34 +233,32 @@ class Game {
     save.saveKeys();
   }
 
-  String getCardLetterAtIndex(index) {
-    int rowOfIndex = index ~/ 5;
-    int absoluteRowOfIndex = getAbsoluteRowFromBoardRow(rowOfIndex);
+  String getCardLetterAtAbIndex(abIndex) {
+    int rowOfAbIndex = abIndex ~/ 5;
     try {
       String letter = "";
-      if (rowOfIndex > getVisualCurrentRowInt()) {
+      if (rowOfAbIndex > getAbCurrentRowInt()) {
         letter = "";
-      } else if (rowOfIndex == getVisualCurrentRowInt()) {
-        if (currentTyping.length > (index % 5)) {
-          letter = currentTyping.substring(index % 5, (index % 5) + 1);
+      } else if (rowOfAbIndex == getAbCurrentRowInt()) {
+        if (currentTyping.length > (abIndex % 5)) {
+          letter = currentTyping.substring(abIndex % 5, (abIndex % 5) + 1);
         } else {
           letter = "";
         }
       } else {
-        letter = enteredWords[absoluteRowOfIndex][index % 5];
+        letter = enteredWords[rowOfAbIndex][abIndex % 5];
       }
       return letter;
     } catch (e) {
-      p(["Crash getCardLetterAtIndex", index, e]);
+      p(["Crash getCardLetterAtAbIndex", abIndex, e]);
       return "";
     }
   }
 
-  bool getTestHistoricalWin(rowOfIndex, boardNumber) {
-    int absoluteRowOfIndex = getAbsoluteRowFromBoardRow(rowOfIndex);
-    if (absoluteRowOfIndex > 0 &&
-        winRecordBoards.length > absoluteRowOfIndex &&
-        winRecordBoards[absoluteRowOfIndex] == boardNumber) {
+  bool getTestHistoricalAbWin(rowOfAbIndex, boardNumber) {
+    if (rowOfAbIndex > 0 &&
+        winRecordBoards.length > rowOfAbIndex &&
+        winRecordBoards[rowOfAbIndex] == boardNumber) {
       return true;
     }
     return false;
@@ -306,11 +305,14 @@ class Game {
     return currentTyping;
   }
 
-  bool getDetectBoardSolvedByRow(boardNumber, maxRowToCheck) {
-    for (var q = 0; q < min(getVisualCurrentRowInt(), maxRowToCheck); q++) {
+  bool getDetectBoardSolvedByABRow(boardNumber, maxAbRowToCheck) {
+    for (var abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
+        abRow < min(getAbCurrentRowInt(), maxAbRowToCheck);
+        abRow++) {
       bool result = true;
-      for (var j = 0; j < 5; j++) {
-        if (cardColors.getCardColor(q * 5 + j, boardNumber) != green) {
+      for (var column = 0; column < 5; column++) {
+        int abIndex = abRow * 5 + column;
+        if (cardColors.getAbCardColor(abIndex, boardNumber) != green) {
           result = false;
         }
       }
@@ -337,7 +339,7 @@ class Game {
           return;
         }
 
-        targetWords = gameTmp["targetWords"] ?? getTargetWords(numBoards);
+        targetWords = gameTmp["targetWords"] ?? getNewTargetWords(numBoards);
         enteredWords = gameTmp["enteredWords"] ?? [];
         winRecordBoards = gameTmp["winRecordBoards"] ?? [];
         firstKnowledge =
@@ -389,7 +391,7 @@ class Game {
         getPushOffBoardRows(),
         getExtraRows(),
         pushUpSteps,
-        getLiveNumRowsPerBoard(),
+        getAbLiveNumRowsPerBoard(),
       ]);
     }
   }
@@ -414,7 +416,7 @@ class Game {
     if (boardNumber < targetWords.length) {
     } else {
       p("getCurrentTargetWordForBoard error");
-      targetWords = getTargetWords(numBoards);
+      targetWords = getNewTargetWords(numBoards);
     }
     return targetWords[boardNumber];
   }
@@ -435,13 +437,21 @@ class Game {
     expandingBoardEver = tf;
   }
 
-  int getLiveNumRowsPerBoard() {
+  int getGbLiveNumRowsPerBoard() {
+    //GB
     return numRowsPerBoard + getExtraRows();
   }
 
-  int getFirstVisualRowToShowOnBoard(boardNumber) {
+  int getAbLiveNumRowsPerBoard() {
+    return numRowsPerBoard + getExtraRows() + getPushOffBoardRows();
+  }
+
+  int getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) {
+    if (!expandingBoard) {
+      return getPushOffBoardRows();
+    }
     if (boardNumber < firstKnowledge.length) {
-      return firstKnowledge[boardNumber] - getPushOffBoardRows();
+      return firstKnowledge[boardNumber];
     } else {
       firstKnowledge = getBlankFirstKnowledge(numBoards);
       p("getFirstVisualRowToShowOnBoard error");
@@ -449,24 +459,38 @@ class Game {
     }
   }
 
-  int getAbsoluteRowFromBoardRow(rowOfIndex) {
-    return rowOfIndex + getPushOffBoardRows();
+  List<int> getFirstAbRowToShowOnBoardDueToKnowledgeAll() {
+    return [
+      getFirstAbRowToShowOnBoardDueToKnowledge(0),
+      getFirstAbRowToShowOnBoardDueToKnowledge(1),
+      getFirstAbRowToShowOnBoardDueToKnowledge(2),
+      getFirstAbRowToShowOnBoardDueToKnowledge(3)
+    ];
   }
 
-  int getVisualCurrentRowInt() {
-    return enteredWords.length - getPushOffBoardRows();
+  int getGbCurrentRowInt() {
+    //GB
+    return getGBRowFromABRow(getAbCurrentRowInt());
+  }
+
+  int getAbCurrentRowInt() {
+    return enteredWords.length;
   }
 
   String getTargetWord() {
     return finalWords[random.nextInt(finalWords.length)];
   }
 
-  List getTargetWords(numberOfBoards) {
+  List getNewTargetWords(numberOfBoards) {
     var starterList = [];
     for (var i = 0; i < numberOfBoards; i++) {
       starterList.add(getTargetWord());
     }
     return starterList;
+  }
+
+  List getCurrentTargetWords() {
+    return targetWords;
   }
 
   int getTemporaryVisualOffsetForSlide() {
@@ -479,5 +503,9 @@ class Game {
 
   void setHighlightedBoard(hb) {
     highlightedBoard = hb;
+  }
+
+  List getFirstKnowledge() {
+    return firstKnowledge;
   }
 }

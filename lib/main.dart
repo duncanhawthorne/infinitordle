@@ -164,7 +164,7 @@ class _InfinitordleState extends State<Infinitordle> {
     int numberWinsCache = winWordsCache.length;
     bool end = false;
     if (!game.getAboutToWinCache() &&
-        game.getVisualCurrentRowInt() >= game.getLiveNumRowsPerBoard()) {
+        game.getAbCurrentRowInt() >= game.getAbLiveNumRowsPerBoard()) {
       end = true;
     }
     return showDialog<void>(
