@@ -2,7 +2,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/google_logic.dart';
 
 class Save {
@@ -45,7 +44,7 @@ class Save {
   }
 
   Future<void> saveKeys() async {
-    saveOrLoadKeysCountCache++;
+    resetCaches(); //saveOrLoadKeysCountCache++;
     String gameEncoded = game.getEncodeCurrentGameState();
     //p(["SAVE keys",gameEncoded]);
     final prefs = await SharedPreferences.getInstance();

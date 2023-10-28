@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:convert';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/google_logic.dart';
 
@@ -9,7 +8,7 @@ class Game {
   //State to save
   List<dynamic> targetWords = ["x"]; //gets overridden by loadKeys()
   List<dynamic> enteredWords = ["x"];
-  var winRecordBoards = [-1];
+  List<dynamic> winRecordBoards = [-1];
   var currentTyping = "x";
   List<dynamic> firstKnowledge = ["x"];
   int pushUpSteps = -1;
@@ -93,7 +92,7 @@ class Game {
             winRecordBoards[winRecordBoardsIndexToFix] = -1;
           }
 
-          save.saveKeys();
+          //save.saveKeys();
 
           //Code for losing game
           if (!isWin && getVisualCurrentRowInt() >= getLiveNumRowsPerBoard()) {
@@ -190,7 +189,7 @@ class Game {
   void takeOneStepBack() {
     //Erase a row and step back
     pushUpSteps++;
-    flips.initiateFlipState(); //fix any loose states
+    //flips.initiateFlipState(); //fix any loose states
     save.saveKeys();
   }
 
@@ -205,7 +204,7 @@ class Game {
     //Create new target word for the board
     targetWords[winningBoard] = getTargetWord();
 
-    flips.initiateFlipState();
+    //flips.initiateFlipState();
     save.saveKeys();
   }
 
@@ -227,7 +226,8 @@ class Game {
   void resetBoard() {
     p("Reset board");
     initiateBoard();
-    flips.initiateFlipState();
+    resetCaches();
+    //flips.initiateFlipState();
     analytics.logLevelStart(levelName: "Reset");
     save.saveKeys();
   }
@@ -357,9 +357,8 @@ class Game {
         p(["loadFromEncodedState error", error]);
         //resetBoardReal(true);
       }
-      flips.initiateFlipState();
       gameEncodedLast = gameEncoded;
-      saveOrLoadKeysCountCache++;
+      resetCaches(); // saveOrLoadKeysCountCache++; flips.initiateFlipState();
     }
   }
 

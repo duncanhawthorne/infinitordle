@@ -25,26 +25,30 @@ bool isListContains(list, bit) {
 
 // Memoisation
 class LegalWord {
-  var cache = {};
+  var legalWordCache = {};
   bool call(String word) {
     if (word.length != 5) {
       return false;
     }
-    if (!cache.containsKey(word)) {
-      if (cache.length > 5) {
+    if (!legalWordCache.containsKey(word)) {
+      if (legalWordCache.length > 5) {
         //reset cache
-        cache = {};
+        legalWordCache = {};
       }
-      cache[word] = isListContains(legalWords, word);
+      legalWordCache[word] = isListContains(legalWords, word);
     }
-    return cache[word]!;
+    return legalWordCache[word]!;
   }
 }
 
 LegalWord isLegalWord = LegalWord();
 
+void resetCaches() {
+  cardColors.resetColorsCache();
+  flips.initiateFlipState();
+}
+
 void p(x) {
-  //dev.log(x.toString());
   debugPrint("///// A " + x.toString());
 }
 

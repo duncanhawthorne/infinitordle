@@ -1,13 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/helper.dart';
 
 class CardColors {
   var cardColorsCache = [];
   var keyColorsCache = [];
-  int keyAndCardColorsTestedStateCache = 0;
+  //int keyAndCardColorsTestedStateCache = 0;
 
   var getCardLetterAtIndex = game.getCardLetterAtIndex; //for typing ease only
   var getVisualCurrentRowInt =
@@ -18,17 +17,17 @@ class CardColors {
       boardNumber = game.getHighlightedBoard();
     }
     if (boardNumber < keyColorsCache.length &&
-        index < keyColorsCache[boardNumber].length &&
-        keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
-      Color? cacheAnswer = keyColorsCache[boardNumber][index];
-      if (cacheAnswer != null) {
-        return cacheAnswer;
+        index < keyColorsCache[boardNumber].length
+        ) { // && keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache
+      Color? cacheColorAnswer = keyColorsCache[boardNumber][index];
+      if (cacheColorAnswer != null) {
+        return cacheColorAnswer;
       } else {
         //Haven't cached that get, so do so in the function below
       }
     } else {
       //blank the cache
-      keyAndCardColorsTestedStateCache = saveOrLoadKeysCountCache;
+      //keyAndCardColorsTestedStateCache = saveOrLoadKeysCountCache;
       resetColorsCache();
     }
 
@@ -84,17 +83,16 @@ class CardColors {
 
   Color getCardColor(index, boardNumber) {
     if (boardNumber < cardColorsCache.length &&
-        index < cardColorsCache[boardNumber].length &&
-        keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache) {
-      Color? cacheAnswer = cardColorsCache[boardNumber][index];
-      if (cacheAnswer != null) {
-        return cacheAnswer;
+        index < cardColorsCache[boardNumber].length ) { //&& keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache
+      Color? cacheColorAnswer = cardColorsCache[boardNumber][index];
+      if (cacheColorAnswer != null) {
+        return cacheColorAnswer;
       } else {
         //Haven't cached that get, so do so in the function below
       }
     } else {
       //blank the cache
-      keyAndCardColorsTestedStateCache = saveOrLoadKeysCountCache;
+      //keyAndCardColorsTestedStateCache = saveOrLoadKeysCountCache;
       resetColorsCache();
     }
 

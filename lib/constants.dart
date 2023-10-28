@@ -39,9 +39,13 @@ final isWebMobileReal = kIsWeb &&
         defaultTargetPlatform == TargetPlatform.android);
 final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 const noAnimations = false; //guc true && isWebMobileReal;
-const int durMult = noAnimations ? 0 : 1;
-const int delayMult = noAnimations ? 0 : 1;
-const gradualRevealDelay = delayMult * (durMult == 1 ? 100 : 250);
+const slowDownFactor = 1;
+const int durMult = noAnimations ? 0 : 1 * slowDownFactor;
+const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
+const gradualRevealDelay = delayMult *
+    (durMult == 1 * slowDownFactor
+        ? 100 * slowDownFactor
+        : 250 * slowDownFactor);
 //int flipTimeOverrideFactor = 1;
 
 //Screen constants

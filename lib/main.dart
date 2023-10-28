@@ -194,7 +194,7 @@ class _InfinitordleState extends State<Infinitordle> {
                                 game.setExpandingBoard(true);
                                 game.setExpandingBoardEver(true);
                               }
-                              flips.initiateFlipState();
+                              //flips.initiateFlipState();
                               save.saveKeys();
                               focusNode.requestFocus();
                               Navigator.pop(context, 'Cancel');
