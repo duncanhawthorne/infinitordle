@@ -51,7 +51,6 @@ class Save {
     await prefs.setString('game', gameEncoded);
 
     firebasePush(gameEncoded);
-    analytics.logLevelUp(level: game.getWinWords().length);
   }
 
   Future<void> firebasePush(state) async {

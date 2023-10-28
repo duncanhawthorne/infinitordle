@@ -66,6 +66,8 @@ class Game {
           currentTyping = "";
 
           enteredWords.add(enteredWordLocal);
+          analytics.logLevelUp(level: enteredWords.length);
+
           //to avoid a race condition with delayed code, add to winRecordBoards immediately as a fail, and then change it later to a win
           winRecordBoards.add(-2);
           int winRecordBoardsIndexToFix = winRecordBoards.length - 1;
@@ -230,6 +232,7 @@ class Game {
     resetCaches();
     //flips.initiateFlipState();
     analytics.logLevelStart(levelName: "Reset");
+    analytics.logLevelUp(level: enteredWords.length);
     save.saveKeys();
   }
 
