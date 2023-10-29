@@ -95,12 +95,9 @@ class _InfinitordleState extends State<Infinitordle> {
           if (snapshot.hasError || !snapshot.hasData) {
           } else if (snapshot.connectionState == ConnectionState.waiting) {
           } else {
-            //print(snapshot);
             var userDocument = snapshot.data;
-            //print(userDocument);
             if (userDocument != null && userDocument.exists) {
               String snapshotCurrent = userDocument["data"];
-              //print(snapshotCurrent);
               if (g.signedIn() && snapshotCurrent != snapshotLastCache) {
                 if (snapshotCurrent != game.getEncodeCurrentGameState()) {
                   game.loadFromEncodedState(snapshotCurrent);
@@ -235,7 +232,6 @@ class _InfinitordleState extends State<Infinitordle> {
                   ],
                 ),
               ),
-              //const Spacer(flex: 1),
             ],
           ),
           content: Text(end
