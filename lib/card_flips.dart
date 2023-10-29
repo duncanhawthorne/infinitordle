@@ -29,15 +29,14 @@ class Flips {
   }
 
   void gradualRevealAbRow(abRow) {
-    //int abRow = getABRowFromGBRow(gbRow);
-    //flip to reveal the colors with pleasing animation
+    // flip to reveal the colors with pleasing animation
     for (int i = 0; i < 5; i++) {
       if (!abCardFlourishFlipAngles.containsKey(abRow)) {
         abCardFlourishFlipAngles[abRow] = [0.0, 0.0, 0.0, 0.0, 0.0];
       }
       abCardFlourishFlipAngles[abRow][i] = 0.5;
       Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
-        abCardFlourishFlipAngles[abRow][i] = 0;
+        abCardFlourishFlipAngles[abRow][i] = 0.0;
         if (i == 4) {
           abCardFlourishFlipAngles.remove(abRow);
         }

@@ -24,16 +24,14 @@ class CardColors {
     }
     if (boardNumber < keyColorsCache.length &&
         kbIndex < keyColorsCache[boardNumber].length) {
-      // && keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache
       Color? cacheColorAnswer = keyColorsCache[boardNumber][kbIndex];
       if (cacheColorAnswer != null) {
         return cacheColorAnswer;
       } else {
-        //Haven't cached that get, so do so in the function below
+        // Haven't cached that get, so do so in the function below
       }
     } else {
-      //blank the cache
-      //keyAndCardColorsTestedStateCache = saveOrLoadKeysCountCache;
+      // blank the cache
       resetKeyColorsCache();
     }
 
@@ -46,7 +44,7 @@ class CardColors {
       answer = Colors.transparent;
     }
     if (answer == null) {
-      //get color for the keyboard based on best (green > yellow > grey) color on the grid
+      // get color for the keyboard based on best (green > yellow > grey) color on the grid
       for (var abPosition = abStart;
           abPosition < game.getAbCurrentRowInt() * 5;
           abPosition++) {
@@ -75,7 +73,7 @@ class CardColors {
           abPosition < game.getAbCurrentRowInt() * 5;
           abPosition++) {
         if (game.getCardLetterAtAbIndex(abPosition) == queryLetter) {
-          answer = Colors.transparent; //bg; //grey //used and no match
+          answer = Colors.transparent;
           break;
         }
       }
@@ -85,12 +83,12 @@ class CardColors {
       answer = grey; //not used yet by the player
     }
     keyColorsCache[boardNumber][kbIndex] = answer;
-    return answer; // ?? Colors.pink;
+    return answer;
   }
 
   Color getAbCardColor(abIndex, boardNumber) {
     if (abIndex >= game.getAbCurrentRowInt() * 5) {
-      return Colors.transparent; //grey; //later rows
+      return Colors.transparent; // later rows
     }
 
     if (cardColorsCache.isEmpty ||
@@ -100,7 +98,6 @@ class CardColors {
     }
     if (boardNumber < cardColorsCache.length &&
         abIndex < cardColorsCache[boardNumber].length) {
-      //&& keyAndCardColorsTestedStateCache == saveOrLoadKeysCountCache
       Color? cacheColorAnswer = cardColorsCache[boardNumber][abIndex];
       if (cacheColorAnswer != null) {
         return cacheColorAnswer;
@@ -109,17 +106,16 @@ class CardColors {
       }
     } else {
       //blank the cache
-      //keyAndCardColorsTestedStateCache = saveOrLoadKeysCountCache;
       resetCardColorsCache();
     }
 
     Color? answer;
     if (abIndex >= game.getAbCurrentRowInt() * 5) {
-      return Colors.transparent; //grey; //later rows
+      return Colors.transparent;  //later rows
     } else {
-      String targetWord = game.getTargetWordForBoard(boardNumber);
+      String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
       String testLetter = game.getCardLetterAtAbIndex(
-          abIndex); //newGameboardEntries[index ~/ 5][index % 5]//gameboardEntries[index];
+          abIndex);
       int testAbRow = abIndex ~/ 5;
       int testColumn = abIndex % 5;
       if (targetWord[testColumn] == testLetter) {
@@ -146,7 +142,7 @@ class CardColors {
         if (numberOfThisLetterInTargetWord >
             numberOfYellowThisLetterToLeftInCardRow +
                 numberOfGreenThisLetterInCardRow) {
-          //full logic to deal with repeating letters. If only one letter matching targetWord, then always returns Amber
+          // full logic to deal with repeating letters. If only one letter matching targetWord, then always returns Amber
           answer = amber;
         } else {
           answer = Colors.transparent;
@@ -161,7 +157,6 @@ class CardColors {
   }
 
   void resetKeyColorsCache() {
-    //p("resetKeyColorsCache");
     for (int i = 0; i < numBoards; i++) {
       targetWordsCacheForKey[i] = game.getCurrentTargetWords()[i];
       firstRowsToShowCache[i] =
@@ -176,7 +171,6 @@ class CardColors {
   }
 
   void resetCardColorsCache() {
-    //p("resetCardColorsCache");
     for (int i = 0; i < numBoards; i++) {
       targetWordsCacheForCard[i] = game.getCurrentTargetWords()[i];
     }

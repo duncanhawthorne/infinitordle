@@ -6,7 +6,7 @@ import 'package:infinitordle/google_logic.dart';
 
 class Game {
   //State to save
-  List<dynamic> targetWords = ["x"]; //gets overridden by loadKeys()
+  List<dynamic> targetWords = ["x"];
   List<dynamic> enteredWords = ["x"];
   List<dynamic> winRecordBoards = [-1];
   var currentTyping = "x";
@@ -37,187 +37,207 @@ class Game {
 
   void onKeyboardTapped(int index) {
     String letter = keyboardList[index];
-
     printCheatTargetWords();
 
     if (letter == " ") {
-      //ignore pressing of non-keys
+      //Ignore pressing of non-keys
     } else if (letter == "<") {
-      //backspace
-      // ignore: prefer_is_empty
-      if (currentTyping.length > 0) {
-        //typeCountInWord > 0
+      //Backspace key
+      if (currentTyping.isNotEmpty) {
+        //There is text to delete
         currentTyping = currentTyping.substring(0, currentTyping.length - 1);
-        ss(); // setState(() {});
+        ss();
       }
     } else if (letter == ">") {
-      //submit guess
+      //Submit guess
       if (currentTyping.length == 5) {
-        //typeCountInWord == 5
-        //&& threadsafeBlockNewWord == false
-        //ignore if not completed whole word
-        //due to "delay" functions, need to take local copies of various global variable so they are still "right" when the delayed functions run
-        String enteredWordLocal = currentTyping;
-        if (isLegalWord(enteredWordLocal)) {
-          //Legal word, but not necessarily correct word
-
-          //Legal word so step forward
-          int cardAbRowPreGuess = getAbCurrentRowInt();
-          currentTyping = "";
-
-          enteredWords.add(enteredWordLocal);
-          analytics.logLevelUp(level: enteredWords.length);
-
-          //to avoid a race condition with delayed code, add to winRecordBoards immediately as a fail, and then change it later to a win
-          winRecordBoards.add(-2);
-          int winRecordBoardsIndexToFix = winRecordBoards.length - 1;
-
-          //Made a guess flip over the cards to see the colors
-          flips.gradualRevealAbRow(cardAbRowPreGuess);
-
-          //Test if it is correct word
-          bool isWin = false;
-          aboutToWinCache = false;
-          int winningBoard = -1; //local variable to ensure threadsafe
-          for (var board = 0; board < numBoards; board++) {
-            if (getTargetWordForBoard(board) == enteredWordLocal) {
-              //(detectBoardSolvedByRow(board, currentWord)) {
-              //threadsafeBlockNewWord = true;
-              isWin = true;
-              aboutToWinCache = true;
-              winningBoard = board;
-            }
-          }
-
-          if (!isWin) {
-            //change -2 to -1 to confirm no win
-            winRecordBoards[winRecordBoardsIndexToFix] = -1;
-          }
-
-          save.saveKeys();
-
-          //Code for losing game
-          if (!isWin && getAbCurrentRowInt() >= getAbLiveNumRowsPerBoard()) {
-            //didn't get it in time
-            Future.delayed(
-                const Duration(
-                    milliseconds: gradualRevealDelay * 5 + durMult * 500), () {
-              showResetConfirmScreen();
-            });
-          }
-
-          if (!infMode && isWin) {
-            //Code for totally winning game across all boards
-            bool totallySolvedLocal = true;
-            for (var i = 0; i < numBoards; i++) {
-              if (!getDetectBoardSolvedByABRow(i, getAbCurrentRowInt())) {
-                totallySolvedLocal = false;
-              }
-            }
-            if (totallySolvedLocal) {
-              //ScaffoldMessenger.of(context)
-              //    .showSnackBar(SnackBar(content: Text(appTitle)));
-            }
-          }
-
-          if (infMode && isWin) {
-            Future.delayed(const Duration(milliseconds: delayMult * 1500), () {
-              //Give time for above code to show visually, so we have flipped
-              //Slide the cards back visually, creating the illusion of stepping back
-              temporaryVisualOffsetForSlide = 1;
-              ss(); //setState(() {});
-              Future.delayed(const Duration(milliseconds: durMult * 250), () {
-                //Undo the visual slide (and do this instantaneously)
-                temporaryVisualOffsetForSlide = 0;
-                //Actually erase a row and step back, so state matches visual illusion above
-                takeOneStepBack();
-
-                ss(); //setState(() {});
-
-                Future.delayed(const Duration(milliseconds: delayMult * 1000),
-                    () {
-                  //include inside other future so definitely happens after rather relying on race
-                  //Give time for above code to show visually, so we have flipped, stepped back, reverse flipped next row
-                  //Log the word just got in success words, which gets green to shown
-                  logWinAndSetNewWord(winRecordBoardsIndexToFix, winningBoard);
-                  ss(); //setState(() {});
-
-                  if (getIsStreak()) {
-                    Future.delayed(
-                        const Duration(milliseconds: delayMult * 750), () {
-                      if (getGbCurrentRowInt() > 0) {
-                        //GB
-                        //Slide the cards back visually, creating the illusion of stepping back
-                        temporaryVisualOffsetForSlide = 1;
-                        ss(); //setState(() {});
-                        Future.delayed(
-                            const Duration(milliseconds: durMult * 250), () {
-                          //Undo the visual slide (and do this instantaneously)
-                          temporaryVisualOffsetForSlide = 0;
-                          //Actually erase a row and step back, so state matches visual illusion above
-                          takeOneStepBack();
-
-                          ss(); //setState(() {});
-                        });
-                      }
-                    });
-                  }
-                });
-              });
-            });
-          }
-        } else {
-          //not a legal word so do nothing
-          /*
-        //not a legal word so clear text
-        currentTyping = "";
-        ss(); //setState(() {});
-         */
+        //Full word entered, so can submit
+        if (isLegalWord(currentTyping)) {
+          //Legal word so can enter the word
+          //Note, not necessarily correct word
+          handleLegalWordEntered();
         }
-      } else {
-        //not 5 letters long so ignore
       }
-    } else if (true) {
-      //pressing regular key, as other options already dealt with above
+    } else {
+      //pressing regular letter key
       if (currentTyping.length < 5) {
-        //&& getVisualCurrentRowInt() < numRowsPerBoard
-        //still typing out word, else ignore
+        //Space to add extra letter
         currentTyping = currentTyping + letter;
-        ss(); //setState(() {});
+        ss();
       }
     }
-//    });
+  }
+
+  void handleLegalWordEntered() {
+    int cardAbRowPreGuessToFix = getAbCurrentRowInt();
+    int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows();
+
+    enteredWords.add(currentTyping);
+    currentTyping = "";
+    winRecordBoards.add(-2); //Add now, fix value later
+    flips.gradualRevealAbRow(cardAbRowPreGuessToFix);
+    analytics.logLevelUp(level: enteredWords.length);
+
+    //Test if it is correct word
+    bool isWin = false;
+    aboutToWinCache = false;
+    int winningBoardToFix = -1; //local variable to ensure threadsafe
+    for (var board = 0; board < numBoards; board++) {
+      if (getCurrentTargetWordForBoard(board) ==
+          enteredWords[cardAbRowPreGuessToFix]) {
+        isWin = true;
+        aboutToWinCache = true;
+        winningBoardToFix = board;
+      }
+    }
+
+    if (!isWin) {
+      winRecordBoards[cardAbRowPreGuessToFix] = -1; //Confirm no win
+    }
+
+    save.saveKeys();
+
+    //Code for losing game
+    if (!isWin && getAbCurrentRowInt() >= getAbLiveNumRowsPerBoard()) {
+      //All rows full, game over
+      Future.delayed(
+          const Duration(milliseconds: gradualRevealDelay * 5 + durMult * 500),
+          () {
+        showResetConfirmScreen();
+      });
+    }
+
+    if (!infMode && isWin) {
+      //Code for totally winning game across all boards
+      bool totallySolvedLocal = true;
+      for (var i = 0; i < numBoards; i++) {
+        if (!getDetectBoardSolvedByABRow(i, getAbCurrentRowInt())) {
+          totallySolvedLocal = false;
+        }
+      }
+      if (totallySolvedLocal) {
+        // Leave the screen as is
+      }
+    }
+
+    if (infMode && isWin) {
+      handleWinningWordEntered(
+          cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+    }
+  }
+
+  void handleWinningWordEntered(
+      cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) {
+    Future.delayed(const Duration(milliseconds: delayMult * 1500), () {
+      //Delay for flips.gradualRevealAbRow to have taken effect
+
+      if (getGbCurrentRowInt() <= 0) {
+        // If current row would type in next is row zero
+        // Then don't slide up
+        // Else after slide would be off top of gameboard
+        // Possible due to delay functions from previous entries
+        // Or if switch from expanding board to non-expanding
+        // But still log win in any event
+        logWinAndSetNewWord(
+            cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+        ss();
+      }
+      else {
+        // Not at very top of board, so can do sliding
+
+        // Slide the cards up visually, creating the illusion of stepping up
+        temporaryVisualOffsetForSlide = 1;
+        ss();
+
+        Future.delayed(const Duration(milliseconds: durMult * 250), () {
+          // Delay for sliding cards up to have taken effect
+
+          // Undo the visual slide illusion (and do this instantaneously)
+          temporaryVisualOffsetForSlide = 0;
+
+          // Actually move the cards up, so state matches visual illusion above
+          takeOneStepBack();
+          ss();
+
+          // Cards are now in the right place and state matches visuals
+
+          Future.delayed(const Duration(milliseconds: delayMult * 1000), () {
+            // Pause, so can temporarily see position after stepped back
+
+            // Log the win (show row green), and get a new word
+            logWinAndSetNewWord(
+                cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+            ss();
+
+            if (getIsStreak()) {
+              // Streak, so need to take another step back
+
+              Future.delayed(const Duration(milliseconds: delayMult * 750), () {
+                // Pause, so can temporarily see new position
+
+                if (getGbCurrentRowInt() > 0) {
+                  // Check not at top of board
+                  // Current row would type in next must not be row zero
+                  // Else after slide would be off top of gameboard
+
+                  //Slide the cards up visually, creating the illusion of stepping up
+                  temporaryVisualOffsetForSlide = 1;
+                  ss();
+
+                  Future.delayed(const Duration(milliseconds: durMult * 250),
+                      () {
+                    // Delay for sliding cards up to have taken effect
+
+                    // Undo the visual slide (and do this instantaneously)
+                    temporaryVisualOffsetForSlide = 0;
+
+                    // Actually move the cards up, so state matches visual illusion above
+                    takeOneStepBack();
+                    ss();
+
+                    // Cards are now in the right place and state matches visuals
+                  });
+                }
+              });
+            }
+          });
+        });
+      }
+    });
   }
 
   void takeOneStepBack() {
-    //Erase a row and step back
+    // This function is run after a delay so need to make sure threadsafe
+    // Use variables at the time word was entered rather than live variables
     pushUpSteps++;
-    //flips.initiateFlipState(); //fix any loose states
     save.saveKeys();
   }
 
-  void logWinAndSetNewWord(winRecordBoardsIndexToFix, winningBoard) {
-    //Log the word just got in success words, which gets green to show
-    //Fix the fact that we stored a -1 in this place temporarily
-    winRecordBoards[winRecordBoardsIndexToFix] = winningBoard;
-    firstKnowledge[winningBoard] = enteredWords.length -
-        (numRowsPerBoard -
-            (getAbLiveNumRowsPerBoard() - getAbCurrentRowInt())) -
-        1;
-    //Create new target word for the board
-    targetWords[winningBoard] = getTargetWord();
+  void logWinAndSetNewWord(
+      winRecordBoardsIndexToFix, winningBoardToFix, firstKnowledgeToFix) {
+    // This function is run after a delay so need to make sure threadsafe
+    // Use variables at the time word was entered rather than live variables
 
-    //flips.initiateFlipState();
+    // Log the word just entered as a win, which gets green to show
+    // Fix the fact that we stored a -1 in this place temporarily
+    winRecordBoards[winRecordBoardsIndexToFix] = winningBoardToFix;
+
+    // Update first knowledge for scroll back
+    firstKnowledge[winningBoardToFix] = firstKnowledgeToFix;
+
+    // Create new target word for the board
+    targetWords[winningBoardToFix] = getNewTargetWord();
+
     save.saveKeys();
   }
 
   void cheatInitiate() {
-    //Speed initialise known entries using cheat mode for debugging
+    // Speed initialise known entries using cheat mode for debugging
     for (var j = 0; j < numBoards; j++) {
       if (cheatTargetWordsInitial.length > j) {
         targetWords[j] = cheatTargetWordsInitial[j];
       } else {
-        targetWords[j] = getTargetWord();
+        targetWords[j] = getNewTargetWord();
       }
     }
     for (var j = 0; j < cheatEnteredWordsInitial.length; j++) {
@@ -229,8 +249,6 @@ class Game {
   void resetBoard() {
     p("Reset board");
     initiateBoard();
-    resetCaches();
-    //flips.initiateFlipState();
     analytics.logLevelStart(levelName: "Reset");
     analytics.logLevelUp(level: enteredWords.length);
     save.saveKeys();
@@ -363,7 +381,6 @@ class Game {
         //resetBoardReal(true);
       }
       gameEncodedLast = gameEncoded;
-      resetCaches(); // saveOrLoadKeysCountCache++; flips.initiateFlipState();
     }
   }
 
@@ -415,7 +432,7 @@ class Game {
     return pushUpSteps - getPushOffBoardRows();
   }
 
-  String getTargetWordForBoard(boardNumber) {
+  String getCurrentTargetWordForBoard(boardNumber) {
     if (boardNumber < targetWords.length) {
     } else {
       p("getCurrentTargetWordForBoard error");
@@ -441,7 +458,6 @@ class Game {
   }
 
   int getGbLiveNumRowsPerBoard() {
-    //GB
     return numRowsPerBoard + getExtraRows();
   }
 
@@ -472,7 +488,6 @@ class Game {
   }
 
   int getGbCurrentRowInt() {
-    //GB
     return getGBRowFromABRow(getAbCurrentRowInt());
   }
 
@@ -480,14 +495,14 @@ class Game {
     return enteredWords.length;
   }
 
-  String getTargetWord() {
+  String getNewTargetWord() {
     return finalWords[random.nextInt(finalWords.length)];
   }
 
   List getNewTargetWords(numberOfBoards) {
     var starterList = [];
     for (var i = 0; i < numberOfBoards; i++) {
-      starterList.add(getTargetWord());
+      starterList.add(getNewTargetWord());
     }
     return starterList;
   }

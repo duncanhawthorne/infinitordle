@@ -24,10 +24,10 @@ class Save {
     String gameEncoded = "";
 
     if (!g.signedIn()) {
-      //load from local save
+      // load from local save
       gameEncoded = prefs.getString('game') ?? "";
     } else {
-      //load from firebase
+      // load from firebase
       gameEncoded = "";
       final docRef = db.collection("states").doc(g.getUser());
       await docRef.get().then(
@@ -40,13 +40,11 @@ class Save {
       );
     }
     game.loadFromEncodedState(gameEncoded);
-    ss(); //GLOBALSS
+    ss();
   }
 
   Future<void> saveKeys() async {
-    resetCaches(); //saveOrLoadKeysCountCache++;
     String gameEncoded = game.getEncodeCurrentGameState();
-    //p(["SAVE keys",gameEncoded]);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('game', gameEncoded);
 
