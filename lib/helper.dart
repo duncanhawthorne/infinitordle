@@ -17,10 +17,8 @@ CardColors cardColors = CardColors();
 Screen screen = Screen();
 
 bool isListContains(list, bit) {
-  //p(["quickIn", "list", bit]);
   return binarySearch(list, bit) !=
       -1; //sorted list so this is faster than doing contains
-  //return list.contains(bit);
 }
 
 // Memoisation
@@ -63,7 +61,6 @@ List getBlankFirstKnowledge(numberOfBoards) {
 void fixTitle() {
   //https://github.com/flutter/flutter/issues/98248
   if (true) {
-    //scW == -1) { //one-off
     SystemChrome.setApplicationSwitcherDescription(ApplicationSwitcherDescription(
         label: appTitle,
         primaryColor: bg

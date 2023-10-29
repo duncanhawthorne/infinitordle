@@ -101,11 +101,11 @@ class _InfinitordleState extends State<Infinitordle> {
             if (userDocument != null && userDocument.exists) {
               String snapshotCurrent = userDocument["data"];
               //print(snapshotCurrent);
-              if (g.signedIn() && snapshotCurrent != snapshotLast) {
+              if (g.signedIn() && snapshotCurrent != snapshotLastCache) {
                 if (snapshotCurrent != game.getEncodeCurrentGameState()) {
                   game.loadFromEncodedState(snapshotCurrent);
                 }
-                snapshotLast = snapshotCurrent;
+                snapshotLastCache = snapshotCurrent;
               }
             }
           }

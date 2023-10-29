@@ -32,8 +32,8 @@ class Game {
   //Other state
   bool aboutToWinCache = false;
   int temporaryVisualOffsetForSlide = 0;
-  String gameEncodedLast = "";
-  int highlightedBoard = -1;
+  String gameEncodedLastCache = "";
+  int highlightedBoard = -1; //non-saved state
 
   void onKeyboardTapped(int index) {
     String letter = keyboardList[index];
@@ -141,8 +141,7 @@ class Game {
         logWinAndSetNewWord(
             cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
         ss();
-      }
-      else {
+      } else {
         // Not at very top of board, so can do sliding
 
         // Slide the cards up visually, creating the illusion of stepping up
@@ -285,16 +284,6 @@ class Game {
     return false;
   }
 
-  List getWinWords() {
-    var log = [];
-    for (var i = 0; i < winRecordBoards.length; i++) {
-      if (winRecordBoards[i] != -1) {
-        log.add(enteredWords[i]);
-      }
-    }
-    return log;
-  }
-
   var streakCache = {};
   bool getIsStreak() {
     if (!streakCache.containsKey(winRecordBoards.length)) {
@@ -322,10 +311,6 @@ class Game {
     return isStreak;
   }
 
-  String getCurrentTyping() {
-    return currentTyping;
-  }
-
   bool getDetectBoardSolvedByABRow(boardNumber, maxAbRowToCheck) {
     for (var abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
         abRow < min(getAbCurrentRowInt(), maxAbRowToCheck);
@@ -347,7 +332,7 @@ class Game {
   void loadFromEncodedState(gameEncoded) {
     if (gameEncoded == "") {
       p(["loadFromEncodedState empty"]);
-    } else if (gameEncoded != gameEncodedLast) {
+    } else if (gameEncoded != gameEncodedLastCache) {
       try {
         Map<String, dynamic> gameTmp = {};
         gameTmp = json.decode(gameEncoded);
@@ -380,7 +365,7 @@ class Game {
         p(["loadFromEncodedState error", error]);
         //resetBoardReal(true);
       }
-      gameEncodedLast = gameEncoded;
+      gameEncodedLastCache = gameEncoded;
     }
   }
 
@@ -416,8 +401,75 @@ class Game {
     }
   }
 
-  bool getAboutToWinCache() {
-    return aboutToWinCache;
+  String getCurrentTargetWordForBoard(boardNumber) {
+    if (boardNumber < targetWords.length) {
+    } else {
+      p("getCurrentTargetWordForBoard error");
+      targetWords = getNewTargetWords(numBoards);
+    }
+    return targetWords[boardNumber];
+  }
+
+  String getNewTargetWord() {
+    String a = targetWords[0];
+    while (targetWords.contains(a) || enteredWords.contains(a)) {
+      // Ensure a word we have never seen before
+      a = finalWords[random.nextInt(finalWords.length)];
+    }
+    return a;
+  }
+
+  List getNewTargetWords(numberOfBoards) {
+    var starterList = [];
+    for (var i = 0; i < numberOfBoards; i++) {
+      starterList.add(getNewTargetWord());
+    }
+    return starterList;
+  }
+
+  List getWinWords() {
+    var log = [];
+    for (var i = 0; i < winRecordBoards.length; i++) {
+      if (winRecordBoards[i] != -1) {
+        log.add(enteredWords[i]);
+      }
+    }
+    return log;
+  }
+
+  int getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) {
+    if (firstKnowledge.length != numBoards) {
+      firstKnowledge = getBlankFirstKnowledge(numBoards);
+      p("getFirstVisualRowToShowOnBoard error");
+    }
+    if (!expandingBoard) {
+      return getPushOffBoardRows();
+    }
+    else if (boardNumber < firstKnowledge.length) {
+      return firstKnowledge[boardNumber];
+    } else {
+      p("getFirstVisualRowToShowOnBoard error");
+      return 0;
+    }
+  }
+
+  List<int> getFirstAbRowToShowOnBoardDueToKnowledgeAll() {
+    return [
+      getFirstAbRowToShowOnBoardDueToKnowledge(0),
+      getFirstAbRowToShowOnBoardDueToKnowledge(1),
+      getFirstAbRowToShowOnBoardDueToKnowledge(2),
+      getFirstAbRowToShowOnBoardDueToKnowledge(3)
+    ];
+  }
+
+  // PRETTY MUCH PURE GETTERS AND SETTERS
+
+  int getAbLiveNumRowsPerBoard() {
+    return numRowsPerBoard + getExtraRows() + getPushOffBoardRows();
+  }
+
+  int getGbLiveNumRowsPerBoard() {
+    return numRowsPerBoard + getExtraRows();
   }
 
   int getPushOffBoardRows() {
@@ -432,13 +484,18 @@ class Game {
     return pushUpSteps - getPushOffBoardRows();
   }
 
-  String getCurrentTargetWordForBoard(boardNumber) {
-    if (boardNumber < targetWords.length) {
-    } else {
-      p("getCurrentTargetWordForBoard error");
-      targetWords = getNewTargetWords(numBoards);
-    }
-    return targetWords[boardNumber];
+  int getAbCurrentRowInt() {
+    return enteredWords.length;
+  }
+
+  int getGbCurrentRowInt() {
+    return getGBRowFromABRow(getAbCurrentRowInt());
+  }
+
+  // PURE GETTERS AND SETTERS
+
+  bool getAboutToWinCache() {
+    return aboutToWinCache;
   }
 
   bool getExpandingBoard() {
@@ -455,56 +512,6 @@ class Game {
 
   void setExpandingBoardEver(tf) {
     expandingBoardEver = tf;
-  }
-
-  int getGbLiveNumRowsPerBoard() {
-    return numRowsPerBoard + getExtraRows();
-  }
-
-  int getAbLiveNumRowsPerBoard() {
-    return numRowsPerBoard + getExtraRows() + getPushOffBoardRows();
-  }
-
-  int getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) {
-    if (!expandingBoard) {
-      return getPushOffBoardRows();
-    }
-    if (boardNumber < firstKnowledge.length) {
-      return firstKnowledge[boardNumber];
-    } else {
-      firstKnowledge = getBlankFirstKnowledge(numBoards);
-      p("getFirstVisualRowToShowOnBoard error");
-      return 0;
-    }
-  }
-
-  List<int> getFirstAbRowToShowOnBoardDueToKnowledgeAll() {
-    return [
-      getFirstAbRowToShowOnBoardDueToKnowledge(0),
-      getFirstAbRowToShowOnBoardDueToKnowledge(1),
-      getFirstAbRowToShowOnBoardDueToKnowledge(2),
-      getFirstAbRowToShowOnBoardDueToKnowledge(3)
-    ];
-  }
-
-  int getGbCurrentRowInt() {
-    return getGBRowFromABRow(getAbCurrentRowInt());
-  }
-
-  int getAbCurrentRowInt() {
-    return enteredWords.length;
-  }
-
-  String getNewTargetWord() {
-    return finalWords[random.nextInt(finalWords.length)];
-  }
-
-  List getNewTargetWords(numberOfBoards) {
-    var starterList = [];
-    for (var i = 0; i < numberOfBoards; i++) {
-      starterList.add(getNewTargetWord());
-    }
-    return starterList;
   }
 
   List getCurrentTargetWords() {
@@ -525,5 +532,9 @@ class Game {
 
   List getFirstKnowledge() {
     return firstKnowledge;
+  }
+
+  String getCurrentTyping() {
+    return currentTyping;
   }
 }

@@ -15,7 +15,8 @@ class CardColors {
   Color getBestColorForLetter(kbIndex, boardNumber) {
     if (!listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
             firstRowsToShowCache) ||
-        !listEqual(game.getCurrentTargetWords(), targetWordsCacheForKey) || game.getAbCurrentRowInt() != abCurrentRowIntCache) {
+        !listEqual(game.getCurrentTargetWords(), targetWordsCacheForKey) ||
+        game.getAbCurrentRowInt() != abCurrentRowIntCache) {
       resetKeyColorsCache();
     }
 
@@ -111,11 +112,10 @@ class CardColors {
 
     Color? answer;
     if (abIndex >= game.getAbCurrentRowInt() * 5) {
-      return Colors.transparent;  //later rows
+      return Colors.transparent; //later rows
     } else {
       String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
-      String testLetter = game.getCardLetterAtAbIndex(
-          abIndex);
+      String testLetter = game.getCardLetterAtAbIndex(abIndex);
       int testAbRow = abIndex ~/ 5;
       int testColumn = abIndex % 5;
       if (targetWord[testColumn] == testLetter) {

@@ -1,8 +1,3 @@
-//Volatile helpers for state of the game
-//int saveOrLoadKeysCountCache = 0;
+//Volatile cache helpers for state of the game
 bool backspaceSafeCache = true;
-
-String snapshotLast = "XXXXXXX";
-
-//bool oneLegalWordForRedCardsCache = false;
-//String legalWordTestedWordCache = "";
+String snapshotLastCache = "XXXXXXX";
