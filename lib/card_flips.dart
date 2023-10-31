@@ -37,7 +37,7 @@ class Flips {
       abCardFlourishFlipAngles[abRow][i] = 0.5;
       Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
         abCardFlourishFlipAngles[abRow][i] = 0.0;
-        if (i == 4) {
+        if (i == numBoards) {
           abCardFlourishFlipAngles.remove(abRow);
         }
         ss();

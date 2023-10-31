@@ -27,7 +27,6 @@ const double boardSpacer = 8;
 
 //Helper text
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm> ".split("");
-//final keyboardList = "mapresc<>".split("");
 const cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
 const cheatTargetWordsInitial = ["scoff", "brunt", "armor", "tabby"];
 final legalWords = kLegalWordsText.split("\n");
@@ -38,7 +37,7 @@ final isWebMobileReal = kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android);
 final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
-const noAnimations = false; //guc true && isWebMobileReal;
+const noAnimations = false; // true && isWebMobileReal;
 const slowDownFactor = 1;
 const int durMult = noAnimations ? 0 : 1 * slowDownFactor;
 const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
@@ -46,7 +45,6 @@ const gradualRevealDelay = delayMult *
     (durMult == 1 * slowDownFactor
         ? 100 * slowDownFactor
         : 250 * slowDownFactor);
-//int flipTimeOverrideFactor = 1;
 
 //Screen constants
 const double dividerHeight = 2;

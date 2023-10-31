@@ -346,6 +346,12 @@ class Game {
         }
 
         targetWords = gameTmp["targetWords"] ?? getNewTargetWords(numBoards);
+
+        if (targetWords.length != numBoards) {
+          resetBoard();
+          return;
+        }
+
         enteredWords = gameTmp["enteredWords"] ?? [];
         winRecordBoards = gameTmp["winRecordBoards"] ?? [];
         firstKnowledge =
@@ -444,8 +450,7 @@ class Game {
     }
     if (!expandingBoard) {
       return getPushOffBoardRows();
-    }
-    else if (boardNumber < firstKnowledge.length) {
+    } else if (boardNumber < firstKnowledge.length) {
       return firstKnowledge[boardNumber];
     } else {
       p("getFirstVisualRowToShowOnBoard error");
@@ -454,12 +459,8 @@ class Game {
   }
 
   List<int> getFirstAbRowToShowOnBoardDueToKnowledgeAll() {
-    return [
-      getFirstAbRowToShowOnBoardDueToKnowledge(0),
-      getFirstAbRowToShowOnBoardDueToKnowledge(1),
-      getFirstAbRowToShowOnBoardDueToKnowledge(2),
-      getFirstAbRowToShowOnBoardDueToKnowledge(3)
-    ];
+    return List<int>.generate(
+        numBoards, (i) => getFirstAbRowToShowOnBoardDueToKnowledge(i));
   }
 
   // PRETTY MUCH PURE GETTERS AND SETTERS

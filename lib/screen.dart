@@ -47,16 +47,15 @@ class Screen {
       } else {
         numPresentationBigRowsOfBoards = 1;
       }
-      int numSpacersAcross = (numBoards ~/ numPresentationBigRowsOfBoards) - 1;
+      int numSpacersAcross = ((numBoards + 1) ~/ numPresentationBigRowsOfBoards) - 1;
       int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
       cardLiveMaxPixel = min(
           (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
               numPresentationBigRowsOfBoards /
               numRowsPerBoard,
           (scW - numSpacersAcross * boardSpacer) /
-              (numBoards ~/ numPresentationBigRowsOfBoards) /
+              ((numBoards + 1)  ~/ numPresentationBigRowsOfBoards) /
               5);
-
       if (vertSpaceForGameboard >
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
               numSpacersDown * boardSpacer) {

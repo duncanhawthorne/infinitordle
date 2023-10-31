@@ -7,9 +7,9 @@ class CardColors {
   var cardColorsCache = [];
   var keyColorsCache = [];
 
-  List<dynamic> firstRowsToShowCache = [0, 0, 0, 0];
-  List<dynamic> targetWordsCacheForKey = ["x", "x", "x", "x"];
-  List<dynamic> targetWordsCacheForCard = ["x", "x", "x", "x"];
+  List<dynamic> firstRowsToShowCache = List.filled(numBoards, 0);
+  List<dynamic> targetWordsCacheForKey = List.filled(numBoards, "x");
+  List<dynamic> targetWordsCacheForCard = List.filled(numBoards, "x");
   int abCurrentRowIntCache = 0;
 
   Color getBestColorForLetter(kbIndex, boardNumber) {
