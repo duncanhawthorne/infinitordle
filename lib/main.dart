@@ -128,29 +128,37 @@ class _InfinitordleState extends State<Infinitordle> {
     var infText = numberWinsCache == 0
         ? "o"
         : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
-    return GestureDetector(
+    return InkWell(
         onTap: () {
           showResetConfirmScreen();
         },
-        child: FittedBox(
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: screen.appBarHeight * 40 / 56,
+        child: SizedBox(
+          height: screen.appBarHeight,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+                color: bg
+            ),
+            child: FittedBox(
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screen.appBarHeight * 40 / 56,
+                  ),
+                  children: <TextSpan>[
+                    const TextSpan(text: appTitle1),
+                    TextSpan(
+                        text: infText,
+                        style: TextStyle(
+                            color:
+                                numberWinsCache == 0 || game.getExpandingBoardEver()
+                                    ? Colors.white
+                                    : green)),
+                    const TextSpan(text: appTitle3),
+                  ],
+                ),
               ),
-              children: <TextSpan>[
-                const TextSpan(text: appTitle1),
-                TextSpan(
-                    text: infText,
-                    style: TextStyle(
-                        color:
-                            numberWinsCache == 0 || game.getExpandingBoardEver()
-                                ? Colors.white
-                                : green)),
-                const TextSpan(text: appTitle3),
-              ],
             ),
           ),
         ));
@@ -182,7 +190,7 @@ class _InfinitordleState extends State<Infinitordle> {
                       message: game.getExpandingBoard()
                           ? "Turn off expanding board"
                           : "Turn on expanding board",
-                      child: GestureDetector(
+                      child: InkWell(
                           onTap: () {
                             setState(() {
                               if (game.getExpandingBoard()) {
@@ -204,7 +212,7 @@ class _InfinitordleState extends State<Infinitordle> {
                     const SizedBox(width: 20),
                     Tooltip(
                       message: !g.signedIn() ? "Sign in" : "Sign out",
-                      child: GestureDetector(
+                      child: InkWell(
                           onTap: () {
                             setState(() {
                               if (!g.signedIn()) {
