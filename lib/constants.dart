@@ -6,7 +6,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:infinitordle/wordlist.dart';
 
 //Debug
-const bool cheatMode = false; //
+const bool cheatMode = false;
 
 //Branding
 const String appTitle = "infinitordle";
@@ -37,7 +37,7 @@ final isWebMobileReal = kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android);
 final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
-const noAnimations = false; // true && isWebMobileReal;
+const noAnimations = false;
 const slowDownFactor = 1;
 const int durMult = noAnimations ? 0 : 1 * slowDownFactor;
 const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;

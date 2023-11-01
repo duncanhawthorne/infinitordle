@@ -191,7 +191,6 @@ class _InfinitordleState extends State<Infinitordle> {
                                 game.setExpandingBoard(true);
                                 game.setExpandingBoardEver(true);
                               }
-                              //flips.initiateFlipState();
                               save.saveKeys();
                               focusNode.requestFocus();
                               Navigator.pop(context, 'Cancel');
@@ -200,10 +199,7 @@ class _InfinitordleState extends State<Infinitordle> {
                           },
                           child: game.getExpandingBoard()
                               ? const Icon(Icons.visibility, color: bg)
-                              : const Icon(Icons.visibility_off,
-                                  color:
-                                      bg) //  GoogleUserCircleAvatar(identity: currentUser)
-                          ),
+                              : const Icon(Icons.visibility_off, color: bg)),
                     ),
                     const SizedBox(width: 20),
                     Tooltip(
@@ -276,7 +272,6 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   Future<void> showLogoutConfirmationScreen(context) async {
-    //Navigator.pop(context);
     return showDialog<void>(
       context: context,
       barrierDismissible: true,

@@ -28,7 +28,6 @@ Widget _kbStackWithMiniGrid(index, length) {
     child: ClipRRect(
       borderRadius: BorderRadius.circular(
           0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight),
-      //borderRadius: BorderRadius.circular(10),
       child: Stack(
         children: [
           Center(
@@ -65,10 +64,8 @@ Widget _kbStackWithMiniGrid(index, length) {
 
 Widget _kbTextSquare(index) {
   return SizedBox(
-      height:
-          double.infinity, //keyboardSingleKeyEffectiveMaxPixelHeight, //500,
-      width: double
-          .infinity, // keyboardSingleKeyEffectiveMaxPixelHeight / keyAspectRatio, //500,
+      height: double.infinity,
+      width: double.infinity,
       child: FittedBox(
           fit: BoxFit.fitHeight,
           child: keyboardList[index] == "<"
@@ -118,9 +115,6 @@ Widget _kbMiniGridContainer(index, length) {
 }
 
 Widget _kbMiniSquareColor(kbIndex, subIndex) {
-  //return AnimatedContainer(
-  //  duration: const Duration(milliseconds: 500),
-  //  curve: Curves.fastOutSlowIn,
   return Container(
     height: 1000,
     decoration: BoxDecoration(

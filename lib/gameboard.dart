@@ -24,7 +24,7 @@ Widget gameboardWidget(boardNumber) {
                 child: GridView.builder(
                     cacheExtent:
                         10000, //prevents top card reloading (and flipping) on scroll
-                    reverse: true, // game.getExpandingBoard() ? true : false,
+                    reverse: true, //makes stick to bottom
                     physics: game.getExpandingBoard()
                         ? const AlwaysScrollableScrollPhysics()
                         : const NeverScrollableScrollPhysics(), //turns off ios scrolling

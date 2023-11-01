@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings
-
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
@@ -39,7 +37,7 @@ class Google {
 
     if (user == null) {
       //if sign in silently didn't work
-      await googleSignIn.signIn(); //
+      await googleSignIn.signIn();
       user = googleSignIn.currentUser;
     }
 

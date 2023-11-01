@@ -26,16 +26,13 @@ class Screen {
       //recalculate these key values for screen size changes
       scW = MediaQuery.of(context).size.width;
       scH = MediaQuery.of(context).size.height -
-          MediaQuery.of(context)
-              .padding
-              .top; // - (kIsWeb ? 0 : kBottomNavigationBarHeight);
-      appBarHeight = scH * 0.055; //min(56, max(40, scH * 0.05));
-      vertSpaceAfterTitle =
-          scH - appBarHeight - dividerHeight; //app bar and divider
+          MediaQuery.of(context).padding.top;
+      appBarHeight = scH * 0.055;
+      vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 
       keyboardSingleKeyLiveMaxPixelHeight = min(
           keyAspectRatioDefault * scW / 10,
-          keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3); //
+          keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3);
       vertSpaceForGameboard =
           vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
       vertSpaceForCardWithWrap =
@@ -47,14 +44,15 @@ class Screen {
       } else {
         numPresentationBigRowsOfBoards = 1;
       }
-      int numSpacersAcross = ((numBoards + 1) ~/ numPresentationBigRowsOfBoards) - 1;
+      int numSpacersAcross =
+          ((numBoards / numPresentationBigRowsOfBoards).ceil()) - 1;
       int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
       cardLiveMaxPixel = min(
           (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
               numPresentationBigRowsOfBoards /
               numRowsPerBoard,
           (scW - numSpacersAcross * boardSpacer) /
-              ((numBoards + 1)  ~/ numPresentationBigRowsOfBoards) /
+              (numBoards / numPresentationBigRowsOfBoards).ceil() /
               5);
       if (vertSpaceForGameboard >
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
@@ -63,15 +61,15 @@ class Screen {
         keyboardSingleKeyLiveMaxPixelHeight = min(
             keyAspectRatioDefault * scW / 10,
             (vertSpaceAfterTitle -
-                    cardLiveMaxPixel *
-                        numRowsPerBoard *
-                        numPresentationBigRowsOfBoards +
-                    numSpacersDown * boardSpacer) /
+                    (cardLiveMaxPixel *
+                            numRowsPerBoard *
+                            numPresentationBigRowsOfBoards +
+                        numSpacersDown * boardSpacer)) /
                 3);
       }
-    }
 
-    keyAspectRatioLive =
-        max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
+      keyAspectRatioLive =
+          max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
+    }
   }
 }

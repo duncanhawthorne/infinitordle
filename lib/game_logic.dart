@@ -69,6 +69,7 @@ class Game {
   }
 
   void handleLegalWordEntered() {
+    // set some local variable to ensure threadsafe
     int cardAbRowPreGuessToFix = getAbCurrentRowInt();
     int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows();
 
@@ -81,7 +82,7 @@ class Game {
     //Test if it is correct word
     bool isWin = false;
     aboutToWinCache = false;
-    int winningBoardToFix = -1; //local variable to ensure threadsafe
+    int winningBoardToFix = -1;
     for (var board = 0; board < numBoards; board++) {
       if (getCurrentTargetWordForBoard(board) ==
           enteredWords[cardAbRowPreGuessToFix]) {
@@ -287,7 +288,7 @@ class Game {
   var streakCache = {};
   bool getIsStreak() {
     if (!streakCache.containsKey(winRecordBoards.length)) {
-      streakCache = {}; //reset cache
+      streakCache = {};
       streakCache[winRecordBoards.length] = isStreakReal();
     }
     return streakCache[winRecordBoards.length];
@@ -369,7 +370,6 @@ class Game {
         //TRANSITIONARY logic from old variable naming convention
       } catch (error) {
         p(["loadFromEncodedState error", error]);
-        //resetBoardReal(true);
       }
       gameEncodedLastCache = gameEncoded;
     }

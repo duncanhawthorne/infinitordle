@@ -17,8 +17,8 @@ CardColors cardColors = CardColors();
 Screen screen = Screen();
 
 bool isListContains(list, bit) {
-  return binarySearch(list, bit) !=
-      -1; //sorted list so this is faster than doing contains
+  //sorted list so this is faster than doing contains
+  return binarySearch(list, bit) != -1;
 }
 
 // Memoisation
