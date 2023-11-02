@@ -21,6 +21,7 @@ const green = Colors.green;
 //Game design
 const numBoards = 4; //must be divisible by 2
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
+const cols = 5; //number of letters in a word
 const bool infMode = true;
 const infNumBacksteps = 1;
 const double boardSpacer = 8;

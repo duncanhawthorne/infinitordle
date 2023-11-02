@@ -39,7 +39,7 @@ class CardColors {
     Color? answer;
     String queryLetter = keyboardList[kbIndex];
     int abStart =
-        5 * max(0, game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
+        cols * max(0, game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
 
     if (queryLetter == " ") {
       answer = Colors.transparent;
@@ -47,7 +47,7 @@ class CardColors {
     if (answer == null) {
       // get color for the keyboard based on best (green > yellow > grey) color on the grid
       for (var abPosition = abStart;
-          abPosition < game.getAbCurrentRowInt() * 5;
+          abPosition < game.getAbCurrentRowInt() * cols;
           abPosition++) {
         if (game.getCardLetterAtAbIndex(abPosition) == queryLetter) {
           if (getAbCardColor(abPosition, boardNumber) == green) {
@@ -59,7 +59,7 @@ class CardColors {
     }
     if (answer == null) {
       for (var abPosition = abStart;
-          abPosition < game.getAbCurrentRowInt() * 5;
+          abPosition < game.getAbCurrentRowInt() * cols;
           abPosition++) {
         if (game.getCardLetterAtAbIndex(abPosition) == queryLetter) {
           if (getAbCardColor(abPosition, boardNumber) == amber) {
@@ -71,7 +71,7 @@ class CardColors {
     }
     if (answer == null) {
       for (var abPosition = abStart;
-          abPosition < game.getAbCurrentRowInt() * 5;
+          abPosition < game.getAbCurrentRowInt() * cols;
           abPosition++) {
         if (game.getCardLetterAtAbIndex(abPosition) == queryLetter) {
           answer = Colors.transparent;
@@ -88,12 +88,12 @@ class CardColors {
   }
 
   Color getAbCardColor(abIndex, boardNumber) {
-    if (abIndex >= game.getAbCurrentRowInt() * 5) {
+    if (abIndex >= game.getAbCurrentRowInt() * cols) {
       return Colors.transparent; // later rows
     }
 
     if (cardColorsCache.isEmpty ||
-        cardColorsCache[0].length != (game.getAbCurrentRowInt() * 5) ||
+        cardColorsCache[0].length != (game.getAbCurrentRowInt() * cols) ||
         !listEqual(game.getCurrentTargetWords(), targetWordsCacheForCard)) {
       resetCardColorsCache();
     }
@@ -111,13 +111,13 @@ class CardColors {
     }
 
     Color? answer;
-    if (abIndex >= game.getAbCurrentRowInt() * 5) {
+    if (abIndex >= game.getAbCurrentRowInt() * cols) {
       return Colors.transparent; //later rows
     } else {
       String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
       String testLetter = game.getCardLetterAtAbIndex(abIndex);
-      int testAbRow = abIndex ~/ 5;
-      int testColumn = abIndex % 5;
+      int testAbRow = abIndex ~/ cols;
+      int testColumn = abIndex % cols;
       if (targetWord[testColumn] == testLetter) {
         answer = green;
       } else if (targetWord.contains(testLetter)) {
@@ -125,16 +125,16 @@ class CardColors {
             testLetter.allMatches(targetWord).length;
         int numberOfYellowThisLetterToLeftInCardRow = 0;
         for (var i = 0; i < testColumn; i++) {
-          if (game.getCardLetterAtAbIndex(testAbRow * 5 + i) == testLetter &&
-              getAbCardColor(testAbRow * 5 + i, boardNumber) == amber) {
+          if (game.getCardLetterAtAbIndex(testAbRow * cols + i) == testLetter &&
+              getAbCardColor(testAbRow * cols + i, boardNumber) == amber) {
             numberOfYellowThisLetterToLeftInCardRow++;
           }
         }
 
         int numberOfGreenThisLetterInCardRow = 0;
-        for (var i = 0; i < 5; i++) {
-          if (game.getCardLetterAtAbIndex(testAbRow * 5 + i) == testLetter &&
-              targetWord[i] == game.getCardLetterAtAbIndex(testAbRow * 5 + i)) {
+        for (var i = 0; i < cols; i++) {
+          if (game.getCardLetterAtAbIndex(testAbRow * cols + i) == testLetter &&
+              targetWord[i] == game.getCardLetterAtAbIndex(testAbRow * cols + i)) {
             numberOfGreenThisLetterInCardRow++;
           }
         }
@@ -177,7 +177,7 @@ class CardColors {
     cardColorsCache = [];
     for (int i = 0; i < numBoards; i++) {
       cardColorsCache.add(
-          List<Color?>.generate((game.getAbCurrentRowInt() * 5), (i) => null));
+          List<Color?>.generate((game.getAbCurrentRowInt() * cols), (i) => null));
     }
   }
 }

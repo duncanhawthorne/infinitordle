@@ -50,7 +50,7 @@ class Game {
       }
     } else if (letter == ">") {
       //Submit guess
-      if (currentTyping.length == 5) {
+      if (currentTyping.length == cols) {
         //Full word entered, so can submit
         if (isLegalWord(currentTyping)) {
           //Legal word so can enter the word
@@ -60,7 +60,7 @@ class Game {
       }
     } else {
       //pressing regular letter key
-      if (currentTyping.length < 5) {
+      if (currentTyping.length < cols) {
         //Space to add extra letter
         currentTyping = currentTyping + letter;
         ss();
@@ -102,7 +102,7 @@ class Game {
     if (!isWin && getAbCurrentRowInt() >= getAbLiveNumRowsPerBoard()) {
       //All rows full, game over
       Future.delayed(
-          const Duration(milliseconds: gradualRevealDelay * 5 + durMult * 500),
+          const Duration(milliseconds: gradualRevealDelay * cols + durMult * 500),
           () {
         showResetConfirmScreen();
       });
@@ -255,19 +255,19 @@ class Game {
   }
 
   String getCardLetterAtAbIndex(abIndex) {
-    int rowOfAbIndex = abIndex ~/ 5;
+    int rowOfAbIndex = abIndex ~/ cols;
     try {
       String letter = "";
       if (rowOfAbIndex > getAbCurrentRowInt()) {
         letter = "";
       } else if (rowOfAbIndex == getAbCurrentRowInt()) {
-        if (currentTyping.length > (abIndex % 5)) {
-          letter = currentTyping.substring(abIndex % 5, (abIndex % 5) + 1);
+        if (currentTyping.length > (abIndex % cols)) {
+          letter = currentTyping.substring(abIndex % cols, (abIndex % cols) + 1);
         } else {
           letter = "";
         }
       } else {
-        letter = enteredWords[rowOfAbIndex][abIndex % 5];
+        letter = enteredWords[rowOfAbIndex][abIndex % cols];
       }
       return letter;
     } catch (e) {
@@ -317,8 +317,8 @@ class Game {
         abRow < min(getAbCurrentRowInt(), maxAbRowToCheck);
         abRow++) {
       bool result = true;
-      for (var column = 0; column < 5; column++) {
-        int abIndex = abRow * 5 + column;
+      for (var column = 0; column < cols; column++) {
+        int abIndex = abRow * cols + column;
         if (cardColors.getAbCardColor(abIndex, boardNumber) != green) {
           result = false;
         }

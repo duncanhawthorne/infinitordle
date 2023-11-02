@@ -27,11 +27,11 @@ bool isListContains(list, bit) {
 class LegalWord {
   var legalWordCache = {};
   bool call(String word) {
-    if (word.length != 5) {
+    if (word.length != cols) {
       return false;
     }
     if (!legalWordCache.containsKey(word)) {
-      if (legalWordCache.length > 5) {
+      if (legalWordCache.length > 3) {
         //reset cache
         legalWordCache = {};
       }
@@ -83,9 +83,9 @@ int getGBRowFromABRow(abRow) {
 }
 
 int getABIndexFromGBIndex(gbIndex) {
-  return gbIndex + 5 * game.getPushOffBoardRows();
+  return gbIndex + cols * game.getPushOffBoardRows();
 }
 
 int getGBIndexFromABIndex(abIndex) {
-  return abIndex - 5 * game.getPushOffBoardRows();
+  return abIndex - cols * game.getPushOffBoardRows();
 }

@@ -19,7 +19,7 @@ Widget gameboardWidget(boardNumber) {
               },
               child: Container(
                 constraints: BoxConstraints(
-                    maxWidth: 5 * screen.cardLiveMaxPixel,
+                    maxWidth: cols * screen.cardLiveMaxPixel,
                     maxHeight: numRowsPerBoard * screen.cardLiveMaxPixel),
                 child: GridView.builder(
                     cacheExtent:
@@ -28,16 +28,16 @@ Widget gameboardWidget(boardNumber) {
                     physics: game.getExpandingBoard()
                         ? const AlwaysScrollableScrollPhysics()
                         : const NeverScrollableScrollPhysics(), //turns off ios scrolling
-                    itemCount: game.getGbLiveNumRowsPerBoard() * 5,
+                    itemCount: game.getGbLiveNumRowsPerBoard() * cols,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 5,
+                      crossAxisCount: cols,
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       return _cardFlipper(
-                          (game.getAbLiveNumRowsPerBoard() - index ~/ 5 - 1) *
-                                  5 +
-                              index % 5,
+                          (game.getAbLiveNumRowsPerBoard() - index ~/ cols - 1) *
+                                  cols +
+                              index % cols,
                           boardNumber);
                     }),
               ))));
@@ -90,7 +90,7 @@ Widget _sizedCard(abIndex, boardNumber, val, bf) {
 }
 
 Widget _card(abIndex, boardNumber, val, bf) {
-  int rowOfAbIndex = abIndex ~/ 5;
+  int rowOfAbIndex = abIndex ~/ cols;
   bool historicalWin = game.getTestHistoricalAbWin(rowOfAbIndex, boardNumber);
 
   return Container(
@@ -121,7 +121,7 @@ Widget _card(abIndex, boardNumber, val, bf) {
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
                     ? rowOfAbIndex == game.getAbCurrentRowInt() &&
-                            game.getCurrentTyping().length == 5 &&
+                            game.getCurrentTyping().length == cols &&
                             !isLegalWord(game.getCurrentTyping())
                         ? Colors.red
                         : grey
@@ -136,7 +136,7 @@ Widget _card(abIndex, boardNumber, val, bf) {
 }
 
 Widget _cardText(abIndex, boardNumber) {
-  int rowOfAbIndex = abIndex ~/ 5;
+  int rowOfAbIndex = abIndex ~/ cols;
   return Text(
     game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
     style: TextStyle(

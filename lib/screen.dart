@@ -39,7 +39,7 @@ class Screen {
       vertSpaceForCardWithWrap =
           ((vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
       horizSpaceForCardNoWrap =
-          (scW - (numBoards - 1) * boardSpacer) / numBoards / 5;
+          (scW - (numBoards - 1) * boardSpacer) / numBoards / cols;
       if (vertSpaceForCardWithWrap > horizSpaceForCardNoWrap) {
         numPresentationBigRowsOfBoards = 2;
       } else {
@@ -54,7 +54,7 @@ class Screen {
               numRowsPerBoard,
           (scW - numSpacersAcross * boardSpacer) /
               (numBoards / numPresentationBigRowsOfBoards).ceil() /
-              5);
+              cols);
       if (vertSpaceForGameboard >
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
               numSpacersDown * boardSpacer) {
