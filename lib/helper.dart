@@ -9,12 +9,14 @@ import 'package:infinitordle/saves.dart';
 import 'package:infinitordle/game_logic.dart';
 import 'package:infinitordle/screen.dart';
 import 'package:infinitordle/constants.dart';
+import 'package:infinitordle/google_logic.dart';
 
 Game game = Game();
 Save save = Save();
 Flips flips = Flips();
 CardColors cardColors = CardColors();
 Screen screen = Screen();
+Google g = Google();
 
 bool isListContains(list, bit) {
   //sorted list so this is faster than doing contains
@@ -42,6 +44,9 @@ class LegalWord {
 LegalWord isLegalWord = LegalWord();
 
 bool listEqual(a, b) {
+  if (a.length != b.length) {
+    return false;
+  }
   for (int i = 0; i < a.length; i++) {
     if (a[i] != b[i]) {
       return false;

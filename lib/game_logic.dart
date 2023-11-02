@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
-import 'package:infinitordle/google_logic.dart';
 
 class Game {
   //State to save

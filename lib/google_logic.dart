@@ -63,5 +63,3 @@ class Google {
     await save.loadKeys();
   }
 }
-
-Google g = Google();

@@ -13,10 +13,10 @@ class CardColors {
   int abCurrentRowIntCache = 0;
 
   Color getBestColorForLetter(kbIndex, boardNumber) {
-    if (!listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
+    if (game.getAbCurrentRowInt() != abCurrentRowIntCache ||
+        !listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
             firstRowsToShowCache) ||
-        !listEqual(game.getCurrentTargetWords(), targetWordsCacheForKey) ||
-        game.getAbCurrentRowInt() != abCurrentRowIntCache) {
+        !listEqual(game.getCurrentTargetWords(), targetWordsCacheForKey)) {
       resetKeyColorsCache();
     }
 

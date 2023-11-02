@@ -6,7 +6,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/app_structure.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
@@ -133,11 +132,10 @@ class _InfinitordleState extends State<Infinitordle> {
           showResetConfirmScreen();
         },
         child: SizedBox(
-          height: screen.appBarHeight,
+          height: screen
+              .appBarHeight, //so whole vertical space of appbar is clickable
           child: DecoratedBox(
-            decoration: const BoxDecoration(
-                color: bg
-            ),
+            decoration: const BoxDecoration(color: bg),
             child: FittedBox(
               child: RichText(
                 text: TextSpan(
@@ -151,10 +149,10 @@ class _InfinitordleState extends State<Infinitordle> {
                     TextSpan(
                         text: infText,
                         style: TextStyle(
-                            color:
-                                numberWinsCache == 0 || game.getExpandingBoardEver()
-                                    ? Colors.white
-                                    : green)),
+                            color: numberWinsCache == 0 ||
+                                    game.getExpandingBoardEver()
+                                ? Colors.white
+                                : green)),
                     const TextSpan(text: appTitle3),
                   ],
                 ),
@@ -176,104 +174,124 @@ class _InfinitordleState extends State<Infinitordle> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(appTitle),
-              SizedBox(
-                width: 90,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Tooltip(
-                      message: game.getExpandingBoard()
-                          ? "Turn off expanding board"
-                          : "Turn on expanding board",
-                      child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              if (game.getExpandingBoard()) {
-                                game.setExpandingBoard(false);
-                              } else {
-                                game.setExpandingBoard(true);
-                                game.setExpandingBoardEver(true);
-                              }
-                              save.saveKeys();
-                              focusNode.requestFocus();
-                              Navigator.pop(context, 'Cancel');
-                              ss();
-                            });
-                          },
-                          child: game.getExpandingBoard()
-                              ? const Icon(Icons.visibility, color: bg)
-                              : const Icon(Icons.visibility_off, color: bg)),
-                    ),
-                    const SizedBox(width: 20),
-                    Tooltip(
-                      message: !g.signedIn() ? "Sign in" : "Sign out",
-                      child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              if (!g.signedIn()) {
-                                g.signIn();
-                                Navigator.pop(context, 'OK');
-                              } else {
-                                showLogoutConfirmationScreen(context);
-                              }
-                              focusNode.requestFocus();
-                            });
-                          },
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(appTitle),
+                  SizedBox(
+                    width: 130,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Tooltip(
+                            message: game.getExpandingBoard()
+                                ? "Turn off expanding board"
+                                : "Turn on expanding board",
+                            child: IconButton(
+                              iconSize: 25,
+                              icon: game.getExpandingBoard()
+                                  ? const Icon(Icons.visibility, color: bg)
+                                  : const Icon(Icons.visibility_off, color: bg),
+                              onPressed: () {
+                                if (game.getExpandingBoard()) {
+                                  game.setExpandingBoard(false);
+                                } else {
+                                  game.setExpandingBoard(true);
+                                  game.setExpandingBoardEver(true);
+                                }
+                                save.saveKeys();
+                                //focusNode.requestFocus();
+                                //Navigator.pop(context, 'Cancel');
+                                ss(); //global state
+                                setState(() {}); //state inside dialog
+                              },
+                            )),
+                        const SizedBox(width: 8),
+                        Tooltip(
+                          message: !g.signedIn() ? "Sign in" : "Sign out",
                           child: !g.signedIn()
-                              ? const Icon(Icons.lock, color: bg)
+                              ? IconButton(
+                                  iconSize: 25,
+                                  icon: const Icon(Icons.lock, color: bg),
+                                  onPressed: () {
+                                    g.signIn();
+                                    Navigator.pop(context, 'OK');
+                                    focusNode.requestFocus();
+                                    ss();
+                                  },
+                                )
                               : g.getUserIcon() == gUserIconDefault
-                                  ? const Icon(Icons.face, color: bg)
-                                  : CircleAvatar(
-                                      backgroundImage: NetworkImage(g
-                                          .getUserIcon())) //  GoogleUserCircleAvatar(identity: currentUser)
-                          ),
-                    )
-                  ],
-                ),
+                                  ? IconButton(
+                                      iconSize: 25,
+                                      icon: const Icon(Icons.face, color: bg),
+                                      onPressed: () {
+                                        showLogoutConfirmationScreen(context);
+                                        focusNode.requestFocus();
+                                        ss();
+                                      },
+                                    )
+                                  : IconButton(
+                                      iconSize: 50,
+                                      icon: CircleAvatar(
+                                          backgroundImage:
+                                              NetworkImage(g.getUserIcon())),
+                                      onPressed: () {
+                                        showLogoutConfirmationScreen(context);
+                                        focusNode.requestFocus();
+                                        ss();
+                                      },
+                                    ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          content: Text(end
-              ? "You got " +
-                  numberWinsCache.toString() +
-                  " word" +
-                  (numberWinsCache == 1 ? "" : "s") +
-                  ": " +
-                  winWordsCache.join(", ") +
-                  "\n\nYou missed: " +
-                  game.targetWords.join(", ") +
-                  "\n\nReset the board?"
-              : "You've got " +
-                  numberWinsCache.toString() +
-                  " word" +
-                  (numberWinsCache == 1 ? "" : "s") +
-                  ' so far' +
-                  (numberWinsCache != 0 ? ":" : "") +
-                  ' ' +
-                  winWordsCache.join(", ") +
-                  "\n\n"
-                      'Lose your progress and reset the board?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () =>
-                  {focusNode.requestFocus(), Navigator.pop(context, 'Cancel')},
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => {
-                game.resetBoard(),
-                focusNode.requestFocus(),
-                Navigator.pop(context, 'OK'),
-                setState(() {})
-              },
-              child: const Text('Reset', style: TextStyle(color: Colors.red)),
-            ),
-          ],
+              content: Text(end
+                  ? "You got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ": " +
+                      winWordsCache.join(", ") +
+                      "\n\nYou missed: " +
+                      game.targetWords.join(", ") +
+                      "\n\nReset the board?"
+                  : "You've got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ' so far' +
+                      (numberWinsCache != 0 ? ":" : "") +
+                      ' ' +
+                      winWordsCache.join(", ") +
+                      "\n\n"
+                          'Lose your progress and reset the board?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => {
+                    focusNode.requestFocus(),
+                    Navigator.pop(context, 'Cancel')
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => {
+                    game.resetBoard(),
+                    focusNode.requestFocus(),
+                    Navigator.pop(context, 'OK'),
+                    //setState(() {}),
+                    ss()
+                  },
+                  child:
+                      const Text('Reset', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -297,7 +315,8 @@ class _InfinitordleState extends State<Infinitordle> {
                 g.signOut(),
                 Navigator.pop(context, 'OK'),
                 Navigator.pop(context, 'OK'),
-                setState(() {})
+                //setState(() {}),
+                ss()
               },
               child:
                   const Text('Sign out', style: TextStyle(color: Colors.red)),
