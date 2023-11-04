@@ -10,12 +10,7 @@ Widget gameboardWidget(boardNumber) {
           color: Colors.transparent,
           child: InkWell(
               onTap: () {
-                if (game.getHighlightedBoard() == boardNumber) {
-                  game.setHighlightedBoard(-1); //if already set turn off
-                } else {
-                  game.setHighlightedBoard(boardNumber);
-                }
-                ss();
+                game.flipHighlightedBoard(boardNumber);
               },
               child: Container(
                 constraints: BoxConstraints(

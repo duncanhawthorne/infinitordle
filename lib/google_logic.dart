@@ -49,7 +49,7 @@ class Google {
       await save.saveUser();
       await save.loadKeys();
     }
-    ss();
+    //ss();
   }
 
   Future<void> signOut() async {
@@ -61,5 +61,6 @@ class Google {
     await save.saveUser();
     game.resetBoard();
     await save.loadKeys();
+    //ss();
   }
 }

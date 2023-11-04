@@ -39,7 +39,7 @@ class Save {
       );
     }
     game.loadFromEncodedState(gameEncoded);
-    ss();
+    //ss();
   }
 
   Future<void> saveKeys() async {

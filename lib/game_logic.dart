@@ -33,6 +33,7 @@ class Game {
   int temporaryVisualOffsetForSlide = 0;
   String gameEncodedLastCache = "";
   int highlightedBoard = -1; //non-saved state
+  var abCardFlourishFlipAngles = {};
 
   void onKeyboardTapped(int index) {
     String letter = keyboardList[index];
@@ -76,7 +77,7 @@ class Game {
     enteredWords.add(currentTyping);
     currentTyping = "";
     winRecordBoards.add(-2); //Add now, fix value later
-    flips.gradualRevealAbRow(cardAbRowPreGuessToFix);
+    gradualRevealAbRow(cardAbRowPreGuessToFix);
     analytics.logLevelUp(level: enteredWords.length);
 
     //Test if it is correct word
@@ -141,7 +142,7 @@ class Game {
         // But still log win in any event
         logWinAndSetNewWord(
             cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
-        ss();
+        //ss();
       } else {
         // Not at very top of board, so can do sliding
 
@@ -157,7 +158,7 @@ class Game {
 
           // Actually move the cards up, so state matches visual illusion above
           takeOneStepBack();
-          ss();
+          //ss();
 
           // Cards are now in the right place and state matches visuals
 
@@ -167,7 +168,7 @@ class Game {
             // Log the win (show row green), and get a new word
             logWinAndSetNewWord(
                 cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
-            ss();
+            //ss();
 
             if (getIsStreak()) {
               // Streak, so need to take another step back
@@ -193,7 +194,7 @@ class Game {
 
                     // Actually move the cards up, so state matches visual illusion above
                     takeOneStepBack();
-                    ss();
+                    //ss();
 
                     // Cards are now in the right place and state matches visuals
                   });
@@ -211,6 +212,7 @@ class Game {
     // Use variables at the time word was entered rather than live variables
     pushUpSteps++;
     save.saveKeys();
+    ss();
   }
 
   void logWinAndSetNewWord(
@@ -229,6 +231,24 @@ class Game {
     targetWords[winningBoardToFix] = getNewTargetWord();
 
     save.saveKeys();
+    ss();
+  }
+
+  void gradualRevealAbRow(abRow) {
+    // flip to reveal the colors with pleasing animation
+    for (int i = 0; i < cols; i++) {
+      if (!abCardFlourishFlipAngles.containsKey(abRow)) {
+        abCardFlourishFlipAngles[abRow] = List.filled(cols, 0.0);
+      }
+      abCardFlourishFlipAngles[abRow][i] = 0.5;
+      Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
+        abCardFlourishFlipAngles[abRow][i] = 0.0;
+        if (i == cols - 1) {
+          abCardFlourishFlipAngles.remove(abRow);
+        }
+        ss();
+      });
+    }
   }
 
   void cheatInitiate() {
@@ -252,6 +272,27 @@ class Game {
     analytics.logLevelStart(levelName: "Reset");
     analytics.logLevelUp(level: enteredWords.length);
     save.saveKeys();
+  }
+
+  void flipExpandingBoardState() {
+    if (expandingBoard) {
+      expandingBoard = false;
+    } else {
+      expandingBoard = true;
+      expandingBoardEver = true;
+    }
+    save.saveKeys();
+    ss();
+  }
+
+  void flipHighlightedBoard(boardNumber) {
+    if (highlightedBoard == boardNumber) {
+      highlightedBoard = -1; //if already set turn off
+    } else {
+      highlightedBoard = boardNumber;
+    }
+    //No need to save as local state
+    ss();
   }
 
   String getCardLetterAtAbIndex(abIndex) {
@@ -343,6 +384,7 @@ class Game {
           //Error state, so set gUser properly and redo loadKeys from firebase
           g.setUser(tmpgUser);
           save.loadKeys();
+          ss();
           return;
         }
 
@@ -493,7 +535,7 @@ class Game {
     return getGBRowFromABRow(getAbCurrentRowInt());
   }
 
-  // PURE GETTERS AND SETTERS
+  // PURE GETTERS
 
   bool getAboutToWinCache() {
     return aboutToWinCache;
@@ -503,16 +545,8 @@ class Game {
     return expandingBoard;
   }
 
-  void setExpandingBoard(tf) {
-    expandingBoard = tf;
-  }
-
   bool getExpandingBoardEver() {
     return expandingBoardEver;
-  }
-
-  void setExpandingBoardEver(tf) {
-    expandingBoardEver = tf;
   }
 
   List getCurrentTargetWords() {
@@ -525,10 +559,6 @@ class Game {
 
   int getHighlightedBoard() {
     return highlightedBoard;
-  }
-
-  void setHighlightedBoard(hb) {
-    highlightedBoard = hb;
   }
 
   List getFirstKnowledge() {
