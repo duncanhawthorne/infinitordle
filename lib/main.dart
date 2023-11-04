@@ -56,17 +56,20 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
     super.initState();
+
+    //Hack to make these functions available globally
+    ss_function.add(ss);
+    show_reset_function.add(showResetConfirmScreen);
+
     game.initiateBoard();
     save.loadUser();
     save.loadKeys();
-    globalFunctions.add(ss);
-    globalFunctions.add(showResetConfirmScreen);
-    setState(() {});
+    //ss();
     for (int i = 0; i < 10; i++) {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
         //Hack, but makes sure things set right shortly after starting
         fixTitle();
-        setState(() {});
+        ss();
       });
     }
   }

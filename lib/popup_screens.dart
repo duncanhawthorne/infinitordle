@@ -57,30 +57,24 @@ Future<void> showResetConfirmScreenReal(context) async {
                                   g.signIn();
                                   Navigator.pop(context, 'OK');
                                   focusNode.requestFocus();
-                                  ss();
+                                  //ss();
                                 },
                               )
-                            : g.getUserIcon() == gUserIconDefault
-                                ? IconButton(
-                                    iconSize: 25,
-                                    icon: const Icon(Icons.face, color: bg),
-                                    onPressed: () {
-                                      showLogoutConfirmationScreen(context);
-                                      focusNode.requestFocus();
-                                      ss();
-                                    },
-                                  )
-                                : IconButton(
-                                    iconSize: 50,
-                                    icon: CircleAvatar(
+                            : IconButton(
+                                iconSize: g.getUserIcon() == gUserIconDefault
+                                    ? 25
+                                    : 50,
+                                icon: g.getUserIcon() == gUserIconDefault
+                                    ? const Icon(Icons.face, color: bg)
+                                    : CircleAvatar(
                                         backgroundImage:
                                             NetworkImage(g.getUserIcon())),
-                                    onPressed: () {
-                                      showLogoutConfirmationScreen(context);
-                                      focusNode.requestFocus();
-                                      ss();
-                                    },
-                                  ),
+                                onPressed: () {
+                                  showLogoutConfirmationScreen(context);
+                                  focusNode.requestFocus();
+                                  //ss();
+                                },
+                              ),
                       )
                     ],
                   ),
@@ -121,7 +115,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                   focusNode.requestFocus(),
                   Navigator.pop(context, 'OK'),
                   //setState(() {}),
-                  ss()
+                  //ss()
                 },
                 child: const Text('Reset', style: TextStyle(color: Colors.red)),
               ),
@@ -152,7 +146,7 @@ Future<void> showLogoutConfirmationScreen(context) async {
               Navigator.pop(context, 'OK'),
               Navigator.pop(context, 'OK'),
               //setState(() {}),
-              ss()
+              //ss()
             },
             child: const Text('Sign out', style: TextStyle(color: Colors.red)),
           ),

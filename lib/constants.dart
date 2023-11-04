@@ -60,12 +60,16 @@ FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 //Misc
 final Random random = Random();
-var globalFunctions = [];
+
+var ss_function = [];
+var show_reset_function = [];
 
 void ss() {
-  globalFunctions[0]();
+  // hack
+  ss_function[0]();
 }
 
 void showResetConfirmScreen() {
-  globalFunctions[1]();
+  // hack
+  show_reset_function[0]();
 }

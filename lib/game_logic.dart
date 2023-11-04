@@ -8,32 +8,43 @@ class Game {
   List<dynamic> targetWords = ["x"];
   List<dynamic> enteredWords = ["x"];
   List<dynamic> winRecordBoards = [-1];
-  var currentTyping = "x";
   List<dynamic> firstKnowledge = ["x"];
   int pushUpSteps = -1;
   bool expandingBoard = false;
   bool expandingBoardEver = false;
 
+  //Other state non-saved
+  var currentTyping = "x";
+  int highlightedBoard = -2;
+
+  //transitive state
+  bool aboutToWinCache = false;
+  int temporaryVisualOffsetForSlide = 0;
+  String gameEncodedLastCache = "";
+  var abCardFlourishFlipAngles = {};
+
   void initiateBoard() {
     targetWords = getNewTargetWords(numBoards);
     enteredWords = [];
     winRecordBoards = [];
-    currentTyping = "";
     firstKnowledge = getBlankFirstKnowledge(numBoards);
     pushUpSteps = 0;
     expandingBoard = false;
     expandingBoardEver = false;
+
+    currentTyping = "";
+    highlightedBoard = -1;
+
+    aboutToWinCache = false;
+    temporaryVisualOffsetForSlide = 0;
+    //gameEncodedLastCache = ""; Dont reset else new d/l will show as change
+    abCardFlourishFlipAngles = {};
+
     if (cheatMode) {
       cheatInitiate();
     }
+    ss();
   }
-
-  //Other state
-  bool aboutToWinCache = false;
-  int temporaryVisualOffsetForSlide = 0;
-  String gameEncodedLastCache = "";
-  int highlightedBoard = -1; //non-saved state
-  var abCardFlourishFlipAngles = {};
 
   void onKeyboardTapped(int index) {
     String letter = keyboardList[index];
@@ -103,8 +114,8 @@ class Game {
     if (!isWin && getAbCurrentRowInt() >= getAbLiveNumRowsPerBoard()) {
       //All rows full, game over
       Future.delayed(
-          const Duration(milliseconds: gradualRevealDelay * cols + durMult * 500),
-          () {
+          const Duration(
+              milliseconds: gradualRevealDelay * cols + durMult * 500), () {
         showResetConfirmScreen();
       });
     }
@@ -244,7 +255,10 @@ class Game {
       Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
         abCardFlourishFlipAngles[abRow][i] = 0.0;
         if (i == cols - 1) {
-          abCardFlourishFlipAngles.remove(abRow);
+          if (abCardFlourishFlipAngles.containsKey(abRow)) {
+            // Due to delays check still exists before remove
+            abCardFlourishFlipAngles.remove(abRow);
+          }
         }
         ss();
       });
@@ -303,7 +317,8 @@ class Game {
         letter = "";
       } else if (rowOfAbIndex == getAbCurrentRowInt()) {
         if (currentTyping.length > (abIndex % cols)) {
-          letter = currentTyping.substring(abIndex % cols, (abIndex % cols) + 1);
+          letter =
+              currentTyping.substring(abIndex % cols, (abIndex % cols) + 1);
         } else {
           letter = "";
         }
@@ -374,6 +389,7 @@ class Game {
   void loadFromEncodedState(gameEncoded) {
     if (gameEncoded == "") {
       p(["loadFromEncodedState empty"]);
+      ss();
     } else if (gameEncoded != gameEncodedLastCache) {
       try {
         Map<String, dynamic> gameTmp = {};
@@ -414,6 +430,7 @@ class Game {
         p(["loadFromEncodedState error", error]);
       }
       gameEncodedLastCache = gameEncoded;
+      ss();
     }
   }
 
