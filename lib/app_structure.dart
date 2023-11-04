@@ -7,7 +7,6 @@ import 'package:infinitordle/gameboard.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 FocusNode focusNode = FocusNode();
 
 Widget infinitordleWidget() {

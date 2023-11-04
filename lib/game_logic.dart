@@ -310,12 +310,12 @@ class Game {
   }
 
   String getCardLetterAtAbIndex(abIndex) {
-    int rowOfAbIndex = abIndex ~/ cols;
+    int abRow = abIndex ~/ cols;
     try {
       String letter = "";
-      if (rowOfAbIndex > getAbCurrentRowInt()) {
+      if (abRow > getAbCurrentRowInt()) {
         letter = "";
-      } else if (rowOfAbIndex == getAbCurrentRowInt()) {
+      } else if (abRow == getAbCurrentRowInt()) {
         if (currentTyping.length > (abIndex % cols)) {
           letter =
               currentTyping.substring(abIndex % cols, (abIndex % cols) + 1);
@@ -323,7 +323,7 @@ class Game {
           letter = "";
         }
       } else {
-        letter = enteredWords[rowOfAbIndex][abIndex % cols];
+        letter = enteredWords[abRow][abIndex % cols];
       }
       return letter;
     } catch (e) {
@@ -332,10 +332,10 @@ class Game {
     }
   }
 
-  bool getTestHistoricalAbWin(rowOfAbIndex, boardNumber) {
-    if (rowOfAbIndex > 0 &&
-        winRecordBoards.length > rowOfAbIndex &&
-        winRecordBoards[rowOfAbIndex] == boardNumber) {
+  bool getTestHistoricalAbWin(abRow, boardNumber) {
+    if (abRow > 0 &&
+        winRecordBoards.length > abRow &&
+        winRecordBoards[abRow] == boardNumber) {
       return true;
     }
     return false;

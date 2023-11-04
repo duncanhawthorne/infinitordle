@@ -38,19 +38,19 @@ class CardColors {
 
     Color? answer;
     String queryLetter = keyboardList[kbIndex];
-    int abStart =
-        cols * max(0, game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
+    int abStart = cols *
+        max(0, game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
 
     if (queryLetter == " ") {
       answer = Colors.transparent;
     }
     if (answer == null) {
       // get color for the keyboard based on best (green > yellow > grey) color on the grid
-      for (var abPosition = abStart;
-          abPosition < game.getAbCurrentRowInt() * cols;
-          abPosition++) {
-        if (game.getCardLetterAtAbIndex(abPosition) == queryLetter) {
-          if (getAbCardColor(abPosition, boardNumber) == green) {
+      for (var abIndex = abStart;
+          abIndex < game.getAbCurrentRowInt() * cols;
+          abIndex++) {
+        if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
+          if (getAbCardColor(abIndex, boardNumber) == green) {
             answer = green;
             break;
           }
@@ -58,11 +58,11 @@ class CardColors {
       }
     }
     if (answer == null) {
-      for (var abPosition = abStart;
-          abPosition < game.getAbCurrentRowInt() * cols;
-          abPosition++) {
-        if (game.getCardLetterAtAbIndex(abPosition) == queryLetter) {
-          if (getAbCardColor(abPosition, boardNumber) == amber) {
+      for (var abIndex = abStart;
+          abIndex < game.getAbCurrentRowInt() * cols;
+          abIndex++) {
+        if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
+          if (getAbCardColor(abIndex, boardNumber) == amber) {
             answer = amber;
             break;
           }
@@ -70,10 +70,10 @@ class CardColors {
       }
     }
     if (answer == null) {
-      for (var abPosition = abStart;
-          abPosition < game.getAbCurrentRowInt() * cols;
-          abPosition++) {
-        if (game.getCardLetterAtAbIndex(abPosition) == queryLetter) {
+      for (var abIndex = abStart;
+          abIndex < game.getAbCurrentRowInt() * cols;
+          abIndex++) {
+        if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
           answer = Colors.transparent;
           break;
         }
@@ -134,7 +134,8 @@ class CardColors {
         int numberOfGreenThisLetterInCardRow = 0;
         for (var i = 0; i < cols; i++) {
           if (game.getCardLetterAtAbIndex(testAbRow * cols + i) == testLetter &&
-              targetWord[i] == game.getCardLetterAtAbIndex(testAbRow * cols + i)) {
+              targetWord[i] ==
+                  game.getCardLetterAtAbIndex(testAbRow * cols + i)) {
             numberOfGreenThisLetterInCardRow++;
           }
         }
@@ -176,8 +177,8 @@ class CardColors {
     }
     cardColorsCache = [];
     for (int i = 0; i < numBoards; i++) {
-      cardColorsCache.add(
-          List<Color?>.generate((game.getAbCurrentRowInt() * cols), (i) => null));
+      cardColorsCache.add(List<Color?>.generate(
+          (game.getAbCurrentRowInt() * cols), (i) => null));
     }
   }
 }

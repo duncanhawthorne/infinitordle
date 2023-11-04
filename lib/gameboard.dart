@@ -30,7 +30,9 @@ Widget gameboardWidget(boardNumber) {
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       return _cardFlipper(
-                          (game.getAbLiveNumRowsPerBoard() - index ~/ cols - 1) *
+                          (game.getAbLiveNumRowsPerBoard() -
+                                      index ~/ cols -
+                                      1) *
                                   cols +
                               index % cols,
                           boardNumber);
@@ -85,8 +87,8 @@ Widget _sizedCard(abIndex, boardNumber, val, bf) {
 }
 
 Widget _card(abIndex, boardNumber, val, bf) {
-  int rowOfAbIndex = abIndex ~/ cols;
-  bool historicalWin = game.getTestHistoricalAbWin(rowOfAbIndex, boardNumber);
+  int abRow = abIndex ~/ cols;
+  bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber);
 
   return Container(
     padding: EdgeInsets.all(0.005 * screen.cardLiveMaxPixel),
@@ -108,14 +110,13 @@ Widget _card(abIndex, boardNumber, val, bf) {
             borderRadius: BorderRadius.circular(
                 0.2 * screen.cardLiveMaxPixel), //needed for green border
             color: (!infMode &&
-                        game.getDetectBoardSolvedByABRow(
-                            boardNumber, rowOfAbIndex)) ||
-                    rowOfAbIndex <
+                        game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
+                    abRow <
                         game.getFirstAbRowToShowOnBoardDueToKnowledge(
                             boardNumber)
                 ? Colors.transparent // bg //"hide" after solved board
                 : bf == "b"
-                    ? rowOfAbIndex == game.getAbCurrentRowInt() &&
+                    ? abRow == game.getAbCurrentRowInt() &&
                             game.getCurrentTyping().length == cols &&
                             !isLegalWord(game.getCurrentTyping())
                         ? Colors.red
@@ -131,16 +132,14 @@ Widget _card(abIndex, boardNumber, val, bf) {
 }
 
 Widget _cardText(abIndex, boardNumber) {
-  int rowOfAbIndex = abIndex ~/ cols;
+  int abRow = abIndex ~/ cols;
   return Text(
     game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
     style: TextStyle(
       fontSize: screen.cardLiveMaxPixel,
       color: (!infMode &&
-                  game.getDetectBoardSolvedByABRow(
-                      boardNumber, rowOfAbIndex)) ||
-              rowOfAbIndex <
-                  game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
+                  game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
+              abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
           ? Colors.transparent // bg //"hide" after being solved
           : game.getHighlightedBoard() == -1
               ? Colors.white
