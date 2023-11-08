@@ -61,15 +61,15 @@ FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 //Misc
 final Random random = Random();
 
-var ss_function = [];
-var show_reset_function = [];
+var ssFunctionList = [];
+var showResetScreenFunctionList = [];
 
 void ss() {
-  // hack
-  ss_function[0]();
+  //Hack to make these functions available globally
+  ssFunctionList[0]();
 }
 
 void showResetConfirmScreen() {
-  // hack
-  show_reset_function[0]();
+  //Hack to make these functions available globally
+  showResetScreenFunctionList[0]();
 }
