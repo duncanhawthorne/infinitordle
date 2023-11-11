@@ -38,7 +38,7 @@ class Save {
         onError: (e) => print("Error getting document: $e"),
       );
     }
-    game.loadFromEncodedState(gameEncoded);
+    game.loadFromEncodedState(gameEncoded, true);
     //ss();
   }
 

@@ -386,7 +386,7 @@ class Game {
     return false;
   }
 
-  void loadFromEncodedState(gameEncoded) {
+  void loadFromEncodedState(gameEncoded, sync) {
     if (gameEncoded == "") {
       p(["loadFromEncodedState empty"]);
       ss();
@@ -430,7 +430,15 @@ class Game {
         p(["loadFromEncodedState error", error]);
       }
       gameEncodedLastCache = gameEncoded;
-      ss();
+      if (sync) {
+        ss();
+      }
+      else {
+        Future.delayed(Duration(milliseconds: 0), () {
+          // ASAP but not sync
+          ss();
+        });
+      }
     }
   }
 

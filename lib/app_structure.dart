@@ -29,7 +29,7 @@ Widget streamBuilderWrapperOnDocument() {
             String snapshotCurrent = userDocument["data"];
             if (g.signedIn() && snapshotCurrent != snapshotLastCache) {
               if (snapshotCurrent != game.getEncodeCurrentGameState()) {
-                game.loadFromEncodedState(snapshotCurrent);
+                game.loadFromEncodedState(snapshotCurrent, false);
               }
               snapshotLastCache = snapshotCurrent;
             }
@@ -65,7 +65,7 @@ Widget titleWidget() {
         height: screen
             .appBarHeight, //so whole vertical space of appbar is clickable
         child: DecoratedBox(
-          decoration: const BoxDecoration(color: bg),
+          decoration: const BoxDecoration(color: Colors.transparent),
           child: FittedBox(
             child: RichText(
               text: TextSpan(
