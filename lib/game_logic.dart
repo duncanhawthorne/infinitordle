@@ -434,7 +434,7 @@ class Game {
         ss();
       }
       else {
-        Future.delayed(Duration(milliseconds: 0), () {
+        Future.delayed(const Duration(milliseconds: 0), () {
           // ASAP but not sync
           ss();
         });

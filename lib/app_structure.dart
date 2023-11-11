@@ -27,11 +27,14 @@ Widget streamBuilderWrapperOnDocument() {
           var userDocument = snapshot.data;
           if (userDocument != null && userDocument.exists) {
             String snapshotCurrent = userDocument["data"];
-            if (g.signedIn() && snapshotCurrent != snapshotLastCache) {
+            if (g.signedIn() && !recentSnapshotsCache.contains(snapshotCurrent)) {
               if (snapshotCurrent != game.getEncodeCurrentGameState()) {
                 game.loadFromEncodedState(snapshotCurrent, false);
               }
-              snapshotLastCache = snapshotCurrent;
+              recentSnapshotsCache.add(snapshotCurrent);
+              if (recentSnapshotsCache.length > 5) {
+                recentSnapshotsCache.removeAt(0);
+              }
             }
           }
         }
