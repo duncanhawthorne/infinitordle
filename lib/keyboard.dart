@@ -83,9 +83,14 @@ Widget _kbTextSquare(index) {
                           color: game.getIsStreak() ? green : Colors.white))
                   : Text(
                       keyboardList[index].toUpperCase(),
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                           color: Colors.white,
+                          height: m3 ? 1.15 : null,
+                          leadingDistribution:
+                              m3 ? TextLeadingDistribution.even : null,
                           shadows: <Shadow>[
+                            //impact font shadows
                             Shadow(
                               offset: Offset(0, 0),
                               blurRadius: 1.0,

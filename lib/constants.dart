@@ -55,6 +55,8 @@ const bool debugFakeLogin = false;
 const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
 
+const m3 = true;
+
 FirebaseFirestore db = FirebaseFirestore.instance;
 FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 

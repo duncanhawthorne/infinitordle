@@ -103,7 +103,9 @@ Widget _card(abIndex, boardNumber, val, bf) {
                         ? green
                         : Colors.transparent, //bg
                 width: bf == "b"
-                    ? 0
+                    ? m3
+                        ? 0.05 * screen.cardLiveMaxPixel
+                        : 0
                     : historicalWin
                         ? 0.05 * screen.cardLiveMaxPixel
                         : 0.05 * screen.cardLiveMaxPixel),
@@ -135,8 +137,11 @@ Widget _cardText(abIndex, boardNumber) {
   int abRow = abIndex ~/ cols;
   return Text(
     game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
+    textAlign: TextAlign.center,
     style: TextStyle(
       fontSize: screen.cardLiveMaxPixel,
+      height: m3 ? 1.15 : null,
+        leadingDistribution: m3 ? TextLeadingDistribution.even : null,
       color: (!infMode &&
                   game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
               abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)

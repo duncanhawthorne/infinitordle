@@ -32,7 +32,11 @@ class InfinitordleApp extends StatelessWidget {
     return MaterialApp(
       title: appTitle,
       theme: ThemeData(
-        useMaterial3: false,
+        useMaterial3: m3,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.white,
+          brightness: Brightness.light,
+        ),
         fontFamily:
             '-apple-system', //https://github.com/flutter/flutter/issues/93140
         appBarTheme: const AppBarTheme(
@@ -75,7 +79,12 @@ class _InfinitordleState extends State<Infinitordle> {
   }
 
   void ss() {
-    setState(() {});
+    try {
+      setState(() {});
+    }
+    catch (e) {
+      p(["SS error ", e.toString()]);
+    }
   }
 
   Future<void> showResetConfirmScreen() async {
