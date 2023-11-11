@@ -50,6 +50,7 @@ Widget _scaffold() {
       centerTitle: true,
       toolbarHeight: screen.appBarHeight,
       title: titleWidget(),
+      backgroundColor: bg,
     ),
     body: bodyWidget(),
   );
@@ -125,11 +126,11 @@ Widget keyboardListenerWrapper() {
         }
       }
     },
-    child: _wrapStructure(),
+    child: gameboardAndKeyboard(),
   );
 }
 
-Widget _wrapStructure() {
+Widget gameboardAndKeyboard() {
   return Container(
     color: bg,
     child: Column(
