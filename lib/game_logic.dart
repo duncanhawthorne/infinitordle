@@ -22,7 +22,7 @@ class Game {
   int temporaryVisualOffsetForSlide = 0;
   String gameEncodedLastCache = "";
   var abCardFlourishFlipAngles = {};
-  var boardFlourishFlipAngles = [];
+  var boardFlourishFlipAngles = {};
 
   void initiateBoard() {
     targetWords = getNewTargetWords(numBoards);
@@ -40,7 +40,7 @@ class Game {
     temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Dont reset else new d/l will show as change
     abCardFlourishFlipAngles = {};
-    boardFlourishFlipAngles = [];
+    boardFlourishFlipAngles = {};
 
     if (cheatMode) {
       cheatInitiate();
@@ -85,41 +85,39 @@ class Game {
   void handleLegalWordEntered() {
     // set some local variable to ensure threadsafe
     int cardAbRowPreGuessToFix = getAbCurrentRowInt();
-    int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows() + 1;
+    int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows();
 
     enteredWords.add(currentTyping);
     currentTyping = "";
     winRecordBoards.add(-2); //Add now, fix value later
-    gradualRevealAbRow(cardAbRowPreGuessToFix);
     analytics.logLevelUp(level: enteredWords.length);
 
     //Test if it is correct word
-    bool isWin = false;
-    aboutToWinCache = false;
-    int winningBoardToFix = -1;
-    for (var board = 0; board < numBoards; board++) {
-      if (getCurrentTargetWordForBoard(board) ==
-          enteredWords[cardAbRowPreGuessToFix]) {
-        isWin = true;
-        aboutToWinCache = true;
-        winningBoardToFix = board;
-      }
-    }
+    int winningBoardToFix =
+        getWinningBoardFromWordEnteredInAbRow(cardAbRowPreGuessToFix);
+    bool isWin = winningBoardToFix != -1;
 
     if (!isWin) {
       winRecordBoards[cardAbRowPreGuessToFix] = -1; //Confirm no win
     }
 
     save.saveKeys();
+    ss();
+
+    gradualRevealAbRow(cardAbRowPreGuessToFix);
+    handleWinLoseState(
+        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix, isWin);
+  }
+
+  Future<void> handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
+      firstKnowledgeToFix, isWin) async {
+    //Delay for flips.gradualRevealAbRow to have taken effect
+    await sleep(gradualRevealDelay * (cols - 1) + flipTime + visualCatchUpTime);
 
     //Code for losing game
     if (!isWin && getAbCurrentRowInt() >= getAbLiveNumRowsPerBoard()) {
       //All rows full, game over
-      Future.delayed(
-          const Duration(
-              milliseconds: gradualRevealDelay * cols + durMult * 500), () {
-        showResetConfirmScreen();
-      });
+      showResetConfirmScreen();
     }
 
     if (!infMode && isWin) {
@@ -141,94 +139,73 @@ class Game {
     }
   }
 
-  void handleWinningWordEntered(
-      cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) {
-    Future.delayed(const Duration(milliseconds: delayMult * 1500), () {
-      //Delay for flips.gradualRevealAbRow to have taken effect
+  Future<void> handleWinningWordEntered(
+      cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
+    //Slide up and increment firstKnowledge
+    firstKnowledgeToFix = firstKnowledgeToFix + await slideUpAnimation();
 
-      if (getGbCurrentRowInt() <= 0) {
-        // If current row would type in next is row zero
-        // Then don't slide up
-        // Else after slide would be off top of gameboard
-        // Possible due to delay functions from previous entries
-        // Or if switch from expanding board to non-expanding
-        // But still log win in any event
-        logWinAndSetNewWord(
-            cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
-        //ss();
-      } else {
-        // Not at very top of board, so can do sliding
+    if (getIsStreak()) {
+      // Streak, so need to take another step back
 
-        // Slide the cards up visually, creating the illusion of stepping up
-        temporaryVisualOffsetForSlide = 1;
-        ss();
+      //Slide up and increment firstKnowledge
+      firstKnowledgeToFix = firstKnowledgeToFix + await slideUpAnimation();
+    }
 
-        Future.delayed(const Duration(milliseconds: durMult * 250), () {
-          // Delay for sliding cards up to have taken effect
+    // Pause, so can temporarily see position after stepped back
+    //await wait(delayMult * 250);
 
-          // Undo the visual slide illusion (and do this instantaneously)
-          temporaryVisualOffsetForSlide = 0;
+    await unflipSwapFlip(
+        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+  }
 
-          // Actually move the cards up, so state matches visual illusion above
-          takeOneStepBack();
+  Future<int> slideUpAnimation() async {
+    if (getGbCurrentRowInt() > 0) {
+      // Check not at top of board
+      // Current row would type in next must not be row zero
+      // Else after slide would be off top of gameboard
 
-          Future.delayed(const Duration(milliseconds: delayMult * 1000), () {
-            // Pause, so can temporarily see position after stepped back
-            boardFlourishFlipAngles.add(winningBoardToFix);
-            ss();
-            //ss();
+      // Possible due to delay functions from previous entries
+      // Or if switch from expanding board to non-expanding
 
-            // Cards are now in the right place and state matches visuals
+      //Slide the cards up visually, creating the illusion of stepping up
+      temporaryVisualOffsetForSlide = 1;
+      ss();
 
-            Future.delayed(const Duration(milliseconds: delayMult * 600), () {
+      await sleep(slideTime);
+      //await wait(delayMult * 50);
 
+      // Delay for sliding cards up to have taken effect
 
-              // Log the win (show row green), and get a new word
-              logWinAndSetNewWord(cardAbRowPreGuessToFix, winningBoardToFix,
-                  firstKnowledgeToFix);
-              if (boardFlourishFlipAngles.contains(winningBoardToFix)) {
-                boardFlourishFlipAngles.remove(winningBoardToFix);
-              }
-              ss();
-              //ss();
+      // Undo the visual slide (and do this instantaneously)
+      temporaryVisualOffsetForSlide = 0;
 
-              if (getIsStreak()) {
-                // Streak, so need to take another step back
+      // Actually move the cards up, so state matches visual illusion above
+      takeOneStepBack();
 
-                Future.delayed(const Duration(milliseconds: delayMult * 750),
-                    () {
-                  // Pause, so can temporarily see new position
+      // Pause, so can temporarily see new position
+      await sleep(visualCatchUpTime);
+      return 1;
+    }
+    return 0;
+  }
 
-                  if (getGbCurrentRowInt() > 0) {
-                    // Check not at top of board
-                    // Current row would type in next must not be row zero
-                    // Else after slide would be off top of gameboard
+  Future<void> unflipSwapFlip(
+      cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
+    boardFlourishFlipAngles[winningBoardToFix] = cardAbRowPreGuessToFix;
+    ss();
+    //ss();
 
-                    //Slide the cards up visually, creating the illusion of stepping up
-                    temporaryVisualOffsetForSlide = 1;
-                    ss();
+    // Cards are now in the right place and state matches visuals
 
-                    Future.delayed(const Duration(milliseconds: durMult * 250),
-                        () {
-                      // Delay for sliding cards up to have taken effect
-
-                      // Undo the visual slide (and do this instantaneously)
-                      temporaryVisualOffsetForSlide = 0;
-
-                      // Actually move the cards up, so state matches visual illusion above
-                      takeOneStepBack();
-                      //ss();
-
-                      // Cards are now in the right place and state matches visuals
-                    });
-                  }
-                });
-              }
-            });
-          });
-        });
-      }
-    });
+    await sleep(visualCatchUpTime);
+    // Log the win (show row green), and get a new word
+    logWinAndSetNewWord(
+        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+    if (boardFlourishFlipAngles.containsKey(winningBoardToFix)) {
+      boardFlourishFlipAngles.remove(winningBoardToFix);
+    }
+    ss();
+    //ss();
   }
 
   void takeOneStepBack() {
@@ -246,7 +223,9 @@ class Game {
 
     // Log the word just entered as a win, which gets green to show
     // Fix the fact that we stored a -1 in this place temporarily
-    winRecordBoards[winRecordBoardsIndexToFix] = winningBoardToFix;
+    if (winRecordBoards.length > winRecordBoardsIndexToFix) {
+      winRecordBoards[winRecordBoardsIndexToFix] = winningBoardToFix;
+    }
 
     // Update first knowledge for scroll back
     firstKnowledge[winningBoardToFix] = firstKnowledgeToFix;
@@ -265,6 +244,9 @@ class Game {
         abCardFlourishFlipAngles[abRow] = List.filled(cols, 0.0);
       }
       abCardFlourishFlipAngles[abRow][i] = 0.5;
+    }
+    ss();
+    for (int i = 0; i < cols; i++) {
       Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
         abCardFlourishFlipAngles[abRow][i] = 0.0;
         if (i == cols - 1) {
@@ -397,6 +379,19 @@ class Game {
       }
     }
     return false;
+  }
+
+  int getWinningBoardFromWordEnteredInAbRow(cardAbRowPreGuessToFix) {
+    //bool isWin = false;
+    int winningBoardToFix = -1;
+    for (var board = 0; board < numBoards; board++) {
+      if (getCurrentTargetWordForBoard(board) ==
+          enteredWords[cardAbRowPreGuessToFix]) {
+        //isWin = true;
+        winningBoardToFix = board;
+      }
+    }
+    return winningBoardToFix;
   }
 
   void loadFromEncodedState(gameEncoded, sync) {

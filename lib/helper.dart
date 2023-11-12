@@ -74,6 +74,10 @@ void fixTitle() {
   }
 }
 
+Future<void> sleep(delayAfterMult) async {
+  await Future.delayed(Duration(milliseconds: delayAfterMult), () {});
+}
+
 int getABRowFromGBRow(gbRow) {
   return gbRow + game.getPushOffBoardRows();
 }

@@ -3,9 +3,12 @@ import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
 
 class Flips {
-
   double getFlipAngle(abIndex, boardNumber) {
-    return max(0, getPermFlipAngle(abIndex) - getFlourishFlipAngle(abIndex) - getFlourishBoardFlipAngle(boardNumber));
+    return max(
+        0,
+        getPermFlipAngle(abIndex) -
+            getFlourishFlipAngle(abIndex) -
+            getFlourishBoardFlipAngle(boardNumber));
   }
 
   double getPermFlipAngle(abIndex) {
@@ -28,11 +31,10 @@ class Flips {
   }
 
   double getFlourishBoardFlipAngle(boardNumber) {
-    if (!game.boardFlourishFlipAngles.contains(boardNumber)) {
+    if (!game.boardFlourishFlipAngles.containsKey(boardNumber)) {
       return 0;
     } else {
       return 0.5;
     }
   }
-
 }

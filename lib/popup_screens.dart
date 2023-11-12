@@ -9,11 +9,9 @@ FocusNode focusNode = FocusNode();
 Future<void> showResetConfirmScreenReal(context) async {
   List winWordsCache = game.getWinWords();
   int numberWinsCache = winWordsCache.length;
-  bool end = false;
-  if (!game.getAboutToWinCache() &&
-      game.getAbCurrentRowInt() >= game.getAbLiveNumRowsPerBoard()) {
-    end = true;
-  }
+  bool gameOver =
+      game.getAbCurrentRowInt() >= game.getAbLiveNumRowsPerBoard() &&
+          game.winRecordBoards[-1] == -1;
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
@@ -81,7 +79,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                 ),
               ],
             ),
-            content: Text(end
+            content: Text(gameOver
                 ? "You got " +
                     numberWinsCache.toString() +
                     " word" +

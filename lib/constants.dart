@@ -42,10 +42,10 @@ const noAnimations = false;
 const slowDownFactor = 1;
 const int durMult = noAnimations ? 0 : 1 * slowDownFactor;
 const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
-const gradualRevealDelay = delayMult *
-    (durMult == 1 * slowDownFactor
-        ? 100 * slowDownFactor
-        : 250 * slowDownFactor);
+const gradualRevealDelay = delayMult * 150;
+const slideTime = durMult * 200;
+const flipTime = durMult * 500;
+const visualCatchUpTime = delayMult * 750;
 
 //Screen constants
 const double dividerHeight = 2;

@@ -81,8 +81,7 @@ class _InfinitordleState extends State<Infinitordle> {
   void ss() {
     try {
       setState(() {});
-    }
-    catch (e) {
+    } catch (e) {
       p(["SS error ", e.toString()]);
     }
   }

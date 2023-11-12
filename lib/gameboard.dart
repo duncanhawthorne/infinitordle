@@ -44,7 +44,7 @@ Widget _cardFlipper(abIndex, boardNumber) {
   return TweenAnimationBuilder(
       tween: Tween<double>(
           begin: 0, end: flips.getFlipAngle(abIndex, boardNumber)),
-      duration: const Duration(milliseconds: durMult * 500),
+      duration: const Duration(milliseconds: flipTime),
       builder: (BuildContext context, double val, __) {
         return (Transform(
           alignment: Alignment.center,
@@ -71,7 +71,7 @@ Widget _positionedCard(abIndex, boardNumber, val, bf) {
     children: [
       AnimatedPositioned(
         curve: Curves.fastOutSlowIn,
-        duration: Duration(milliseconds: speedOfSlide * durMult * 200),
+        duration: Duration(milliseconds: speedOfSlide * slideTime),
         top: -screen.cardLiveMaxPixel * game.getTemporaryVisualOffsetForSlide(),
         child: _sizedCard(abIndex, boardNumber, val, bf),
       ),
@@ -99,7 +99,8 @@ Widget _card(abIndex, boardNumber, val, bf) {
         decoration: BoxDecoration(
             border: Border.all(
                 color: bf == "b"
-                    ? game.boardFlourishFlipAngles.contains(boardNumber) && abRow == game.getAbCurrentRowInt() - 1
+                    ? game.boardFlourishFlipAngles.containsKey(boardNumber) &&
+                            abRow == game.boardFlourishFlipAngles[boardNumber]
                         ? green
                         : Colors.transparent //bg
                     : historicalWin
