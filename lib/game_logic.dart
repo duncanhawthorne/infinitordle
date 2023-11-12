@@ -22,6 +22,7 @@ class Game {
   int temporaryVisualOffsetForSlide = 0;
   String gameEncodedLastCache = "";
   var abCardFlourishFlipAngles = {};
+  var boardFlourishFlipAngles = [];
 
   void initiateBoard() {
     targetWords = getNewTargetWords(numBoards);
@@ -39,6 +40,7 @@ class Game {
     temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Dont reset else new d/l will show as change
     abCardFlourishFlipAngles = {};
+    boardFlourishFlipAngles = [];
 
     if (cheatMode) {
       cheatInitiate();
@@ -83,7 +85,7 @@ class Game {
   void handleLegalWordEntered() {
     // set some local variable to ensure threadsafe
     int cardAbRowPreGuessToFix = getAbCurrentRowInt();
-    int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows();
+    int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows() + 1;
 
     enteredWords.add(currentTyping);
     currentTyping = "";
@@ -169,49 +171,60 @@ class Game {
 
           // Actually move the cards up, so state matches visual illusion above
           takeOneStepBack();
-          //ss();
-
-          // Cards are now in the right place and state matches visuals
 
           Future.delayed(const Duration(milliseconds: delayMult * 1000), () {
             // Pause, so can temporarily see position after stepped back
-
-            // Log the win (show row green), and get a new word
-            logWinAndSetNewWord(
-                cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+            boardFlourishFlipAngles.add(winningBoardToFix);
+            ss();
             //ss();
 
-            if (getIsStreak()) {
-              // Streak, so need to take another step back
+            // Cards are now in the right place and state matches visuals
 
-              Future.delayed(const Duration(milliseconds: delayMult * 750), () {
-                // Pause, so can temporarily see new position
+            Future.delayed(const Duration(milliseconds: delayMult * 600), () {
 
-                if (getGbCurrentRowInt() > 0) {
-                  // Check not at top of board
-                  // Current row would type in next must not be row zero
-                  // Else after slide would be off top of gameboard
 
-                  //Slide the cards up visually, creating the illusion of stepping up
-                  temporaryVisualOffsetForSlide = 1;
-                  ss();
+              // Log the win (show row green), and get a new word
+              logWinAndSetNewWord(cardAbRowPreGuessToFix, winningBoardToFix,
+                  firstKnowledgeToFix);
+              if (boardFlourishFlipAngles.contains(winningBoardToFix)) {
+                boardFlourishFlipAngles.remove(winningBoardToFix);
+              }
+              ss();
+              //ss();
 
-                  Future.delayed(const Duration(milliseconds: durMult * 250),
-                      () {
-                    // Delay for sliding cards up to have taken effect
+              if (getIsStreak()) {
+                // Streak, so need to take another step back
 
-                    // Undo the visual slide (and do this instantaneously)
-                    temporaryVisualOffsetForSlide = 0;
+                Future.delayed(const Duration(milliseconds: delayMult * 750),
+                    () {
+                  // Pause, so can temporarily see new position
 
-                    // Actually move the cards up, so state matches visual illusion above
-                    takeOneStepBack();
-                    //ss();
+                  if (getGbCurrentRowInt() > 0) {
+                    // Check not at top of board
+                    // Current row would type in next must not be row zero
+                    // Else after slide would be off top of gameboard
 
-                    // Cards are now in the right place and state matches visuals
-                  });
-                }
-              });
-            }
+                    //Slide the cards up visually, creating the illusion of stepping up
+                    temporaryVisualOffsetForSlide = 1;
+                    ss();
+
+                    Future.delayed(const Duration(milliseconds: durMult * 250),
+                        () {
+                      // Delay for sliding cards up to have taken effect
+
+                      // Undo the visual slide (and do this instantaneously)
+                      temporaryVisualOffsetForSlide = 0;
+
+                      // Actually move the cards up, so state matches visual illusion above
+                      takeOneStepBack();
+                      //ss();
+
+                      // Cards are now in the right place and state matches visuals
+                    });
+                  }
+                });
+              }
+            });
           });
         });
       }
@@ -432,8 +445,7 @@ class Game {
       gameEncodedLastCache = gameEncoded;
       if (sync) {
         ss();
-      }
-      else {
+      } else {
         Future.delayed(const Duration(milliseconds: 0), () {
           // ASAP but not sync
           ss();

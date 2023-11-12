@@ -42,7 +42,8 @@ Widget gameboardWidget(boardNumber) {
 
 Widget _cardFlipper(abIndex, boardNumber) {
   return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: flips.getFlipAngle(abIndex)),
+      tween: Tween<double>(
+          begin: 0, end: flips.getFlipAngle(abIndex, boardNumber)),
       duration: const Duration(milliseconds: durMult * 500),
       builder: (BuildContext context, double val, __) {
         return (Transform(
@@ -98,7 +99,9 @@ Widget _card(abIndex, boardNumber, val, bf) {
         decoration: BoxDecoration(
             border: Border.all(
                 color: bf == "b"
-                    ? Colors.transparent //bg
+                    ? game.boardFlourishFlipAngles.contains(boardNumber) && abRow == game.getAbCurrentRowInt() - 1
+                        ? green
+                        : Colors.transparent //bg
                     : historicalWin
                         ? green
                         : Colors.transparent, //bg
@@ -141,7 +144,7 @@ Widget _cardText(abIndex, boardNumber) {
     style: TextStyle(
       fontSize: screen.cardLiveMaxPixel,
       height: m3 ? 1.15 : null,
-        leadingDistribution: m3 ? TextLeadingDistribution.even : null,
+      leadingDistribution: m3 ? TextLeadingDistribution.even : null,
       color: (!infMode &&
                   game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
               abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
