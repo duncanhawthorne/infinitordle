@@ -68,8 +68,9 @@ Widget titleWidget() {
       child: SizedBox(
         height: screen
             .appBarHeight, //so whole vertical space of appbar is clickable
+        width: screen.scW,
         child: DecoratedBox(
-          decoration: const BoxDecoration(color: Colors.transparent),
+          decoration: const BoxDecoration(color: bg),
           child: FittedBox(
             child: RichText(
               text: TextSpan(
