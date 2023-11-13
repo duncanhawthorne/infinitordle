@@ -115,7 +115,7 @@ class Game {
     await sleep(gradualRevealDelay * (cols - 1) + flipTime + visualCatchUpTime);
 
     //Code for losing game
-    if (!isWin && getAbCurrentRowInt() >= getAbLiveNumRowsPerBoard()) {
+    if (!isWin && cardAbRowPreGuessToFix + 1 >= getAbLiveNumRowsPerBoard()) {
       //All rows full, game over
       showResetConfirmScreen();
     }
@@ -124,7 +124,7 @@ class Game {
       //Code for totally winning game across all boards
       bool totallySolvedLocal = true;
       for (var i = 0; i < numBoards; i++) {
-        if (!getDetectBoardSolvedByABRow(i, getAbCurrentRowInt())) {
+        if (!getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
           totallySolvedLocal = false;
         }
       }

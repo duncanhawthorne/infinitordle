@@ -11,7 +11,8 @@ Future<void> showResetConfirmScreenReal(context) async {
   int numberWinsCache = winWordsCache.length;
   bool gameOver =
       game.getAbCurrentRowInt() >= game.getAbLiveNumRowsPerBoard() &&
-          game.winRecordBoards[-1] == -1;
+          game.winRecordBoards.length > 0 &&
+          game.winRecordBoards[game.winRecordBoards.length - 1] == -1;
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
