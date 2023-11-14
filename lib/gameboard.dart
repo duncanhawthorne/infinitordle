@@ -65,13 +65,13 @@ Widget _positionedCard(abIndex, boardNumber, val, bf) {
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
   // and move visual cards back to original position instantly
-  int speedOfSlide = game.getTemporaryVisualOffsetForSlide();
+  int timeFactorOfSlide = game.getTemporaryVisualOffsetForSlide();
   return Stack(
     clipBehavior: Clip.none,
     children: [
       AnimatedPositioned(
         curve: Curves.fastOutSlowIn,
-        duration: Duration(milliseconds: speedOfSlide * slideTime),
+        duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
         top: -screen.cardLiveMaxPixel * game.getTemporaryVisualOffsetForSlide(),
         child: _sizedCard(abIndex, boardNumber, val, bf),
       ),
@@ -139,8 +139,14 @@ Widget _card(abIndex, boardNumber, val, bf) {
 
 Widget _cardText(abIndex, boardNumber) {
   int abRow = abIndex ~/ cols;
+  int col = abIndex % cols;
   return Text(
-    game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
+    abRow == game.getAbLiveNumRowsPerBoard() - 1 &&
+            game.getGbCurrentRowInt() < 0 &&
+            game.getCurrentTyping().length > col
+        //In unlikely case need to type while off top of board, show at bottom
+        ? game.getCurrentTyping()[col].toUpperCase()
+        : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
     textAlign: TextAlign.center,
     style: TextStyle(
       fontSize: screen.cardLiveMaxPixel,
@@ -149,7 +155,7 @@ Widget _cardText(abIndex, boardNumber) {
       color: (!infMode &&
                   game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
               abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
-          ? Colors.transparent // bg //"hide" after being solved
+          ? Colors.transparent //"hide" after being solved
           : game.getHighlightedBoard() == -1
               ? Colors.white
               : game.getHighlightedBoard() == boardNumber

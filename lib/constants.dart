@@ -45,6 +45,7 @@ const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
 const gradualRevealDelay = delayMult * 150;
 const slideTime = durMult * 200;
 const flipTime = durMult * 500;
+const gradualRevealRowTime = gradualRevealDelay * (cols - 1) + flipTime;
 const visualCatchUpTime = delayMult * 750;
 
 //Screen constants

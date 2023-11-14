@@ -86,6 +86,7 @@ class Game {
     // set some local variable to ensure threadsafe
     int cardAbRowPreGuessToFix = getAbCurrentRowInt();
     int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows();
+    int maxAbRowOfBoard = getAbLiveNumRowsPerBoard();
 
     enteredWords.add(currentTyping);
     currentTyping = "";
@@ -106,16 +107,16 @@ class Game {
 
     gradualRevealAbRow(cardAbRowPreGuessToFix);
     handleWinLoseState(
-        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix, isWin);
+        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix, isWin, maxAbRowOfBoard);
   }
 
   Future<void> handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
-      firstKnowledgeToFix, isWin) async {
+      firstKnowledgeToFix, isWin, maxAbRowOfBoard) async {
     //Delay for flips.gradualRevealAbRow to have taken effect
-    await sleep(gradualRevealDelay * (cols - 1) + flipTime + visualCatchUpTime);
+    await sleep(gradualRevealRowTime + visualCatchUpTime);
 
     //Code for losing game
-    if (!isWin && cardAbRowPreGuessToFix + 1 >= getAbLiveNumRowsPerBoard()) {
+    if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
       showResetConfirmScreen();
     }
@@ -142,13 +143,15 @@ class Game {
   Future<void> handleWinningWordEntered(
       cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
     //Slide up and increment firstKnowledge
-    firstKnowledgeToFix = firstKnowledgeToFix + await slideUpAnimation();
+    await slideUpAnimation();
+    firstKnowledgeToFix++;
 
-    if (getIsStreak()) {
+    if (getReadyForStreakAbRowReal(cardAbRowPreGuessToFix)) {
       // Streak, so need to take another step back
 
       //Slide up and increment firstKnowledge
-      firstKnowledgeToFix = firstKnowledgeToFix + await slideUpAnimation();
+      await slideUpAnimation();
+      firstKnowledgeToFix++;
     }
 
     // Pause, so can temporarily see position after stepped back
@@ -159,7 +162,7 @@ class Game {
   }
 
   Future<int> slideUpAnimation() async {
-    if (getGbCurrentRowInt() > 0) {
+    if (true) { //getGbCurrentRowInt() > 0) {
       // Check not at top of board
       // Current row would type in next must not be row zero
       // Else after slide would be off top of gameboard
@@ -186,7 +189,7 @@ class Game {
       await sleep(visualCatchUpTime);
       return 1;
     }
-    return 0;
+    //return 0;
   }
 
   Future<void> unflipSwapFlip(
@@ -306,19 +309,20 @@ class Game {
 
   String getCardLetterAtAbIndex(abIndex) {
     int abRow = abIndex ~/ cols;
+    int col = abIndex % cols;
     try {
       String letter = "";
       if (abRow > getAbCurrentRowInt()) {
         letter = "";
       } else if (abRow == getAbCurrentRowInt()) {
-        if (currentTyping.length > (abIndex % cols)) {
+        if (currentTyping.length > (col)) {
           letter =
-              currentTyping.substring(abIndex % cols, (abIndex % cols) + 1);
+              currentTyping.substring(col, col + 1);
         } else {
           letter = "";
         }
       } else {
-        letter = enteredWords[abRow][abIndex % cols];
+        letter = enteredWords[abRow][col];
       }
       return letter;
     } catch (e) {
@@ -336,16 +340,37 @@ class Game {
     return false;
   }
 
-  var streakCache = {};
-  bool getIsStreak() {
-    if (!streakCache.containsKey(winRecordBoards.length)) {
-      streakCache = {};
-      streakCache[winRecordBoards.length] = isStreakReal();
+
+  bool getReadyForStreakAbRowReal(abRow) {
+    bool isStreak = true;
+    if (abRow < 2) {
+      isStreak = false;
+    } else {
+      for (int q = 0; q < 2; q++) {
+        if (abRow - 1 - q < 0 ||
+            winRecordBoards[abRow - 1 - q] != -1) {
+          isStreak = true;
+        } else {
+          isStreak = false;
+          break;
+        }
+      }
     }
-    return streakCache[winRecordBoards.length];
+    return isStreak;
   }
 
-  bool isStreakReal() {
+  var streakCache = {};
+  bool getReadyForStreakCurrentRow() {
+    if (!streakCache.containsKey(getAbCurrentRowInt())) {
+      streakCache = {};
+      streakCache[getAbCurrentRowInt()] = getReadyForStreakCurrentRowReal();
+    }
+    return streakCache[getAbCurrentRowInt()];
+  }
+
+  bool getReadyForStreakCurrentRowReal() {
+    return getReadyForStreakAbRowReal(getAbCurrentRowInt());
+    /*
     bool isStreak = true;
     if (winRecordBoards.length < 3) {
       isStreak = false;
@@ -361,7 +386,10 @@ class Game {
       }
     }
     return isStreak;
+     */
   }
+
+
 
   bool getDetectBoardSolvedByABRow(boardNumber, maxAbRowToCheck) {
     for (var abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);

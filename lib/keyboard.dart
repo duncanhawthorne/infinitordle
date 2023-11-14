@@ -77,10 +77,10 @@ Widget _kbTextSquare(index) {
                   ? Container(
                       padding: const EdgeInsets.all(7),
                       child: Icon(
-                          game.getIsStreak()
+                          game.getReadyForStreakCurrentRow()
                               ? Icons.fast_forward
                               : Icons.keyboard_return_sharp,
-                          color: game.getIsStreak() ? green : Colors.white))
+                          color: game.getReadyForStreakCurrentRow() ? green : Colors.white))
                   : Text(
                       keyboardList[index].toUpperCase(),
                       textAlign: TextAlign.center,
