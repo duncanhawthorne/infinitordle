@@ -69,6 +69,7 @@ class _InfinitordleState extends State<Infinitordle> {
     save.loadUser();
     save.loadKeys();
     //ss();
+    /*
     for (int i = 0; i < 10; i++) {
       Future.delayed(Duration(milliseconds: 1000 * i), () {
         //Hack, but makes sure things set right shortly after starting
@@ -76,6 +77,7 @@ class _InfinitordleState extends State<Infinitordle> {
         ss();
       });
     }
+     */
   }
 
   void ss() {

@@ -51,7 +51,7 @@ class Game {
   void onKeyboardTapped(int index) {
     String letter = keyboardList[index];
     printCheatTargetWords();
-    fixTitle();
+    //fixTitle();
 
     if (letter == " ") {
       //Ignore pressing of non-keys
