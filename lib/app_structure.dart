@@ -51,6 +51,7 @@ Widget _scaffold() {
       toolbarHeight: screen.appBarHeight,
       title: titleWidget(),
       backgroundColor: bg,
+      scrolledUnderElevation: 0.0,
     ),
     body: bodyWidget(),
   );
@@ -70,7 +71,7 @@ Widget titleWidget() {
             .appBarHeight, //so whole vertical space of appbar is clickable
         width: double.infinity,
         child: DecoratedBox(
-          decoration: const BoxDecoration(color: bg),
+          decoration: const BoxDecoration(color: Colors.transparent),
           child: FittedBox(
             child: RichText(
               text: TextSpan(
