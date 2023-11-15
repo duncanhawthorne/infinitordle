@@ -66,7 +66,7 @@ class Game {
       //Submit guess
       if (currentTyping.length == cols) {
         //Full word entered, so can submit
-        if (isLegalWord(currentTyping)) {
+        if (isLegalWord(currentTyping) && getAbCurrentRowInt() < getAbLiveNumRowsPerBoard()) {
           //Legal word so can enter the word
           //Note, not necessarily correct word
           handleLegalWordEntered();
@@ -244,7 +244,7 @@ class Game {
     // flip to reveal the colors with pleasing animation
     for (int i = 0; i < cols; i++) {
       if (!abCardFlourishFlipAngles.containsKey(abRow)) {
-        abCardFlourishFlipAngles[abRow] = List.filled(cols, 0.0);
+        abCardFlourishFlipAngles[abRow] = List<double>.filled(cols, 0.0);
       }
       abCardFlourishFlipAngles[abRow][i] = 0.5;
     }
@@ -563,6 +563,22 @@ class Game {
   List<int> getFirstAbRowToShowOnBoardDueToKnowledgeAll() {
     return List<int>.generate(
         numBoards, (i) => getFirstAbRowToShowOnBoardDueToKnowledge(i));
+  }
+
+  int getLastCardToConsiderForKeyColors() {
+    if (abCardFlourishFlipAngles.isEmpty) {
+      return enteredWords.length * cols;
+    }
+    int count = 0;
+    for (int key in abCardFlourishFlipAngles.keys) {
+      for (int i = 0; i < cols; i++) {
+        if (abCardFlourishFlipAngles[key][i] > 0) {
+          count ++;
+        }
+      }
+      //count = (abCardFlourishFlipAngles[key]).where((x) => x > 0.0 ?? false).length + count;
+    }
+    return enteredWords.length * cols - count;
   }
 
   // PRETTY MUCH PURE GETTERS AND SETTERS

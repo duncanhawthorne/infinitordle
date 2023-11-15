@@ -13,7 +13,7 @@ class CardColors {
   int abCurrentRowIntCache = 0;
 
   Color getBestColorForLetter(kbIndex, boardNumber) {
-    if (game.getAbCurrentRowInt() != abCurrentRowIntCache ||
+    if (game.getLastCardToConsiderForKeyColors() != abCurrentRowIntCache ||
         !listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
             firstRowsToShowCache) ||
         !listEqual(game.getCurrentTargetWords(), targetWordsCacheForKey)) {
@@ -40,6 +40,7 @@ class CardColors {
     String queryLetter = keyboardList[kbIndex];
     int abStart = cols *
         max(0, game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
+    int abEnd = game.getLastCardToConsiderForKeyColors();
 
     if (queryLetter == " ") {
       answer = Colors.transparent;
@@ -47,7 +48,7 @@ class CardColors {
     if (answer == null) {
       // get color for the keyboard based on best (green > yellow > grey) color on the grid
       for (var abIndex = abStart;
-          abIndex < game.getAbCurrentRowInt() * cols;
+          abIndex < abEnd;
           abIndex++) {
         if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
           if (getAbCardColor(abIndex, boardNumber) == green) {
@@ -59,7 +60,7 @@ class CardColors {
     }
     if (answer == null) {
       for (var abIndex = abStart;
-          abIndex < game.getAbCurrentRowInt() * cols;
+          abIndex < abEnd;
           abIndex++) {
         if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
           if (getAbCardColor(abIndex, boardNumber) == amber) {
@@ -71,7 +72,7 @@ class CardColors {
     }
     if (answer == null) {
       for (var abIndex = abStart;
-          abIndex < game.getAbCurrentRowInt() * cols;
+          abIndex < abEnd;
           abIndex++) {
         if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
           answer = Colors.transparent;
@@ -163,7 +164,7 @@ class CardColors {
       firstRowsToShowCache[i] =
           game.getFirstAbRowToShowOnBoardDueToKnowledge(i);
     }
-    abCurrentRowIntCache = game.getAbCurrentRowInt();
+    abCurrentRowIntCache = game.getLastCardToConsiderForKeyColors();
 
     keyColorsCache = [];
     for (int i = 0; i < numBoards; i++) {
