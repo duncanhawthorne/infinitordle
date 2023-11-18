@@ -34,12 +34,10 @@ class Save {
           final gameEncodedTmp = doc.data() as Map<String, dynamic>;
           gameEncoded = gameEncodedTmp["data"];
         },
-        // ignore: avoid_print
-        onError: (e) => print("Error getting document: $e"),
+        onError: (e) => p("Error getting document: $e"),
       );
     }
     game.loadFromEncodedState(gameEncoded, true);
-    //ss();
   }
 
   Future<void> saveKeys() async {
@@ -58,8 +56,7 @@ class Save {
           .collection("states")
           .doc(g.getUser())
           .set(dhState)
-          // ignore: avoid_print
-          .onError((e, _) => print("Error writing document: $e"));
+          .onError((e, _) => p("Error writing document: $e"));
     }
   }
 

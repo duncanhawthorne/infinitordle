@@ -31,31 +31,20 @@ Widget _kbStackWithMiniGrid(index, length) {
       child: Stack(
         children: [
           Center(
-            child: ["<", ">", " "].contains(keyboardList[index])
+            child: ["<", ">"].contains(keyboardList[index])
                 ? const SizedBox.shrink()
                 : _kbMiniGridContainer(index, length),
           ),
           Center(
-              child: keyboardList[index] == " "
-                  ? const SizedBox.shrink()
-                  // ignore: dead_code
-                  : false && noAnimations
-                      // ignore: dead_code
-                      ? GestureDetector(
-                          onTap: () {
-                            game.onKeyboardTapped(index);
-                          },
-                          child: _kbTextSquare(index),
-                        )
-                      : Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              game.onKeyboardTapped(index);
-                            },
-                            child: Container(child: _kbTextSquare(index)),
-                          ),
-                        )),
+              child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                game.onKeyboardTapped(index);
+              },
+              child: Container(child: _kbTextSquare(index)),
+            ),
+          )),
         ],
       ),
     ),
@@ -80,7 +69,9 @@ Widget _kbTextSquare(index) {
                           game.getReadyForStreakCurrentRow()
                               ? Icons.fast_forward
                               : Icons.keyboard_return_sharp,
-                          color: game.getReadyForStreakCurrentRow() ? green : Colors.white))
+                          color: game.getReadyForStreakCurrentRow()
+                              ? green
+                              : Colors.white))
                   : Text(
                       keyboardList[index].toUpperCase(),
                       textAlign: TextAlign.center,
@@ -105,12 +96,12 @@ Widget _kbMiniGridContainer(index, length) {
       physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
-      itemCount: numBoards,
+      itemCount: game.highlightedBoard != -1 ? 1 : numBoards,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: numBoards ~/ screen.numPresentationBigRowsOfBoards,
-        childAspectRatio: 1 /
+        crossAxisCount: game.highlightedBoard != -1 ? 1 : numBoards ~/ screen.numPresentationBigRowsOfBoards,
+        childAspectRatio: (game.highlightedBoard != -1 ? 1 : 1 /
             ((numBoards / screen.numPresentationBigRowsOfBoards) /
-                screen.numPresentationBigRowsOfBoards) /
+                screen.numPresentationBigRowsOfBoards)) /
             screen.keyAspectRatioLive *
             (10 / length),
       ),

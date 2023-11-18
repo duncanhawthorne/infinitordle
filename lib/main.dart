@@ -68,16 +68,6 @@ class _InfinitordleState extends State<Infinitordle> {
     game.initiateBoard();
     save.loadUser();
     save.loadKeys();
-    //ss();
-    /*
-    for (int i = 0; i < 10; i++) {
-      Future.delayed(Duration(milliseconds: 1000 * i), () {
-        //Hack, but makes sure things set right shortly after starting
-        fixTitle();
-        ss();
-      });
-    }
-     */
   }
 
   void ss() {

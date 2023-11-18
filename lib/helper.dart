@@ -10,6 +10,7 @@ import 'package:infinitordle/game_logic.dart';
 import 'package:infinitordle/screen.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/google_logic.dart';
+import 'package:infinitordle/firebase.dart';
 
 Game game = Game();
 Save save = Save();
@@ -17,6 +18,7 @@ Flips flips = Flips();
 CardColors cardColors = CardColors();
 Screen screen = Screen();
 Google g = Google();
+FireBase fBase = FireBase();
 
 bool isListContains(list, bit) {
   //sorted list so this is faster than doing contains
@@ -32,7 +34,7 @@ class LegalWord {
     }
     if (!legalWordCache.containsKey(word)) {
       if (legalWordCache.length > 3) {
-        //reset cache
+        //reset cache to keep it short
         legalWordCache = {};
       }
       legalWordCache[word] = isListContains(legalWords, word);
@@ -92,4 +94,9 @@ int getABIndexFromGBIndex(gbIndex) {
 
 int getGBIndexFromABIndex(abIndex) {
   return abIndex - cols * game.getPushOffBoardRows();
+}
+
+num getABIndexFromRGBIndex(rGbIndex) {
+  return (game.getAbLiveNumRowsPerBoard() - rGbIndex ~/ cols - 1) * cols +
+      rGbIndex % cols;
 }

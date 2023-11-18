@@ -47,9 +47,7 @@ class CardColors {
     }
     if (answer == null) {
       // get color for the keyboard based on best (green > yellow > grey) color on the grid
-      for (var abIndex = abStart;
-          abIndex < abEnd;
-          abIndex++) {
+      for (var abIndex = abStart; abIndex < abEnd; abIndex++) {
         if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
           if (getAbCardColor(abIndex, boardNumber) == green) {
             answer = green;
@@ -59,9 +57,7 @@ class CardColors {
       }
     }
     if (answer == null) {
-      for (var abIndex = abStart;
-          abIndex < abEnd;
-          abIndex++) {
+      for (var abIndex = abStart; abIndex < abEnd; abIndex++) {
         if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
           if (getAbCardColor(abIndex, boardNumber) == amber) {
             answer = amber;
@@ -71,9 +67,7 @@ class CardColors {
       }
     }
     if (answer == null) {
-      for (var abIndex = abStart;
-          abIndex < abEnd;
-          abIndex++) {
+      for (var abIndex = abStart; abIndex < abEnd; abIndex++) {
         if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
           answer = Colors.transparent;
           break;
@@ -90,7 +84,8 @@ class CardColors {
 
   Color getAbCardColor(abIndex, boardNumber) {
     if (abIndex >= game.getAbCurrentRowInt() * cols) {
-      return Colors.transparent; // later rows
+      // Later rows
+      return Colors.transparent;
     }
 
     if (cardColorsCache.isEmpty ||

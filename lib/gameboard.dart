@@ -28,14 +28,9 @@ Widget gameboardWidget(boardNumber) {
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: cols,
                     ),
-                    itemBuilder: (BuildContext context, int index) {
+                    itemBuilder: (BuildContext context, int rGbIndex) {
                       return _cardFlipper(
-                          (game.getAbLiveNumRowsPerBoard() -
-                                      index ~/ cols -
-                                      1) *
-                                  cols +
-                              index % cols,
-                          boardNumber);
+                          getABIndexFromRGBIndex(rGbIndex), boardNumber);
                     }),
               ))));
 }
@@ -89,7 +84,12 @@ Widget _sizedCard(abIndex, boardNumber, val, bf) {
 
 Widget _card(abIndex, boardNumber, val, bf) {
   int abRow = abIndex ~/ cols;
-  bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber);
+  bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
+      game.boardFlourishFlipAngles.containsKey(boardNumber) &&
+          abRow == game.boardFlourishFlipAngles[boardNumber];
+  bool hideCard =
+      (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
+          abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
 
   return Container(
     padding: EdgeInsets.all(0.005 * screen.cardLiveMaxPixel),
@@ -98,29 +98,11 @@ Widget _card(abIndex, boardNumber, val, bf) {
       child: Container(
         decoration: BoxDecoration(
             border: Border.all(
-                color: bf == "b"
-                    ? game.boardFlourishFlipAngles.containsKey(boardNumber) &&
-                            abRow == game.boardFlourishFlipAngles[boardNumber]
-                        ? green
-                        : Colors.transparent //bg
-                    : historicalWin
-                        ? green
-                        : Colors.transparent, //bg
-                width: bf == "b"
-                    ? m3
-                        ? 0.05 * screen.cardLiveMaxPixel
-                        : 0
-                    : historicalWin
-                        ? 0.05 * screen.cardLiveMaxPixel
-                        : 0.05 * screen.cardLiveMaxPixel),
-            borderRadius: BorderRadius.circular(
-                0.2 * screen.cardLiveMaxPixel), //needed for green border
-            color: (!infMode &&
-                        game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-                    abRow <
-                        game.getFirstAbRowToShowOnBoardDueToKnowledge(
-                            boardNumber)
-                ? Colors.transparent // bg //"hide" after solved board
+                color: historicalWin ? green : Colors.transparent,
+                width: 0.05 * screen.cardLiveMaxPixel),
+            borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
+            color: hideCard
+                ? Colors.transparent
                 : bf == "b"
                     ? abRow == game.getAbCurrentRowInt() &&
                             game.getCurrentTyping().length == cols &&
@@ -155,12 +137,11 @@ Widget _cardText(abIndex, boardNumber) {
       color: (!infMode &&
                   game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
               abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
-          ? Colors.transparent //"hide" after being solved
-          : game.getHighlightedBoard() == -1
+          ? Colors.transparent
+          : game.getHighlightedBoard() == -1 ||
+                  game.getHighlightedBoard() == boardNumber
               ? Colors.white
-              : game.getHighlightedBoard() == boardNumber
-                  ? Colors.white
-                  : offWhite,
+              : offWhite,
       fontWeight: FontWeight.bold,
     ),
   );

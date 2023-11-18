@@ -40,8 +40,6 @@ Future<void> showResetConfirmScreenReal(context) async {
                                 : const Icon(Icons.visibility_off, color: bg),
                             onPressed: () {
                               game.flipExpandingBoardState();
-                              //focusNode.requestFocus();
-                              //Navigator.pop(context, 'Cancel');
                               setState(() {}); //state inside dialog
                             },
                           )),
@@ -56,7 +54,6 @@ Future<void> showResetConfirmScreenReal(context) async {
                                   g.signIn();
                                   Navigator.pop(context, 'OK');
                                   focusNode.requestFocus();
-                                  //ss();
                                 },
                               )
                             : IconButton(
@@ -71,7 +68,6 @@ Future<void> showResetConfirmScreenReal(context) async {
                                 onPressed: () {
                                   showLogoutConfirmationScreen(context);
                                   focusNode.requestFocus();
-                                  //ss();
                                 },
                               ),
                       )
@@ -113,8 +109,6 @@ Future<void> showResetConfirmScreenReal(context) async {
                   game.resetBoard(),
                   focusNode.requestFocus(),
                   Navigator.pop(context, 'OK'),
-                  //setState(() {}),
-                  //ss()
                 },
                 child: const Text('Reset', style: TextStyle(color: Colors.red)),
               ),
@@ -144,8 +138,6 @@ Future<void> showLogoutConfirmationScreen(context) async {
               g.signOut(),
               Navigator.pop(context, 'OK'),
               Navigator.pop(context, 'OK'),
-              //setState(() {}),
-              //ss()
             },
             child: const Text('Sign out', style: TextStyle(color: Colors.red)),
           ),

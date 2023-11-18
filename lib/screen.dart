@@ -23,7 +23,6 @@ class Screen {
         scH !=
             MediaQuery.of(context).size.height -
                 MediaQuery.of(context).padding.top) {
-
       //recalculate these key values for screen size changes
       scW = MediaQuery.of(context).size.width;
       scH = MediaQuery.of(context).size.height -

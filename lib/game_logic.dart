@@ -38,7 +38,7 @@ class Game {
 
     aboutToWinCache = false;
     temporaryVisualOffsetForSlide = 0;
-    //gameEncodedLastCache = ""; Dont reset else new d/l will show as change
+    //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
     abCardFlourishFlipAngles = {};
     boardFlourishFlipAngles = {};
 
@@ -66,7 +66,8 @@ class Game {
       //Submit guess
       if (currentTyping.length == cols) {
         //Full word entered, so can submit
-        if (isLegalWord(currentTyping) && getAbCurrentRowInt() < getAbLiveNumRowsPerBoard()) {
+        if (isLegalWord(currentTyping) &&
+            getAbCurrentRowInt() < getAbLiveNumRowsPerBoard()) {
           //Legal word so can enter the word
           //Note, not necessarily correct word
           handleLegalWordEntered();
@@ -106,8 +107,8 @@ class Game {
     ss();
 
     gradualRevealAbRow(cardAbRowPreGuessToFix);
-    handleWinLoseState(
-        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix, isWin, maxAbRowOfBoard);
+    handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
+        firstKnowledgeToFix, isWin, maxAbRowOfBoard);
   }
 
   Future<void> handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
@@ -162,7 +163,8 @@ class Game {
   }
 
   Future<int> slideUpAnimation() async {
-    if (true) { //getGbCurrentRowInt() > 0) {
+    if (true) {
+      //getGbCurrentRowInt() > 0) {
       // Check not at top of board
       // Current row would type in next must not be row zero
       // Else after slide would be off top of gameboard
@@ -316,8 +318,7 @@ class Game {
         letter = "";
       } else if (abRow == getAbCurrentRowInt()) {
         if (currentTyping.length > (col)) {
-          letter =
-              currentTyping.substring(col, col + 1);
+          letter = currentTyping.substring(col, col + 1);
         } else {
           letter = "";
         }
@@ -340,15 +341,13 @@ class Game {
     return false;
   }
 
-
   bool getReadyForStreakAbRowReal(abRow) {
     bool isStreak = true;
     if (abRow < 2) {
       isStreak = false;
     } else {
       for (int q = 0; q < 2; q++) {
-        if (abRow - 1 - q < 0 ||
-            winRecordBoards[abRow - 1 - q] != -1) {
+        if (abRow - 1 - q < 0 || winRecordBoards[abRow - 1 - q] != -1) {
           isStreak = true;
         } else {
           isStreak = false;
@@ -359,37 +358,9 @@ class Game {
     return isStreak;
   }
 
-  var streakCache = {};
   bool getReadyForStreakCurrentRow() {
-    if (!streakCache.containsKey(getAbCurrentRowInt())) {
-      streakCache = {};
-      streakCache[getAbCurrentRowInt()] = getReadyForStreakCurrentRowReal();
-    }
-    return streakCache[getAbCurrentRowInt()];
-  }
-
-  bool getReadyForStreakCurrentRowReal() {
     return getReadyForStreakAbRowReal(getAbCurrentRowInt());
-    /*
-    bool isStreak = true;
-    if (winRecordBoards.length < 3) {
-      isStreak = false;
-    } else {
-      for (int q = 0; q < 3; q++) {
-        if (winRecordBoards.length - 1 - q < 0 ||
-            winRecordBoards[winRecordBoards.length - 1 - q] != -1) {
-          isStreak = true;
-        } else {
-          isStreak = false;
-          break;
-        }
-      }
-    }
-    return isStreak;
-     */
   }
-
-
 
   bool getDetectBoardSolvedByABRow(boardNumber, maxAbRowToCheck) {
     for (var abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
@@ -455,13 +426,13 @@ class Game {
         expandingBoard = gameTmp["expandingBoard"] ?? false;
         expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
 
-        //TRANSITIONARY logic from old variable naming convention
+        //TRANSITIONAL logic from old variable naming convention
         int offsetRollback = gameTmp["offsetRollback"] ?? 0;
         if (offsetRollback != 0) {
           p(["One-off migration"]);
           pushUpSteps = offsetRollback;
         }
-        //TRANSITIONARY logic from old variable naming convention
+        //TRANSITIONAL logic from old variable naming convention
       } catch (error) {
         p(["loadFromEncodedState error", error]);
       }
@@ -573,7 +544,7 @@ class Game {
     for (int key in abCardFlourishFlipAngles.keys) {
       for (int i = 0; i < cols; i++) {
         if (abCardFlourishFlipAngles[key][i] > 0) {
-          count ++;
+          count++;
         }
       }
       //count = (abCardFlourishFlipAngles[key]).where((x) => x > 0.0 ?? false).length + count;

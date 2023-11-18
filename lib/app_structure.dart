@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/globals.dart';
 import 'package:infinitordle/keyboard.dart';
 import 'package:infinitordle/gameboard.dart';
 import 'package:infinitordle/helper.dart';
@@ -21,23 +20,7 @@ Widget streamBuilderWrapperOnDocument() {
       stream: db.collection('states').doc(g.getUser()).snapshots(),
       builder:
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasError || !snapshot.hasData) {
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
-        } else {
-          var userDocument = snapshot.data;
-          if (userDocument != null && userDocument.exists) {
-            String snapshotCurrent = userDocument["data"];
-            if (g.signedIn() && !recentSnapshotsCache.contains(snapshotCurrent)) {
-              if (snapshotCurrent != game.getEncodeCurrentGameState()) {
-                game.loadFromEncodedState(snapshotCurrent, false);
-              }
-              recentSnapshotsCache.add(snapshotCurrent);
-              if (recentSnapshotsCache.length > 5) {
-                recentSnapshotsCache.removeAt(0);
-              }
-            }
-          }
-        }
+        fBase.load(snapshot);
         return _scaffold();
       },
     );
@@ -48,6 +31,7 @@ Widget _scaffold() {
   return Scaffold(
     appBar: AppBar(
       centerTitle: true,
+      titleSpacing: 0,
       toolbarHeight: screen.appBarHeight,
       title: titleWidget(),
       backgroundColor: bg,
@@ -111,20 +95,10 @@ Widget keyboardListenerWrapper() {
         if (keyboardList.contains(keyEvent.character)) {
           game.onKeyboardTapped(
               keyboardList.indexOf(keyEvent.character ?? " "));
-        }
-        if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
+        } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
           game.onKeyboardTapped(keyboardList.indexOf(">"));
-        }
-        if (keyEvent.logicalKey == LogicalKeyboardKey.backspace &&
-            backspaceSafeCache) {
-          if (backspaceSafeCache) {
-            backspaceSafeCache = false;
-            game.onKeyboardTapped(keyboardList.indexOf("<"));
-          }
-        }
-      } else if (keyEvent is KeyUpEvent) {
-        if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
-          backspaceSafeCache = true;
+        } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
+          game.onKeyboardTapped(keyboardList.indexOf("<"));
         }
       }
     },
@@ -141,7 +115,7 @@ Widget gameboardAndKeyboard() {
           spacing: boardSpacer,
           runSpacing: boardSpacer,
           children: [
-            //split into 2 so that don't get a wrap on 3 + 1 basis. Note that this is why 2 is hardcoded below
+            // Split into 2 halves so that don't get a wrap on 3 + 1 basis
             Wrap(
               spacing: boardSpacer,
               runSpacing: boardSpacer,
