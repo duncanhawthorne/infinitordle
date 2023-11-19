@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+//firebase_options.dart as per direct download from google, not included in repo
 import 'firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:infinitordle/app_structure.dart';

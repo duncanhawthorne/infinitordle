@@ -288,7 +288,7 @@ class Game {
     save.saveKeys();
   }
 
-  void flipExpandingBoardState() {
+  void toggleExpandingBoardState() {
     if (expandingBoard) {
       expandingBoard = false;
     } else {
@@ -440,10 +440,10 @@ class Game {
       if (sync) {
         ss();
       } else {
-        Future.delayed(const Duration(milliseconds: 0), () {
-          // ASAP but not sync
-          ss();
-        });
+        //Future.delayed(const Duration(milliseconds: 0), () {
+        //  // ASAP but not sync
+        //  ss();
+        //});
       }
     }
   }

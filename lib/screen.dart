@@ -8,6 +8,7 @@ class Screen {
   double cardLiveMaxPixel = -1;
   double keyAspectRatioLive = -1;
   double keyboardSingleKeyLiveMaxPixelHeight = -1;
+  double keyboardSingleKeyLiveMaxPixelWidth = -1;
   int numPresentationBigRowsOfBoards = -1;
 
   //Variable used only inside of class
@@ -22,17 +23,20 @@ class Screen {
     if (scW != MediaQuery.of(context).size.width ||
         scH !=
             MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom) {
+                MediaQuery.of(context).padding.top -
+                MediaQuery.of(context).padding.bottom) {
       //recalculate these key values for screen size changes
       scW = MediaQuery.of(context).size.width;
       scH = MediaQuery.of(context).size.height -
-          MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom;
+          MediaQuery.of(context).padding.top -
+          MediaQuery.of(context).padding.bottom;
       appBarHeight = scH * 0.055;
       vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 
       keyboardSingleKeyLiveMaxPixelHeight = min(
           keyAspectRatioDefault * scW / 10,
           keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3);
+
       vertSpaceForGameboard =
           vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
       vertSpaceForCardWithWrap =
@@ -70,6 +74,8 @@ class Screen {
 
       keyAspectRatioLive =
           max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
+      keyboardSingleKeyLiveMaxPixelWidth =
+          keyboardSingleKeyLiveMaxPixelHeight * keyAspectRatioLive;
     }
   }
 }

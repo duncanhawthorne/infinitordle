@@ -11,8 +11,7 @@ class FireBase {
       var userDocument = snapshot.data;
       if (userDocument != null && userDocument.exists) {
         String snapshotCurrent = userDocument["data"];
-        if (g.signedIn() &&
-            !recentSnapshotsCache.contains(snapshotCurrent)) {
+        if (g.signedIn() && !recentSnapshotsCache.contains(snapshotCurrent)) {
           if (snapshotCurrent != game.getEncodeCurrentGameState()) {
             game.loadFromEncodedState(snapshotCurrent, false);
           }
@@ -24,5 +23,4 @@ class FireBase {
       }
     }
   }
-
 }

@@ -64,7 +64,7 @@ Widget titleWidget() {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: screen.appBarHeight * 40 / 56,
-                    fontFamily: GoogleFonts.roboto().fontFamily,
+                  fontFamily: GoogleFonts.roboto().fontFamily,
                 ),
                 children: <TextSpan>[
                   const TextSpan(text: appTitle1),

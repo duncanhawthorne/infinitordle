@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
+import 'package:stroke_text/stroke_text.dart';
 
 Widget gameboardWidget(boardNumber) {
   return ClipRRect(
@@ -17,7 +18,8 @@ Widget gameboardWidget(boardNumber) {
                     maxWidth: cols * screen.cardLiveMaxPixel,
                     maxHeight: numRowsPerBoard * screen.cardLiveMaxPixel),
                 child: GridView.builder(
-                    padding: EdgeInsets.zero, //https://github.com/flutter/flutter/issues/20241
+                    padding: EdgeInsets
+                        .zero, //https://github.com/flutter/flutter/issues/20241
                     cacheExtent:
                         10000, //prevents top card reloading (and flipping) on scroll
                     reverse: true, //makes stick to bottom
@@ -123,16 +125,18 @@ Widget _card(abIndex, boardNumber, val, bf) {
 Widget _cardText(abIndex, boardNumber) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
-  return Text(
-    abRow == game.getAbLiveNumRowsPerBoard() - 1 &&
+  return StrokeText(
+    text: abRow == game.getAbLiveNumRowsPerBoard() - 1 &&
             game.getGbCurrentRowInt() < 0 &&
             game.getCurrentTyping().length > col
         //In unlikely case need to type while off top of board, show at bottom
         ? game.getCurrentTyping()[col].toUpperCase()
         : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
-    textAlign: TextAlign.center,
-    style: TextStyle(
-      fontSize: screen.cardLiveMaxPixel,
+    //textAlign: TextAlign.center,
+    strokeWidth: 0.5,
+    strokeColor: bg,
+    textStyle: TextStyle(
+      //fontSize: screen.cardLiveMaxPixel * 0.1 * (1 - 0.05 * 2),
       height: m3 ? 1.15 : null,
       leadingDistribution: m3 ? TextLeadingDistribution.even : null,
       color: (!infMode &&

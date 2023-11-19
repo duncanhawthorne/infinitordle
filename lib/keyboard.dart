@@ -54,8 +54,8 @@ Widget _kbStackWithMiniGrid(index, length) {
 
 Widget _kbTextSquare(index) {
   return SizedBox(
-      height: double.infinity,
-      width: double.infinity,
+      height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
+      width: screen.keyboardSingleKeyLiveMaxPixelWidth, //double.infinity,
       child: FittedBox(
           fit: BoxFit.fitHeight,
           child: keyboardList[index] == "<"
@@ -122,7 +122,7 @@ Widget _kbMiniGridContainer(index, length) {
 
 Widget _kbMiniSquareColor(kbIndex, subIndex) {
   return Container(
-    height: 1000,
+    //height: 1000,
     decoration: BoxDecoration(
       color: cardColors.getBestColorForLetter(kbIndex, subIndex),
     ),
