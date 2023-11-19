@@ -25,7 +25,7 @@ Future<void> showResetConfirmScreenReal(context) async {
               children: [
                 const Text(appTitle),
                 SizedBox(
-                  width: 130,
+                  //width: 130,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -44,6 +44,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                             },
                           )),
                       const SizedBox(width: 8),
+                      //Flex( direction: Axis.horizontal),
                       Tooltip(
                         message: !g.signedIn() ? "Sign in" : "Sign out",
                         child: !g.signedIn()
