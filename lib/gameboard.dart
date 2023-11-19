@@ -17,6 +17,7 @@ Widget gameboardWidget(boardNumber) {
                     maxWidth: cols * screen.cardLiveMaxPixel,
                     maxHeight: numRowsPerBoard * screen.cardLiveMaxPixel),
                 child: GridView.builder(
+                    padding: EdgeInsets.zero, //https://github.com/flutter/flutter/issues/20241
                     cacheExtent:
                         10000, //prevents top card reloading (and flipping) on scroll
                     reverse: true, //makes stick to bottom

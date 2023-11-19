@@ -89,22 +89,26 @@ Widget bodyWidget() {
 }
 
 Widget keyboardListenerWrapper() {
-  return KeyboardListener(
-    focusNode: focusNode,
-    autofocus: true,
-    onKeyEvent: (keyEvent) {
-      if (keyEvent is KeyDownEvent) {
-        if (keyboardList.contains(keyEvent.character)) {
-          game.onKeyboardTapped(
-              keyboardList.indexOf(keyEvent.character ?? " "));
-        } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
-          game.onKeyboardTapped(keyboardList.indexOf(">"));
-        } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
-          game.onKeyboardTapped(keyboardList.indexOf("<"));
+  return Focus(
+    // https://stackoverflow.com/questions/68333803/flutter-rawkeyboardlistener-triggering-system-sounds-on-macos
+    onKey: (focus, onKey) => KeyEventResult.handled,
+    child: KeyboardListener(
+      focusNode: focusNode,
+      autofocus: true,
+      onKeyEvent: (keyEvent) {
+        if (keyEvent is KeyDownEvent) {
+          if (keyboardList.contains(keyEvent.character)) {
+            game.onKeyboardTapped(
+                keyboardList.indexOf(keyEvent.character ?? " "));
+          } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
+            game.onKeyboardTapped(keyboardList.indexOf(">"));
+          } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
+            game.onKeyboardTapped(keyboardList.indexOf("<"));
+          }
         }
-      }
-    },
-    child: gameboardAndKeyboard(),
+      },
+      child: gameboardAndKeyboard(),
+    ),
   );
 }
 

@@ -19,101 +19,104 @@ Future<void> showResetConfirmScreenReal(context) async {
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (context, setState) {
-          return AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(appTitle),
-                SizedBox(
-                  //width: 130,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Tooltip(
-                          message: game.getExpandingBoard()
-                              ? "Turn off expanding board"
-                              : "Turn on expanding board",
-                          child: IconButton(
-                            iconSize: 25,
-                            icon: game.getExpandingBoard()
-                                ? const Icon(Icons.visibility, color: bg)
-                                : const Icon(Icons.visibility_off, color: bg),
-                            onPressed: () {
-                              game.flipExpandingBoardState();
-                              setState(() {}); //state inside dialog
-                            },
-                          )),
-                      const SizedBox(width: 8),
-                      //Flex( direction: Axis.horizontal),
-                      Tooltip(
-                        message: !g.signedIn() ? "Sign in" : "Sign out",
-                        child: !g.signedIn()
-                            ? IconButton(
-                                iconSize: 25,
-                                icon: const Icon(Icons.lock, color: bg),
-                                onPressed: () {
-                                  g.signIn();
-                                  Navigator.pop(context, 'OK');
-                                  focusNode.requestFocus();
-                                },
-                              )
-                            : IconButton(
-                                iconSize: g.getUserIcon() == gUserIconDefault
-                                    ? 25
-                                    : 50,
-                                icon: g.getUserIcon() == gUserIconDefault
-                                    ? const Icon(Icons.face, color: bg)
-                                    : CircleAvatar(
-                                        backgroundImage:
-                                            NetworkImage(g.getUserIcon())),
-                                onPressed: () {
-                                  showLogoutConfirmationScreen(context);
-                                  focusNode.requestFocus();
-                                },
-                              ),
-                      )
-                    ],
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            child: AlertDialog(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(appTitle),
+                  SizedBox(
+                    //width: 130,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Tooltip(
+                            message: game.getExpandingBoard()
+                                ? "Turn off expanding board"
+                                : "Turn on expanding board",
+                            child: IconButton(
+                              iconSize: 25,
+                              icon: game.getExpandingBoard()
+                                  ? const Icon(Icons.visibility, color: bg)
+                                  : const Icon(Icons.visibility_off, color: bg),
+                              onPressed: () {
+                                game.flipExpandingBoardState();
+                                setState(() {}); //state inside dialog
+                              },
+                            )),
+                        const SizedBox(width: 8),
+                        //Flex( direction: Axis.horizontal),
+                        Tooltip(
+                          message: !g.signedIn() ? "Sign in" : "Sign out",
+                          child: !g.signedIn()
+                              ? IconButton(
+                                  iconSize: 25,
+                                  icon: const Icon(Icons.lock, color: bg),
+                                  onPressed: () {
+                                    g.signIn();
+                                    Navigator.pop(context, 'OK');
+                                    focusNode.requestFocus();
+                                  },
+                                )
+                              : IconButton(
+                                  iconSize: g.getUserIcon() == gUserIconDefault
+                                      ? 25
+                                      : 50,
+                                  icon: g.getUserIcon() == gUserIconDefault
+                                      ? const Icon(Icons.face, color: bg)
+                                      : CircleAvatar(
+                                          backgroundImage:
+                                              NetworkImage(g.getUserIcon())),
+                                  onPressed: () {
+                                    showLogoutConfirmationScreen(context);
+                                    focusNode.requestFocus();
+                                  },
+                                ),
+                        )
+                      ],
+                    ),
                   ),
+                ],
+              ),
+              content: Text(gameOver
+                  ? "You got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ": " +
+                      winWordsCache.join(", ") +
+                      "\n\nYou missed: " +
+                      game.targetWords.join(", ") +
+                      "\n\nReset the board?"
+                  : "You've got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ' so far' +
+                      (numberWinsCache != 0 ? ":" : "") +
+                      ' ' +
+                      winWordsCache.join(", ") +
+                      "\n\n"
+                          'Lose your progress and reset the board?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => {
+                    focusNode.requestFocus(),
+                    Navigator.pop(context, 'Cancel')
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => {
+                    game.resetBoard(),
+                    focusNode.requestFocus(),
+                    Navigator.pop(context, 'OK'),
+                  },
+                  child: const Text('Reset', style: TextStyle(color: Colors.red)),
                 ),
               ],
             ),
-            content: Text(gameOver
-                ? "You got " +
-                    numberWinsCache.toString() +
-                    " word" +
-                    (numberWinsCache == 1 ? "" : "s") +
-                    ": " +
-                    winWordsCache.join(", ") +
-                    "\n\nYou missed: " +
-                    game.targetWords.join(", ") +
-                    "\n\nReset the board?"
-                : "You've got " +
-                    numberWinsCache.toString() +
-                    " word" +
-                    (numberWinsCache == 1 ? "" : "s") +
-                    ' so far' +
-                    (numberWinsCache != 0 ? ":" : "") +
-                    ' ' +
-                    winWordsCache.join(", ") +
-                    "\n\n"
-                        'Lose your progress and reset the board?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => {
-                  focusNode.requestFocus(),
-                  Navigator.pop(context, 'Cancel')
-                },
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => {
-                  game.resetBoard(),
-                  focusNode.requestFocus(),
-                  Navigator.pop(context, 'OK'),
-                },
-                child: const Text('Reset', style: TextStyle(color: Colors.red)),
-              ),
-            ],
           );
         },
       );

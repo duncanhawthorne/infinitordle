@@ -54,6 +54,15 @@ dependencies:
 #      ref: google-sign-in-web-using-gis
 #      path: packages/google_sign_in/google_sign_in_web
 
+
+# https://github.com/flutter/flutter/issues/46157
+dependency_overrides:
+  google_sign_in_ios:
+    git:
+      url: https://github.com/stuartmorgan/packages.git
+      ref: google-sign-in-macos
+      path: packages/google_sign_in/google_sign_in_ios
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
