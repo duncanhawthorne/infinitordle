@@ -5,6 +5,7 @@ import 'package:infinitordle/keyboard.dart';
 import 'package:infinitordle/gameboard.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 FocusNode focusNode = FocusNode();
 
@@ -63,6 +64,7 @@ Widget titleWidget() {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: screen.appBarHeight * 40 / 56,
+                    fontFamily: GoogleFonts.roboto().fontFamily,
                 ),
                 children: <TextSpan>[
                   const TextSpan(text: appTitle1),

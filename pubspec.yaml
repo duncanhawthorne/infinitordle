@@ -43,6 +43,8 @@ dependencies:
   cloud_firestore: ^4.3.1
   collection: ^1.17.0
   firebase_analytics: ^10.6.2
+  google_fonts: ^6.1.0 
+  stroke_text: any
 
 
 #dependency_overrides:

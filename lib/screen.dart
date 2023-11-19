@@ -22,11 +22,11 @@ class Screen {
     if (scW != MediaQuery.of(context).size.width ||
         scH !=
             MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top) {
+                MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom) {
       //recalculate these key values for screen size changes
       scW = MediaQuery.of(context).size.width;
       scH = MediaQuery.of(context).size.height -
-          MediaQuery.of(context).padding.top;
+          MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom;
       appBarHeight = scH * 0.055;
       vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 

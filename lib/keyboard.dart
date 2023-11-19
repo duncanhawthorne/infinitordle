@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
+import 'package:stroke_text/stroke_text.dart';
 
 Widget keyboardRowWidget(keyBoardStartKey, length) {
   return Container(
@@ -72,14 +73,17 @@ Widget _kbTextSquare(index) {
                           color: game.getReadyForStreakCurrentRow()
                               ? green
                               : Colors.white))
-                  : Text(
-                      keyboardList[index].toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          height: m3 ? 1.15 : null,
-                          leadingDistribution:
-                              m3 ? TextLeadingDistribution.even : null,
+                  : StrokeText(
+                      text: keyboardList[index].toUpperCase(),
+                      strokeWidth: 0.2,
+                      strokeColor: bg,
+                      //textAlign: TextAlign.center,
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        height: m3 ? 1.15 : null,
+                        leadingDistribution:
+                            m3 ? TextLeadingDistribution.even : null,
+                        /*
                           shadows: <Shadow>[
                             //impact font shadows
                             Shadow(
@@ -87,7 +91,9 @@ Widget _kbTextSquare(index) {
                               blurRadius: 1.0,
                               color: bg,
                             ),
-                          ]),
+                          ]
+                          */
+                      ),
                     )));
 }
 
@@ -98,10 +104,14 @@ Widget _kbMiniGridContainer(index, length) {
       shrinkWrap: true,
       itemCount: game.highlightedBoard != -1 ? 1 : numBoards,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: game.highlightedBoard != -1 ? 1 : numBoards ~/ screen.numPresentationBigRowsOfBoards,
-        childAspectRatio: (game.highlightedBoard != -1 ? 1 : 1 /
-            ((numBoards / screen.numPresentationBigRowsOfBoards) /
-                screen.numPresentationBigRowsOfBoards)) /
+        crossAxisCount: game.highlightedBoard != -1
+            ? 1
+            : numBoards ~/ screen.numPresentationBigRowsOfBoards,
+        childAspectRatio: (game.highlightedBoard != -1
+                ? 1
+                : 1 /
+                    ((numBoards / screen.numPresentationBigRowsOfBoards) /
+                        screen.numPresentationBigRowsOfBoards)) /
             screen.keyAspectRatioLive *
             (10 / length),
       ),

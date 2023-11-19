@@ -29,25 +29,30 @@ class Google {
 
   Future<void> signIn() async {
     p("gSignIn()");
-
-    GoogleSignInAccount? user;
-
-    await googleSignIn.signInSilently();
-    user = googleSignIn.currentUser;
-
-    if (user == null) {
-      //if sign in silently didn't work
-      await googleSignIn.signIn();
-      user = googleSignIn.currentUser;
-    }
-
-    if (user != null) {
-      gUser = user.email;
-      if (user.photoUrl != null) {
-        gUserIcon = user.photoUrl ?? gUserIconDefault;
-      }
+    if (debugFakeLogin) {
+      gUser = gUserFakeLogin;
       await save.saveUser();
       await save.loadKeys();
+    } else {
+      GoogleSignInAccount? user;
+
+      await googleSignIn.signInSilently();
+      user = googleSignIn.currentUser;
+
+      if (user == null) {
+        //if sign in silently didn't work
+        await googleSignIn.signIn();
+        user = googleSignIn.currentUser;
+      }
+
+      if (user != null) {
+        gUser = user.email;
+        if (user.photoUrl != null) {
+          gUserIcon = user.photoUrl ?? gUserIconDefault;
+        }
+        await save.saveUser();
+        await save.loadKeys();
+      }
     }
   }
 

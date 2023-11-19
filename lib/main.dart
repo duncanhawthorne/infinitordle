@@ -8,6 +8,7 @@ import 'package:infinitordle/app_structure.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/popup_screens.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,8 +38,9 @@ class InfinitordleApp extends StatelessWidget {
           seedColor: Colors.white,
           brightness: Brightness.light,
         ),
-        fontFamily:
-            '-apple-system', //https://github.com/flutter/flutter/issues/93140
+        //fontFamily:
+        //    '-apple-system', //https://github.com/flutter/flutter/issues/93140
+        fontFamily: GoogleFonts.roboto().fontFamily,
         appBarTheme: const AppBarTheme(
           backgroundColor: bg,
           foregroundColor: bg,

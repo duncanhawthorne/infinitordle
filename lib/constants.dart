@@ -53,6 +53,7 @@ const double dividerHeight = 2;
 const double keyAspectRatioDefault = 1.5;
 
 const bool debugFakeLogin = false;
+const String gUserFakeLogin = "joebloggs@gmail.com";
 const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
 
