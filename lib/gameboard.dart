@@ -11,7 +11,7 @@ Widget gameboardWidget(boardNumber) {
           color: Colors.transparent,
           child: InkWell(
               onTap: () {
-                game.flipHighlightedBoard(boardNumber);
+                game.toggleHighlightedBoard(boardNumber);
               },
               child: Container(
                 constraints: BoxConstraints(
@@ -39,6 +39,7 @@ Widget gameboardWidget(boardNumber) {
 }
 
 Widget _cardFlipper(abIndex, boardNumber) {
+  int abRow = abIndex ~/ cols;
   return TweenAnimationBuilder(
       tween: Tween<double>(
           begin: 0, end: flips.getFlipAngle(abIndex, boardNumber)),
@@ -48,7 +49,9 @@ Widget _cardFlipper(abIndex, boardNumber) {
           alignment: Alignment.center,
           transform: Matrix4.identity()..rotateX(val * (2 * pi)),
           child: val <= 0.25
-              ? _card(abIndex, boardNumber, val, "b")
+              ? abRow >= game.getAbCurrentRowInt()
+                  ? _card(abIndex, boardNumber, val, "b")
+                  : _positionedCard(abIndex, boardNumber, val, "b")
               : Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()..rotateX(pi),
@@ -101,18 +104,20 @@ Widget _card(abIndex, boardNumber, val, bf) {
       child: Container(
         decoration: BoxDecoration(
             border: Border.all(
-                color: historicalWin ? green : Colors.transparent,
+                color: historicalWin ? soften(boardNumber, green) : Colors.transparent,
                 width: 0.05 * screen.cardLiveMaxPixel),
             borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
             color: hideCard
                 ? Colors.transparent
-                : bf == "b"
-                    ? abRow == game.getAbCurrentRowInt() &&
-                            game.getCurrentTyping().length == cols &&
-                            !isLegalWord(game.getCurrentTyping())
-                        ? Colors.red
-                        : grey
-                    : cardColors.getAbCardColor(abIndex, boardNumber)),
+                : soften(
+                    boardNumber,
+                    bf == "b"
+                        ? abRow == game.getAbCurrentRowInt() &&
+                                game.getCurrentTyping().length == cols &&
+                                !isLegalWord(game.getCurrentTyping())
+                            ? red
+                            : grey
+                        : cardColors.getAbCardColor(abIndex, boardNumber))),
         child: FittedBox(
           fit: BoxFit.fitHeight,
           child: _cardText(abIndex, boardNumber),
@@ -134,7 +139,9 @@ Widget _cardText(abIndex, boardNumber) {
         : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
     //textAlign: TextAlign.center,
     strokeWidth: 0.5,
-    strokeColor: bg,
+    strokeColor: game.isBoardNormalHighlighted(boardNumber) || flipBack
+        ? bg
+        : Colors.transparent,
     textStyle: TextStyle(
       //fontSize: screen.cardLiveMaxPixel * 0.1 * (1 - 0.05 * 2),
       height: m3 ? 1.15 : null,
@@ -143,10 +150,9 @@ Widget _cardText(abIndex, boardNumber) {
                   game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
               abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
           ? Colors.transparent
-          : game.getHighlightedBoard() == -1 ||
-                  game.getHighlightedBoard() == boardNumber
-              ? Colors.white
-              : offWhite,
+          : flipBack
+              ? white
+              : soften(boardNumber, white),
       fontWeight: FontWeight.bold,
     ),
   );

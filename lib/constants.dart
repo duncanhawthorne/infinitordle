@@ -14,9 +14,21 @@ const String appTitle1 = cheatMode ? "cheat" : "infinit";
 const String appTitle3 = "rdle";
 const bg = Color(0xff222222);
 const grey = Color(0xff555555);
-const offWhite = Color(0xff999999);
-const amber = Colors.amber;
+const white = Colors.white;
 const green = Colors.green;
+const amber = Colors.amber;
+const red = Colors.red;
+const dgreen = Color(0xff83B07B); //Colors.green[900];
+const damber = Color(0xffFADD7D); //Color(0xff4A4919); // Colors.brown[800];
+const dred = Color(0xffEB958D); //Colors.red[900];
+const offWhite = Color(0xff888888);
+final Map colorMap = {
+  green: dgreen,
+  amber: damber,
+  red: dred,
+  white: offWhite,
+  //grey: grey
+};
 
 //Game design
 const numBoards = 4; //must be divisible by 2
@@ -47,6 +59,7 @@ const slideTime = durMult * 200;
 const flipTime = durMult * 500;
 const gradualRevealRowTime = gradualRevealDelay * (cols - 1) + flipTime;
 const visualCatchUpTime = delayMult * 750;
+const flipBack = false;
 
 //Screen constants
 const double dividerHeight = 2;

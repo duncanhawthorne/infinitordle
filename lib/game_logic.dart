@@ -299,7 +299,7 @@ class Game {
     ss();
   }
 
-  void flipHighlightedBoard(boardNumber) {
+  void toggleHighlightedBoard(boardNumber) {
     if (highlightedBoard == boardNumber) {
       highlightedBoard = -1; //if already set turn off
     } else {
@@ -580,6 +580,10 @@ class Game {
 
   int getGbCurrentRowInt() {
     return getGBRowFromABRow(getAbCurrentRowInt());
+  }
+
+  bool isBoardNormalHighlighted(boardNumber) {
+    return getHighlightedBoard() == -1 || getHighlightedBoard() == boardNumber;
   }
 
   // PURE GETTERS

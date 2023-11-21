@@ -61,6 +61,14 @@ void p(x) {
   debugPrint("///// A " + x.toString());
 }
 
+Color soften(boardNumber, color) {
+  if (game.isBoardNormalHighlighted(boardNumber) || !colorMap.containsKey(color)) {
+    return color;
+  } else {
+    return colorMap[color];
+  }
+}
+
 List getBlankFirstKnowledge(numberOfBoards) {
   return List.filled(numberOfBoards, 0);
 }

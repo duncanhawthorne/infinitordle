@@ -112,7 +112,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                   focusNode.requestFocus(),
                   Navigator.pop(context, 'OK'),
                 },
-                child: const Text('Reset', style: TextStyle(color: Colors.red)),
+                child: const Text('Reset', style: TextStyle(color: red)),
               ),
             ],
           );
@@ -141,7 +141,7 @@ Future<void> showLogoutConfirmationScreen(context) async {
               Navigator.pop(context, 'OK'),
               Navigator.pop(context, 'OK'),
             },
-            child: const Text('Sign out', style: TextStyle(color: Colors.red)),
+            child: const Text('Sign out', style: TextStyle(color: red)),
           ),
         ],
       );
