@@ -62,7 +62,7 @@ void p(x) {
 }
 
 Color soften(boardNumber, color) {
-  if (game.isBoardNormalHighlighted(boardNumber) || !colorMap.containsKey(color)) {
+  if (flipBack || game.isBoardNormalHighlighted(boardNumber) || !colorMap.containsKey(color)) {
     return color;
   } else {
     return colorMap[color];

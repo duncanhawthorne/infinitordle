@@ -28,6 +28,7 @@ final Map colorMap = {
   red: dred,
   white: offWhite,
   //grey: grey
+  bg : Colors.transparent,
 };
 
 //Game design

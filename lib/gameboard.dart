@@ -104,7 +104,9 @@ Widget _card(abIndex, boardNumber, val, bf) {
       child: Container(
         decoration: BoxDecoration(
             border: Border.all(
-                color: historicalWin ? soften(boardNumber, green) : Colors.transparent,
+                color: historicalWin
+                    ? soften(boardNumber, green)
+                    : Colors.transparent,
                 width: 0.05 * screen.cardLiveMaxPixel),
             borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
             color: hideCard
@@ -130,30 +132,26 @@ Widget _card(abIndex, boardNumber, val, bf) {
 Widget _cardText(abIndex, boardNumber) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
-  bool transp = (!infMode &&
-      game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-      abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
+  bool transp =
+      (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
+          abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
   return StrokeText(
     text: abRow == game.getAbLiveNumRowsPerBoard() - 1 &&
             game.getGbCurrentRowInt() < 0 &&
             game.getCurrentTyping().length > col
         //In unlikely case need to type while off top of board, show at bottom
         ? game.getCurrentTyping()[col].toUpperCase()
-        : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
+        : transp
+            ? ""
+            : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
     //textAlign: TextAlign.center,
     strokeWidth: 0.5,
-    strokeColor: (game.isBoardNormalHighlighted(boardNumber) || flipBack) && !transp
-        ? bg
-        : Colors.transparent,
+    strokeColor: soften(boardNumber, bg),
     textStyle: TextStyle(
       //fontSize: screen.cardLiveMaxPixel * 0.1 * (1 - 0.05 * 2),
       height: m3 ? 1.15 : null,
       leadingDistribution: m3 ? TextLeadingDistribution.even : null,
-      color: transp
-          ? Colors.transparent
-          : flipBack
-              ? white
-              : soften(boardNumber, white),
+      color: soften(boardNumber, white),
       fontWeight: FontWeight.bold,
     ),
   );
