@@ -117,25 +117,35 @@ Widget gameboardAndKeyboard() {
     color: bg,
     child: Column(
       children: [
-        Wrap(
-          spacing: boardSpacer,
-          runSpacing: boardSpacer,
-          children: [
-            // Split into 2 halves so that don't get a wrap on 3 + 1 basis
-            Wrap(
-              spacing: boardSpacer,
-              runSpacing: boardSpacer,
-              children: List.generate(
-                  numBoards ~/ 2, (index) => gameboardWidget(index)),
+        Stack(alignment: Alignment.center, children: [
+          game.highlightedBoard != -1 ?
+          InkWell(
+            onTap: () => game.toggleHighlightedBoard(-1),
+            child: SizedBox(
+              width: screen.scW,
+              height: screen.fullSizeOfGameboards,
             ),
-            Wrap(
-              spacing: boardSpacer,
-              runSpacing: boardSpacer,
-              children: List.generate(numBoards - (numBoards ~/ 2),
-                  (index) => gameboardWidget(numBoards ~/ 2 + index)),
-            ),
-          ],
-        ),
+          ) : SizedBox.shrink(),
+          Wrap(
+            spacing: boardSpacer,
+            runSpacing: boardSpacer,
+            children: [
+              // Split into 2 halves so that don't get a wrap on 3 + 1 basis
+              Wrap(
+                spacing: boardSpacer,
+                runSpacing: boardSpacer,
+                children: List.generate(
+                    numBoards ~/ 2, (index) => gameboardWidget(index)),
+              ),
+              Wrap(
+                spacing: boardSpacer,
+                runSpacing: boardSpacer,
+                children: List.generate(numBoards - (numBoards ~/ 2),
+                    (index) => gameboardWidget(numBoards ~/ 2 + index)),
+              ),
+            ],
+          )
+        ]),
         const Divider(
           color: Colors.transparent,
           height: dividerHeight,

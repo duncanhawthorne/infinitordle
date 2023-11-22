@@ -10,6 +10,7 @@ class Screen {
   double keyboardSingleKeyLiveMaxPixelHeight = -1;
   double keyboardSingleKeyLiveMaxPixelWidth = -1;
   int numPresentationBigRowsOfBoards = -1;
+  double fullSizeOfGameboards = -1;
 
   //Variable used only inside of class
   double vertSpaceForGameboard = -1;
@@ -58,18 +59,18 @@ class Screen {
           (scW - numSpacersAcross * boardSpacer) /
               (numBoards / numPresentationBigRowsOfBoards).ceil() /
               cols);
+      fullSizeOfGameboards = cardLiveMaxPixel *
+          numRowsPerBoard *
+          numPresentationBigRowsOfBoards +
+          numSpacersDown * boardSpacer;
       if (vertSpaceForGameboard >
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
               numSpacersDown * boardSpacer) {
         //if still space left over, no point squashing keyboard for nothing
+
         keyboardSingleKeyLiveMaxPixelHeight = min(
             keyAspectRatioDefault * scW / 10,
-            (vertSpaceAfterTitle -
-                    (cardLiveMaxPixel *
-                            numRowsPerBoard *
-                            numPresentationBigRowsOfBoards +
-                        numSpacersDown * boardSpacer)) /
-                3);
+            (vertSpaceAfterTitle - fullSizeOfGameboards) / 3);
       }
 
       keyAspectRatioLive =

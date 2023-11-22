@@ -18,9 +18,9 @@ const white = Colors.white;
 const green = Colors.green;
 const amber = Colors.amber;
 const red = Colors.red;
-const dgreen = Color(0xff83B07B); //Colors.green[900];
-const damber = Color(0xffFADD7D); //Color(0xff4A4919); // Colors.brown[800];
-const dred = Color(0xffEB958D); //Colors.red[900];
+const dgreen = Color(0xff61B063);
+const damber = Color(0xffFFCF40);
+const dred = Color(0xffF55549);
 const offWhite = Color(0xff888888);
 final Map colorMap = {
   green: dgreen,
