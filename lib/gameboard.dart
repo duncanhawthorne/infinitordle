@@ -130,6 +130,9 @@ Widget _card(abIndex, boardNumber, val, bf) {
 Widget _cardText(abIndex, boardNumber) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
+  bool transp = (!infMode &&
+      game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
+      abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
   return StrokeText(
     text: abRow == game.getAbLiveNumRowsPerBoard() - 1 &&
             game.getGbCurrentRowInt() < 0 &&
@@ -139,16 +142,14 @@ Widget _cardText(abIndex, boardNumber) {
         : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
     //textAlign: TextAlign.center,
     strokeWidth: 0.5,
-    strokeColor: game.isBoardNormalHighlighted(boardNumber) || flipBack
+    strokeColor: (game.isBoardNormalHighlighted(boardNumber) || flipBack) && !transp
         ? bg
         : Colors.transparent,
     textStyle: TextStyle(
       //fontSize: screen.cardLiveMaxPixel * 0.1 * (1 - 0.05 * 2),
       height: m3 ? 1.15 : null,
       leadingDistribution: m3 ? TextLeadingDistribution.even : null,
-      color: (!infMode &&
-                  game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-              abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
+      color: transp
           ? Colors.transparent
           : flipBack
               ? white
