@@ -132,7 +132,7 @@ Widget _cardText(abIndex, boardNumber) {
   int col = abIndex % cols;
   bool transp = (!infMode &&
       game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-      abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber)
+      abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
   return StrokeText(
     text: abRow == game.getAbLiveNumRowsPerBoard() - 1 &&
             game.getGbCurrentRowInt() < 0 &&

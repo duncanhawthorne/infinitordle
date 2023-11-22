@@ -125,7 +125,7 @@ Widget gameboardAndKeyboard() {
               width: screen.scW,
               height: screen.fullSizeOfGameboards,
             ),
-          ) : SizedBox.shrink(),
+          ) : const SizedBox.shrink(),
           Wrap(
             spacing: boardSpacer,
             runSpacing: boardSpacer,
