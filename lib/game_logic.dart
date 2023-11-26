@@ -586,6 +586,11 @@ class Game {
     return getHighlightedBoard() == -1 || getHighlightedBoard() == boardNumber;
   }
 
+  bool isIllegalWordEntered() {
+    return getCurrentTyping().length == cols &&
+        !isLegalWord(game.getCurrentTyping());
+  }
+
   // PURE GETTERS
 
   bool getAboutToWinCache() {

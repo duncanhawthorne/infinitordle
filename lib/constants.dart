@@ -22,13 +22,13 @@ const dgreen = Color(0xff61B063);
 const damber = Color(0xffFFCF40);
 const dred = Color(0xffF55549);
 const offWhite = Color(0xff939393);
-const Map colorMap = {
+final Map colorMap = {
   green: dgreen,
   amber: damber,
   red: dred,
   white: offWhite,
   //grey: grey
-  bg : Colors.transparent,
+  bg: Colors.transparent,
 };
 
 //Game design
@@ -40,7 +40,7 @@ const infNumBacksteps = 1;
 const double boardSpacer = 8;
 
 //Helper text
-final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm> ".split("");
+const keyboardList = kKbdList;
 const cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
 const cheatTargetWordsInitial = ["scoff", "brunt", "armor", "tabby"];
 const legalWords = kLegalWordsList;

@@ -59,10 +59,9 @@ class Screen {
           (scW - numSpacersAcross * boardSpacer) /
               (numBoards / numPresentationBigRowsOfBoards).ceil() /
               cols);
-      fullSizeOfGameboards = cardLiveMaxPixel *
-          numRowsPerBoard *
-          numPresentationBigRowsOfBoards +
-          numSpacersDown * boardSpacer;
+      fullSizeOfGameboards =
+          cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
+              numSpacersDown * boardSpacer;
       if (vertSpaceForGameboard >
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
               numSpacersDown * boardSpacer) {

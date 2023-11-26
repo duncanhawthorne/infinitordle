@@ -36,7 +36,7 @@ class InfinitordleApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: m3,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.white,
+          seedColor: white,
           brightness: Brightness.light,
         ),
         //fontFamily:

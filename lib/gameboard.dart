@@ -114,11 +114,11 @@ Widget _card(abIndex, boardNumber, val, bf) {
                 : soften(
                     boardNumber,
                     bf == "b"
-                        ? abRow == game.getAbCurrentRowInt() &&
-                                game.getCurrentTyping().length == cols &&
-                                !isLegalWord(game.getCurrentTyping())
-                            ? red
-                            : grey
+                        ? grey
+                        //? abRow == game.getAbCurrentRowInt() &&
+                        //game.isIllegalWordEntered()
+                        //   ? red
+                        //   : grey
                         : cardColors.getAbCardColor(abIndex, boardNumber))),
         child: FittedBox(
           fit: BoxFit.fitHeight,

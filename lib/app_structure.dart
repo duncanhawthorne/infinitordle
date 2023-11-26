@@ -61,7 +61,7 @@ Widget titleWidget() {
             child: RichText(
               text: TextSpan(
                 style: TextStyle(
-                  color: Colors.white,
+                  color: white,
                   fontWeight: FontWeight.bold,
                   fontSize: screen.appBarHeight * 40 / 56,
                   fontFamily: GoogleFonts.roboto().fontFamily,
@@ -73,7 +73,7 @@ Widget titleWidget() {
                       style: TextStyle(
                           color: numberWinsCache == 0 ||
                                   game.getExpandingBoardEver()
-                              ? Colors.white
+                              ? white
                               : green)),
                   const TextSpan(text: appTitle3),
                 ],
@@ -118,14 +118,15 @@ Widget gameboardAndKeyboard() {
     child: Column(
       children: [
         Stack(alignment: Alignment.center, children: [
-          game.highlightedBoard != -1 ?
-          InkWell(
-            onTap: () => game.toggleHighlightedBoard(-1),
-            child: SizedBox(
-              width: screen.scW,
-              height: screen.fullSizeOfGameboards,
-            ),
-          ) : const SizedBox.shrink(),
+          game.highlightedBoard != -1
+              ? InkWell(
+                  onTap: () => game.toggleHighlightedBoard(-1),
+                  child: SizedBox(
+                    width: screen.scW,
+                    height: screen.fullSizeOfGameboards,
+                  ),
+                )
+              : const SizedBox.shrink(),
           Wrap(
             spacing: boardSpacer,
             runSpacing: boardSpacer,

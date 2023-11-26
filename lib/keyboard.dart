@@ -61,25 +61,28 @@ Widget _kbTextSquare(index) {
           child: keyboardList[index] == "<"
               ? Container(
                   padding: const EdgeInsets.all(7),
-                  child:
-                      const Icon(Icons.keyboard_backspace, color: Colors.white))
+                  child: const Icon(Icons.keyboard_backspace, color: white))
               : keyboardList[index] == ">"
                   ? Container(
                       padding: const EdgeInsets.all(7),
                       child: Icon(
                           game.getReadyForStreakCurrentRow()
                               ? Icons.fast_forward
-                              : Icons.keyboard_return_sharp,
+                              : game.isIllegalWordEntered()
+                                  ? Icons.cancel
+                                  : Icons.keyboard_return_sharp,
                           color: game.getReadyForStreakCurrentRow()
                               ? green
-                              : Colors.white))
+                              : game.isIllegalWordEntered()
+                                  ? red
+                                  : white))
                   : StrokeText(
                       text: keyboardList[index].toUpperCase(),
                       strokeWidth: 0.2,
                       strokeColor: bg,
                       //textAlign: TextAlign.center,
                       textStyle: const TextStyle(
-                        color: Colors.white,
+                        color: white,
                         height: m3 ? 1.15 : null,
                         leadingDistribution:
                             m3 ? TextLeadingDistribution.even : null,
