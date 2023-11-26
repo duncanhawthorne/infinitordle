@@ -22,7 +22,7 @@ const dgreen = Color(0xff61B063);
 const damber = Color(0xffFFCF40);
 const dred = Color(0xffF55549);
 const offWhite = Color(0xff939393);
-final Map colorMap = {
+const Map colorMap = {
   green: dgreen,
   amber: damber,
   red: dred,
