@@ -66,15 +66,15 @@ Widget _kbTextSquare(index) {
                   ? Container(
                       padding: const EdgeInsets.all(7),
                       child: Icon(
-                          game.getReadyForStreakCurrentRow()
-                              ? Icons.fast_forward
-                              : game.isIllegalWordEntered()
-                                  ? Icons.cancel
+                          game.isIllegalWordEntered()
+                              ? Icons.cancel
+                              : game.getReadyForStreakCurrentRow()
+                                  ? Icons.fast_forward
                                   : Icons.keyboard_return_sharp,
-                          color: game.getReadyForStreakCurrentRow()
-                              ? green
-                              : game.isIllegalWordEntered()
-                                  ? red
+                          color: game.isIllegalWordEntered()
+                              ? red
+                              : game.getReadyForStreakCurrentRow()
+                                  ? green
                                   : white))
                   : StrokeText(
                       text: keyboardList[index].toUpperCase(),
