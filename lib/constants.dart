@@ -43,8 +43,8 @@ const double boardSpacer = 8;
 final keyboardList = "qwertyuiopasdfghjkl <zxcvbnm> ".split("");
 const cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
 const cheatTargetWordsInitial = ["scoff", "brunt", "armor", "tabby"];
-final legalWords = kLegalWordsText.split("\n");
-final finalWords = kFinalWordsText.split("\n");
+const legalWords = kLegalWordsList;
+const winnableWords = kWinnableWordsList;
 
 //Device support
 final isWebMobileReal = kIsWeb &&

@@ -493,7 +493,7 @@ class Game {
     String a = targetWords[0];
     while (targetWords.contains(a) || enteredWords.contains(a)) {
       // Ensure a word we have never seen before
-      a = finalWords[random.nextInt(finalWords.length)];
+      a = winnableWords[random.nextInt(winnableWords.length)];
     }
     return a;
   }
