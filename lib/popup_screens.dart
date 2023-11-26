@@ -20,6 +20,7 @@ Future<void> showResetConfirmScreenReal(context) async {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
+            scrollable: true,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

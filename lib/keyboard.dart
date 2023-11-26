@@ -43,7 +43,7 @@ Widget _kbStackWithMiniGrid(index, length) {
               onTap: () {
                 game.onKeyboardTapped(index);
               },
-              child: Container(child: _kbTextSquare(index)),
+              child: _kbTextSquare(index, length),
             ),
           )),
         ],
@@ -52,10 +52,12 @@ Widget _kbStackWithMiniGrid(index, length) {
   );
 }
 
-Widget _kbTextSquare(index) {
+Widget _kbTextSquare(index, length) {
   return SizedBox(
       height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
-      width: screen.keyboardSingleKeyLiveMaxPixelWidth, //double.infinity,
+      width: screen.keyboardSingleKeyLiveMaxPixelWidth *
+          10 /
+          length, //double.infinity,
       child: FittedBox(
           fit: BoxFit.fitHeight,
           child: keyboardList[index] == "<"

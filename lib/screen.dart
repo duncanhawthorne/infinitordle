@@ -75,7 +75,7 @@ class Screen {
       keyAspectRatioLive =
           max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
       keyboardSingleKeyLiveMaxPixelWidth =
-          keyboardSingleKeyLiveMaxPixelHeight * keyAspectRatioLive;
+          keyboardSingleKeyLiveMaxPixelHeight / keyAspectRatioLive;
     }
   }
 }
