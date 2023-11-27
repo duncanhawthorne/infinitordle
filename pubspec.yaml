@@ -39,6 +39,7 @@ dependencies:
   firebase_core: ^2.4.1
   firebase_auth: ^4.2.5
   google_sign_in: ^6.0.0
+  google_sign_in_web: 0.12.0+5
   cloud_firestore: ^4.3.1
 #  collection: ^1.17.0
   firebase_analytics: ^10.6.2
@@ -54,7 +55,7 @@ dependencies:
 #      path: packages/google_sign_in/google_sign_in_web
 
 
-# https://github.com/flutter/flutter/issues/46157
+#https://github.com/flutter/flutter/issues/46157
 #dependency_overrides:
 #  google_sign_in_ios:
 #    git:
