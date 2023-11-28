@@ -20,7 +20,7 @@ Future<void> showResetConfirmScreenReal(context) async {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            scrollable: true,
+            //scrollable: true,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -79,26 +79,28 @@ Future<void> showResetConfirmScreenReal(context) async {
                 ),
               ],
             ),
-            content: Text(gameOver
-                ? "You got " +
-                    numberWinsCache.toString() +
-                    " word" +
-                    (numberWinsCache == 1 ? "" : "s") +
-                    ": " +
-                    winWordsCache.join(", ") +
-                    "\n\nYou missed: " +
-                    game.targetWords.join(", ") +
-                    "\n\nReset the board?"
-                : "You've got " +
-                    numberWinsCache.toString() +
-                    " word" +
-                    (numberWinsCache == 1 ? "" : "s") +
-                    ' so far' +
-                    (numberWinsCache != 0 ? ":" : "") +
-                    ' ' +
-                    winWordsCache.join(", ") +
-                    "\n\n"
-                        'Lose your progress and reset the board?'),
+            content: SingleChildScrollView(
+              child: Text(gameOver
+                  ? "You got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ": " +
+                      winWordsCache.join(", ") +
+                      "\n\nYou missed: " +
+                      game.targetWords.join(", ") +
+                      "\n\nReset the board?"
+                  : "You've got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ' so far' +
+                      (numberWinsCache != 0 ? ":" : "") +
+                      ' ' +
+                      winWordsCache.join(", ") +
+                      "\n\n"
+                          'Lose your progress and reset the board?'),
+            ),
             actions: <Widget>[
               TextButton(
                 onPressed: () => {
