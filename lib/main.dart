@@ -35,9 +35,10 @@ class InfinitordleApp extends StatelessWidget {
       title: appTitle,
       theme: ThemeData(
         useMaterial3: m3,
+        scaffoldBackgroundColor: bg,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: white,
-          brightness: Brightness.light,
+          seedColor: bg,
+          brightness: Brightness.dark,
         ),
         //fontFamily:
         //    '-apple-system', //https://github.com/flutter/flutter/issues/93140

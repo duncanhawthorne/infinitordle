@@ -20,6 +20,8 @@ Future<void> showResetConfirmScreenReal(context) async {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
+            backgroundColor: bg,
+            surfaceTintColor: bg,
             //scrollable: true,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -38,8 +40,8 @@ Future<void> showResetConfirmScreenReal(context) async {
                           child: IconButton(
                             iconSize: 25,
                             icon: game.getExpandingBoard()
-                                ? const Icon(Icons.visibility, color: bg)
-                                : const Icon(Icons.visibility_off, color: bg),
+                                ? const Icon(Icons.visibility, color: white)
+                                : const Icon(Icons.visibility_off, color: white),
                             onPressed: () {
                               game.toggleExpandingBoardState();
                               setState(() {}); //state inside dialog
@@ -52,7 +54,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                         child: !g.signedIn()
                             ? IconButton(
                                 iconSize: 25,
-                                icon: const Icon(Icons.lock, color: bg),
+                                icon: const Icon(Icons.lock, color: white),
                                 onPressed: () {
                                   g.signIn();
                                   Navigator.pop(context, 'OK');
@@ -64,7 +66,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                                     ? 25
                                     : 50,
                                 icon: g.getUserIcon() == gUserIconDefault
-                                    ? const Icon(Icons.face, color: bg)
+                                    ? const Icon(Icons.face, color: white)
                                     : CircleAvatar(
                                         backgroundImage:
                                             NetworkImage(g.getUserIcon())),

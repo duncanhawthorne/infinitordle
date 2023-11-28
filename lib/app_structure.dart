@@ -30,6 +30,7 @@ Widget streamBuilderWrapperOnDocument() {
 
 Widget _scaffold() {
   return Scaffold(
+    //backgroundColor: bg,
     appBar: AppBar(
       centerTitle: true,
       titleSpacing: 0,
