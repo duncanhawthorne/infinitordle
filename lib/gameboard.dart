@@ -96,6 +96,7 @@ Widget _card(abIndex, boardNumber, val, bf) {
   bool hideCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
           abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
+  bool expandingBoardRow = abRow < game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
 
   return Container(
     padding: EdgeInsets.all(0.005 * screen.cardLiveMaxPixel),
@@ -104,7 +105,9 @@ Widget _card(abIndex, boardNumber, val, bf) {
       child: Container(
         decoration: BoxDecoration(
             border: Border.all(
-                color: historicalWin
+                color: hideCard ? Colors.transparent :
+                expandingBoardRow ? grey :
+                historicalWin
                     ? soften(boardNumber, green)
                     : Colors.transparent,
                 width: 0.05 * screen.cardLiveMaxPixel),
@@ -132,6 +135,7 @@ Widget _card(abIndex, boardNumber, val, bf) {
 Widget _cardText(abIndex, boardNumber) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
+  bool expandingBoardRow = abRow < game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
   bool transp =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
           abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
@@ -149,7 +153,7 @@ Widget _cardText(abIndex, boardNumber) {
     strokeColor: soften(boardNumber, bg),
     textStyle: TextStyle(
       //fontSize: screen.cardLiveMaxPixel * 0.1 * (1 - 0.05 * 2),
-      height: m3 ? 1.15 : null,
+      height: m3 ? expandingBoardRow ? 2 : 1.15 : null,
       leadingDistribution: m3 ? TextLeadingDistribution.even : null,
       color: soften(boardNumber, white),
       fontWeight: FontWeight.bold,

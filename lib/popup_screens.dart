@@ -33,6 +33,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      /*
                       Tooltip(
                           message: game.getExpandingBoard()
                               ? "Turn off expanding board"
@@ -40,8 +41,8 @@ Future<void> showResetConfirmScreenReal(context) async {
                           child: IconButton(
                             iconSize: 25,
                             icon: game.getExpandingBoard()
-                                ? const Icon(Icons.visibility, color: white)
-                                : const Icon(Icons.visibility_off, color: white),
+                                ? const Icon(Icons.visibility_outlined)
+                                : const Icon(Icons.visibility_off_outlined),
                             onPressed: () {
                               game.toggleExpandingBoardState();
                               setState(() {}); //state inside dialog
@@ -49,12 +50,13 @@ Future<void> showResetConfirmScreenReal(context) async {
                           )),
                       const SizedBox(width: 8),
                       //Spacer(flex: 1),
+                       */
                       Tooltip(
                         message: !g.signedIn() ? "Sign in" : "Sign out",
                         child: !g.signedIn()
                             ? IconButton(
                                 iconSize: 25,
-                                icon: const Icon(Icons.lock, color: white),
+                                icon: const Icon(Icons.lock_outlined),
                                 onPressed: () {
                                   g.signIn();
                                   Navigator.pop(context, 'OK');
@@ -66,7 +68,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                                     ? 25
                                     : 50,
                                 icon: g.getUserIcon() == gUserIconDefault
-                                    ? const Icon(Icons.face, color: white)
+                                    ? const Icon(Icons.face_outlined)
                                     : CircleAvatar(
                                         backgroundImage:
                                             NetworkImage(g.getUserIcon())),
@@ -82,27 +84,69 @@ Future<void> showResetConfirmScreenReal(context) async {
               ],
             ),
             content: SingleChildScrollView(
-              child: Text(gameOver
-                  ? "You got " +
-                      numberWinsCache.toString() +
-                      " word" +
-                      (numberWinsCache == 1 ? "" : "s") +
-                      ": " +
-                      winWordsCache.join(", ") +
-                      "\n\nYou missed: " +
-                      game.targetWords.join(", ") +
-                      "\n\nReset the board?"
-                  : "You've got " +
-                      numberWinsCache.toString() +
-                      " word" +
-                      (numberWinsCache == 1 ? "" : "s") +
-                      ' so far' +
-                      (numberWinsCache != 0 ? ":" : "") +
-                      ' ' +
-                      winWordsCache.join(", ") +
-                      "\n\n"
-                          'Lose your progress and reset the board?'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(gameOver
+                      ? "You got " +
+                          numberWinsCache.toString() +
+                          " word" +
+                          (numberWinsCache == 1 ? "" : "s") +
+                          ": " +
+                          winWordsCache.join(", ") +
+                          "\n\nYou missed: " +
+                          game.targetWords.join(", ")
+                      : "You've got " +
+                          numberWinsCache.toString() +
+                          " word" +
+                          (numberWinsCache == 1 ? "" : "s") +
+                          ' so far' +
+                          (numberWinsCache != 0 ? ":" : "") +
+                          ' ' +
+                          winWordsCache.join(", ")),
+                  const SizedBox(height: 10),
+                  const Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Expanding board?'),
+                      Tooltip(
+                          message: game.getExpandingBoard()
+                              ? "Turn off expanding board"
+                              : "Turn on expanding board",
+                          child: IconButton(
+                            iconSize: 25,
+                            icon: game.getExpandingBoard()
+                                ? const Icon(Icons.visibility_outlined)
+                                : const Icon(Icons.visibility_off_outlined),
+                            onPressed: () {
+                              game.toggleExpandingBoardState();
+                              setState(() {}); //state inside dialog
+                            },
+                          )),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Reset the board?'),
+                      Tooltip(
+                          message: "Reset the board",
+                          child: IconButton(
+                            iconSize: 25,
+                            icon: const Icon(Icons.refresh_outlined),
+                            onPressed: () {
+                              showResetConfirmationScreen(context);
+                              focusNode.requestFocus();//state inside dialog
+                            },
+                          )),
+                    ],
+                  ),
+                ],
+              ),
             ),
+            /*
             actions: <Widget>[
               TextButton(
                 onPressed: () => {
@@ -113,13 +157,14 @@ Future<void> showResetConfirmScreenReal(context) async {
               ),
               TextButton(
                 onPressed: () => {
-                  game.resetBoard(),
+                  //game.resetBoard(),
+                  showResetConfirmationScreen(context),
                   focusNode.requestFocus(),
-                  Navigator.pop(context, 'OK'),
                 },
                 child: const Text('Reset', style: TextStyle(color: red)),
               ),
             ],
+            */
           );
         },
       );
@@ -133,20 +178,56 @@ Future<void> showLogoutConfirmationScreen(context) async {
     barrierDismissible: true,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text("Do you want to sign out?"),
-        content: Text("Signed in as " + g.getUser()),
+        backgroundColor: bg,
+        surfaceTintColor: bg,
+        title: const Text("Sign out?"),
+        //content: Text("Signed in as " + g.getUser()),
         actions: <Widget>[
           TextButton(
-            onPressed: () => {Navigator.pop(context, 'Cancel')},
+            onPressed: () {
+              Navigator.pop(context, 'Cancel');
+            },
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => {
-              g.signOut(),
-              Navigator.pop(context, 'OK'),
-              Navigator.pop(context, 'OK'),
+            onPressed: () {
+              g.signOut();
+              Navigator.pop(context, 'OK');
+              Navigator.pop(context, 'OK');
             },
             child: const Text('Sign out', style: TextStyle(color: red)),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> showResetConfirmationScreen(context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: bg,
+        surfaceTintColor: bg,
+        title: const Text("Lose your progress and reset the board?"),
+        //content: Text("This will clear the board"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, 'Cancel');
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              game.resetBoard();
+              focusNode.requestFocus();
+              Navigator.pop(context, 'OK');
+              Navigator.pop(context, 'OK');
+            },
+            child: const Text('Reset the board', style: TextStyle(color: red)),
           ),
         ],
       );
