@@ -22,98 +22,21 @@ Future<void> showResetConfirmScreenReal(context) async {
           return AlertDialog(
             backgroundColor: bg,
             surfaceTintColor: bg,
-            //scrollable: true,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(appTitle),
-                //Spacer(flex: 10),
-                SizedBox(
-                  //width: 130,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      /*
-                      Tooltip(
-                          message: game.getExpandingBoard()
-                              ? "Turn off expanding board"
-                              : "Turn on expanding board",
-                          child: IconButton(
-                            iconSize: 25,
-                            icon: game.getExpandingBoard()
-                                ? const Icon(Icons.visibility_outlined)
-                                : const Icon(Icons.visibility_off_outlined),
-                            onPressed: () {
-                              game.toggleExpandingBoardState();
-                              setState(() {}); //state inside dialog
-                            },
-                          )),
-                      const SizedBox(width: 8),
-                      //Spacer(flex: 1),
-                       */
-                      Tooltip(
-                        message: !g.signedIn() ? "Sign in" : "Sign out",
-                        child: !g.signedIn()
-                            ? IconButton(
-                                iconSize: 25,
-                                icon: const Icon(Icons.lock_outlined),
-                                onPressed: () {
-                                  g.signIn();
-                                  Navigator.pop(context, 'OK');
-                                  focusNode.requestFocus();
-                                },
-                              )
-                            : IconButton(
-                                iconSize: g.getUserIcon() == gUserIconDefault
-                                    ? 25
-                                    : 50,
-                                icon: g.getUserIcon() == gUserIconDefault
-                                    ? const Icon(Icons.face_outlined)
-                                    : CircleAvatar(
-                                        backgroundImage:
-                                            NetworkImage(g.getUserIcon())),
-                                onPressed: () {
-                                  showLogoutConfirmationScreen(context);
-                                  focusNode.requestFocus();
-                                },
-                              ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            title: g.signedIn() ? signInRow(context) : const SizedBox.shrink(),
             content: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(gameOver
-                      ? "You got " +
-                          numberWinsCache.toString() +
-                          " word" +
-                          (numberWinsCache == 1 ? "" : "s") +
-                          ": " +
-                          winWordsCache.join(", ") +
-                          "\n\nYou missed: " +
-                          game.targetWords.join(", ")
-                      : "You've got " +
-                          numberWinsCache.toString() +
-                          " word" +
-                          (numberWinsCache == 1 ? "" : "s") +
-                          ' so far' +
-                          (numberWinsCache != 0 ? ":" : "") +
-                          ' ' +
-                          winWordsCache.join(", ")),
-                  const SizedBox(height: 10),
-                  const Divider(),
+                  !g.signedIn() ? signInRow(context) : const SizedBox.shrink(),
+                  !g.signedIn() ? const SizedBox(height: 10) : const SizedBox.shrink(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Expanding board?'),
+                      const Text('Scrollable board?'),
                       Tooltip(
                           message: game.getExpandingBoard()
-                              ? "Turn off expanding board"
-                              : "Turn on expanding board",
+                              ? "Turn off scrollable board"
+                              : "Turn on scrollable board",
                           child: IconButton(
                             iconSize: 25,
                             icon: game.getExpandingBoard()
@@ -130,9 +53,9 @@ Future<void> showResetConfirmScreenReal(context) async {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Reset the board?'),
+                      const Text('Reset board?'),
                       Tooltip(
-                          message: "Reset the board",
+                          message: "Reset board",
                           child: IconButton(
                             iconSize: 25,
                             icon: const Icon(Icons.refresh_outlined),
@@ -143,32 +66,69 @@ Future<void> showResetConfirmScreenReal(context) async {
                           )),
                     ],
                   ),
+                  const Divider(),
+                  const SizedBox(height: 10),
+                  Text(gameOver
+                      ? "You got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ": " +
+                      winWordsCache.join(", ") +
+                      "\n\nYou missed: " +
+                      game.targetWords.join(", ")
+                      : "You've got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ' so far' +
+                      (numberWinsCache != 0 ? ":" : "") +
+                      ' ' +
+                      winWordsCache.join(", ")),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
-            /*
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => {
-                  focusNode.requestFocus(),
-                  Navigator.pop(context, 'Cancel')
-                },
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => {
-                  //game.resetBoard(),
-                  showResetConfirmationScreen(context),
-                  focusNode.requestFocus(),
-                },
-                child: const Text('Reset', style: TextStyle(color: red)),
-              ),
-            ],
-            */
           );
         },
       );
     },
+  );
+}
+
+Widget signInRow(context) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(!g.signedIn() ? "Sign in?" : appTitle),
+      Tooltip(
+        message: !g.signedIn() ? "Sign in" : "Sign out",
+        child: !g.signedIn()
+            ? IconButton(
+          iconSize: 25,
+          icon: const Icon(Icons.lock_outlined),
+          onPressed: () {
+            g.signIn();
+            Navigator.pop(context, 'OK');
+            focusNode.requestFocus();
+          },
+        )
+            : IconButton(
+          iconSize: g.getUserIcon() == gUserIconDefault
+              ? 25
+              : 50,
+          icon: g.getUserIcon() == gUserIconDefault
+              ? const Icon(Icons.face_outlined)
+              : CircleAvatar(
+              backgroundImage:
+              NetworkImage(g.getUserIcon())),
+          onPressed: () {
+            showLogoutConfirmationScreen(context);
+            focusNode.requestFocus();
+          },
+        ),
+      ),
+    ],
   );
 }
 
@@ -227,7 +187,7 @@ Future<void> showResetConfirmationScreen(context) async {
               Navigator.pop(context, 'OK');
               Navigator.pop(context, 'OK');
             },
-            child: const Text('Reset the board', style: TextStyle(color: red)),
+            child: const Text('Reset board', style: TextStyle(color: red)),
           ),
         ],
       );
