@@ -22,7 +22,7 @@ Future<void> showResetConfirmScreenReal(context) async {
           return AlertDialog(
             backgroundColor: bg,
             surfaceTintColor: bg,
-            title: g.signedIn() ? signInRow(context) : const SizedBox.shrink(),
+            title: g.signedIn() ? signInRow(context) : null,
             content: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
