@@ -22,13 +22,44 @@ class Save {
     final prefs = await SharedPreferences.getInstance();
     String gameEncoded = "";
 
-    if (!g.signedIn()) {
+    if (!fbOn || !g.signedIn()) {
       // load from local save
       gameEncoded = prefs.getString('game') ?? "";
     } else {
       // load from firebase
-      gameEncoded = "";
-      final docRef = db.collection("states").doc(g.getUser());
+      gameEncoded = await firebasePull();
+    }
+    game.loadFromEncodedState(gameEncoded, true);
+  }
+
+  Future<void> saveKeys() async {
+    String gameEncoded = game.getEncodeCurrentGameState();
+
+    // save locally
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('game', gameEncoded);
+
+    // if possible save to firebase
+    if (!fbOn || !g.signedIn()) {
+      firebasePush(gameEncoded);
+    }
+  }
+
+  Future<void> firebasePush(state) async {
+    if (fbOn && g.signedIn()) {
+      final dhState = <String, dynamic>{"data": state};
+      db!
+          .collection("states")
+          .doc(g.getUser())
+          .set(dhState)
+          .onError((e, _) => p("Error writing document: $e"));
+    }
+  }
+
+  Future<String> firebasePull() async {
+    String gameEncoded = "";
+    if (fbOn && g.signedIn()) {
+      final docRef = db!.collection("states").doc(g.getUser());
       await docRef.get().then(
         (DocumentSnapshot doc) {
           final gameEncodedTmp = doc.data() as Map<String, dynamic>;
@@ -37,42 +68,6 @@ class Save {
         onError: (e) => p("Error getting document: $e"),
       );
     }
-    game.loadFromEncodedState(gameEncoded, true);
-  }
-
-  Future<void> saveKeys() async {
-    String gameEncoded = game.getEncodeCurrentGameState();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('game', gameEncoded);
-
-    firebasePush(gameEncoded);
-  }
-
-  Future<void> firebasePush(state) async {
-    if (g.signedIn()) {
-      // Create a new user with a first and last name
-      final dhState = <String, dynamic>{"data": state};
-      db
-          .collection("states")
-          .doc(g.getUser())
-          .set(dhState)
-          .onError((e, _) => p("Error writing document: $e"));
-    }
-  }
-
-  String firebasePull(snapshot) {
-    String snapshotCurrent = "";
-    snapshot.data!.docs
-        .map((DocumentSnapshot document) {
-          if (document.id == g.getUser()) {
-            Map<String, dynamic> dataTmpQ =
-                document.data() as Map<String, dynamic>;
-            snapshotCurrent = dataTmpQ["data"].toString();
-            return null;
-          }
-        })
-        .toList()
-        .cast();
-    return snapshotCurrent;
+    return gameEncoded;
   }
 }

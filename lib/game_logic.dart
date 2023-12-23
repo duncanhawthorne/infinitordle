@@ -92,7 +92,9 @@ class Game {
     enteredWords.add(currentTyping);
     currentTyping = "";
     winRecordBoards.add(-2); //Add now, fix value later
-    analytics.logLevelUp(level: enteredWords.length);
+    if (fbOn) {
+      analytics!.logLevelUp(level: enteredWords.length);
+    }
 
     //Test if it is correct word
     int winningBoardToFix =
@@ -283,8 +285,10 @@ class Game {
   void resetBoard() {
     p("Reset board");
     initiateBoard();
-    analytics.logLevelStart(levelName: "Reset");
-    analytics.logLevelUp(level: enteredWords.length);
+    if (fbOn) {
+      analytics!.logLevelStart(levelName: "Reset");
+      analytics!.logLevelUp(level: enteredWords.length);
+    }
     save.saveKeys();
   }
 

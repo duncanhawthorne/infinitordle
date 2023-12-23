@@ -70,11 +70,11 @@ const bool debugFakeLogin = false;
 const String gUserFakeLogin = "joebloggs@gmail.com";
 const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
-
+const fbOn = true;
 const m3 = true;
 
-FirebaseFirestore db = FirebaseFirestore.instance;
-FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+FirebaseFirestore? db = fbOn? FirebaseFirestore.instance : null;
+FirebaseAnalytics? analytics = fbOn? FirebaseAnalytics.instance : null;
 
 //Misc
 final Random random = Random();

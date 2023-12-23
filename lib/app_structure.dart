@@ -14,11 +14,11 @@ Widget infinitordleWidget() {
 }
 
 Widget streamBuilderWrapperOnDocument() {
-  if (!g.signedIn()) {
+  if (!fbOn || !g.signedIn()) {
     return _scaffold();
   } else {
     return StreamBuilder<DocumentSnapshot>(
-      stream: db.collection('states').doc(g.getUser()).snapshots(),
+      stream: db!.collection('states').doc(g.getUser()).snapshots(),
       builder:
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         fBase.load(snapshot);

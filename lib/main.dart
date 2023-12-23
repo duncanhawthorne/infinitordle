@@ -18,11 +18,13 @@ Future<void> main() async {
         .remove(); //Hack, but makes sure removed shortly after starting
   });
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  analytics = FirebaseAnalytics.instance;
-  db = FirebaseFirestore.instance;
+  if (fbOn) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    analytics = FirebaseAnalytics.instance;
+    db = FirebaseFirestore.instance;
+  }
   runApp(const InfinitordleApp());
 }
 
