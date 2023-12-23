@@ -22,13 +22,17 @@ Future<void> showResetConfirmScreenReal(context) async {
           return AlertDialog(
             backgroundColor: bg,
             surfaceTintColor: bg,
-            title: g.signedIn() ? signInRow(context) : null,
+            title: gOn && g.signedIn() ? signInRow(context) : null,
             content: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  !g.signedIn() ? signInRow(context) : const SizedBox.shrink(),
-                  !g.signedIn() ? const SizedBox(height: 10) : const SizedBox.shrink(),
+                  gOn && !g.signedIn()
+                      ? signInRow(context)
+                      : const SizedBox.shrink(),
+                  gOn && !g.signedIn()
+                      ? const SizedBox(height: 10)
+                      : const SizedBox.shrink(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -61,7 +65,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                             icon: const Icon(Icons.refresh_outlined),
                             onPressed: () {
                               showResetConfirmationScreen(context);
-                              focusNode.requestFocus();//state inside dialog
+                              focusNode.requestFocus(); //state inside dialog
                             },
                           )),
                     ],
@@ -70,21 +74,21 @@ Future<void> showResetConfirmScreenReal(context) async {
                   const SizedBox(height: 10),
                   Text(gameOver
                       ? "You got " +
-                      numberWinsCache.toString() +
-                      " word" +
-                      (numberWinsCache == 1 ? "" : "s") +
-                      ": " +
-                      winWordsCache.join(", ") +
-                      "\n\nYou missed: " +
-                      game.targetWords.join(", ")
+                          numberWinsCache.toString() +
+                          " word" +
+                          (numberWinsCache == 1 ? "" : "s") +
+                          ": " +
+                          winWordsCache.join(", ") +
+                          "\n\nYou missed: " +
+                          game.targetWords.join(", ")
                       : "You've got " +
-                      numberWinsCache.toString() +
-                      " word" +
-                      (numberWinsCache == 1 ? "" : "s") +
-                      ' so far' +
-                      (numberWinsCache != 0 ? ":" : "") +
-                      ' ' +
-                      winWordsCache.join(", ")),
+                          numberWinsCache.toString() +
+                          " word" +
+                          (numberWinsCache == 1 ? "" : "s") +
+                          ' so far' +
+                          (numberWinsCache != 0 ? ":" : "") +
+                          ' ' +
+                          winWordsCache.join(", ")),
                   const SizedBox(height: 10),
                 ],
               ),
@@ -105,28 +109,25 @@ Widget signInRow(context) {
         message: !g.signedIn() ? "Sign in" : "Sign out",
         child: !g.signedIn()
             ? IconButton(
-          iconSize: 25,
-          icon: const Icon(Icons.lock_outlined),
-          onPressed: () {
-            g.signIn();
-            Navigator.pop(context, 'OK');
-            focusNode.requestFocus();
-          },
-        )
+                iconSize: 25,
+                icon: const Icon(Icons.lock_outlined),
+                onPressed: () {
+                  g.signIn();
+                  Navigator.pop(context, 'OK');
+                  focusNode.requestFocus();
+                },
+              )
             : IconButton(
-          iconSize: g.getUserIcon() == gUserIconDefault
-              ? 25
-              : 50,
-          icon: g.getUserIcon() == gUserIconDefault
-              ? const Icon(Icons.face_outlined)
-              : CircleAvatar(
-              backgroundImage:
-              NetworkImage(g.getUserIcon())),
-          onPressed: () {
-            showLogoutConfirmationScreen(context);
-            focusNode.requestFocus();
-          },
-        ),
+                iconSize: g.getUserIcon() == gUserIconDefault ? 25 : 50,
+                icon: g.getUserIcon() == gUserIconDefault
+                    ? const Icon(Icons.face_outlined)
+                    : CircleAvatar(
+                        backgroundImage: NetworkImage(g.getUserIcon())),
+                onPressed: () {
+                  showLogoutConfirmationScreen(context);
+                  focusNode.requestFocus();
+                },
+              ),
       ),
     ],
   );

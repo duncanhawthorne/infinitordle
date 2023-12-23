@@ -70,11 +70,12 @@ const bool debugFakeLogin = false;
 const String gUserFakeLogin = "joebloggs@gmail.com";
 const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
-const fbOn = true;
+final fbOn = defaultTargetPlatform == TargetPlatform.windows ? false : true;
+final gOn = defaultTargetPlatform == TargetPlatform.windows ? false : true;
 const m3 = true;
 
-FirebaseFirestore? db = fbOn? FirebaseFirestore.instance : null;
-FirebaseAnalytics? analytics = fbOn? FirebaseAnalytics.instance : null;
+FirebaseFirestore? db = fbOn ? FirebaseFirestore.instance : null;
+FirebaseAnalytics? analytics = fbOn ? FirebaseAnalytics.instance : null;
 
 //Misc
 final Random random = Random();

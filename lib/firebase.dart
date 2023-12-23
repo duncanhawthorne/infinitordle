@@ -7,8 +7,9 @@ class FireBase {
 
   void load(snapshot) {
     if (fbOn) {
-      if (snapshot.hasError || !snapshot.hasData) {} else
-      if (snapshot.connectionState == ConnectionState.waiting) {} else {
+      if (snapshot.hasError || !snapshot.hasData) {
+      } else if (snapshot.connectionState == ConnectionState.waiting) {
+      } else {
         var userDocument = snapshot.data;
         if (userDocument != null && userDocument.exists) {
           String snapshotCurrent = userDocument["data"];

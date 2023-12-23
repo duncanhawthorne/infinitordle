@@ -41,41 +41,49 @@ class Google {
 
   Future<void> signIn() async {
     p("gSignIn()");
-    if (debugFakeLogin) {
-      gUser = gUserFakeLogin;
-      await save.saveUser();
-      await save.loadKeys();
-    } else {
-      GoogleSignInAccount? user;
-
-      await googleSignIn.signInSilently();
-      user = googleSignIn.currentUser;
-
-      if (user == null) {
-        //if sign in silently didn't work
-        await googleSignIn.signIn();
-        user = googleSignIn.currentUser;
-      }
-
-      if (user != null) {
-        gUser = user.email;
-        if (user.photoUrl != null) {
-          gUserIcon = user.photoUrl ?? gUserIconDefault;
-        }
+    if (!gOn) {
+      if (debugFakeLogin) {
+        gUser = gUserFakeLogin;
         await save.saveUser();
         await save.loadKeys();
+      } else {
+        GoogleSignInAccount? user;
+
+        await googleSignIn.signInSilently();
+        user = googleSignIn.currentUser;
+
+        if (user == null) {
+          //if sign in silently didn't work
+          await googleSignIn.signIn();
+          user = googleSignIn.currentUser;
+        }
+
+        if (user != null) {
+          gUser = user.email;
+          if (user.photoUrl != null) {
+            gUserIcon = user.photoUrl ?? gUserIconDefault;
+          }
+          await save.saveUser();
+          await save.loadKeys();
+        }
       }
     }
   }
 
   Future<void> signOut() async {
-    if (debugFakeLogin) {
-    } else {
-      await googleSignIn.disconnect();
+    if (gOn) {
+      if (debugFakeLogin) {
+      } else {
+        try {
+          await googleSignIn.disconnect();
+        } catch (e) {
+          p(e);
+        }
+      }
+      gUser = gUserDefault;
+      await save.saveUser();
+      game.resetBoard();
+      await save.loadKeys();
     }
-    gUser = gUserDefault;
-    await save.saveUser();
-    game.resetBoard();
-    await save.loadKeys();
   }
 }
