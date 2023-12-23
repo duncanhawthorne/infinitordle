@@ -41,7 +41,7 @@ class Google {
 
   Future<void> signIn() async {
     p("gSignIn()");
-    if (!gOn) {
+    if (gOn) {
       if (debugFakeLogin) {
         gUser = gUserFakeLogin;
         await save.saveUser();
