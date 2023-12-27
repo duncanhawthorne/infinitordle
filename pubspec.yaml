@@ -40,7 +40,7 @@ dependencies:
   firebase_auth: ^4.2.5
   google_sign_in: ^6.0.0
   #google_sign_in_web: ^0.12.2+1
-  google_sign_in_web: 0.12.0+5  
+  google_sign_in_web: ^0.12.0+5  
   cloud_firestore: ^4.3.1
 #  collection: ^1.17.0
   firebase_analytics: ^10.6.2

@@ -70,8 +70,8 @@ const bool debugFakeLogin = false;
 const String gUserFakeLogin = "joebloggs@gmail.com";
 const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
-final fbOn = defaultTargetPlatform == TargetPlatform.windows ? false : true;
-final gOn = defaultTargetPlatform == TargetPlatform.windows ? false : true;
+final fbOn = defaultTargetPlatform == TargetPlatform.windows && !kIsWeb ? false : true;
+final gOn = defaultTargetPlatform == TargetPlatform.windows && !kIsWeb ? false : true;
 const m3 = true;
 
 FirebaseFirestore? db = fbOn ? FirebaseFirestore.instance : null;
