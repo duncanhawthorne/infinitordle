@@ -40,7 +40,7 @@ class Save {
     await prefs.setString('game', gameEncoded);
 
     // if possible save to firebase
-    if (!fbOn || !g.signedIn()) {
+    if (fbOn && g.signedIn()) {
       firebasePush(gameEncoded);
     }
   }
