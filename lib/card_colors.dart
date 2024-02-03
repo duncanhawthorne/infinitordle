@@ -43,7 +43,7 @@ class CardColors {
     int abEnd = game.getLastCardToConsiderForKeyColors();
 
     if (queryLetter == " ") {
-      answer = Colors.transparent;
+      answer = transp;
     }
     if (answer == null) {
       // get color for the keyboard based on best (green > yellow > grey) color on the grid
@@ -69,7 +69,7 @@ class CardColors {
     if (answer == null) {
       for (var abIndex = abStart; abIndex < abEnd; abIndex++) {
         if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
-          answer = Colors.transparent;
+          answer = transp;
           break;
         }
       }
@@ -85,7 +85,7 @@ class CardColors {
   Color getAbCardColor(abIndex, boardNumber) {
     if (abIndex >= game.getAbCurrentRowInt() * cols) {
       // Later rows
-      return Colors.transparent;
+      return transp;
     }
 
     if (cardColorsCache.isEmpty ||
@@ -108,7 +108,7 @@ class CardColors {
 
     Color? answer;
     if (abIndex >= game.getAbCurrentRowInt() * cols) {
-      return Colors.transparent; //later rows
+      return transp; //later rows
     } else {
       String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
       String testLetter = game.getCardLetterAtAbIndex(abIndex);
@@ -142,10 +142,10 @@ class CardColors {
           // full logic to deal with repeating letters. If only one letter matching targetWord, then always returns Amber
           answer = amber;
         } else {
-          answer = Colors.transparent;
+          answer = transp;
         }
       } else {
-        answer = Colors.transparent;
+        answer = transp;
       }
     }
 

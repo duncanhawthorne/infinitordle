@@ -50,18 +50,18 @@ Widget _cardFlipper(abIndex, boardNumber) {
           transform: Matrix4.identity()..rotateX(val * (2 * pi)),
           child: val <= 0.25
               ? abRow >= game.getAbCurrentRowInt()
-                  ? _card(abIndex, boardNumber, val, "b")
-                  : _positionedCard(abIndex, boardNumber, val, "b")
+                  ? _card(abIndex, boardNumber, "b")
+                  : _positionedCard(abIndex, boardNumber, "b")
               : Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()..rotateX(pi),
-                  child: _positionedCard(abIndex, boardNumber, val, "f"),
+                  child: _positionedCard(abIndex, boardNumber, "f"),
                 ),
         ));
       });
 }
 
-Widget _positionedCard(abIndex, boardNumber, val, bf) {
+Widget _positionedCard(abIndex, boardNumber, bf) {
   // if offset 1, do gradually. if offset 0, do instantaneously
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
@@ -74,21 +74,21 @@ Widget _positionedCard(abIndex, boardNumber, val, bf) {
         curve: Curves.fastOutSlowIn,
         duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
         top: -screen.cardLiveMaxPixel * game.getTemporaryVisualOffsetForSlide(),
-        child: _sizedCard(abIndex, boardNumber, val, bf),
+        child: _sizedCard(abIndex, boardNumber, bf),
       ),
     ],
   );
 }
 
-Widget _sizedCard(abIndex, boardNumber, val, bf) {
+Widget _sizedCard(abIndex, boardNumber, bf) {
   return SizedBox(
     height: screen.cardLiveMaxPixel,
     width: screen.cardLiveMaxPixel,
-    child: _card(abIndex, boardNumber, val, bf),
+    child: _card(abIndex, boardNumber, bf),
   );
 }
 
-Widget _card(abIndex, boardNumber, val, bf) {
+Widget _card(abIndex, boardNumber, bf) {
   int abRow = abIndex ~/ cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.boardFlourishFlipAngles.containsKey(boardNumber) &&
@@ -107,20 +107,24 @@ Widget _card(abIndex, boardNumber, val, bf) {
         decoration: BoxDecoration(
             border: Border.all(
                 color: hideCard
-                    ? Colors.transparent
+                    ? transp
                     : expandingBoardRow
-                        ? grey
+                        ? bf == "b"
+                            ? transp
+                            : grey
                         : historicalWin
                             ? soften(boardNumber, green)
-                            : Colors.transparent,
+                            : transp,
                 width: 0.05 * screen.cardLiveMaxPixel),
             borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
             color: hideCard
-                ? Colors.transparent
+                ? transp
                 : soften(
                     boardNumber,
                     bf == "b"
-                        ? grey
+                        ? expandingBoardRow
+                            ? transp
+                            : grey
                         //? abRow == game.getAbCurrentRowInt() &&
                         //game.isIllegalWordEntered()
                         //   ? red
@@ -128,19 +132,19 @@ Widget _card(abIndex, boardNumber, val, bf) {
                         : cardColors.getAbCardColor(abIndex, boardNumber))),
         child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: _cardText(abIndex, boardNumber),
+          child: _cardText(abIndex, boardNumber, bf),
         ),
       ),
     ),
   );
 }
 
-Widget _cardText(abIndex, boardNumber) {
+Widget _cardText(abIndex, boardNumber, bf) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
   bool expandingBoardRow =
       abRow < game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
-  bool transp =
+  bool transpCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
           abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
   return StrokeText(
@@ -149,12 +153,14 @@ Widget _cardText(abIndex, boardNumber) {
             game.getCurrentTyping().length > col
         //In unlikely case need to type while off top of board, show at bottom
         ? game.getCurrentTyping()[col].toUpperCase()
-        : transp
+        : transpCard
             ? ""
             : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
     //textAlign: TextAlign.center,
     strokeWidth: 0.5,
-    strokeColor: soften(boardNumber, bg),
+    strokeColor: (bf == "b" && expandingBoardRow)
+        ? transp
+        : soften(boardNumber, bg),
     textStyle: TextStyle(
       //fontSize: screen.cardLiveMaxPixel * 0.1 * (1 - 0.05 * 2),
       height: m3
@@ -163,7 +169,9 @@ Widget _cardText(abIndex, boardNumber) {
               : 1.15
           : null,
       leadingDistribution: m3 ? TextLeadingDistribution.even : null,
-      color: soften(boardNumber, white),
+      color: (bf == "b" && expandingBoardRow)
+          ? transp
+          : soften(boardNumber, white),
       fontWeight: FontWeight.bold,
     ),
   );

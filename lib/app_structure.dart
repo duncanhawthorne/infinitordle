@@ -92,7 +92,7 @@ Widget bodyWidget() {
 Widget keyboardListenerWrapper() {
   return Focus(
     // https://stackoverflow.com/questions/68333803/flutter-rawkeyboardlistener-triggering-system-sounds-on-macos
-    onKey: (focus, onKey) => KeyEventResult.handled,
+    onKeyEvent: (focus, onKey) => KeyEventResult.handled,
     child: KeyboardListener(
       focusNode: focusNode,
       autofocus: true,

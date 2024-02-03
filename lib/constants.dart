@@ -22,13 +22,14 @@ const dgreen = Color(0xff61B063);
 const damber = Color(0xffFFCF40);
 const dred = Color(0xffF55549);
 const offWhite = Color(0xff939393);
+const transp = Colors.transparent;
 final Map colorMap = {
   green: dgreen,
   amber: damber,
   red: dred,
   white: offWhite,
   //grey: grey
-  bg: Colors.transparent,
+  bg: transp,
 };
 
 //Game design
