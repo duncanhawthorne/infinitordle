@@ -4,17 +4,11 @@ import 'package:infinitordle/helper.dart';
 
 class Flips {
   double getFlipAngle(abIndex, boardNumber) {
-    int abRow = abIndex ~/ cols;
     return max(
         0,
         getPermFlipAngle(abIndex) -
             getFlourishFlipAngle(abIndex) -
-            getFlourishBoardFlipAngle(boardNumber) -
-            (flipBack &&
-                    !game.isBoardNormalHighlighted(boardNumber) &&
-                    abRow < game.getAbCurrentRowInt()
-                ? 0.5
-                : 0));
+            getFlourishBoardFlipAngle(boardNumber));
   }
 
   double getPermFlipAngle(abIndex) {

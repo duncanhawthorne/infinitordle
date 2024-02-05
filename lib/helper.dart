@@ -63,8 +63,7 @@ void p(x) {
 }
 
 Color soften(boardNumber, color) {
-  if (flipBack ||
-      game.isBoardNormalHighlighted(boardNumber) ||
+  if (game.isBoardNormalHighlighted(boardNumber) ||
       !colorMap.containsKey(color)) {
     return color;
   } else {
@@ -110,4 +109,8 @@ int getGBIndexFromABIndex(abIndex) {
 num getABIndexFromRGBIndex(rGbIndex) {
   return (game.getAbLiveNumRowsPerBoard() - rGbIndex ~/ cols - 1) * cols +
       rGbIndex % cols;
+}
+
+bool rowOffTopOfMainBoard(abRow) {
+  return abRow < game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
 }

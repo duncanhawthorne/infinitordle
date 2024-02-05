@@ -480,6 +480,7 @@ class Game {
         getExtraRows(),
         pushUpSteps,
         getAbLiveNumRowsPerBoard(),
+        getAbCurrentRowInt(),
       ]);
     }
   }

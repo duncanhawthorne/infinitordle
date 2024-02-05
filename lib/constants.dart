@@ -53,7 +53,7 @@ final isWebMobileReal = kIsWeb &&
         defaultTargetPlatform == TargetPlatform.android);
 final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 const noAnimations = false;
-const slowDownFactor = 1;
+const slowDownFactor = cheatMode ? 2 : 1;
 const int durMult = noAnimations ? 0 : 1 * slowDownFactor;
 const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
 const gradualRevealDelay = delayMult * 150;
@@ -61,7 +61,6 @@ const slideTime = durMult * 200;
 const flipTime = durMult * 500;
 const gradualRevealRowTime = gradualRevealDelay * (cols - 1) + flipTime;
 const visualCatchUpTime = delayMult * 750;
-const flipBack = false;
 
 //Screen constants
 const double dividerHeight = 2;

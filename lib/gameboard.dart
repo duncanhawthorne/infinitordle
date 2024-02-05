@@ -39,7 +39,6 @@ Widget gameboardWidget(boardNumber) {
 }
 
 Widget _cardFlipper(abIndex, boardNumber) {
-  int abRow = abIndex ~/ cols;
   return TweenAnimationBuilder(
       tween: Tween<double>(
           begin: 0, end: flips.getFlipAngle(abIndex, boardNumber)),
@@ -49,28 +48,29 @@ Widget _cardFlipper(abIndex, boardNumber) {
           alignment: Alignment.center,
           transform: Matrix4.identity()..rotateX(val * (2 * pi)),
           child: val <= 0.25
-              ? abRow >= game.getAbCurrentRowInt()
-                  ? _card(abIndex, boardNumber, "b")
-                  : _positionedCard(abIndex, boardNumber, "b")
+              ? _positionedScaledCard(abIndex, boardNumber, "b")
               : Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()..rotateX(pi),
-                  child: _positionedCard(abIndex, boardNumber, "f"),
+                  child: _positionedScaledCard(abIndex, boardNumber, "f"),
                 ),
         ));
       });
 }
 
-Widget _positionedCard(abIndex, boardNumber, bf) {
+Widget _positionedScaledCard(abIndex, boardNumber, bf) {
   int abRow = abIndex ~/ cols;
-  bool expandingBoardRowPlus = abRow - game.getTemporaryVisualOffsetForSlide() <
-      game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
+  bool shouldSlideCard = abRow < game.getAbCurrentRowInt();
+  bool shouldShrinkCard =
+      abRow - (shouldSlideCard ? game.getTemporaryVisualOffsetForSlide() : 0) <
+          game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
   double cardSize = screen.cardLiveMaxPixel;
-  double expandingBoardRowCardScale = 0.75;
-  double expandingBoardRowCardOffset = (1 - expandingBoardRowCardScale) / 2;
-  double cardScale = expandingBoardRowPlus ? expandingBoardRowCardScale : 1.0;
-  double cardScaleOffset =
-      cardSize * (expandingBoardRowPlus ? expandingBoardRowCardOffset : 0);
+  double shrinkCardScale = 0.75;
+  double shrinkCardOffset = (1 - shrinkCardScale) / 2;
+  double cardScale = shouldShrinkCard ? shrinkCardScale : 1.0;
+  double cardScaleOffset = cardSize * (shouldShrinkCard ? shrinkCardOffset : 0);
+  double cardSlide =
+      shouldSlideCard ? -cardSize * game.getTemporaryVisualOffsetForSlide() : 0;
   // if offset 1, do gradually. if offset 0, do instantaneously
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
@@ -82,8 +82,7 @@ Widget _positionedCard(abIndex, boardNumber, bf) {
       AnimatedPositioned(
         curve: Curves.fastOutSlowIn,
         duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
-        top: -cardSize * game.getTemporaryVisualOffsetForSlide() +
-            cardScaleOffset,
+        top: cardSlide + cardScaleOffset,
         left: cardScaleOffset,
         height: cardSize * cardScale,
         width: cardSize * cardScale,
@@ -106,13 +105,18 @@ Widget _card(abIndex, boardNumber, bf) {
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.boardFlourishFlipAngles.containsKey(boardNumber) &&
           abRow == game.boardFlourishFlipAngles[boardNumber];
+  int timeFactorOfSlide = game.getTemporaryVisualOffsetForSlide();
+  bool justFlippedBackToFront =
+      game.boardFlourishFlipAngles.containsKey(boardNumber);
   bool hideCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-          abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
-  int timeFactorOfSlide = game.getTemporaryVisualOffsetForSlide();
-  bool expandingBoardRowPlus = abRow - game.getTemporaryVisualOffsetForSlide() <
-      game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
-  assert(slideTime < flipTime / 2); //to ensure we never see color changes via fade
+          abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
+          (rowOffTopOfMainBoard(abRow) &&
+              bf == "b" &&
+              justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
+
+  assert(
+      slideTime < flipTime / 2); //to ensure we never see color changes via fade
 
   return Container(
     padding: EdgeInsets.all(0.005 * screen.cardLiveMaxPixel),
@@ -124,73 +128,45 @@ Widget _card(abIndex, boardNumber, bf) {
             border: Border.all(
                 color: hideCard
                     ? transp
-                    : expandingBoardRowPlus
-                        ? bf == "b"
-                            ? transp
-                            : grey
-                        : historicalWin
-                            ? soften(boardNumber, green)
-                            : transp,
+                    : historicalWin
+                        ? soften(boardNumber, green)
+                        : transp,
                 width: 0.05 * screen.cardLiveMaxPixel),
             borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
             color: hideCard
                 ? transp
-                : soften(
-                    boardNumber,
-                    bf == "b"
-                        ? expandingBoardRowPlus
-                            ? transp
-                            : grey
-                        //? abRow == game.getAbCurrentRowInt() &&
-                        //game.isIllegalWordEntered()
-                        //   ? red
-                        //   : grey
-                        : cardColors.getAbCardColor(abIndex, boardNumber))),
+                : bf == "b"
+                    ? grey
+                    : soften(boardNumber,
+                        cardColors.getAbCardColor(abIndex, boardNumber))),
         child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: _cardText(abIndex, boardNumber, bf),
+          child: _cardText(abIndex, boardNumber, bf, hideCard),
         ),
       ),
     ),
   );
 }
 
-Widget _cardText(abIndex, boardNumber, bf) {
+Widget _cardText(abIndex, boardNumber, bf, hideCard) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
-  bool expandingBoardRow =
-      abRow < game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
-  bool transpCard =
-      (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-          abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
   return StrokeText(
     text: abRow == game.getAbLiveNumRowsPerBoard() - 1 &&
             game.getGbCurrentRowInt() < 0 &&
             game.getCurrentTyping().length > col
         //In unlikely case need to type while off top of board, show at bottom
         ? game.getCurrentTyping()[col].toUpperCase()
-        : transpCard
+        : hideCard
             ? ""
             : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
-    //textAlign: TextAlign.center,
     strokeWidth: 0.5,
-    strokeColor:
-        (bf == "b" && expandingBoardRow) ? transp : soften(boardNumber, bg),
+    strokeColor: hideCard ? transp : soften(boardNumber, bg),
     textStyle: TextStyle(
       //fontSize: screen.cardLiveMaxPixel * 0.1 * (1 - 0.05 * 2),
-      height: m3
-          ? 1.15
-          /*
-          ? expandingBoardRow
-              ? 2
-              : 1.15
-
-       */
-          : null,
+      height: m3 ? 1.15 : null,
       leadingDistribution: m3 ? TextLeadingDistribution.even : null,
-      color: (bf == "b" && expandingBoardRow)
-          ? transp
-          : soften(boardNumber, white),
+      color: hideCard ? transp : soften(boardNumber, white),
       fontWeight: FontWeight.bold,
     ),
   );
