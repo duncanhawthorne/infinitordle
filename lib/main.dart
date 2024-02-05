@@ -22,7 +22,9 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    analytics = FirebaseAnalytics.instance;
+    if (fbAnalytics) {
+      analytics = FirebaseAnalytics.instance;
+    }
     db = FirebaseFirestore.instance;
   }
   runApp(const InfinitordleApp());

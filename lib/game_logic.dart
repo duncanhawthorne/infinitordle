@@ -92,7 +92,7 @@ class Game {
     enteredWords.add(currentTyping);
     currentTyping = "";
     winRecordBoards.add(-2); //Add now, fix value later
-    if (fbOn) {
+    if (fbAnalytics) {
       analytics!.logLevelUp(level: enteredWords.length);
     }
 
@@ -285,7 +285,7 @@ class Game {
   void resetBoard() {
     p("Reset board");
     initiateBoard();
-    if (fbOn) {
+    if (fbAnalytics) {
       analytics!.logLevelStart(levelName: "Reset");
       analytics!.logLevelUp(level: enteredWords.length);
     }
