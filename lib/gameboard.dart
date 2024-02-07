@@ -61,7 +61,7 @@ Widget _cardFlipper(abIndex, boardNumber) {
 Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   int abRow = abIndex ~/ cols;
   bool shouldSlideCard = abRow < game.getAbCurrentRowInt();
-  bool shouldShrinkCard =
+  bool shouldShrinkCard = game.getExpandingBoard() &&
       abRow - (shouldSlideCard ? game.getTemporaryVisualOffsetForSlide() : 0) <
           game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
   double cardSize = screen.cardLiveMaxPixel;
