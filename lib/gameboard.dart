@@ -48,17 +48,17 @@ Widget _cardFlipper(abIndex, boardNumber) {
           alignment: Alignment.center,
           transform: Matrix4.identity()..rotateX(val * (2 * pi)),
           child: val <= 0.25
-              ? _positionedScaledCard(abIndex, boardNumber, "b")
+              ? _positionedScaledCard(abIndex, boardNumber, false)
               : Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()..rotateX(pi),
-                  child: _positionedScaledCard(abIndex, boardNumber, "f"),
+                  child: _positionedScaledCard(abIndex, boardNumber, true),
                 ),
         ));
       });
 }
 
-Widget _positionedScaledCard(abIndex, boardNumber, bf) {
+Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   int abRow = abIndex ~/ cols;
   bool shouldSlideCard = abRow < game.getAbCurrentRowInt();
   bool shouldShrinkCard =
@@ -69,7 +69,7 @@ Widget _positionedScaledCard(abIndex, boardNumber, bf) {
   double shrinkCardOffset = (1 - shrinkCardScale) / 2;
   double cardScale = shouldShrinkCard ? shrinkCardScale : 1.0;
   double cardScaleOffset = cardSize * (shouldShrinkCard ? shrinkCardOffset : 0);
-  double cardSlide =
+  double cardSlideOffset =
       shouldSlideCard ? -cardSize * game.getTemporaryVisualOffsetForSlide() : 0;
   // if offset 1, do gradually. if offset 0, do instantaneously
   // so slide visual cards into new position slowly
@@ -80,50 +80,43 @@ Widget _positionedScaledCard(abIndex, boardNumber, bf) {
     clipBehavior: Clip.none,
     children: [
       AnimatedPositioned(
-        curve: Curves.fastOutSlowIn,
+        //curve: Curves.fastOutSlowIn,
         duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
-        top: cardSlide + cardScaleOffset,
+        top: cardSlideOffset + cardScaleOffset,
         left: cardScaleOffset,
         height: cardSize * cardScale,
         width: cardSize * cardScale,
-        child: _sizedCard(abIndex, boardNumber, bf),
+        child: _card(abIndex, boardNumber, facingFront),
       ),
     ],
   );
 }
 
-Widget _sizedCard(abIndex, boardNumber, bf) {
-  return SizedBox(
-    height: screen.cardLiveMaxPixel,
-    width: screen.cardLiveMaxPixel,
-    child: _card(abIndex, boardNumber, bf),
-  );
-}
-
-Widget _card(abIndex, boardNumber, bf) {
+Widget _card(abIndex, boardNumber, facingFront) {
   int abRow = abIndex ~/ cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.boardFlourishFlipAngles.containsKey(boardNumber) &&
           abRow == game.boardFlourishFlipAngles[boardNumber];
-  int timeFactorOfSlide = game.getTemporaryVisualOffsetForSlide();
+  //int timeFactorOfSlide = game.getTemporaryVisualOffsetForSlide();
   bool justFlippedBackToFront =
       game.boardFlourishFlipAngles.containsKey(boardNumber);
   bool hideCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
           abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
           (rowOffTopOfMainBoard(abRow) &&
-              bf == "b" &&
+              !facingFront &&
               justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
-
-  assert(
-      slideTime < flipTime / 2); //to ensure we never see color changes via fade
+  const double cardBorderRadius = 0.2;
+  //assert(
+  //    slideTime < flipTime / 2); //to ensure we never see color changes via fade
 
   return Container(
     padding: EdgeInsets.all(0.005 * screen.cardLiveMaxPixel),
     child: ClipRRect(
-      borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
+      borderRadius:
+          BorderRadius.circular(cardBorderRadius * screen.cardLiveMaxPixel),
+      child: Container(
+        //duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
         decoration: BoxDecoration(
             border: Border.all(
                 color: hideCard
@@ -132,30 +125,33 @@ Widget _card(abIndex, boardNumber, bf) {
                         ? soften(boardNumber, green)
                         : transp,
                 width: 0.05 * screen.cardLiveMaxPixel),
-            borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
+            borderRadius: BorderRadius.circular(
+                cardBorderRadius * screen.cardLiveMaxPixel),
             color: hideCard
                 ? transp
-                : bf == "b"
+                : !facingFront
                     ? grey
                     : soften(boardNumber,
                         cardColors.getAbCardColor(abIndex, boardNumber))),
         child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: _cardText(abIndex, boardNumber, bf, hideCard),
+          child: _cardText(abIndex, boardNumber, hideCard),
         ),
       ),
     ),
   );
 }
 
-Widget _cardText(abIndex, boardNumber, bf, hideCard) {
+Widget _cardText(abIndex, boardNumber, hideCard) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
   return StrokeText(
-    text: abRow == game.getAbLiveNumRowsPerBoard() - 1 &&
+    text: abRow ==
+                game.getAbLiveNumRowsPerBoard() -
+                    1 && //code is formatting final row of cards
             game.getGbCurrentRowInt() < 0 &&
             game.getCurrentTyping().length > col
-        //In unlikely case need to type while off top of board, show at bottom
+        //If need to type while off top of board (unlikely), show on final row
         ? game.getCurrentTyping()[col].toUpperCase()
         : hideCard
             ? ""
@@ -163,7 +159,6 @@ Widget _cardText(abIndex, boardNumber, bf, hideCard) {
     strokeWidth: 0.5,
     strokeColor: hideCard ? transp : soften(boardNumber, bg),
     textStyle: TextStyle(
-      //fontSize: screen.cardLiveMaxPixel * 0.1 * (1 - 0.05 * 2),
       height: m3 ? 1.15 : null,
       leadingDistribution: m3 ? TextLeadingDistribution.even : null,
       color: hideCard ? transp : soften(boardNumber, white),
