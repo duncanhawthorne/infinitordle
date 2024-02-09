@@ -59,18 +59,21 @@ Widget _cardFlipper(abIndex, boardNumber) {
 }
 
 Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
+  const double shrinkCardScaleDefault = 0.75;
+  double cardSizeDefault = screen.cardLiveMaxPixel;
+
   int abRow = abIndex ~/ cols;
   bool shouldSlideCard = abRow < game.getAbCurrentRowInt();
   bool shouldShrinkCard = game.getExpandingBoard() &&
       abRow - (shouldSlideCard ? game.getTemporaryVisualOffsetForSlide() : 0) <
           game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
-  double cardSize = screen.cardLiveMaxPixel;
-  double shrinkCardScale = 0.75;
-  double shrinkCardOffset = (1 - shrinkCardScale) / 2;
-  double cardScale = shouldShrinkCard ? shrinkCardScale : 1.0;
-  double cardScaleOffset = cardSize * (shouldShrinkCard ? shrinkCardOffset : 0);
-  double cardSlideOffset =
-      shouldSlideCard ? -cardSize * game.getTemporaryVisualOffsetForSlide() : 0;
+
+  double cardScaleFactor = shouldShrinkCard ? shrinkCardScaleDefault : 1.0;
+  double cardSize = cardSizeDefault * cardScaleFactor;
+  double cardScaleOffset = cardSizeDefault * (1 - cardScaleFactor) / 2;
+  double cardSlideOffset = shouldSlideCard
+      ? -cardSizeDefault * game.getTemporaryVisualOffsetForSlide()
+      : 0;
   // if offset 1, do gradually. if offset 0, do instantaneously
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
@@ -84,15 +87,15 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
         duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
         top: cardSlideOffset + cardScaleOffset,
         left: cardScaleOffset,
-        height: cardSize * cardScale,
-        width: cardSize * cardScale,
-        child: _card(abIndex, boardNumber, facingFront),
+        height: cardSize,
+        width: cardSize,
+        child: _card(abIndex, boardNumber, facingFront, cardSize),
       ),
     ],
   );
 }
 
-Widget _card(abIndex, boardNumber, facingFront) {
+Widget _card(abIndex, boardNumber, facingFront, cardSize) {
   int abRow = abIndex ~/ cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.boardFlourishFlipAngles.containsKey(boardNumber) &&
@@ -106,15 +109,14 @@ Widget _card(abIndex, boardNumber, facingFront) {
           (rowOffTopOfMainBoard(abRow) &&
               !facingFront &&
               justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
-  const double cardBorderRadius = 0.2;
+  const double cardBorderRadiusFactor = 0.2;
   //assert(
   //    slideTime < flipTime / 2); //to ensure we never see color changes via fade
 
   return Container(
-    padding: EdgeInsets.all(0.005 * screen.cardLiveMaxPixel),
+    padding: EdgeInsets.all(0.005 * cardSize),
     child: ClipRRect(
-      borderRadius:
-          BorderRadius.circular(cardBorderRadius * screen.cardLiveMaxPixel),
+      borderRadius: BorderRadius.circular(cardBorderRadiusFactor * cardSize),
       child: Container(
         //duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
         decoration: BoxDecoration(
@@ -124,9 +126,9 @@ Widget _card(abIndex, boardNumber, facingFront) {
                     : historicalWin
                         ? soften(boardNumber, green)
                         : transp,
-                width: 0.05 * screen.cardLiveMaxPixel),
-            borderRadius: BorderRadius.circular(
-                cardBorderRadius * screen.cardLiveMaxPixel),
+                width: 0.05 * cardSize),
+            borderRadius:
+                BorderRadius.circular(cardBorderRadiusFactor * cardSize),
             color: hideCard
                 ? transp
                 : !facingFront
@@ -135,14 +137,14 @@ Widget _card(abIndex, boardNumber, facingFront) {
                         cardColors.getAbCardColor(abIndex, boardNumber))),
         child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: _cardText(abIndex, boardNumber, hideCard),
+          child: _cardText(abIndex, boardNumber, hideCard, cardSize),
         ),
       ),
     ),
   );
 }
 
-Widget _cardText(abIndex, boardNumber, hideCard) {
+Widget _cardText(abIndex, boardNumber, hideCard, cardSize) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
   return StrokeText(
@@ -156,7 +158,7 @@ Widget _cardText(abIndex, boardNumber, hideCard) {
         : hideCard
             ? ""
             : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
-    strokeWidth: 0.5,
+    strokeWidth: 0.5 * cardSize / screen.cardLiveMaxPixel,
     strokeColor: hideCard ? transp : soften(boardNumber, bg),
     textStyle: TextStyle(
       height: m3 ? 1.15 : null,
