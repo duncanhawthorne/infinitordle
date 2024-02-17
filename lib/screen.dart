@@ -62,9 +62,7 @@ class Screen {
       fullSizeOfGameboards =
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
               numSpacersDown * boardSpacer;
-      if (vertSpaceForGameboard >
-          cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
-              numSpacersDown * boardSpacer) {
+      if (vertSpaceForGameboard > fullSizeOfGameboards) {
         //if still space left over, no point squashing keyboard for nothing
 
         keyboardSingleKeyLiveMaxPixelHeight = min(
