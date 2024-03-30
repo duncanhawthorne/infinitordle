@@ -30,39 +30,66 @@ dependencies:
   flutter:
     sdk: flutter
 
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-#  english_words: ^4.0.0
   shared_preferences: ^2.0.15
   flutter_native_splash: ^2.3.0
+  
   firebase_core: ^2.24.2
-  firebase_auth: ^4.2.5
-  google_sign_in: ^6.0.0
-  #google_sign_in_web: ^0.12.2+1
-  google_sign_in_web: ^0.12.0+5  
-  cloud_firestore: ^4.3.1
-#  collection: ^1.17.0
   firebase_analytics: ^10.6.2
+  firebase_auth: ^4.2.5
+  cloud_firestore: ^4.3.1  
+  
+  google_sign_in: ^6.0.0
+  google_sign_in_web: ^0.12.0+5  
+
   google_fonts: ^6.1.0 
   stroke_text: any
 
-
-#dependency_overrides:
-#  google_sign_in_web:
-#    git:
-#      url: https://github.com/ditman/plugins.git
-#      ref: google-sign-in-web-using-gis
-#      path: packages/google_sign_in/google_sign_in_web
-
-
-#https://github.com/flutter/flutter/issues/46157
-#dependency_overrides:
-#  google_sign_in_ios:
-#    git:
-#      url: https://github.com/stuartmorgan/packages.git
-#      ref: google-sign-in-macos
-#      path: packages/google_sign_in/google_sign_in_ios
+dependency_overrides:
+  firebase_core:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/firebase_core/firebase_core
+  firebase_analytics:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/firebase_analytics/firebase_analytics
+  firebase_analytics_platform_interface:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/firebase_analytics/firebase_analytics_platform_interface
+  firebase_auth:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/firebase_auth/firebase_auth
+  cloud_firestore:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/cloud_firestore/cloud_firestore
+  firebase_core_web:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/firebase_core/firebase_core_web
+  firebase_analytics_web:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/firebase_analytics/firebase_analytics_web
+  firebase_auth_web:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/firebase_auth/firebase_auth_web
+  cloud_firestore_web:
+    git:
+      url: https://github.com/firebase/flutterfire.git
+      ref: feat/removejs
+      path: packages/cloud_firestore/cloud_firestore_web
 
 dev_dependencies:
   flutter_test:
