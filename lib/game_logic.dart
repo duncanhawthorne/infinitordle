@@ -59,11 +59,17 @@ class Game {
       //Backspace key
       if (currentTyping.isNotEmpty) {
         //There is text to delete
+        String origTyping = currentTyping.substring(0, currentTyping.length);
         currentTyping = currentTyping.substring(0, currentTyping.length - 1);
-        ssSingleCardLetterChange(getAbCurrentRowInt() * cols +
-            currentTyping.length -
-            1 +
-            1); //ssCardLetterChange();
+        if (origTyping.length == cols && !isLegalWord(origTyping)) {
+          ss(); //full refresh to update illegal word indicator
+        }
+        else {
+          ssSingleCardLetterChange(getAbCurrentRowInt() * cols +
+              currentTyping.length -
+              1 +
+              1); //ssCardLetterChange();
+        }
       }
     } else if (letter == ">") {
       //Submit guess
@@ -81,9 +87,14 @@ class Game {
       if (currentTyping.length < cols) {
         //Space to add extra letter
         currentTyping = currentTyping + letter;
-        ssSingleCardLetterChange(getAbCurrentRowInt() * cols +
-            currentTyping.length -
-            1); //ssCardLetterChange();
+        if (currentTyping.length == cols && !isLegalWord(currentTyping)) {
+          ss(); //full refresh to update illegal word indicator
+        }
+        else {
+          ssSingleCardLetterChange(getAbCurrentRowInt() * cols +
+              currentTyping.length -
+              1); //ssCardLetterChange();
+        }
       }
     }
   }
