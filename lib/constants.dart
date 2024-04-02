@@ -79,7 +79,7 @@ final isWebMobileReal = kIsWeb &&
         defaultTargetPlatform == TargetPlatform.android);
 final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 const noAnimations = false;
-const slowDownFactor = cheatMode ? 2 : 1;
+const slowDownFactor = cheatMode ? 3 : 1;
 const int durMult = noAnimations ? 0 : 1 * slowDownFactor;
 const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
 const gradualRevealDelay = delayMult * 150;

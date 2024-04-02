@@ -3,7 +3,7 @@ import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:stroke_text/stroke_text.dart';
 
-Widget keyboardRowWidget(keyBoardStartKey, length) {
+Widget keyboardRowWidget(keyBoardStartKeyIndex, kbRowLength) {
   return Container(
     constraints: BoxConstraints(
         maxWidth: screen.keyboardSingleKeyLiveMaxPixelHeight *
@@ -12,19 +12,19 @@ Widget keyboardRowWidget(keyBoardStartKey, length) {
         maxHeight: screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(), //ios fix
-        itemCount: length,
+        itemCount: kbRowLength,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: length,
-          childAspectRatio: 1 / screen.keyAspectRatioLive * (10 / length),
+          crossAxisCount: kbRowLength,
+          childAspectRatio: 1 / screen.keyAspectRatioLive * (10 / kbRowLength),
         ),
         itemBuilder: (BuildContext context, int offsetIndex) {
-          String kbLetter = keyboardList[keyBoardStartKey + offsetIndex];
-          return _kbStackWithMiniGrid(kbLetter, length);
+          String kbLetter = keyboardList[keyBoardStartKeyIndex + offsetIndex];
+          return _kbStackWithMiniGrid(kbLetter, kbRowLength);
         }),
   );
 }
 
-Widget _kbStackWithMiniGrid(kbLetter, length) {
+Widget _kbStackWithMiniGrid(kbLetter, kbRowLength) {
   return Container(
     padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: ClipRRect(
@@ -35,7 +35,7 @@ Widget _kbStackWithMiniGrid(kbLetter, length) {
           Center(
             child: ["<", ">"].contains(kbLetter)
                 ? const SizedBox.shrink()
-                : _kbMiniGridContainer(kbLetter, length),
+                : _kbMiniGridContainer(kbLetter, kbRowLength),
           ),
           Center(
               child: Material(
@@ -44,7 +44,7 @@ Widget _kbStackWithMiniGrid(kbLetter, length) {
               onTap: () {
                 game.onKeyboardTapped(kbLetter);
               },
-              child: _kbTextSquare(kbLetter, length),
+              child: _kbTextSquare(kbLetter, kbRowLength),
             ),
           )),
         ],
@@ -53,12 +53,12 @@ Widget _kbStackWithMiniGrid(kbLetter, length) {
   );
 }
 
-Widget _kbTextSquare(kbLetter, length) {
+Widget _kbTextSquare(kbLetter, kbRowLength) {
   return SizedBox(
       height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
       width: screen.keyboardSingleKeyLiveMaxPixelWidth *
           10 /
-          length, //double.infinity,
+          kbRowLength, //double.infinity,
       child: FittedBox(
           fit: BoxFit.fitHeight,
           child: kbLetter == "<"
@@ -99,7 +99,7 @@ final Map _kbRegularTextCache = {
   for (var kbLetter in keyboardList) (kbLetter): _kbRegularTextConst(kbLetter)
 };
 
-Widget _kbMiniGridContainer(kbLetter, length) {
+Widget _kbMiniGridContainer(kbLetter, kbRowLength) {
   return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.vertical,
@@ -115,7 +115,7 @@ Widget _kbMiniGridContainer(kbLetter, length) {
                     ((numBoards / screen.numPresentationBigRowsOfBoards) /
                         screen.numPresentationBigRowsOfBoards)) /
             screen.keyAspectRatioLive *
-            (10 / length),
+            (10 / kbRowLength),
       ),
       itemBuilder: (BuildContext context, int subIndex) {
         Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);

@@ -89,13 +89,16 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
         left: cardScaleOffset,
         height: cardSize,
         width: cardSize,
-        child: _card(abIndex, boardNumber, facingFront, cardSize),
+        child: SizedBox(
+            height: cardSize,
+            width: cardSize,
+            child: _cardChooser(abIndex, boardNumber, facingFront)),
       ),
     ],
   );
 }
 
-Widget _card(abIndex, boardNumber, facingFront, cardSize) {
+Widget _cardChooser(abIndex, boardNumber, facingFront) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
@@ -133,19 +136,15 @@ Widget _card(abIndex, boardNumber, facingFront, cardSize) {
       : historicalWin
           ? soften(boardNumber, green)
           : transp;
-  return Stack(
-    children: [
-      SizedBox(
-        height: cardSize,
-        width: cardSize,
-        child: _fixedSizeCardCache[normalHighlighting][cardLetter][cardColor]
-            [borderColor],
-      )
-    ],
-  );
+  assert(_cardCache.containsKey(normalHighlighting));
+  assert(_cardCache[normalHighlighting].containsKey(cardLetter));
+  assert(_cardCache[normalHighlighting][cardLetter].containsKey(cardColor));
+  assert(_cardCache[normalHighlighting][cardLetter][cardColor]
+      .containsKey(borderColor));
+  return _cardCache[normalHighlighting][cardLetter][cardColor][borderColor];
 }
 
-Widget _fixedSizeCard(normalHighlighting, cardLetter, cardColor, borderColor) {
+Widget _card(normalHighlighting, cardLetter, cardColor, borderColor) {
   const double cardBorderRadiusFactor = 0.2;
   const cardSizeFixed = 100.0;
   return FittedBox(
@@ -175,7 +174,7 @@ Widget _fixedSizeCard(normalHighlighting, cardLetter, cardColor, borderColor) {
   );
 }
 
-final Map _fixedSizeCardCache = {
+final Map _cardCache = {
   for (var normalHighlighting in [true, false])
     (normalHighlighting): {
       for (var cardLetter in keyboardList)
@@ -183,7 +182,7 @@ final Map _fixedSizeCardCache = {
           for (var cardColor in cardColorsList)
             (cardColor): {
               for (var borderColor in borderColorsList)
-                (borderColor): _fixedSizeCard(
+                (borderColor): _card(
                     normalHighlighting, cardLetter, cardColor, borderColor)
             }
         }
