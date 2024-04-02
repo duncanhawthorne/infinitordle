@@ -60,7 +60,7 @@ class Game {
       if (currentTyping.isNotEmpty) {
         //There is text to delete
         currentTyping = currentTyping.substring(0, currentTyping.length - 1);
-        ss();
+        ssCardLetterChange();
       }
     } else if (letter == ">") {
       //Submit guess
@@ -78,7 +78,7 @@ class Game {
       if (currentTyping.length < cols) {
         //Space to add extra letter
         currentTyping = currentTyping + letter;
-        ss();
+        ssCardLetterChange();
       }
     }
   }
@@ -200,7 +200,6 @@ class Game {
       cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
     boardFlourishFlipAngles[winningBoardToFix] = cardAbRowPreGuessToFix;
     ss();
-    //ss();
 
     // Cards are now in the right place and state matches visuals
 
@@ -212,7 +211,6 @@ class Game {
       boardFlourishFlipAngles.remove(winningBoardToFix);
     }
     ss();
-    //ss();
   }
 
   void takeOneStepBack() {
@@ -310,7 +308,8 @@ class Game {
       highlightedBoard = boardNumber;
     }
     //No need to save as local state
-    ss();
+    ssCardLetterChange();
+    ssKeyboardChange();
   }
 
   String getCardLetterAtAbIndex(abIndex) {

@@ -44,53 +44,6 @@ dependencies:
   google_fonts: ^6.1.0 
   stroke_text: any
 
-# dependency_overrides:
-  # firebase_core:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/firebase_core/firebase_core
-  # firebase_analytics:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/firebase_analytics/firebase_analytics
-  # firebase_analytics_platform_interface:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/firebase_analytics/firebase_analytics_platform_interface
-  # firebase_auth:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/firebase_auth/firebase_auth
-  # cloud_firestore:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/cloud_firestore/cloud_firestore
-  # firebase_core_web:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/firebase_core/firebase_core_web
-  # firebase_analytics_web:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/firebase_analytics/firebase_analytics_web
-  # firebase_auth_web:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/firebase_auth/firebase_auth_web
-  # cloud_firestore_web:
-    # git:
-      # url: https://github.com/firebase/flutterfire.git
-      # ref: feat/removejs
-      # path: packages/cloud_firestore/cloud_firestore_web
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

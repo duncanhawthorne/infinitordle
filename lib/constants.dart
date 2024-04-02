@@ -121,3 +121,23 @@ void showResetConfirmScreen() {
   //Hack to make these functions available globally
   showResetScreenFunctionList[0]();
 }
+
+var ssCardLetterChangeFunctionMap = {};
+
+void ssCardLetterChange() {
+  for (var k in ssCardLetterChangeFunctionMap.values) {
+    if (k != null) {
+      k();
+    }
+  }
+}
+
+var ssKeyboardChangeFunctionMap = {};
+
+void ssKeyboardChange() {
+  for (var k in ssKeyboardChangeFunctionMap.values) {
+    if (k != null) {
+      k();
+    }
+  }
+}

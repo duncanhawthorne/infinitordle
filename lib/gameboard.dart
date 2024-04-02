@@ -92,50 +92,52 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
         child: SizedBox(
             height: cardSize,
             width: cardSize,
-            child: _cardChooser(abIndex, boardNumber, facingFront)),
+            child: CardChooser(abIndex: abIndex, boardNumber: boardNumber, facingFront: facingFront)),
       ),
     ],
   );
 }
 
-
 class CardChooser extends StatefulWidget {
-  const CardChooser({super.key});
+  final int abIndex;
+  final int boardNumber;
+  final bool facingFront;
+  const CardChooser({super.key, this.abIndex = 0, this.boardNumber = 0, this.facingFront = true}); //, abIndex, boardNumber, facingFront);
 
   @override
   State<CardChooser> createState() => _CardChooserState();
 }
 
-class _CardChooserState extends State<Infinitordle> {
+class _CardChooserState extends State<CardChooser> {
   @override
   initState() {
     super.initState();
-
     //Hack to make these functions available globally
-    ssFunctionList.add(ss);
-    showResetScreenFunctionList.add(showResetConfirmScreen);
-
-    game.initiateBoard();
-    save.loadUser();
-    save.loadKeys();
+    ssCardLetterChangeFunctionMap[[widget.abIndex, widget.boardNumber, widget.facingFront]] = ssCardLetterChange;
+    //ssTargetedFunctionList.add(ss);
   }
 
-  void ss() {
-    try {
-      setState(() {});
-    } catch (e) {
-      p(["SS error ", e.toString()]);
+  @override
+  dispose() {
+    if (ssCardLetterChangeFunctionMap[[widget.abIndex, widget.boardNumber, widget.facingFront]] == ssCardLetterChange) {
+      ssCardLetterChangeFunctionMap[[widget.abIndex, widget.boardNumber, widget.facingFront]] = null;
     }
+    super.dispose();
   }
 
-  Future<void> showResetConfirmScreen() async {
-    showResetConfirmScreenReal(context);
+  void ssCardLetterChange() {
+    if (mounted) {
+      try {
+        setState(() {});
+      } catch (e) {
+        p(["ssCardLetterChange error ", e.toString()]); //FIXME
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    screen.detectAndUpdateForScreenSize(context);
-    return infinitordleWidget();
+    return _cardChooser(widget.abIndex, widget.boardNumber, widget.facingFront);
   }
 }
 
