@@ -98,6 +98,48 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   );
 }
 
+
+class CardChooser extends StatefulWidget {
+  const CardChooser({super.key});
+
+  @override
+  State<CardChooser> createState() => _CardChooserState();
+}
+
+class _CardChooserState extends State<Infinitordle> {
+  @override
+  initState() {
+    super.initState();
+
+    //Hack to make these functions available globally
+    ssFunctionList.add(ss);
+    showResetScreenFunctionList.add(showResetConfirmScreen);
+
+    game.initiateBoard();
+    save.loadUser();
+    save.loadKeys();
+  }
+
+  void ss() {
+    try {
+      setState(() {});
+    } catch (e) {
+      p(["SS error ", e.toString()]);
+    }
+  }
+
+  Future<void> showResetConfirmScreen() async {
+    showResetConfirmScreenReal(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    screen.detectAndUpdateForScreenSize(context);
+    return infinitordleWidget();
+  }
+}
+
+
 Widget _cardChooser(abIndex, boardNumber, facingFront) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
