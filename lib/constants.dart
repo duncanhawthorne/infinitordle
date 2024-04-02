@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:infinitordle/wordlist.dart';
+import 'package:infinitordle/helper.dart';
 
 //Debug
 const bool cheatMode = false;
@@ -128,6 +129,17 @@ void ssCardLetterChange() {
   for (var k in ssCardLetterChangeFunctionMap.values) {
     if (k != null) {
       k();
+    }
+  }
+}
+
+void ssSingleCardLetterChange(abIndex) {
+  for (var j in ssCardLetterChangeFunctionMap.keys) {
+    var k = ssCardLetterChangeFunctionMap[j];
+    if (j[0] == abIndex) {
+      if (k != null) {
+        k();
+      }
     }
   }
 }

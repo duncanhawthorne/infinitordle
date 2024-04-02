@@ -60,7 +60,10 @@ class Game {
       if (currentTyping.isNotEmpty) {
         //There is text to delete
         currentTyping = currentTyping.substring(0, currentTyping.length - 1);
-        ssCardLetterChange();
+        ssSingleCardLetterChange(getAbCurrentRowInt() * cols +
+            currentTyping.length -
+            1 +
+            1); //ssCardLetterChange();
       }
     } else if (letter == ">") {
       //Submit guess
@@ -78,7 +81,9 @@ class Game {
       if (currentTyping.length < cols) {
         //Space to add extra letter
         currentTyping = currentTyping + letter;
-        ssCardLetterChange();
+        ssSingleCardLetterChange(getAbCurrentRowInt() * cols +
+            currentTyping.length -
+            1); //ssCardLetterChange();
       }
     }
   }

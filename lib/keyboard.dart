@@ -36,9 +36,7 @@ Widget _kbStackWithMiniGrid(kbLetter, kbRowLength) {
             child: ["<", ">"].contains(kbLetter)
                 ? const SizedBox.shrink()
                 : _kbMiniGridChooser(
-                    kbLetter: kbLetter,
-                    kbRowLength:
-                        kbRowLength),
+                    kbLetter: kbLetter, kbRowLength: kbRowLength),
           ),
           Center(
               child: Material(
@@ -106,9 +104,7 @@ final Map _kbRegularTextCache = {
 class _kbMiniGridChooser extends StatefulWidget {
   final String kbLetter;
   final int kbRowLength;
-  const _kbMiniGridChooser(
-      {this.kbLetter = "",
-      this.kbRowLength = 0});
+  const _kbMiniGridChooser({this.kbLetter = "", this.kbRowLength = 0});
 
   @override
   State<_kbMiniGridChooser> createState() => _kbMiniGridChooserState();
