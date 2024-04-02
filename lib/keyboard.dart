@@ -35,7 +35,10 @@ Widget _kbStackWithMiniGrid(kbLetter, kbRowLength) {
           Center(
             child: ["<", ">"].contains(kbLetter)
                 ? const SizedBox.shrink()
-                : _kbMiniGridChooser(kbLetter: kbLetter, kbRowLength: kbRowLength), //_kbMiniGrid(kbLetter, kbRowLength),
+                : _kbMiniGridChooser(
+                    kbLetter: kbLetter,
+                    kbRowLength:
+                        kbRowLength),
           ),
           Center(
               child: Material(
@@ -99,12 +102,13 @@ final Map _kbRegularTextCache = {
   for (var kbLetter in keyboardList) (kbLetter): _kbRegularTextConst(kbLetter)
 };
 
-
 // ignore: camel_case_types
 class _kbMiniGridChooser extends StatefulWidget {
   final String kbLetter;
   final int kbRowLength;
-  const _kbMiniGridChooser({this.kbLetter = "", this.kbRowLength = 0}); //, abIndex, boardNumber, facingFront);
+  const _kbMiniGridChooser(
+      {this.kbLetter = "",
+      this.kbRowLength = 0});
 
   @override
   State<_kbMiniGridChooser> createState() => _kbMiniGridChooserState();
@@ -116,13 +120,14 @@ class _kbMiniGridChooserState extends State<_kbMiniGridChooser> {
   initState() {
     super.initState();
     //Hack to make these functions available globally
-    ssKeyboardChangeFunctionMap[[widget.kbLetter, widget.kbRowLength]] = ssKeyboardChange;
-    //ssTargetedFunctionList.add(ss);
+    ssKeyboardChangeFunctionMap[[widget.kbLetter, widget.kbRowLength]] =
+        ssKeyboardChange;
   }
 
   @override
   dispose() {
-    if (ssKeyboardChangeFunctionMap[[widget.kbLetter, widget.kbRowLength]] == ssKeyboardChange) {
+    if (ssKeyboardChangeFunctionMap[[widget.kbLetter, widget.kbRowLength]] ==
+        ssKeyboardChange) {
       ssKeyboardChangeFunctionMap[[widget.kbLetter, widget.kbRowLength]] = null;
     }
     super.dispose();

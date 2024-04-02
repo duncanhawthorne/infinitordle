@@ -92,7 +92,10 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
         child: SizedBox(
             height: cardSize,
             width: cardSize,
-            child: CardChooser(abIndex: abIndex, boardNumber: boardNumber, facingFront: facingFront)),
+            child: CardChooser(
+                abIndex: abIndex,
+                boardNumber: boardNumber,
+                facingFront: facingFront)),
       ),
     ],
   );
@@ -102,7 +105,11 @@ class CardChooser extends StatefulWidget {
   final int abIndex;
   final int boardNumber;
   final bool facingFront;
-  const CardChooser({super.key, this.abIndex = 0, this.boardNumber = 0, this.facingFront = true}); //, abIndex, boardNumber, facingFront);
+  const CardChooser(
+      {super.key,
+      this.abIndex = 0,
+      this.boardNumber = 0,
+      this.facingFront = true});
 
   @override
   State<CardChooser> createState() => _CardChooserState();
@@ -113,14 +120,26 @@ class _CardChooserState extends State<CardChooser> {
   initState() {
     super.initState();
     //Hack to make these functions available globally
-    ssCardLetterChangeFunctionMap[[widget.abIndex, widget.boardNumber, widget.facingFront]] = ssCardLetterChange;
-    //ssTargetedFunctionList.add(ss);
+    ssCardLetterChangeFunctionMap[[
+      widget.abIndex,
+      widget.boardNumber,
+      widget.facingFront
+    ]] = ssCardLetterChange;
   }
 
   @override
   dispose() {
-    if (ssCardLetterChangeFunctionMap[[widget.abIndex, widget.boardNumber, widget.facingFront]] == ssCardLetterChange) {
-      ssCardLetterChangeFunctionMap[[widget.abIndex, widget.boardNumber, widget.facingFront]] = null;
+    if (ssCardLetterChangeFunctionMap[[
+          widget.abIndex,
+          widget.boardNumber,
+          widget.facingFront
+        ]] ==
+        ssCardLetterChange) {
+      ssCardLetterChangeFunctionMap[[
+        widget.abIndex,
+        widget.boardNumber,
+        widget.facingFront
+      ]] = null;
     }
     super.dispose();
   }
@@ -130,7 +149,7 @@ class _CardChooserState extends State<CardChooser> {
       try {
         setState(() {});
       } catch (e) {
-        p(["ssCardLetterChange error ", e.toString()]); //FIXME
+        p(["ssCardLetterChange error ", e.toString()]);
       }
     }
   }
@@ -140,7 +159,6 @@ class _CardChooserState extends State<CardChooser> {
     return _cardChooser(widget.abIndex, widget.boardNumber, widget.facingFront);
   }
 }
-
 
 Widget _cardChooser(abIndex, boardNumber, facingFront) {
   int abRow = abIndex ~/ cols;
