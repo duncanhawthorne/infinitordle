@@ -5,7 +5,7 @@ infinitordle is a cross between Wordle and Tetris. Solve as many words as you ca
 * Can you clear the board and reach infinitordle? 
 * Play infinitordle at https://duncanhawthorne.github.io/#/
 
-![](https://raw.githubusercontent.com/duncanhawthorne/infinitordle/master/infinitordle.png)
+![](https://raw.githubusercontent.com/duncanhawthorne/infinitordle/main/infinitordle.png)
 
 How to play
 -----------
