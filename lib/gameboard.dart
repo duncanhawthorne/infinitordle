@@ -97,6 +97,7 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
 
 Widget _card(abIndex, boardNumber, facingFront, cardSize) {
   int abRow = abIndex ~/ cols;
+  int col = abIndex % cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.boardFlourishFlipAngles.containsKey(boardNumber) &&
           abRow == game.boardFlourishFlipAngles[boardNumber];
@@ -109,62 +110,104 @@ Widget _card(abIndex, boardNumber, facingFront, cardSize) {
           (rowOffTopOfMainBoard(abRow) &&
               !facingFront &&
               justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
-  const double cardBorderRadiusFactor = 0.2;
-  //assert(
-  //    slideTime < flipTime / 2); //to ensure we never see color changes via fade
 
-  return Container(
-    padding: EdgeInsets.all(0.005 * cardSize),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(cardBorderRadiusFactor * cardSize),
-      child: Container(
-        //duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: hideCard
-                    ? transp
-                    : historicalWin
-                        ? soften(boardNumber, green)
-                        : transp,
-                width: 0.05 * cardSize),
-            borderRadius:
-                BorderRadius.circular(cardBorderRadiusFactor * cardSize),
-            color: hideCard
-                ? transp
-                : !facingFront
-                    ? grey
-                    : soften(boardNumber,
-                        cardColors.getAbCardColor(abIndex, boardNumber))),
-        child: FittedBox(
-          fit: BoxFit.fitHeight,
-          child: _cardText(abIndex, boardNumber, hideCard, cardSize),
+  String cardLetter = abRow ==
+              game.getAbLiveNumRowsPerBoard() -
+                  1 && //code is formatting final row of cards
+          game.getGbCurrentRowInt() < 0 &&
+          game.getCurrentTyping().length > col
+      //If need to type while off top of board (unlikely), show on final row
+      ? game.getCurrentTyping()[col]
+      : hideCard
+          ? ""
+          : game.getCardLetterAtAbIndex(abIndex);
+  bool normalHighlighting = game.isBoardNormalHighlighted(boardNumber);
+  Color cardColor = hideCard
+      ? transp
+      : !facingFront
+          ? grey
+          : soften(
+              boardNumber, cardColors.getAbCardColor(abIndex, boardNumber));
+  Color borderColor = hideCard
+      ? transp
+      : historicalWin
+          ? soften(boardNumber, green)
+          : transp;
+  return Stack(
+    children: [
+      SizedBox(
+        height: cardSize,
+        width: cardSize,
+        child: _fixedSizeCardCache[normalHighlighting][cardLetter][cardColor]
+            [borderColor],
+      )
+    ],
+  );
+}
+
+Widget _fixedSizeCard(normalHighlighting, cardLetter, cardColor, borderColor) {
+  const double cardBorderRadiusFactor = 0.2;
+  const cardSizeFixed = 100.0;
+  return FittedBox(
+    fit: BoxFit.contain,
+    child: Container(
+      height: cardSizeFixed,
+      width: cardSizeFixed,
+      padding: const EdgeInsets.all(0.005 * cardSizeFixed),
+      child: ClipRRect(
+        borderRadius:
+            BorderRadius.circular(cardBorderRadiusFactor * cardSizeFixed),
+        child: Container(
+          //duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
+          decoration: BoxDecoration(
+              border:
+                  Border.all(color: borderColor, width: 0.05 * cardSizeFixed),
+              borderRadius:
+                  BorderRadius.circular(cardBorderRadiusFactor * cardSizeFixed),
+              color: cardColor),
+          child: FittedBox(
+            fit: BoxFit.fitHeight,
+            child: _cardTextCache[normalHighlighting][cardLetter],
+          ),
         ),
       ),
     ),
   );
 }
 
-Widget _cardText(abIndex, boardNumber, hideCard, cardSize) {
-  int abRow = abIndex ~/ cols;
-  int col = abIndex % cols;
+final Map _fixedSizeCardCache = {
+  for (var normalHighlighting in [true, false])
+    (normalHighlighting): {
+      for (var cardLetter in keyboardList)
+        (cardLetter): {
+          for (var cardColor in cardColorsList)
+            (cardColor): {
+              for (var borderColor in borderColorsList)
+                (borderColor): _fixedSizeCard(
+                    normalHighlighting, cardLetter, cardColor, borderColor)
+            }
+        }
+    }
+};
+
+Widget _cardTextConst(normalHighlighting, cardLetter) {
   return StrokeText(
-    text: abRow ==
-                game.getAbLiveNumRowsPerBoard() -
-                    1 && //code is formatting final row of cards
-            game.getGbCurrentRowInt() < 0 &&
-            game.getCurrentTyping().length > col
-        //If need to type while off top of board (unlikely), show on final row
-        ? game.getCurrentTyping()[col].toUpperCase()
-        : hideCard
-            ? ""
-            : game.getCardLetterAtAbIndex(abIndex).toUpperCase(),
-    strokeWidth: 0.5 * cardSize / screen.cardLiveMaxPixel,
-    strokeColor: hideCard ? transp : soften(boardNumber, bg),
+    text: cardLetter.toUpperCase(),
+    strokeWidth: 0.5, //previously 0.5 * cardSize / screen.cardLiveMaxPixel,
+    strokeColor: normalHighlighting ? bg : transp,
     textStyle: TextStyle(
-      height: m3 ? 1.15 : null,
-      leadingDistribution: m3 ? TextLeadingDistribution.even : null,
-      color: hideCard ? transp : soften(boardNumber, white),
+      height: 1.15,
+      leadingDistribution: TextLeadingDistribution.even,
+      color: normalHighlighting ? white : offWhite,
       fontWeight: FontWeight.bold,
     ),
   );
 }
+
+final Map _cardTextCache = {
+  for (var normalHighlighting in [true, false])
+    (normalHighlighting): {
+      for (var cardLetter in keyboardList)
+        (cardLetter): _cardTextConst(normalHighlighting, cardLetter)
+    }
+};

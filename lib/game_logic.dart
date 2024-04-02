@@ -48,8 +48,8 @@ class Game {
     ss();
   }
 
-  void onKeyboardTapped(int index) {
-    String letter = keyboardList[index];
+  void onKeyboardTapped(String letter) {
+    //String letter = keyboardList[index];
     printCheatTargetWords();
     //fixTitle();
 

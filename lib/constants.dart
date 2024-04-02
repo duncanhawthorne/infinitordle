@@ -32,6 +32,32 @@ final Map colorMap = {
   bg: transp,
 };
 
+final List colorsList = [
+  red,
+  amber,
+  green,
+  grey,
+  transp,
+  dgreen,
+  damber,
+  dred,
+  offWhite,
+  white,
+  grey
+];
+final List cardColorsList = [
+  red,
+  amber,
+  green,
+  grey,
+  transp,
+  dgreen,
+  damber,
+  dred
+];
+final List kbColorsList = [red, amber, green, grey, transp];
+final List borderColorsList = [green, dgreen, transp];
+
 //Game design
 const numBoards = 4; //must be divisible by 2
 const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
@@ -70,7 +96,8 @@ const bool debugFakeLogin = false;
 const String gUserFakeLogin = "joebloggs@gmail.com";
 const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
-final fbOn = defaultTargetPlatform == TargetPlatform.windows && !kIsWeb ? false : true;
+final fbOn =
+    defaultTargetPlatform == TargetPlatform.windows && !kIsWeb ? false : true;
 final fbAnalytics = fbOn && true;
 final gOn =
     defaultTargetPlatform == TargetPlatform.windows && !kIsWeb ? false : true;

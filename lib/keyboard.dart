@@ -17,13 +17,14 @@ Widget keyboardRowWidget(keyBoardStartKey, length) {
           crossAxisCount: length,
           childAspectRatio: 1 / screen.keyAspectRatioLive * (10 / length),
         ),
-        itemBuilder: (BuildContext context, int index) {
-          return _kbStackWithMiniGrid(keyBoardStartKey + index, length);
+        itemBuilder: (BuildContext context, int offsetIndex) {
+          String kbLetter = keyboardList[keyBoardStartKey + offsetIndex];
+          return _kbStackWithMiniGrid(kbLetter, length);
         }),
   );
 }
 
-Widget _kbStackWithMiniGrid(index, length) {
+Widget _kbStackWithMiniGrid(kbLetter, length) {
   return Container(
     padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: ClipRRect(
@@ -32,18 +33,18 @@ Widget _kbStackWithMiniGrid(index, length) {
       child: Stack(
         children: [
           Center(
-            child: ["<", ">"].contains(keyboardList[index])
+            child: ["<", ">"].contains(kbLetter)
                 ? const SizedBox.shrink()
-                : _kbMiniGridContainer(index, length),
+                : _kbMiniGridContainer(kbLetter, length),
           ),
           Center(
               child: Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
-                game.onKeyboardTapped(index);
+                game.onKeyboardTapped(kbLetter);
               },
-              child: _kbTextSquare(index, length),
+              child: _kbTextSquare(kbLetter, length),
             ),
           )),
         ],
@@ -52,7 +53,7 @@ Widget _kbStackWithMiniGrid(index, length) {
   );
 }
 
-Widget _kbTextSquare(index, length) {
+Widget _kbTextSquare(kbLetter, length) {
   return SizedBox(
       height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
       width: screen.keyboardSingleKeyLiveMaxPixelWidth *
@@ -60,11 +61,11 @@ Widget _kbTextSquare(index, length) {
           length, //double.infinity,
       child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: keyboardList[index] == "<"
+          child: kbLetter == "<"
               ? Container(
                   padding: const EdgeInsets.all(7),
                   child: const Icon(Icons.keyboard_backspace, color: white))
-              : keyboardList[index] == ">"
+              : kbLetter == ">"
                   ? Container(
                       padding: const EdgeInsets.all(7),
                       child: Icon(
@@ -78,31 +79,27 @@ Widget _kbTextSquare(index, length) {
                               : game.getReadyForStreakCurrentRow()
                                   ? green
                                   : white))
-                  : StrokeText(
-                      text: keyboardList[index].toUpperCase(),
-                      strokeWidth: 0.2,
-                      strokeColor: bg,
-                      //textAlign: TextAlign.center,
-                      textStyle: const TextStyle(
-                        color: white,
-                        height: m3 ? 1.15 : null,
-                        leadingDistribution:
-                            m3 ? TextLeadingDistribution.even : null,
-                        /*
-                          shadows: <Shadow>[
-                            //impact font shadows
-                            Shadow(
-                              offset: Offset(0, 0),
-                              blurRadius: 1.0,
-                              color: bg,
-                            ),
-                          ]
-                          */
-                      ),
-                    )));
+                  : _kbRegularTextCache[kbLetter]));
 }
 
-Widget _kbMiniGridContainer(index, length) {
+Widget _kbRegularTextConst(kbLetter) {
+  return StrokeText(
+    text: kbLetter.toUpperCase(),
+    strokeWidth: 0.2,
+    strokeColor: bg,
+    textStyle: const TextStyle(
+      color: white,
+      height: 1.15,
+      leadingDistribution: TextLeadingDistribution.even,
+    ),
+  );
+}
+
+final Map _kbRegularTextCache = {
+  for (var kbLetter in keyboardList) (kbLetter): _kbRegularTextConst(kbLetter)
+};
+
+Widget _kbMiniGridContainer(kbLetter, length) {
   return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.vertical,
@@ -121,15 +118,19 @@ Widget _kbMiniGridContainer(index, length) {
             (10 / length),
       ),
       itemBuilder: (BuildContext context, int subIndex) {
-        return _kbMiniSquareColor(index, subIndex);
+        Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
+        return _kbMiniSquareColorCache[color];
       });
 }
 
-Widget _kbMiniSquareColor(kbIndex, subIndex) {
+Widget _kbMiniSquareColorConst(color) {
   return Container(
-    //height: 1000,
     decoration: BoxDecoration(
-      color: cardColors.getBestColorForLetter(kbIndex, subIndex),
+      color: color,
     ),
   );
 }
+
+final Map _kbMiniSquareColorCache = {
+  for (var color in kbColorsList) (color): _kbMiniSquareColorConst(color)
+};

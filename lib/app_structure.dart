@@ -99,12 +99,11 @@ Widget keyboardListenerWrapper() {
       onKeyEvent: (keyEvent) {
         if (keyEvent is KeyDownEvent) {
           if (keyboardList.contains(keyEvent.character)) {
-            game.onKeyboardTapped(
-                keyboardList.indexOf(keyEvent.character ?? " "));
+            game.onKeyboardTapped(keyEvent.character ?? " ");
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
-            game.onKeyboardTapped(keyboardList.indexOf(">"));
+            game.onKeyboardTapped(">");
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
-            game.onKeyboardTapped(keyboardList.indexOf("<"));
+            game.onKeyboardTapped("<");
           }
         }
       },

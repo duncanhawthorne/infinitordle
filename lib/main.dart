@@ -10,8 +10,15 @@ import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/popup_screens.dart';
 import 'package:google_fonts/google_fonts.dart';
+//import 'package:flutter/rendering.dart';
 
 Future<void> main() async {
+  //debugRepaintRainbowEnabled = true;
+  //debugProfileBuildsEnabled = true;
+  //debugProfileBuildsEnabledUserWidgets = true;
+  //debugProfileLayoutsEnabled = true;
+  //debugProfilePaintsEnabled = true;
+
   WidgetsFlutterBinding.ensureInitialized();
   Future.delayed(const Duration(milliseconds: 1000 * 5), () {
     FlutterNativeSplash

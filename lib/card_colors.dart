@@ -12,7 +12,9 @@ class CardColors {
   List<dynamic> targetWordsCacheForCard = List.filled(numBoards, "x");
   int abCurrentRowIntCache = 0;
 
-  Color getBestColorForLetter(kbIndex, boardNumber) {
+  Color getBestColorForLetter(queryLetter, boardNumber) {
+    int kbIndex = keyboardList.indexOf(queryLetter);
+
     if (game.getLastCardToConsiderForKeyColors() != abCurrentRowIntCache ||
         !listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
             firstRowsToShowCache) ||
@@ -37,7 +39,7 @@ class CardColors {
     }
 
     Color? answer;
-    String queryLetter = keyboardList[kbIndex];
+    //String queryLetter = keyboardList[kbIndex];
     int abStart = cols *
         max(0, game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
     int abEnd = game.getLastCardToConsiderForKeyColors();
