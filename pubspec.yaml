@@ -43,6 +43,8 @@ dependencies:
 
   google_fonts: ^6.1.0 
   stroke_text: any
+  
+  get: 
 
 dev_dependencies:
   flutter_test:

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:stroke_text/stroke_text.dart';
+import 'package:get/get.dart';
 
 Widget keyboardRowWidget(keyBoardStartKeyIndex, kbRowLength) {
   return Container(
@@ -35,8 +36,7 @@ Widget _kbStackWithMiniGrid(kbLetter, kbRowLength) {
           Center(
             child: ["<", ">"].contains(kbLetter)
                 ? const SizedBox.shrink()
-                : _kbMiniGridChooser(
-                    kbLetter: kbLetter, kbRowLength: kbRowLength),
+                : _kbMiniGrid(kbLetter, kbRowLength),
           ),
           Center(
               child: Material(
@@ -69,17 +69,17 @@ Widget _kbTextSquare(kbLetter, kbRowLength) {
               : kbLetter == ">"
                   ? Container(
                       padding: const EdgeInsets.all(7),
-                      child: Icon(
-                          game.isIllegalWordEntered()
+                      child: Obx(() => Icon(
+                          game.illegalFiveLetterWord.value
                               ? Icons.cancel
                               : game.getReadyForStreakCurrentRow()
                                   ? Icons.fast_forward
                                   : Icons.keyboard_return_sharp,
-                          color: game.isIllegalWordEntered()
+                          color: game.illegalFiveLetterWord.value
                               ? red
                               : game.getReadyForStreakCurrentRow()
                                   ? green
-                                  : white))
+                                  : white)))
                   : _kbRegularTextCache[kbLetter]));
 }
 
@@ -100,60 +100,17 @@ final Map _kbRegularTextCache = {
   for (var kbLetter in keyboardList) (kbLetter): _kbRegularTextConst(kbLetter)
 };
 
-// ignore: camel_case_types
-class _kbMiniGridChooser extends StatefulWidget {
-  final String kbLetter;
-  final int kbRowLength;
-  const _kbMiniGridChooser({this.kbLetter = "", this.kbRowLength = 0});
-
-  @override
-  State<_kbMiniGridChooser> createState() => _kbMiniGridChooserState();
-}
-
-// ignore: camel_case_types
-class _kbMiniGridChooserState extends State<_kbMiniGridChooser> {
-  @override
-  initState() {
-    super.initState();
-    //Hack to make these functions available globally
-    ssKeyboardChangeFunctionMap[[widget.kbLetter, widget.kbRowLength]] =
-        ssKeyboardChange;
-  }
-
-  @override
-  dispose() {
-    if (ssKeyboardChangeFunctionMap[[widget.kbLetter, widget.kbRowLength]] ==
-        ssKeyboardChange) {
-      ssKeyboardChangeFunctionMap[[widget.kbLetter, widget.kbRowLength]] = null;
-    }
-    super.dispose();
-  }
-
-  void ssKeyboardChange() {
-    try {
-      setState(() {});
-    } catch (e) {
-      p(["ssKeyboardChange error ", e.toString()]);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _kbMiniGrid(widget.kbLetter, widget.kbRowLength);
-  }
-}
-
 Widget _kbMiniGrid(kbLetter, kbRowLength) {
-  return GridView.builder(
+  return Obx(() => GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
-      itemCount: game.highlightedBoard != -1 ? 1 : numBoards,
+      itemCount: game.getHighlightedBoard() != -1 ? 1 : numBoards,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: game.highlightedBoard != -1
+        crossAxisCount: game.getHighlightedBoard() != -1
             ? 1
             : numBoards ~/ screen.numPresentationBigRowsOfBoards,
-        childAspectRatio: (game.highlightedBoard != -1
+        childAspectRatio: (game.getHighlightedBoard() != -1
                 ? 1
                 : 1 /
                     ((numBoards / screen.numPresentationBigRowsOfBoards) /
@@ -164,7 +121,7 @@ Widget _kbMiniGrid(kbLetter, kbRowLength) {
       itemBuilder: (BuildContext context, int subIndex) {
         Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
         return _kbMiniSquareColorCache[color];
-      });
+      }));
 }
 
 Widget _kbMiniSquareColorConst(color) {

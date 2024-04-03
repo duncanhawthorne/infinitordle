@@ -112,7 +112,7 @@ final Random random = Random();
 var ssFunctionList = [];
 var showResetScreenFunctionList = [];
 
-void ss() {
+void setStateGlobal() {
   //Hack to make these functions available globally
   ssFunctionList[0]();
 }
@@ -120,35 +120,4 @@ void ss() {
 void showResetConfirmScreen() {
   //Hack to make these functions available globally
   showResetScreenFunctionList[0]();
-}
-
-var ssCardLetterChangeFunctionMap = {};
-
-void ssCardLetterChange() {
-  for (var k in ssCardLetterChangeFunctionMap.values) {
-    if (k != null) {
-      k();
-    }
-  }
-}
-
-void ssSingleCardLetterChange(abIndex) {
-  for (var j in ssCardLetterChangeFunctionMap.keys) {
-    var k = ssCardLetterChangeFunctionMap[j];
-    if (j[0] == abIndex) {
-      if (k != null) {
-        k();
-      }
-    }
-  }
-}
-
-var ssKeyboardChangeFunctionMap = {};
-
-void ssKeyboardChange() {
-  for (var k in ssKeyboardChangeFunctionMap.values) {
-    if (k != null) {
-      k();
-    }
-  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:stroke_text/stroke_text.dart';
+import 'package:get/get.dart';
 
 Widget gameboardWidget(boardNumber) {
   return ClipRRect(
@@ -52,7 +53,8 @@ Widget _cardFlipper(abIndex, boardNumber) {
               : Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()..rotateX(pi),
-                  child: _positionedScaledCard(abIndex, boardNumber, true),
+                  child: Obx(
+                      () => _positionedScaledCard(abIndex, boardNumber, true)),
                 ),
         ));
       });
@@ -61,24 +63,24 @@ Widget _cardFlipper(abIndex, boardNumber) {
 Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   const double shrinkCardScaleDefault = 0.75;
   double cardSizeDefault = screen.cardLiveMaxPixel;
+  int temporaryVisualOffsetForSlide = game.getTemporaryVisualOffsetForSlide();
 
   int abRow = abIndex ~/ cols;
   bool shouldSlideCard = abRow < game.getAbCurrentRowInt();
   bool shouldShrinkCard = game.getExpandingBoard() &&
-      abRow - (shouldSlideCard ? game.getTemporaryVisualOffsetForSlide() : 0) <
+      abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
           game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
 
   double cardScaleFactor = shouldShrinkCard ? shrinkCardScaleDefault : 1.0;
   double cardSize = cardSizeDefault * cardScaleFactor;
   double cardScaleOffset = cardSizeDefault * (1 - cardScaleFactor) / 2;
-  double cardSlideOffset = shouldSlideCard
-      ? -cardSizeDefault * game.getTemporaryVisualOffsetForSlide()
-      : 0;
+  double cardSlideOffset =
+      shouldSlideCard ? -cardSizeDefault * temporaryVisualOffsetForSlide : 0;
   // if offset 1, do gradually. if offset 0, do instantaneously
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
   // and move visual cards back to original position instantly
-  int timeFactorOfSlide = game.getTemporaryVisualOffsetForSlide();
+  int timeFactorOfSlide = temporaryVisualOffsetForSlide;
   return Stack(
     clipBehavior: Clip.none,
     children: [
@@ -92,72 +94,10 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
         child: SizedBox(
             height: cardSize,
             width: cardSize,
-            child: CardChooser(
-                abIndex: abIndex,
-                boardNumber: boardNumber,
-                facingFront: facingFront)),
+            child: Obx(() => _cardChooser(abIndex, boardNumber, facingFront))),
       ),
     ],
   );
-}
-
-class CardChooser extends StatefulWidget {
-  final int abIndex;
-  final int boardNumber;
-  final bool facingFront;
-  const CardChooser(
-      {super.key,
-      this.abIndex = 0,
-      this.boardNumber = 0,
-      this.facingFront = true});
-
-  @override
-  State<CardChooser> createState() => _CardChooserState();
-}
-
-class _CardChooserState extends State<CardChooser> {
-  @override
-  initState() {
-    super.initState();
-    //Hack to make these functions available globally
-    ssCardLetterChangeFunctionMap[[
-      widget.abIndex,
-      widget.boardNumber,
-      widget.facingFront
-    ]] = ssCardLetterChange;
-  }
-
-  @override
-  dispose() {
-    if (ssCardLetterChangeFunctionMap[[
-          widget.abIndex,
-          widget.boardNumber,
-          widget.facingFront
-        ]] ==
-        ssCardLetterChange) {
-      ssCardLetterChangeFunctionMap[[
-        widget.abIndex,
-        widget.boardNumber,
-        widget.facingFront
-      ]] = null;
-    }
-    super.dispose();
-  }
-
-  void ssCardLetterChange() {
-    if (mounted) {
-      try {
-        setState(() {});
-      } catch (e) {
-        p(["ssCardLetterChange error ", e.toString()]);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _cardChooser(widget.abIndex, widget.boardNumber, widget.facingFront);
-  }
 }
 
 Widget _cardChooser(abIndex, boardNumber, facingFront) {
@@ -166,7 +106,6 @@ Widget _cardChooser(abIndex, boardNumber, facingFront) {
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.boardFlourishFlipAngles.containsKey(boardNumber) &&
           abRow == game.boardFlourishFlipAngles[boardNumber];
-  //int timeFactorOfSlide = game.getTemporaryVisualOffsetForSlide();
   bool justFlippedBackToFront =
       game.boardFlourishFlipAngles.containsKey(boardNumber);
   bool hideCard =

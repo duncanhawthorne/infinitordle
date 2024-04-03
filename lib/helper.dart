@@ -59,7 +59,7 @@ bool listEqual(a, b) {
 }
 
 void p(x) {
-  debugPrint("///// A " + x.toString());
+  debugPrint("///// A " + DateTime.now().toString() + " " + x.toString());
 }
 
 Color soften(boardNumber, color) {

@@ -10,7 +10,6 @@ import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/popup_screens.dart';
 import 'package:google_fonts/google_fonts.dart';
-//import 'package:flutter/rendering.dart';
 
 Future<void> main() async {
   //debugRepaintRainbowEnabled = true;

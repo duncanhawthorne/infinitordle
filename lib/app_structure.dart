@@ -118,7 +118,7 @@ Widget gameboardAndKeyboard() {
     child: Column(
       children: [
         Stack(alignment: Alignment.center, children: [
-          game.highlightedBoard != -1
+          game.getHighlightedBoard() != -1
               ? InkWell(
                   onTap: () => game.toggleHighlightedBoard(-1),
                   child: SizedBox(

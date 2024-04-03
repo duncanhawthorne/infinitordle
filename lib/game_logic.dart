@@ -2,8 +2,9 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
+import 'package:get/get.dart';
 
-class Game {
+class Game extends GetxController {
   //State to save
   List<dynamic> targetWords = ["x"];
   List<dynamic> enteredWords = ["x"];
@@ -14,15 +15,16 @@ class Game {
   bool expandingBoardEver = false;
 
   //Other state non-saved
-  var currentTyping = "x";
-  int highlightedBoard = -2;
+  var currentTyping = ["".obs, "".obs, "".obs, "".obs, "".obs];
+  var highlightedBoard = 0.obs;
 
   //transitive state
   bool aboutToWinCache = false;
-  int temporaryVisualOffsetForSlide = 0;
+  var temporaryVisualOffsetForSlide = 0.obs;
   String gameEncodedLastCache = "";
   var abCardFlourishFlipAngles = {};
   var boardFlourishFlipAngles = {};
+  var illegalFiveLetterWord = false.obs;
 
   void initiateBoard() {
     targetWords = getNewTargetWords(numBoards);
@@ -33,11 +35,11 @@ class Game {
     expandingBoard = false;
     expandingBoardEver = false;
 
-    currentTyping = "";
-    highlightedBoard = -1;
+    setCurrentTyping("");
+    highlightedBoard.value = -1;
 
     aboutToWinCache = false;
-    temporaryVisualOffsetForSlide = 0;
+    temporaryVisualOffsetForSlide.value = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
     abCardFlourishFlipAngles = {};
     boardFlourishFlipAngles = {};
@@ -45,7 +47,7 @@ class Game {
     if (cheatMode) {
       cheatInitiate();
     }
-    ss();
+    setStateGlobal();
   }
 
   void onKeyboardTapped(String letter) {
@@ -57,25 +59,21 @@ class Game {
       //Ignore pressing of non-keys
     } else if (letter == "<") {
       //Backspace key
-      if (currentTyping.isNotEmpty) {
+      if (getCurrentTyping().isNotEmpty) {
         //There is text to delete
-        String origTyping = currentTyping.substring(0, currentTyping.length);
-        currentTyping = currentTyping.substring(0, currentTyping.length - 1);
+        String origTyping =
+            getCurrentTyping().substring(0, getCurrentTyping().length);
+        setCurrentTyping(
+            getCurrentTyping().substring(0, getCurrentTyping().length - 1));
         if (origTyping.length == cols && !isLegalWord(origTyping)) {
-          ss(); //full refresh to update illegal word indicator
-        }
-        else {
-          ssSingleCardLetterChange(getAbCurrentRowInt() * cols +
-              currentTyping.length -
-              1 +
-              1); //ssCardLetterChange();
+          illegalFiveLetterWord.value = false;
         }
       }
     } else if (letter == ">") {
       //Submit guess
-      if (currentTyping.length == cols) {
+      if (getCurrentTyping().length == cols) {
         //Full word entered, so can submit
-        if (isLegalWord(currentTyping) &&
+        if (isLegalWord(getCurrentTyping()) &&
             getAbCurrentRowInt() < getAbLiveNumRowsPerBoard()) {
           //Legal word so can enter the word
           //Note, not necessarily correct word
@@ -84,16 +82,12 @@ class Game {
       }
     } else {
       //pressing regular letter key
-      if (currentTyping.length < cols) {
+      if (getCurrentTyping().length < cols) {
         //Space to add extra letter
-        currentTyping = currentTyping + letter;
-        if (currentTyping.length == cols && !isLegalWord(currentTyping)) {
-          ss(); //full refresh to update illegal word indicator
-        }
-        else {
-          ssSingleCardLetterChange(getAbCurrentRowInt() * cols +
-              currentTyping.length -
-              1); //ssCardLetterChange();
+        setCurrentTyping(getCurrentTyping() + letter);
+        if (getCurrentTyping().length == cols &&
+            !isLegalWord(getCurrentTyping())) {
+          illegalFiveLetterWord.value = true;
         }
       }
     }
@@ -105,8 +99,8 @@ class Game {
     int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows();
     int maxAbRowOfBoard = getAbLiveNumRowsPerBoard();
 
-    enteredWords.add(currentTyping);
-    currentTyping = "";
+    enteredWords.add(getCurrentTyping());
+    setCurrentTyping("");
     winRecordBoards.add(-2); //Add now, fix value later
     if (fbAnalytics) {
       analytics!.logLevelUp(level: enteredWords.length);
@@ -122,7 +116,7 @@ class Game {
     }
 
     save.saveKeys();
-    ss();
+    //setStateGlobal();
 
     gradualRevealAbRow(cardAbRowPreGuessToFix);
     handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
@@ -191,8 +185,8 @@ class Game {
       // Or if switch from expanding board to non-expanding
 
       //Slide the cards up visually, creating the illusion of stepping up
-      temporaryVisualOffsetForSlide = 1;
-      ss();
+      temporaryVisualOffsetForSlide.value = 1;
+      //setStateGlobal();
 
       await sleep(slideTime);
       //await wait(delayMult * 50);
@@ -200,7 +194,7 @@ class Game {
       // Delay for sliding cards up to have taken effect
 
       // Undo the visual slide (and do this instantaneously)
-      temporaryVisualOffsetForSlide = 0;
+      temporaryVisualOffsetForSlide.value = 0;
 
       // Actually move the cards up, so state matches visual illusion above
       takeOneStepBack();
@@ -215,7 +209,7 @@ class Game {
   Future<void> unflipSwapFlip(
       cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
     boardFlourishFlipAngles[winningBoardToFix] = cardAbRowPreGuessToFix;
-    ss();
+    setStateGlobal();
 
     // Cards are now in the right place and state matches visuals
 
@@ -226,7 +220,7 @@ class Game {
     if (boardFlourishFlipAngles.containsKey(winningBoardToFix)) {
       boardFlourishFlipAngles.remove(winningBoardToFix);
     }
-    ss();
+    setStateGlobal();
   }
 
   void takeOneStepBack() {
@@ -234,7 +228,7 @@ class Game {
     // Use variables at the time word was entered rather than live variables
     pushUpSteps++;
     save.saveKeys();
-    ss();
+    setStateGlobal();
   }
 
   void logWinAndSetNewWord(
@@ -255,7 +249,7 @@ class Game {
     targetWords[winningBoardToFix] = getNewTargetWord();
 
     save.saveKeys();
-    ss();
+    setStateGlobal();
   }
 
   void gradualRevealAbRow(abRow) {
@@ -266,7 +260,7 @@ class Game {
       }
       abCardFlourishFlipAngles[abRow][i] = 0.5;
     }
-    ss();
+    setStateGlobal();
     for (int i = 0; i < cols; i++) {
       Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
         abCardFlourishFlipAngles[abRow][i] = 0.0;
@@ -276,7 +270,7 @@ class Game {
             abCardFlourishFlipAngles.remove(abRow);
           }
         }
-        ss();
+        setStateGlobal();
       });
     }
   }
@@ -314,18 +308,16 @@ class Game {
       expandingBoardEver = true;
     }
     save.saveKeys();
-    ss();
+    setStateGlobal();
   }
 
   void toggleHighlightedBoard(boardNumber) {
     if (highlightedBoard == boardNumber) {
-      highlightedBoard = -1; //if already set turn off
+      highlightedBoard.value = -1; //if already set turn off
     } else {
-      highlightedBoard = boardNumber;
+      highlightedBoard.value = boardNumber;
     }
     //No need to save as local state
-    ssCardLetterChange();
-    ssKeyboardChange();
   }
 
   String getCardLetterAtAbIndex(abIndex) {
@@ -336,11 +328,7 @@ class Game {
       if (abRow > getAbCurrentRowInt()) {
         letter = "";
       } else if (abRow == getAbCurrentRowInt()) {
-        if (currentTyping.length > (col)) {
-          letter = currentTyping.substring(col, col + 1);
-        } else {
-          letter = "";
-        }
+        letter = getCurrentTypingAtCol(col);
       } else {
         letter = enteredWords[abRow][col];
       }
@@ -415,7 +403,7 @@ class Game {
   void loadFromEncodedState(gameEncoded, sync) {
     if (gameEncoded == "") {
       p(["loadFromEncodedState empty"]);
-      ss();
+      setStateGlobal();
     } else if (gameEncoded != gameEncodedLastCache) {
       try {
         Map<String, dynamic> gameTmp = {};
@@ -426,7 +414,7 @@ class Game {
           //Error state, so set gUser properly and redo loadKeys from firebase
           g.setUser(tmpgUser);
           save.loadKeys();
-          ss();
+          setStateGlobal();
           return;
         }
 
@@ -457,7 +445,7 @@ class Game {
       }
       gameEncodedLastCache = gameEncoded;
       if (sync) {
-        ss();
+        setStateGlobal();
       } else {
         //Future.delayed(const Duration(milliseconds: 0), () {
         //  // ASAP but not sync
@@ -489,7 +477,7 @@ class Game {
         targetWords,
         enteredWords,
         winRecordBoards,
-        currentTyping,
+        getCurrentTyping(),
         firstKnowledge,
         getPushOffBoardRows(),
         getExtraRows(),
@@ -611,6 +599,16 @@ class Game {
         !isLegalWord(game.getCurrentTyping());
   }
 
+  void setCurrentTyping(text) {
+    for (int i = 0; i < cols; i++) {
+      if (i < text.length) {
+        currentTyping[i].value = text.substring(i, i + 1);
+      } else {
+        currentTyping[i].value = "";
+      }
+    }
+  }
+
   // PURE GETTERS
 
   bool getAboutToWinCache() {
@@ -630,11 +628,11 @@ class Game {
   }
 
   int getTemporaryVisualOffsetForSlide() {
-    return temporaryVisualOffsetForSlide;
+    return temporaryVisualOffsetForSlide.value;
   }
 
   int getHighlightedBoard() {
-    return highlightedBoard;
+    return highlightedBoard.value;
   }
 
   List getFirstKnowledge() {
@@ -642,6 +640,10 @@ class Game {
   }
 
   String getCurrentTyping() {
-    return currentTyping;
+    return currentTyping.join();
+  }
+
+  String getCurrentTypingAtCol(col) {
+    return currentTyping[col].value;
   }
 }
