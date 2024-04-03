@@ -36,13 +36,14 @@ class Game extends GetxController {
     expandingBoardEver = false;
 
     setCurrentTyping("");
-    highlightedBoard.value = -1;
+    setHighlightedBoard(-1);
 
     aboutToWinCache = false;
-    temporaryVisualOffsetForSlide.value = 0;
+    setTemporaryVisualOffsetForSlide(0);
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
     abCardFlourishFlipAngles = {};
     boardFlourishFlipAngles = {};
+    setIllegalFiveLetterWord(false);
 
     if (cheatMode) {
       cheatInitiate();
@@ -66,7 +67,7 @@ class Game extends GetxController {
         setCurrentTyping(
             getCurrentTyping().substring(0, getCurrentTyping().length - 1));
         if (origTyping.length == cols && !isLegalWord(origTyping)) {
-          illegalFiveLetterWord.value = false;
+          setIllegalFiveLetterWord(false);
         }
       }
     } else if (letter == ">") {
@@ -87,7 +88,7 @@ class Game extends GetxController {
         setCurrentTyping(getCurrentTyping() + letter);
         if (getCurrentTyping().length == cols &&
             !isLegalWord(getCurrentTyping())) {
-          illegalFiveLetterWord.value = true;
+          setIllegalFiveLetterWord(true);
         }
       }
     }
@@ -185,7 +186,7 @@ class Game extends GetxController {
       // Or if switch from expanding board to non-expanding
 
       //Slide the cards up visually, creating the illusion of stepping up
-      temporaryVisualOffsetForSlide.value = 1;
+      setTemporaryVisualOffsetForSlide(1);
       //setStateGlobal();
 
       await sleep(slideTime);
@@ -194,7 +195,7 @@ class Game extends GetxController {
       // Delay for sliding cards up to have taken effect
 
       // Undo the visual slide (and do this instantaneously)
-      temporaryVisualOffsetForSlide.value = 0;
+      setTemporaryVisualOffsetForSlide(0);
 
       // Actually move the cards up, so state matches visual illusion above
       takeOneStepBack();
@@ -312,10 +313,10 @@ class Game extends GetxController {
   }
 
   void toggleHighlightedBoard(boardNumber) {
-    if (highlightedBoard == boardNumber) {
-      highlightedBoard.value = -1; //if already set turn off
+    if (getHighlightedBoard() == boardNumber) {
+      setHighlightedBoard(-1); //if already set turn off
     } else {
-      highlightedBoard.value = boardNumber;
+      setHighlightedBoard(boardNumber);
     }
     //No need to save as local state
   }
@@ -594,11 +595,6 @@ class Game extends GetxController {
     return getHighlightedBoard() == -1 || getHighlightedBoard() == boardNumber;
   }
 
-  bool isIllegalWordEntered() {
-    return getCurrentTyping().length == cols &&
-        !isLegalWord(game.getCurrentTyping());
-  }
-
   void setCurrentTyping(text) {
     for (int i = 0; i < cols; i++) {
       if (i < text.length) {
@@ -607,6 +603,18 @@ class Game extends GetxController {
         currentTyping[i].value = "";
       }
     }
+  }
+
+  setIllegalFiveLetterWord(tf) {
+    illegalFiveLetterWord.value = tf;
+  }
+
+  setTemporaryVisualOffsetForSlide(value) {
+    temporaryVisualOffsetForSlide.value = value;
+  }
+
+  setHighlightedBoard(value) {
+    highlightedBoard.value = value;
   }
 
   // PURE GETTERS
@@ -645,5 +653,9 @@ class Game extends GetxController {
 
   String getCurrentTypingAtCol(col) {
     return currentTyping[col].value;
+  }
+
+  bool isillegalFiveLetterWord() {
+    return illegalFiveLetterWord.value;
   }
 }
