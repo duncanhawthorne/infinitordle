@@ -8,27 +8,22 @@ import 'package:get/get.dart';
 Widget gameboardWidget(boardNumber) {
   bool expandingBoard = game.getExpandingBoard();
   int boardNumberRows = game.getGbLiveNumRowsPerBoard();
-  return SizedBox(
-      height: numRowsPerBoard * screen.cardLiveMaxPixel,
-      width: cols * screen.cardLiveMaxPixel,
-      child: FittedBox(
-          fit: BoxFit.fitHeight,
-          child: Container(
-              height: numRowsPerBoard * notionalCardSize,
-              width: cols * notionalCardSize,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(0.2 * notionalCardSize),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      game.toggleHighlightedBoard(boardNumber);
-                    },
-                    child: gameboardWidgetWithNRows(
-                        boardNumber, boardNumberRows, expandingBoard),
-                  ),
-                ),
-              ))));
+  return Container(
+      height: numRowsPerBoard * screen.cardLiveMaxPixel, //notionalCardSize,
+      width: cols * screen.cardLiveMaxPixel, //notionalCardSize,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel), //notionalCardSize),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              game.toggleHighlightedBoard(boardNumber);
+            },
+            child: gameboardWidgetWithNRows(
+                boardNumber, boardNumberRows, expandingBoard),
+          ),
+        ),
+      ));
 }
 
 Widget gameboardWidgetWithNRows(boardNumber, boardNumberRows, expandingBoard) {
@@ -75,7 +70,7 @@ Widget _cardFlipper(abIndex, boardNumber) {
 
 Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   const double shrinkCardScaleDefault = 0.75;
-  double cardSizeDefault = notionalCardSize; //screen.cardLiveMaxPixel;
+  double cardSizeDefault = screen.cardLiveMaxPixel; //notionalCardSize;
   int temporaryVisualOffsetForSlide = game.getTemporaryVisualOffsetForSlide();
 
   int abRow = abIndex ~/ cols;
