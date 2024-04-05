@@ -6,37 +6,50 @@ import 'package:stroke_text/stroke_text.dart';
 import 'package:get/get.dart';
 
 Widget gameboardWidget(boardNumber) {
-  return ClipRRect(
-      borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
-      child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-              onTap: () {
-                game.toggleHighlightedBoard(boardNumber);
-              },
-              child: Container(
-                constraints: BoxConstraints(
-                    maxWidth: cols * screen.cardLiveMaxPixel,
-                    maxHeight: numRowsPerBoard * screen.cardLiveMaxPixel),
-                child: GridView.builder(
-                    padding: EdgeInsets
-                        .zero, //https://github.com/flutter/flutter/issues/20241
-                    cacheExtent:
-                        10000, //prevents top card reloading (and flipping) on scroll
-                    reverse: true, //makes stick to bottom
-                    physics: game.getExpandingBoard()
-                        ? const AlwaysScrollableScrollPhysics()
-                        : const NeverScrollableScrollPhysics(), //turns off ios scrolling
-                    itemCount: game.getGbLiveNumRowsPerBoard() * cols,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: cols,
-                    ),
-                    itemBuilder: (BuildContext context, int rGbIndex) {
-                      return _cardFlipper(
-                          getABIndexFromRGBIndex(rGbIndex), boardNumber);
-                    }),
+  bool expandingBoard = game.getExpandingBoard();
+  int boardNumberRows = game.getGbLiveNumRowsPerBoard();
+  return SizedBox(
+      height: numRowsPerBoard * screen.cardLiveMaxPixel,
+      width: cols * screen.cardLiveMaxPixel,
+      child: FittedBox(
+          fit: BoxFit.fitHeight,
+          child: Container(
+              height: numRowsPerBoard * notionalCardSize,
+              width: cols * notionalCardSize,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(0.2 * notionalCardSize),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      game.toggleHighlightedBoard(boardNumber);
+                    },
+                    child: gameboardWidgetWithNRows(
+                        boardNumber, boardNumberRows, expandingBoard),
+                  ),
+                ),
               ))));
+}
+
+Widget gameboardWidgetWithNRows(boardNumber, boardNumberRows, expandingBoard) {
+  return GridView.builder(
+      padding: EdgeInsets.zero,
+      //https://github.com/flutter/flutter/issues/20241
+      cacheExtent: 10000,
+      //prevents top card reloading (and flipping) on scroll
+      reverse: true,
+      //makes stick to bottom
+      physics: expandingBoard
+          ? const AlwaysScrollableScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
+      //turns off ios scrolling
+      itemCount: boardNumberRows * cols,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: cols,
+      ),
+      itemBuilder: (BuildContext context, int rGbIndex) {
+        return _cardFlipper(getABIndexFromRGBIndex(rGbIndex), boardNumber);
+      });
 }
 
 Widget _cardFlipper(abIndex, boardNumber) {
@@ -62,7 +75,7 @@ Widget _cardFlipper(abIndex, boardNumber) {
 
 Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   const double shrinkCardScaleDefault = 0.75;
-  double cardSizeDefault = screen.cardLiveMaxPixel;
+  double cardSizeDefault = notionalCardSize; //screen.cardLiveMaxPixel;
   int temporaryVisualOffsetForSlide = game.getTemporaryVisualOffsetForSlide();
 
   int abRow = abIndex ~/ cols;
@@ -147,7 +160,7 @@ Widget _cardChooser(abIndex, boardNumber, facingFront) {
 
 Widget _card(normalHighlighting, cardLetter, cardColor, borderColor) {
   const double cardBorderRadiusFactor = 0.2;
-  const cardSizeFixed = 100.0;
+  const cardSizeFixed = notionalCardSize;
   return FittedBox(
     fit: BoxFit.contain,
     child: Container(

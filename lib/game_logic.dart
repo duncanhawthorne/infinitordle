@@ -15,7 +15,7 @@ class Game extends GetxController {
   bool expandingBoardEver = false;
 
   //Other state non-saved
-  var currentTyping = ["".obs, "".obs, "".obs, "".obs, "".obs];
+  var currentTyping = List<RxString>.generate(cols, (i) => "".obs);
   var highlightedBoard = 0.obs;
 
   //transitive state

@@ -79,7 +79,7 @@ final isWebMobileReal = kIsWeb &&
         defaultTargetPlatform == TargetPlatform.android);
 final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 const noAnimations = false;
-const slowDownFactor = cheatMode ? 3 : 1;
+const slowDownFactor = cheatMode ? 1 : 1;
 const int durMult = noAnimations ? 0 : 1 * slowDownFactor;
 const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
 const gradualRevealDelay = delayMult * 150;
@@ -91,6 +91,7 @@ const visualCatchUpTime = delayMult * 750;
 //Screen constants
 const double dividerHeight = 2;
 const double keyAspectRatioDefault = 1.5;
+const double notionalCardSize = 1.0;
 
 const bool debugFakeLogin = false;
 const String gUserFakeLogin = "joebloggs@gmail.com";
