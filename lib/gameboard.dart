@@ -43,8 +43,14 @@ Widget gameboardWidgetWithNRows(boardNumber, boardNumberRows, expandingBoard) {
         crossAxisCount: cols,
       ),
       itemBuilder: (BuildContext context, int rGbIndex) {
-        return _cardFlipper(getABIndexFromRGBIndex(rGbIndex), boardNumber);
+        return _cardFlipperAlts(getABIndexFromRGBIndex(rGbIndex), boardNumber);
       });
+}
+
+Widget _cardFlipperAlts(abIndex, boardNumber) {
+  int abRow = abIndex ~/ cols;
+  //only test this if relevant, to help GetX hack .obs
+  return  abRow > game.getAbCurrentRowInt() ? _cardFlipper(abIndex, boardNumber) : Obx(() => _cardFlipper(abIndex, boardNumber));
 }
 
 Widget _cardFlipper(abIndex, boardNumber) {
@@ -112,10 +118,10 @@ Widget _cardChooser(abIndex, boardNumber, facingFront) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
-      game.boardFlourishFlipAngles.containsKey(boardNumber) &&
-          abRow == game.boardFlourishFlipAngles[boardNumber];
+      game.getBoardFlourishFlipAngle(boardNumber) != -1 &&
+          abRow == game.getBoardFlourishFlipAngle(boardNumber);
   bool justFlippedBackToFront =
-      game.boardFlourishFlipAngles.containsKey(boardNumber);
+      game.getBoardFlourishFlipAngle(boardNumber) != -1;
   bool hideCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
           abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||

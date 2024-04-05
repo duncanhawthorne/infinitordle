@@ -119,9 +119,15 @@ Widget _kbMiniGrid(kbLetter, kbRowLength) {
             (10 / kbRowLength),
       ),
       itemBuilder: (BuildContext context, int subIndex) {
-        Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
-        return _kbMiniSquareColorCache[color];
+        //Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
+        //return _kbMiniSquareColorCache[color];
+        return Obx(() => _kbMiniSquareColorChooser(kbLetter, subIndex));
       }));
+}
+
+Widget _kbMiniSquareColorChooser(kbLetter, subIndex) {
+  Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
+  return _kbMiniSquareColorCache[color];
 }
 
 Widget _kbMiniSquareColorConst(color) {

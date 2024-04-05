@@ -22,8 +22,8 @@ class Game extends GetxController {
   bool aboutToWinCache = false;
   var temporaryVisualOffsetForSlide = 0.obs;
   String gameEncodedLastCache = "";
-  var abCardFlourishFlipAngles = {};
-  var boardFlourishFlipAngles = {};
+  var abCardFlourishFlipAngles = {}.obs;
+  var boardFlourishFlipAngles = List<RxInt>.generate(cols, (i) => 100.obs);
   var illegalFiveLetterWord = false.obs;
 
   void initiateBoard() {
@@ -41,8 +41,10 @@ class Game extends GetxController {
     aboutToWinCache = false;
     setTemporaryVisualOffsetForSlide(0);
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
-    abCardFlourishFlipAngles = {};
-    boardFlourishFlipAngles = {};
+    for (var item in abCardFlourishFlipAngles.keys) {
+      abCardFlourishFlipAngles.remove(item);
+    }
+    clearBoardFlourishFlipAngles();
     setIllegalFiveLetterWord(false);
 
     if (cheatMode) {
@@ -117,7 +119,7 @@ class Game extends GetxController {
     }
 
     save.saveKeys();
-    //setStateGlobal();
+    setStateGlobal(); //non-ephemeral state change, so needs setState even with GetX .obs
 
     gradualRevealAbRow(cardAbRowPreGuessToFix);
     handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
@@ -209,8 +211,8 @@ class Game extends GetxController {
 
   Future<void> unflipSwapFlip(
       cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
-    boardFlourishFlipAngles[winningBoardToFix] = cardAbRowPreGuessToFix;
-    setStateGlobal();
+    setBoardFlourishFlipAngle(winningBoardToFix, cardAbRowPreGuessToFix);
+    //setStateGlobal();
 
     // Cards are now in the right place and state matches visuals
 
@@ -218,10 +220,8 @@ class Game extends GetxController {
     // Log the win (show row green), and get a new word
     logWinAndSetNewWord(
         cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
-    if (boardFlourishFlipAngles.containsKey(winningBoardToFix)) {
-      boardFlourishFlipAngles.remove(winningBoardToFix);
-    }
-    setStateGlobal();
+    setBoardFlourishFlipAngle(winningBoardToFix, -1);
+    //setStateGlobal();
   }
 
   void takeOneStepBack() {
@@ -257,21 +257,22 @@ class Game extends GetxController {
     // flip to reveal the colors with pleasing animation
     for (int i = 0; i < cols; i++) {
       if (!abCardFlourishFlipAngles.containsKey(abRow)) {
-        abCardFlourishFlipAngles[abRow] = List<double>.filled(cols, 0.0);
+        abCardFlourishFlipAngles[abRow] = List<RxDouble>.generate(cols, (i) => 0.0.obs);
       }
-      abCardFlourishFlipAngles[abRow][i] = 0.5;
+      abCardFlourishFlipAngles[abRow][i].value = 0.5;
     }
-    setStateGlobal();
+    //setStateGlobal();
     for (int i = 0; i < cols; i++) {
       Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
-        abCardFlourishFlipAngles[abRow][i] = 0.0;
+        abCardFlourishFlipAngles[abRow][i].value = 0.0;
         if (i == cols - 1) {
           if (abCardFlourishFlipAngles.containsKey(abRow)) {
             // Due to delays check still exists before remove
             abCardFlourishFlipAngles.remove(abRow);
+            //setStateGlobal(); //needed even with getx .obs to refresh keyboard
           }
         }
-        setStateGlobal();
+        //setStateGlobal();
       });
     }
   }
@@ -546,19 +547,25 @@ class Game extends GetxController {
   }
 
   int getLastCardToConsiderForKeyColors() {
-    if (abCardFlourishFlipAngles.isEmpty) {
-      return enteredWords.length * cols;
-    }
+    //if (abCardFlourishFlipAngles.isEmpty) {
+    //  return enteredWords.length * cols;
+    //}
     int count = 0;
     for (int key in abCardFlourishFlipAngles.keys) {
       for (int i = 0; i < cols; i++) {
-        if (abCardFlourishFlipAngles[key][i] > 0) {
+        if (abCardFlourishFlipAngles[key][i].value > 0) {
           count++;
         }
       }
       //count = (abCardFlourishFlipAngles[key]).where((x) => x > 0.0 ?? false).length + count;
     }
     return enteredWords.length * cols - count;
+  }
+
+  void clearBoardFlourishFlipAngles() {
+    for (int i = 0; i < boardFlourishFlipAngles.length; i++) {
+      setBoardFlourishFlipAngle(i, -1);
+    }
   }
 
   // PRETTY MUCH PURE GETTERS AND SETTERS
@@ -617,6 +624,10 @@ class Game extends GetxController {
     highlightedBoard.value = value;
   }
 
+  void setBoardFlourishFlipAngle(i, val) {
+    boardFlourishFlipAngles[i].value = val;
+  }
+
   // PURE GETTERS
 
   bool getAboutToWinCache() {
@@ -657,5 +668,9 @@ class Game extends GetxController {
 
   bool isillegalFiveLetterWord() {
     return illegalFiveLetterWord.value;
+  }
+
+  int getBoardFlourishFlipAngle(i) {
+    return boardFlourishFlipAngles[i].value;
   }
 }

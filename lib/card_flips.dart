@@ -4,11 +4,15 @@ import 'package:infinitordle/helper.dart';
 
 class Flips {
   double getFlipAngle(abIndex, boardNumber) {
-    return max(
-        0,
-        getPermFlipAngle(abIndex) -
-            getFlourishFlipAngle(abIndex) -
-            getFlourishBoardFlipAngle(boardNumber));
+    int abRow = abIndex ~/ cols;
+    double cardFlipAngle =
+        getPermFlipAngle(abIndex) - getFlourishFlipAngle(abIndex);
+    double boardFlipAngle = 0;
+    if (abRow <= game.getAbCurrentRowInt()) {
+      //only test this if relevant, to help GetX hack .obs
+      boardFlipAngle = getFlourishBoardFlipAngle(boardNumber);
+    }
+    return max(0, cardFlipAngle - boardFlipAngle);
   }
 
   double getPermFlipAngle(abIndex) {
@@ -26,12 +30,12 @@ class Flips {
     if (!game.abCardFlourishFlipAngles.containsKey(abRow)) {
       return 0;
     } else {
-      return game.abCardFlourishFlipAngles[abRow][i];
+      return game.abCardFlourishFlipAngles[abRow][i].value;
     }
   }
 
   double getFlourishBoardFlipAngle(boardNumber) {
-    if (!game.boardFlourishFlipAngles.containsKey(boardNumber)) {
+    if (game.getBoardFlourishFlipAngle(boardNumber) == -1) {
       return 0;
     } else {
       return 0.5;
