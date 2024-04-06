@@ -28,28 +28,29 @@ Widget keyboardRowWidget(keyBoardStartKeyIndex, kbRowLength) {
 Widget _kbStackWithMiniGrid(kbLetter, kbRowLength) {
   return Container(
     padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(
-          0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight),
-      child: Stack(
-        children: [
-          Center(
-            child: ["<", ">"].contains(kbLetter)
-                ? const SizedBox.shrink()
-                : _kbMiniGrid(kbLetter, kbRowLength),
+    child: Stack(
+      children: [
+        Center(
+          child: ["<", ">"].contains(kbLetter)
+              ? const SizedBox.shrink()
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                      0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight),
+                  child: _kbMiniGrid(kbLetter, kbRowLength)),
+        ),
+        Center(
+            child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(
+                0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight),
+            onTap: () {
+              game.onKeyboardTapped(kbLetter);
+            },
+            child: _kbTextSquare(kbLetter, kbRowLength),
           ),
-          Center(
-              child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                game.onKeyboardTapped(kbLetter);
-              },
-              child: _kbTextSquare(kbLetter, kbRowLength),
-            ),
-          )),
-        ],
-      ),
+        )),
+      ],
     ),
   );
 }
@@ -132,9 +133,7 @@ Widget _kbMiniSquareColorChooser(kbLetter, subIndex) {
 
 Widget _kbMiniSquareColorConst(color) {
   return Container(
-    decoration: BoxDecoration(
-      color: color,
-    ),
+    decoration: BoxDecoration(color: color),
   );
 }
 

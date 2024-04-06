@@ -9,21 +9,20 @@ Widget gameboardWidget(boardNumber) {
   bool expandingBoard = game.getExpandingBoard();
   int boardNumberRows = game.getGbLiveNumRowsPerBoard();
   return Container(
-      height: numRowsPerBoard * screen.cardLiveMaxPixel, //notionalCardSize,
-      width: cols * screen.cardLiveMaxPixel, //notionalCardSize,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel), //notionalCardSize),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              game.toggleHighlightedBoard(boardNumber);
-            },
-            child: gameboardWidgetWithNRows(
-                boardNumber, boardNumberRows, expandingBoard),
-          ),
-        ),
-      ));
+    height: numRowsPerBoard * screen.cardLiveMaxPixel, //notionalCardSize,
+    width: cols * screen.cardLiveMaxPixel, //notionalCardSize,
+    child: Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
+        onTap: () {
+          game.toggleHighlightedBoard(boardNumber);
+        },
+        child: gameboardWidgetWithNRows(
+            boardNumber, boardNumberRows, expandingBoard),
+      ),
+    ),
+  );
 }
 
 Widget gameboardWidgetWithNRows(boardNumber, boardNumberRows, expandingBoard) {
@@ -50,7 +49,9 @@ Widget gameboardWidgetWithNRows(boardNumber, boardNumberRows, expandingBoard) {
 Widget _cardFlipperAlts(abIndex, boardNumber) {
   int abRow = abIndex ~/ cols;
   //only test this if relevant, to help GetX hack .obs
-  return  abRow > game.getAbCurrentRowInt() ? _cardFlipper(abIndex, boardNumber) : Obx(() => _cardFlipper(abIndex, boardNumber));
+  return abRow > game.getAbCurrentRowInt()
+      ? _cardFlipper(abIndex, boardNumber)
+      : Obx(() => _cardFlipper(abIndex, boardNumber));
 }
 
 Widget _cardFlipper(abIndex, boardNumber) {
@@ -164,25 +165,19 @@ Widget _card(normalHighlighting, cardLetter, cardColor, borderColor) {
   const cardSizeFixed = notionalCardSize;
   return FittedBox(
     fit: BoxFit.contain,
-    child: Container(
-      height: cardSizeFixed,
-      width: cardSizeFixed,
+    child: Padding(
       padding: const EdgeInsets.all(0.005 * cardSizeFixed),
-      child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(cardBorderRadiusFactor * cardSizeFixed),
-        child: Container(
-          //duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
-          decoration: BoxDecoration(
-              border:
-                  Border.all(color: borderColor, width: 0.05 * cardSizeFixed),
-              borderRadius:
-                  BorderRadius.circular(cardBorderRadiusFactor * cardSizeFixed),
-              color: cardColor),
-          child: FittedBox(
-            fit: BoxFit.fitHeight,
-            child: _cardTextCache[normalHighlighting][cardLetter],
-          ),
+      child: Container(
+        height: cardSizeFixed,
+        width: cardSizeFixed,
+        decoration: BoxDecoration(
+            border: Border.all(color: borderColor, width: 0.05 * cardSizeFixed),
+            borderRadius:
+                BorderRadius.circular(cardBorderRadiusFactor * cardSizeFixed),
+            color: cardColor),
+        child: FittedBox(
+          fit: BoxFit.fitHeight,
+          child: _cardTextCache[normalHighlighting][cardLetter],
         ),
       ),
     ),

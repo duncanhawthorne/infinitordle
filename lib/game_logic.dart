@@ -257,7 +257,8 @@ class Game extends GetxController {
     // flip to reveal the colors with pleasing animation
     for (int i = 0; i < cols; i++) {
       if (!abCardFlourishFlipAngles.containsKey(abRow)) {
-        abCardFlourishFlipAngles[abRow] = List<RxDouble>.generate(cols, (i) => 0.0.obs);
+        abCardFlourishFlipAngles[abRow] =
+            List<RxDouble>.generate(cols, (i) => 0.0.obs);
       }
       abCardFlourishFlipAngles[abRow][i].value = 0.5;
     }
