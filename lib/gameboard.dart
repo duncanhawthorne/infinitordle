@@ -81,6 +81,7 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   int temporaryVisualOffsetForSlide = game.getTemporaryVisualOffsetForSlide();
 
   int abRow = abIndex ~/ cols;
+  int gbRow = getGBRowFromABRow(abRow);
   bool shouldSlideCard = abRow < game.getAbCurrentRowInt();
   bool shouldShrinkCard = game.getExpandingBoard() &&
       abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
@@ -97,7 +98,7 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   // and move visual cards back to original position instantly
   int timeFactorOfSlide = temporaryVisualOffsetForSlide;
   return Stack(
-    clipBehavior: Clip.none,
+    clipBehavior: gbRow == 0 ? Clip.hardEdge : Clip.none,
     children: [
       AnimatedPositioned(
         //curve: Curves.fastOutSlowIn,
