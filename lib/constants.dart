@@ -6,7 +6,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:infinitordle/wordlist.dart';
 
 //Debug
-const bool cheatMode = true;
+const bool cheatMode = false;
 
 //Branding
 const String appTitle = "infinitordle";
