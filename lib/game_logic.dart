@@ -56,7 +56,7 @@ class Game extends GetxController {
   void onKeyboardTapped(String letter) {
     //String letter = keyboardList[index];
     printCheatTargetWords();
-    //fixTitle();
+    fixTitle();
 
     if (letter == " ") {
       //Ignore pressing of non-keys

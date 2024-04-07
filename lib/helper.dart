@@ -12,6 +12,7 @@ import 'package:infinitordle/screen.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/firebase.dart';
+import 'package:web/web.dart' as web;
 
 Game game = Game();
 Save save = Save();
@@ -76,6 +77,12 @@ List getBlankFirstKnowledge(numberOfBoards) {
 }
 
 void fixTitle() {
+  fixTitle1();
+  fixTitle2();
+  fixTitle3();
+}
+
+void fixTitle1() {
   //https://github.com/flutter/flutter/issues/98248
   if (true) {
     SystemChrome.setApplicationSwitcherDescription(ApplicationSwitcherDescription(
@@ -84,6 +91,25 @@ void fixTitle() {
             .value //Theme.of(context).primaryColor.value, // This line is required
         ));
   }
+}
+
+void fixTitle2() {
+  var url = web.window.location.href;
+  web.window.history.replaceState(
+    //or pushState
+    web.window.history.state, // Note that we don't change the historyState
+    appTitle,
+    url,
+  );
+}
+
+void fixTitle3() {
+  var url = web.window.location.href;
+  web.window.history.pushState(
+    web.window.history.state, // Note that we don't change the historyState
+    appTitle,
+    url,
+  );
 }
 
 Future<void> sleep(delayAfterMult) async {

@@ -44,7 +44,8 @@ dependencies:
   google_fonts: ^6.1.0 
   stroke_text: any
   
-  get: 
+  get: # manual edit as per https://github.com/jonataslaw/getx/commit/a0c6631618c430e2b82fb3d278c9fd9eb174ece1
+  web: any
 
 dev_dependencies:
   flutter_test:
