@@ -33,6 +33,13 @@ Future<void> main() async {
     }
     db = FirebaseFirestore.instance;
   }
+
+  for (int i = 0; i < 10; i++) {
+    Future.delayed(Duration(seconds: i), () {
+      fixTitle();
+    });
+  }
+
   runApp(const InfinitordleApp());
 }
 

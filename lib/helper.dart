@@ -77,9 +77,11 @@ List getBlankFirstKnowledge(numberOfBoards) {
 }
 
 void fixTitle() {
-  fixTitle1();
-  fixTitle2();
-  fixTitle3();
+  if (isiOSMobile) {
+    fixTitle1();
+    fixTitle2();
+    fixTitle3();
+  }
 }
 
 void fixTitle1() {
