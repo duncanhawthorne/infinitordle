@@ -20,12 +20,12 @@ Widget keyboardRowWidget(keyBoardStartKeyIndex, kbRowLength) {
         ),
         itemBuilder: (BuildContext context, int offsetIndex) {
           String kbLetter = keyboardList[keyBoardStartKeyIndex + offsetIndex];
-          return _kbStackWithMiniGrid(kbLetter, kbRowLength);
+          return _kbKeyStack(kbLetter, kbRowLength);
         }),
   );
 }
 
-Widget _kbStackWithMiniGrid(kbLetter, kbRowLength) {
+Widget _kbKeyStack(kbLetter, kbRowLength) {
   return Container(
     padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: Stack(
@@ -33,10 +33,7 @@ Widget _kbStackWithMiniGrid(kbLetter, kbRowLength) {
         Center(
           child: ["<", ">"].contains(kbLetter)
               ? const SizedBox.shrink()
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(
-                      0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight),
-                  child: _kbMiniGrid(kbLetter, kbRowLength)),
+              : _kbMiniGrid(kbLetter, kbRowLength),
         ),
         Center(
             child: Material(
@@ -128,15 +125,43 @@ Widget _kbMiniGrid(kbLetter, kbRowLength) {
 
 Widget _kbMiniSquareColorChooser(kbLetter, subIndex) {
   Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
-  return _kbMiniSquareColorCache[color];
+  double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
+  int numRows = screen.numPresentationBigRowsOfBoards;
+  bool specialHighlighting = game.getHighlightedBoard() != -1;
+  return _kbMiniSquareColorRounded(color, subIndex, numRows, radius,
+      specialHighlighting); //_kbMiniSquareColorCache[color][subIndex];
 }
 
-Widget _kbMiniSquareColorConst(color) {
+Widget _kbMiniSquareColorRounded(
+    color, subIndex, numRows, radius, specialHighlighting) {
   return Container(
-    decoration: BoxDecoration(color: color),
+    decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: specialHighlighting || subIndex == 0
+              ? Radius.circular(radius)
+              : const Radius.circular(0),
+          topRight: specialHighlighting ||
+                  subIndex == 1 && numRows == 2 ||
+                  subIndex == 3 && numRows == 1
+              ? Radius.circular(radius)
+              : const Radius.circular(0),
+          bottomLeft: specialHighlighting ||
+                  subIndex == 2 && numRows == 2 ||
+                  subIndex == 0 && numRows == 1
+              ? Radius.circular(radius)
+              : const Radius.circular(0),
+          bottomRight: specialHighlighting || subIndex == 3
+              ? Radius.circular(radius)
+              : const Radius.circular(0),
+        ),
+        color: color),
   );
 }
 
+/*
 final Map _kbMiniSquareColorCache = {
-  for (var color in kbColorsList) (color): _kbMiniSquareColorConst(color)
+  for (var color in kbColorsList) (color): {
+    for (var subIndex in [0,1,2,3]) (subIndex): //FIXME
+    _kbMiniSquareColorConst(color, subIndex)}
 };
+ */

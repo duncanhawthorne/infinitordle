@@ -40,7 +40,7 @@ class LegalWord {
       }
       legalWordCache[word] = isListContains(legalWords, word);
     }
-    return legalWordCache[word]!;
+    return legalWordCache[word]!; //null
   }
 }
 

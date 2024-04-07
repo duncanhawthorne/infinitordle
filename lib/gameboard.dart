@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 Widget gameboardWidget(boardNumber) {
   bool expandingBoard = game.getExpandingBoard();
   int boardNumberRows = game.getGbLiveNumRowsPerBoard();
+  // ignore: sized_box_for_whitespace
   return Container(
     height: numRowsPerBoard * screen.cardLiveMaxPixel, //notionalCardSize,
     width: cols * screen.cardLiveMaxPixel, //notionalCardSize,
@@ -98,7 +99,7 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
   // and move visual cards back to original position instantly
   int timeFactorOfSlide = temporaryVisualOffsetForSlide;
   return Stack(
-    clipBehavior: gbRow == 0 ? Clip.hardEdge : Clip.none,
+    clipBehavior: gbRow == 0 && cardSlideOffset != 0 ? Clip.hardEdge : Clip.none, //clipping is slow so clip only when necessary
     children: [
       AnimatedPositioned(
         //curve: Curves.fastOutSlowIn,
