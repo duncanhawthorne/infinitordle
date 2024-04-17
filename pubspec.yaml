@@ -50,6 +50,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.13.1"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -209,3 +210,24 @@ flutter_native_splash:
   #info_plist_files:
   #  - 'ios/Runner/Info-Debug.plist'
   #  - 'ios/Runner/Info-Release.plist'
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/Icon-512.png"
+  image_path_android: "assets/Icon-512.png"
+  adaptive_icon_background: "#222222" # only available for Android 8.0 devices and above
+  adaptive_icon_foreground: "assets/Icon-512.png" # only available for Android 8.0 devices and above
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/Icon-512.png"
+    background_color: "#222222"
+    theme_color: "#222222"
+  windows:
+    generate: true
+    image_path: "assets/Icon-512.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: false
+    image_path: "assets/Icon-512.png"

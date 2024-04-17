@@ -68,12 +68,12 @@ Widget _kbTextSquare(kbLetter, kbRowLength) {
                   ? Container(
                       padding: const EdgeInsets.all(7),
                       child: Obx(() => Icon(
-                          game.isillegalFiveLetterWord()
+                          game.isIllegalFiveLetterWord()
                               ? Icons.cancel
                               : game.getReadyForStreakCurrentRow()
                                   ? Icons.fast_forward
                                   : Icons.keyboard_return_sharp,
-                          color: game.isillegalFiveLetterWord()
+                          color: game.isIllegalFiveLetterWord()
                               ? red
                               : game.getReadyForStreakCurrentRow()
                                   ? green

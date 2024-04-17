@@ -54,7 +54,6 @@ class Game extends GetxController {
   }
 
   void onKeyboardTapped(String letter) {
-    //String letter = keyboardList[index];
     printCheatTargetWords();
     fixTitle();
 
@@ -667,7 +666,7 @@ class Game extends GetxController {
     return currentTyping[col].value;
   }
 
-  bool isillegalFiveLetterWord() {
+  bool isIllegalFiveLetterWord() {
     return illegalFiveLetterWord.value;
   }
 

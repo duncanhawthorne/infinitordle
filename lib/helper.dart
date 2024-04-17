@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 import 'package:infinitordle/card_flips.dart';
@@ -12,7 +11,9 @@ import 'package:infinitordle/screen.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/firebase.dart';
-import 'package:web/web.dart' as web;
+
+import 'package:infinitordle/title_fix_stub.dart'
+    if (dart.library.js_interop) 'package:infinitordle/title_fix_web.dart';
 
 Game game = Game();
 Save save = Save();
@@ -77,41 +78,7 @@ List getBlankFirstKnowledge(numberOfBoards) {
 }
 
 void fixTitle() {
-  if (isiOSMobile) {
-    fixTitle1();
-    fixTitle2();
-    fixTitle3();
-  }
-}
-
-void fixTitle1() {
-  //https://github.com/flutter/flutter/issues/98248
-  if (true) {
-    SystemChrome.setApplicationSwitcherDescription(ApplicationSwitcherDescription(
-        label: appTitle,
-        primaryColor: bg
-            .value //Theme.of(context).primaryColor.value, // This line is required
-        ));
-  }
-}
-
-void fixTitle2() {
-  var url = web.window.location.href;
-  web.window.history.replaceState(
-    //or pushState
-    web.window.history.state, // Note that we don't change the historyState
-    appTitle,
-    url,
-  );
-}
-
-void fixTitle3() {
-  var url = web.window.location.href;
-  web.window.history.pushState(
-    web.window.history.state, // Note that we don't change the historyState
-    appTitle,
-    url,
-  );
+  fixTitleReal(); //either from web or stub
 }
 
 Future<void> sleep(delayAfterMult) async {
