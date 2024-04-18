@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 
@@ -8,6 +9,9 @@ class Save {
     final prefs = await SharedPreferences.getInstance();
     g.setUser(prefs.getString('gUser') ?? gUserDefault);
     g.setUserIcon(prefs.getString('gUserIcon') ?? gUserIconDefault);
+    if (g.getUserIcon() != gUserIconDefault) {
+      NetworkImage(g.getUserIcon()); //pre-load
+    }
     p(["loadUser", g.getUser(), g.getUserIcon()]);
   }
 
