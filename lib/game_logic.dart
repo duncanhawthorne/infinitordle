@@ -125,9 +125,34 @@ class Game extends GetxController {
         firstKnowledgeToFix, isWin, maxAbRowOfBoard);
   }
 
+  void gradualRevealAbRow(abRow) {
+    // flip to reveal the colors with pleasing animation
+    for (int i = 0; i < cols; i++) {
+      if (!abCardFlourishFlipAngles.containsKey(abRow)) {
+        abCardFlourishFlipAngles[abRow] =
+            List<RxDouble>.generate(cols, (i) => 0.0.obs);
+      }
+      abCardFlourishFlipAngles[abRow][i].value = 0.5;
+    }
+    //setStateGlobal();
+    for (int i = 0; i < cols; i++) {
+      Future.delayed(Duration(milliseconds: gradualRevealDelayTime * i), () {
+        abCardFlourishFlipAngles[abRow][i].value = 0.0;
+        if (i == cols - 1) {
+          if (abCardFlourishFlipAngles.containsKey(abRow)) {
+            // Due to delays check still exists before remove
+            abCardFlourishFlipAngles.remove(abRow);
+            //setStateGlobal(); //needed even with getx .obs to refresh keyboard
+          }
+        }
+        //setStateGlobal();
+      });
+    }
+  }
+
   Future<void> handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
       firstKnowledgeToFix, isWin, maxAbRowOfBoard) async {
-    //Delay for flips.gradualRevealAbRow to have taken effect
+    //Delay for visual changes to have taken effect
     await sleep(gradualRevealRowTime + visualCatchUpTime);
 
     //Code for losing game
@@ -169,58 +194,26 @@ class Game extends GetxController {
       firstKnowledgeToFix++;
     }
 
-    // Pause, so can temporarily see position after stepped back
-    //await wait(delayMult * 250);
-
     await unflipSwapFlip(
         cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
   }
 
-  Future<int> slideUpAnimation() async {
-    if (true) {
-      //getGbCurrentRowInt() > 0) {
-      // Check not at top of board
-      // Current row would type in next must not be row zero
-      // Else after slide would be off top of gameboard
-
-      // Possible due to delay functions from previous entries
-      // Or if switch from expanding board to non-expanding
-
-      //Slide the cards up visually, creating the illusion of stepping up
-      setTemporaryVisualOffsetForSlide(1);
-      //setStateGlobal();
-
-      await sleep(slideTime);
-      //await wait(delayMult * 50);
-
-      // Delay for sliding cards up to have taken effect
-
-      // Undo the visual slide (and do this instantaneously)
-      setTemporaryVisualOffsetForSlide(0);
-
-      // Actually move the cards up, so state matches visual illusion above
-      takeOneStepBack();
-
-      // Pause, so can temporarily see new position
-      await sleep(visualCatchUpTime);
-      return 1;
-    }
-    //return 0;
-  }
-
-  Future<void> unflipSwapFlip(
-      cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
-    setBoardFlourishFlipAngle(winningBoardToFix, cardAbRowPreGuessToFix);
+  Future<void> slideUpAnimation() async {
+    //Slide the cards up visually, creating the illusion of stepping up
+    setTemporaryVisualOffsetForSlide(1);
     //setStateGlobal();
 
-    // Cards are now in the right place and state matches visuals
+    // Delay for sliding cards up to have taken effect
+    await sleep(slideTime);
 
+    // Undo the visual slide (and do this instantaneously)
+    setTemporaryVisualOffsetForSlide(0);
+
+    // Actually move the cards up, so state matches visual illusion above
+    takeOneStepBack();
+
+    // Pause, so can temporarily see new position
     await sleep(visualCatchUpTime);
-    // Log the win (show row green), and get a new word
-    logWinAndSetNewWord(
-        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
-    setBoardFlourishFlipAngle(winningBoardToFix, -1);
-    //setStateGlobal();
   }
 
   void takeOneStepBack() {
@@ -231,12 +224,31 @@ class Game extends GetxController {
     setStateGlobal();
   }
 
+  Future<void> unflipSwapFlip(
+      cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
+    //unflip
+    setBoardFlourishFlipAngle(winningBoardToFix, cardAbRowPreGuessToFix);
+    //setStateGlobal();
+    await sleep(flipTime);
+    await sleep(visualCatchUpTime - flipTime);
+
+    // Log the win officially, and get a new word
+    logWinAndSetNewWord(
+        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+
+    //flip
+    setBoardFlourishFlipAngle(winningBoardToFix, -1);
+    //setStateGlobal();
+    await sleep(flipTime);
+    await sleep(visualCatchUpTime);
+  }
+
   void logWinAndSetNewWord(
       winRecordBoardsIndexToFix, winningBoardToFix, firstKnowledgeToFix) {
     // This function is run after a delay so need to make sure threadsafe
     // Use variables at the time word was entered rather than live variables
 
-    // Log the word just entered as a win, which gets green to show
+    // Log the word just entered as a win in the official record
     // Fix the fact that we stored a -1 in this place temporarily
     if (winRecordBoards.length > winRecordBoardsIndexToFix) {
       winRecordBoards[winRecordBoardsIndexToFix] = winningBoardToFix;
@@ -250,31 +262,6 @@ class Game extends GetxController {
 
     save.saveKeys();
     setStateGlobal();
-  }
-
-  void gradualRevealAbRow(abRow) {
-    // flip to reveal the colors with pleasing animation
-    for (int i = 0; i < cols; i++) {
-      if (!abCardFlourishFlipAngles.containsKey(abRow)) {
-        abCardFlourishFlipAngles[abRow] =
-            List<RxDouble>.generate(cols, (i) => 0.0.obs);
-      }
-      abCardFlourishFlipAngles[abRow][i].value = 0.5;
-    }
-    //setStateGlobal();
-    for (int i = 0; i < cols; i++) {
-      Future.delayed(Duration(milliseconds: gradualRevealDelay * i), () {
-        abCardFlourishFlipAngles[abRow][i].value = 0.0;
-        if (i == cols - 1) {
-          if (abCardFlourishFlipAngles.containsKey(abRow)) {
-            // Due to delays check still exists before remove
-            abCardFlourishFlipAngles.remove(abRow);
-            //setStateGlobal(); //needed even with getx .obs to refresh keyboard
-          }
-        }
-        //setStateGlobal();
-      });
-    }
   }
 
   void cheatInitiate() {

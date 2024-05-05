@@ -105,7 +105,7 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
     children: [
       AnimatedPositioned(
         //curve: Curves.fastOutSlowIn,
-        duration: Duration(milliseconds: timeFactorOfSlide * slideTime),
+        duration: Duration(milliseconds: timeFactorOfSlide * (slideTime - renderTwoFramesTime)), // move slightly quicker so have two frames to re-render final position
         top: cardSlideOffset + cardScaleOffset,
         left: cardScaleOffset,
         height: cardSize,

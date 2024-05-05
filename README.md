@@ -3,7 +3,7 @@ infinitordle is a cross between Wordle and Tetris. Solve as many words as you ca
 
 * How many words can you get before you run out of lives?
 * Can you clear the board and reach infinitordle? 
-* Play infinitordle at https://duncanhawthorne.github.io/#/
+* Play infinitordle at https://infinitordle.web.app
 
 ![](https://raw.githubusercontent.com/duncanhawthorne/infinitordle/main/infinitordle.png)
 

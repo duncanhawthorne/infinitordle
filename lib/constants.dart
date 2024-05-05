@@ -82,10 +82,11 @@ const noAnimations = false;
 const slowDownFactor = cheatMode ? 1 : 1;
 const int durMult = noAnimations ? 0 : 1 * slowDownFactor;
 const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
-const gradualRevealDelay = delayMult * 150;
+const gradualRevealDelayTime = delayMult * 150;
 const slideTime = durMult * 200;
 const flipTime = durMult * 500;
-const gradualRevealRowTime = gradualRevealDelay * (cols - 1) + flipTime;
+const renderTwoFramesTime = delayMult * 33; // so that set state and animations don't happen exactly simultaneously
+const gradualRevealRowTime = gradualRevealDelayTime * (cols - 1) + flipTime;
 const visualCatchUpTime = delayMult * 750;
 
 //Screen constants
