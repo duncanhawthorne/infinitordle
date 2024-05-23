@@ -2,7 +2,8 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
-import 'package:get/get.dart';
+//import 'package:get/get.dart';
+import 'package:refreshed/refreshed.dart';
 
 class Game extends GetxController {
   //State to save

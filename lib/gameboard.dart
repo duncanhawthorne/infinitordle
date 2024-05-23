@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:stroke_text/stroke_text.dart';
-import 'package:get/get.dart';
+//import 'package:get/get.dart';
+import 'package:refreshed/refreshed.dart';
 
 Widget gameboardWidget(boardNumber) {
   bool expandingBoard = game.getExpandingBoard();
