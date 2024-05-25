@@ -7,6 +7,7 @@ import 'package:infinitordle/wordlist.dart';
 
 //Debug
 const bool cheatMode = false;
+const bool newLoginButtons = false;
 
 //Branding
 const String appTitle = "infinitordle";

@@ -1,44 +1,18 @@
 {
   "hosting": {
-
     "public": "build/web",  
-
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-
-    "redirects": [ {
-      "source": "/foo",
-      "destination": "/bar",
-      "type": 301
-    }, {
-      "source": "/firebase/**",
-      "destination": "https://www.firebase.com",
-      "type": 302
-    } ],
-
-    "rewrites": [ {
-      "source": "/app/**",
-      "destination": "/app/index.html"
-    }, {
-      "source": "/promos/**",
-      "dynamicLinks": true
-    } ],
-
-    "headers": [ {
-      "source": "**/*.@(eot|otf|ttf|ttc|woff|font.css)",
-      "headers": [ {
-        "key": "Access-Control-Allow-Origin",
-        "value": "*"
-      } ]
-    }, {
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  }, 
+  "headers": [{
       "source": "**/*.@(jpg|jpeg|gif|png|html)",
-      "headers": [ {
-        "key": "Cache-Control",
-        "value": "max-age=7200"
-      },
+      "headers": [ 
 	        {
         "key": "Cross-Origin-Embedder-Policy",
         "value": "credentialless"
@@ -51,10 +25,7 @@
     }, 
 	{
       "source": "**",
-      "headers": [ {
-        "key": "Cache-Control",
-        "value": "max-age=7200"
-      },
+      "headers": [ 
 	        {
         "key": "Cross-Origin-Embedder-Policy",
         "value": "credentialless"
@@ -64,20 +35,5 @@
         "value": "same-origin"
       }
 	  ]
-    }, 
-	{
-      "source": "404.html",
-      "headers": [ {
-        "key": "Cache-Control",
-        "value": "max-age=300"
-      } ]
-    } ],
-
-    "cleanUrls": false,
-
-    "trailingSlash": false,
-
-    "appAssociation": "AUTO"
-
-  }
+    } ]
 }
