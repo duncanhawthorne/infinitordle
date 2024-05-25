@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "build/web",  
+    "public": "build/web",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -8,32 +8,21 @@
     ],
     "frameworksBackend": {
       "region": "us-central1"
-    }
-  }, 
-  "headers": [{
-      "source": "**/*.@(jpg|jpeg|gif|png|html)",
-      "headers": [ 
-	        {
-        "key": "Cross-Origin-Embedder-Policy",
-        "value": "credentialless"
-      },
+    },
+    "headers": [
       {
-        "key": "Cross-Origin-Opener-Policy",
-        "value": "same-origin"
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cross-Origin-Embedder-Policy",
+            "value": "credentialless"
+          },
+          {
+            "key": "Cross-Origin-Opener-Policy",
+            "value": "same-origin"
+          }
+        ]
       }
-	  ]
-    }, 
-	{
-      "source": "**",
-      "headers": [ 
-	        {
-        "key": "Cross-Origin-Embedder-Policy",
-        "value": "credentialless"
-      },
-      {
-        "key": "Cross-Origin-Opener-Policy",
-        "value": "same-origin"
-      }
-	  ]
-    } ]
+    ]
+  }
 }

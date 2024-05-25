@@ -63,9 +63,10 @@ class Google {
     });
   }
 
-  void signInSilently() {
+  void signInSilently() async {
     if (gOn) {
-      googleSignIn.signInSilently();
+      await googleSignIn.signInSilently();
+      successfulLoginExtractDetails();
     }
   }
 
@@ -77,6 +78,7 @@ class Google {
           debugLoginExtractDetails();
         } else {
           await googleSignIn.signIn();
+          successfulLoginExtractDetails();
         }
       } catch (error) {
         p(error);
@@ -90,6 +92,7 @@ class Google {
       } else {
         try {
           await googleSignIn.disconnect();
+          logoutExtractDetails();
         } catch (e) {
           p(e);
         }
