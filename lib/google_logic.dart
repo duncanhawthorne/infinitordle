@@ -27,7 +27,7 @@ Widget lockStyleSignInButton(context) {
         focusNode.requestFocus();
       }
       catch(e) {
-        p("No pop");
+        p(["No pop", e]);
       }
     },
   );
@@ -80,8 +80,8 @@ class Google {
           await googleSignIn.signIn();
           successfulLoginExtractDetails();
         }
-      } catch (error) {
-        p(error);
+      } catch (e) {
+        p(["signInDirectly", e]);
       }
     }
   }
@@ -94,7 +94,7 @@ class Google {
           await googleSignIn.disconnect();
           logoutExtractDetails();
         } catch (e) {
-          p(e);
+          p(["signOut", e]);
         }
       }
       //logoutExtractDetails(); //now handled by listener
@@ -121,8 +121,8 @@ class Google {
   }
 
   void successfulLoginExtractDetails() async {
-    p("login extract details");
     if (_user != null) {
+      p("login extract details");
       gUser = _user!.email;
       if (_user!.photoUrl != null) {
         gUserIcon = _user!.photoUrl ?? gUserIconDefault;
