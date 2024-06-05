@@ -11,12 +11,13 @@ class CardColors {
   List<dynamic> firstRowsToShowCache = List.filled(numBoards, 0);
   List<dynamic> targetWordsCacheForKey = List.filled(numBoards, "x");
   List<dynamic> targetWordsCacheForCard = List.filled(numBoards, "x");
-  int abCurrentRowIntCache = 0;
+  int getLastCardToConsiderForKeyColorsCache = 0;
 
   Color getBestColorForLetter(queryLetter, boardNumber) {
     int kbIndex = keyboardList.indexOf(queryLetter);
 
-    if (game.getLastCardToConsiderForKeyColors() != abCurrentRowIntCache ||
+    if (game.getLastCardToConsiderForKeyColors() !=
+            getLastCardToConsiderForKeyColorsCache ||
         !listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
             firstRowsToShowCache) ||
         !listEqual(game.getCurrentTargetWords(), targetWordsCacheForKey)) {
@@ -162,7 +163,8 @@ class CardColors {
       firstRowsToShowCache[i] =
           game.getFirstAbRowToShowOnBoardDueToKnowledge(i);
     }
-    abCurrentRowIntCache = game.getLastCardToConsiderForKeyColors();
+    getLastCardToConsiderForKeyColorsCache =
+        game.getLastCardToConsiderForKeyColors();
 
     keyColorsCache = [];
     for (int i = 0; i < numBoards; i++) {

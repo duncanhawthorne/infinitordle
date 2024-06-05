@@ -44,9 +44,9 @@ dependencies:
   google_fonts: ^6.1.0 
   stroke_text: any
   
-  get: any # manual edit to code as per https://github.com/jonataslaw/getx/commit/a0c6631618c430e2b82fb3d278c9fd9eb174ece1 #still doesn't work with ^5.0.0-release-candidate-5
+  #get: any # manual edit to code as per https://github.com/jonataslaw/getx/commit/a0c6631618c430e2b82fb3d278c9fd9eb174ece1 #still doesn't work with ^5.0.0-release-candidate-5
   web: any
-  refreshed: ^2.6.3
+  #refreshed: ^2.6.3
 
 dev_dependencies:
   flutter_test:

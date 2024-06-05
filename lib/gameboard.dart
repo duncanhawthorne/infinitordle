@@ -3,8 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
-//import 'package:get/get.dart';
-import 'package:refreshed/refreshed.dart';
 import 'package:stroke_text/stroke_text.dart';
 
 Widget gameboardWidget(boardNumber) {
@@ -57,14 +55,13 @@ Widget _cardFlipperAlts(abIndex, boardNumber) {
       : ValueListenableBuilder<int>(
           valueListenable: game.boardFlourishFlipRows[boardNumber],
           builder: (BuildContext context, int value, Widget? child) {
-            return Obx(() => _cardFlipper(abIndex, boardNumber));
+            return ValueListenableBuilder<Map>(
+                valueListenable: game.abCardFlourishFlipAngles,
+                builder: (BuildContext context, var value, Widget? child) {
+                  return _cardFlipper(abIndex, boardNumber);
+                });
           },
         );
-
-  /*
-  Obx(() => _cardFlipper(abIndex, boardNumber));
-
-   */
 }
 
 Widget _cardFlipper(abIndex, boardNumber) {

@@ -28,10 +28,10 @@ class Flips {
   double getFlourishFlipAngle(abIndex) {
     int abRow = abIndex ~/ cols;
     int i = abIndex % cols;
-    if (!game.abCardFlourishFlipAngles.containsKey(abRow)) {
+    if (!game.abCardFlourishFlipAngles.value.containsKey(abRow)) {
       return 0;
     } else {
-      return game.abCardFlourishFlipAngles[abRow][i].value;
+      return game.abCardFlourishFlipAngles.value[abRow]![i];
     }
   }
 

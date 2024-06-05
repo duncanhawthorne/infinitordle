@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
-//import 'package:get/get.dart';
-import 'package:refreshed/refreshed.dart';
 import 'package:stroke_text/stroke_text.dart';
 
 Widget keyboardRowWidget(keyBoardStartKeyIndex, kbRowLength) {
@@ -124,7 +122,11 @@ Widget _kbMiniGrid(kbLetter, kbRowLength) {
             itemBuilder: (BuildContext context, int subIndex) {
               //Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
               //return _kbMiniSquareColorCache[color];
-              return Obx(() => _kbMiniSquareColorChooser(kbLetter, subIndex));
+              return ValueListenableBuilder<Map>(
+                  valueListenable: game.abCardFlourishFlipAngles,
+                  builder: (BuildContext context, var value, Widget? child) {
+                    return _kbMiniSquareColorChooser(kbLetter, subIndex);
+                  });
             });
       });
 }

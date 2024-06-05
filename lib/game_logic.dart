@@ -4,10 +4,27 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
-//import 'package:get/get.dart';
-import 'package:refreshed/refreshed.dart';
 
-class Game extends GetxController {
+class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
+  CustomMapNotifier() : super({});
+
+  void set(int abRow, int column, double tvalue) {
+    if (!value.containsKey(abRow)) {
+      value[abRow] = List<double>.generate(cols, (i) => 0.0);
+    }
+    value[abRow]![column] = tvalue;
+    notifyListeners();
+  }
+
+  void remove(int key) {
+    if (value.containsKey(key)) {
+      value.remove(key);
+    }
+    notifyListeners();
+  }
+}
+
+class Game {
   //State to save
   List<dynamic> targetWords = ["x"];
   List<dynamic> enteredWords = ["x"];
@@ -26,7 +43,7 @@ class Game extends GetxController {
   bool aboutToWinCache = false;
   final temporaryVisualOffsetForSlide = ValueNotifier(0);
   String gameEncodedLastCache = "";
-  var abCardFlourishFlipAngles = {}.obs;
+  var abCardFlourishFlipAngles = CustomMapNotifier(); //{}.obs;
   final boardFlourishFlipRows =
       List<ValueNotifier<int>>.generate(cols, (i) => ValueNotifier(100));
   final illegalFiveLetterWord = ValueNotifier(false);
@@ -46,7 +63,7 @@ class Game extends GetxController {
     aboutToWinCache = false;
     setTemporaryVisualOffsetForSlide(0);
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
-    for (var item in abCardFlourishFlipAngles.keys) {
+    for (var item in abCardFlourishFlipAngles.value.keys) {
       abCardFlourishFlipAngles.remove(item);
     }
     clearBoardFlourishFlipRows();
@@ -133,18 +150,14 @@ class Game extends GetxController {
   void gradualRevealAbRow(abRow) {
     // flip to reveal the colors with pleasing animation
     for (int i = 0; i < cols; i++) {
-      if (!abCardFlourishFlipAngles.containsKey(abRow)) {
-        abCardFlourishFlipAngles[abRow] =
-            List<RxDouble>.generate(cols, (i) => 0.0.obs);
-      }
-      abCardFlourishFlipAngles[abRow][i].value = 0.5;
+      setAbCardFlourishFlipAngle(abRow, i, 0.5);
     }
     //setStateGlobal();
     for (int i = 0; i < cols; i++) {
       Future.delayed(Duration(milliseconds: gradualRevealDelayTime * i), () {
-        abCardFlourishFlipAngles[abRow][i].value = 0.0;
+        setAbCardFlourishFlipAngle(abRow, i, 0.0);
         if (i == cols - 1) {
-          if (abCardFlourishFlipAngles.containsKey(abRow)) {
+          if (abCardFlourishFlipAngles.value.containsKey(abRow)) {
             // Due to delays check still exists before remove
             abCardFlourishFlipAngles.remove(abRow);
             //setStateGlobal(); //needed even with getx .obs to refresh keyboard
@@ -543,15 +556,27 @@ class Game extends GetxController {
     //  return enteredWords.length * cols;
     //}
     int count = 0;
-    for (int key in abCardFlourishFlipAngles.keys) {
+    for (int key in abCardFlourishFlipAngles.value.keys) {
       for (int i = 0; i < cols; i++) {
-        if (abCardFlourishFlipAngles[key][i].value > 0) {
+        if (abCardFlourishFlipAngles.value[key]![i] > 0) {
           count++;
         }
       }
       //count = (abCardFlourishFlipAngles[key]).where((x) => x > 0.0 ?? false).length + count;
     }
     return enteredWords.length * cols - count;
+  }
+
+  void setAbCardFlourishFlipAngle(int abRow, int column, double value) {
+    abCardFlourishFlipAngles.set(abRow, column, value);
+    /*
+    if (!abCardFlourishFlipAngles.containsKey(abRow)) {
+      abCardFlourishFlipAngles[abRow] =
+      List<RxDouble>.generate(cols, (i) => 0.0.obs);
+    }
+    abCardFlourishFlipAngles[abRow][column].value = value;
+
+     */
   }
 
   void clearBoardFlourishFlipRows() {
