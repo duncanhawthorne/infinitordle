@@ -55,7 +55,7 @@ Widget _cardFlipperAlts(abIndex, boardNumber) {
   return abRow > game.getAbCurrentRowInt()
       ? _cardFlipper(abIndex, boardNumber)
       : ValueListenableBuilder<int>(
-          valueListenable: game.boardFlourishFlipAngles[boardNumber],
+          valueListenable: game.boardFlourishFlipRows[boardNumber],
           builder: (BuildContext context, int value, Widget? child) {
             return Obx(() => _cardFlipper(abIndex, boardNumber));
           },
@@ -154,10 +154,9 @@ Widget _cardChooser(abIndex, boardNumber, facingFront) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
-      game.getBoardFlourishFlipAngle(boardNumber) != -1 &&
-          abRow == game.getBoardFlourishFlipAngle(boardNumber);
-  bool justFlippedBackToFront =
-      game.getBoardFlourishFlipAngle(boardNumber) != -1;
+      game.getBoardFlourishFlipRow(boardNumber) != -1 &&
+          abRow == game.getBoardFlourishFlipRow(boardNumber);
+  bool justFlippedBackToFront = game.getBoardFlourishFlipRow(boardNumber) != -1;
   bool hideCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
           abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||

@@ -36,7 +36,7 @@ class Flips {
   }
 
   double getFlourishBoardFlipAngle(boardNumber) {
-    if (game.getBoardFlourishFlipAngle(boardNumber) == -1) {
+    if (game.getBoardFlourishFlipRow(boardNumber) == -1) {
       return 0;
     } else {
       return 0.5;
