@@ -6,6 +6,17 @@ import 'package:infinitordle/helper.dart';
 import 'package:stroke_text/stroke_text.dart';
 
 Widget gameboardWidget(boardNumber) {
+  return game.expandingBoard
+      ? ValueListenableBuilder<int>(
+          valueListenable: game.pushUpStepsNotifier,
+          builder: (BuildContext context, int value, Widget? child) {
+            return gameboardWidgetReal(boardNumber);
+          },
+        )
+      : gameboardWidgetReal(boardNumber);
+}
+
+Widget gameboardWidgetReal(boardNumber) {
   bool expandingBoard = game.getExpandingBoard();
   int boardNumberRows = game.getGbLiveNumRowsPerBoard();
   // ignore: sized_box_for_whitespace
@@ -43,25 +54,38 @@ Widget gameboardWidgetWithNRows(boardNumber, boardNumberRows, expandingBoard) {
         crossAxisCount: cols,
       ),
       itemBuilder: (BuildContext context, int rGbIndex) {
-        return _cardFlipperAlts(getABIndexFromRGBIndex(rGbIndex), boardNumber);
+        return game.expandingBoard
+            ? _cardFlipperAlts(getABIndexFromRGBIndex(rGbIndex), boardNumber)
+            : ValueListenableBuilder<int>(
+                valueListenable: game.pushUpStepsNotifier,
+                builder: (BuildContext context, int value, Widget? child) {
+                  return _cardFlipperAlts(
+                      getABIndexFromRGBIndex(rGbIndex), boardNumber);
+                },
+              );
       });
 }
 
 Widget _cardFlipperAlts(abIndex, boardNumber) {
   int abRow = abIndex ~/ cols;
   //only test this if relevant, to help GetX hack .obs
-  return abRow > game.getAbCurrentRowInt()
-      ? _cardFlipper(abIndex, boardNumber)
-      : ValueListenableBuilder<int>(
-          valueListenable: game.boardFlourishFlipRows[boardNumber],
-          builder: (BuildContext context, int value, Widget? child) {
-            return ValueListenableBuilder<Map>(
-                valueListenable: game.abCardFlourishFlipAngles,
-                builder: (BuildContext context, var value, Widget? child) {
-                  return _cardFlipper(abIndex, boardNumber);
-                });
-          },
-        );
+  return ValueListenableBuilder<int>(
+      valueListenable: game.currentRowChangedNotifier,
+      builder: (BuildContext context, int value, Widget? child) {
+        return abRow > game.getAbCurrentRowInt()
+            ? _cardFlipper(abIndex, boardNumber)
+            : ValueListenableBuilder<int>(
+                valueListenable: game.boardFlourishFlipRows[boardNumber],
+                builder: (BuildContext context, int value, Widget? child) {
+                  return ValueListenableBuilder<Map>(
+                      valueListenable: game.abCardFlourishFlipAngles,
+                      builder:
+                          (BuildContext context, var value, Widget? child) {
+                        return _cardFlipper(abIndex, boardNumber);
+                      });
+                },
+              );
+      });
 }
 
 Widget _cardFlipper(abIndex, boardNumber) {
@@ -131,16 +155,22 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
               child: ValueListenableBuilder<int>(
                 valueListenable: game.highlightedBoard,
                 builder: (BuildContext context, int value, Widget? child) {
-                  return abRow == game.getAbCurrentRowInt()
-                      ? ValueListenableBuilder<String>(
-                          valueListenable: game.currentTyping[abIndex % cols],
-                          builder: (BuildContext context, String value,
-                              Widget? child) {
-                            return _cardChooser(
-                                abIndex, boardNumber, facingFront);
-                          },
-                        )
-                      : _cardChooser(abIndex, boardNumber, facingFront);
+                  return ValueListenableBuilder<int>(
+                    valueListenable: game.currentRowChangedNotifier,
+                    builder: (BuildContext context, int value, Widget? child) {
+                      return abRow == game.getAbCurrentRowInt()
+                          ? ValueListenableBuilder<String>(
+                              valueListenable:
+                                  game.currentTyping[abIndex % cols],
+                              builder: (BuildContext context, String value,
+                                  Widget? child) {
+                                return _cardChooser(
+                                    abIndex, boardNumber, facingFront);
+                              },
+                            )
+                          : _cardChooser(abIndex, boardNumber, facingFront);
+                    },
+                  );
                 },
               ))),
     ],

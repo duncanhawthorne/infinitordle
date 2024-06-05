@@ -122,10 +122,21 @@ Widget _kbMiniGrid(kbLetter, kbRowLength) {
             itemBuilder: (BuildContext context, int subIndex) {
               //Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
               //return _kbMiniSquareColorCache[color];
-              return ValueListenableBuilder<Map>(
-                  valueListenable: game.abCardFlourishFlipAngles,
-                  builder: (BuildContext context, var value, Widget? child) {
-                    return _kbMiniSquareColorChooser(kbLetter, subIndex);
+              return ValueListenableBuilder<int>(
+                  valueListenable: game.pushUpStepsNotifier,
+                  builder: (BuildContext context, int value, Widget? child) {
+                    return ValueListenableBuilder<int>(
+                        valueListenable: game.targetWordsChangedNotifier,
+                        builder:
+                            (BuildContext context, var value, Widget? child) {
+                          return ValueListenableBuilder<Map>(
+                              valueListenable: game.abCardFlourishFlipAngles,
+                              builder: (BuildContext context, var value,
+                                  Widget? child) {
+                                return _kbMiniSquareColorChooser(
+                                    kbLetter, subIndex);
+                              });
+                        });
                   });
             });
       });

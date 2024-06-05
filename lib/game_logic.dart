@@ -30,7 +30,13 @@ class Game {
   List<dynamic> enteredWords = ["x"];
   List<dynamic> winRecordBoards = [-1];
   List<dynamic> firstKnowledge = ["x"];
-  int pushUpSteps = -1;
+
+  //int pushUpSteps = -1;
+  final pushUpStepsNotifier = ValueNotifier(-1);
+
+  int get pushUpSteps => pushUpStepsNotifier.value;
+
+  set pushUpSteps(int value) => pushUpStepsNotifier.value = value;
   bool expandingBoard = false;
   bool expandingBoardEver = false;
 
@@ -47,6 +53,8 @@ class Game {
   final boardFlourishFlipRows =
       List<ValueNotifier<int>>.generate(cols, (i) => ValueNotifier(100));
   final illegalFiveLetterWord = ValueNotifier(false);
+  final targetWordsChangedNotifier = ValueNotifier(0);
+  final currentRowChangedNotifier = ValueNotifier(0);
 
   void initiateBoard() {
     targetWords = getNewTargetWords(numBoards);
@@ -68,6 +76,8 @@ class Game {
     }
     clearBoardFlourishFlipRows();
     setIllegalFiveLetterWord(false);
+    targetWordsChangedNotifier.value++;
+    currentRowChangedNotifier.value++;
 
     if (cheatMode) {
       cheatInitiate();
@@ -126,6 +136,7 @@ class Game {
     enteredWords.add(getCurrentTyping());
     setCurrentTyping("");
     winRecordBoards.add(-2); //Add now, fix value later
+    currentRowChangedNotifier.value++;
     if (fbAnalytics) {
       analytics!.logLevelUp(level: enteredWords.length);
     }
@@ -140,7 +151,7 @@ class Game {
     }
 
     save.saveKeys();
-    setStateGlobal(); //non-ephemeral state change, so needs setState even with GetX .obs
+    //setStateGlobal(); //non-ephemeral state change, so needs setState even with GetX .obs
 
     gradualRevealAbRow(cardAbRowPreGuessToFix);
     handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
@@ -239,7 +250,7 @@ class Game {
     // Use variables at the time word was entered rather than live variables
     pushUpSteps++;
     save.saveKeys();
-    setStateGlobal();
+    //setStateGlobal();
   }
 
   Future<void> unflipSwapFlip(
@@ -277,9 +288,10 @@ class Game {
 
     // Create new target word for the board
     targetWords[winningBoardToFix] = getNewTargetWord();
+    targetWordsChangedNotifier.value++;
 
     save.saveKeys();
-    setStateGlobal();
+    //setStateGlobal();
   }
 
   void cheatInitiate() {
