@@ -72,10 +72,18 @@ Widget _kbTextSquare(kbLetter, kbRowLength) {
                             (BuildContext context, bool value, Widget? child) {
                           return game.isIllegalFiveLetterWord()
                               ? const Icon(Icons.cancel, color: red)
-                              : game.getReadyForStreakCurrentRow()
-                                  ? const Icon(Icons.fast_forward, color: green)
-                                  : const Icon(Icons.keyboard_return_sharp,
-                                      color: white);
+                              : ValueListenableBuilder<int>(
+                                  valueListenable:
+                                      game.currentRowChangedNotifier,
+                                  builder: (BuildContext context, int value,
+                                      Widget? child) {
+                                    return game.getReadyForStreakCurrentRow()
+                                        ? const Icon(Icons.fast_forward,
+                                            color: green)
+                                        : const Icon(
+                                            Icons.keyboard_return_sharp,
+                                            color: white);
+                                  });
                         },
                       ))
                   : _kbRegularTextCache[kbLetter]));
