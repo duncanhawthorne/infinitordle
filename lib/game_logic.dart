@@ -1,5 +1,7 @@
-import 'dart:math';
 import 'dart:convert';
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
 //import 'package:get/get.dart';
@@ -16,16 +18,18 @@ class Game extends GetxController {
   bool expandingBoardEver = false;
 
   //Other state non-saved
-  var currentTyping = List<RxString>.generate(cols, (i) => "".obs);
-  var highlightedBoard = 0.obs;
+  var currentTyping =
+      List<ValueNotifier<String>>.generate(cols, (i) => ValueNotifier(""));
+  final highlightedBoard = ValueNotifier(0);
 
   //transitive state
   bool aboutToWinCache = false;
-  var temporaryVisualOffsetForSlide = 0.obs;
+  final temporaryVisualOffsetForSlide = ValueNotifier(0);
   String gameEncodedLastCache = "";
   var abCardFlourishFlipAngles = {}.obs;
-  var boardFlourishFlipAngles = List<RxInt>.generate(cols, (i) => 100.obs);
-  var illegalFiveLetterWord = false.obs;
+  var boardFlourishFlipAngles =
+      List<ValueNotifier<int>>.generate(cols, (i) => ValueNotifier(100));
+  final illegalFiveLetterWord = ValueNotifier(false);
 
   void initiateBoard() {
     targetWords = getNewTargetWords(numBoards);
@@ -647,7 +651,9 @@ class Game extends GetxController {
   }
 
   String getCurrentTyping() {
-    return currentTyping.join();
+    return currentTyping
+        .map((var element) => element.value)
+        .reduce((value, element) => value + element);
   }
 
   String getCurrentTypingAtCol(col) {

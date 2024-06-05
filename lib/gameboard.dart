@@ -1,10 +1,11 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:infinitordle/helper.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:stroke_text/stroke_text.dart';
+import 'package:infinitordle/helper.dart';
 //import 'package:get/get.dart';
 import 'package:refreshed/refreshed.dart';
+import 'package:stroke_text/stroke_text.dart';
 
 Widget gameboardWidget(boardNumber) {
   bool expandingBoard = game.getExpandingBoard();
@@ -53,7 +54,17 @@ Widget _cardFlipperAlts(abIndex, boardNumber) {
   //only test this if relevant, to help GetX hack .obs
   return abRow > game.getAbCurrentRowInt()
       ? _cardFlipper(abIndex, boardNumber)
-      : Obx(() => _cardFlipper(abIndex, boardNumber));
+      : ValueListenableBuilder<int>(
+          valueListenable: game.boardFlourishFlipAngles[boardNumber],
+          builder: (BuildContext context, int value, Widget? child) {
+            return Obx(() => _cardFlipper(abIndex, boardNumber));
+          },
+        );
+
+  /*
+  Obx(() => _cardFlipper(abIndex, boardNumber));
+
+   */
 }
 
 Widget _cardFlipper(abIndex, boardNumber) {
@@ -70,9 +81,12 @@ Widget _cardFlipper(abIndex, boardNumber) {
               : Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()..rotateX(pi),
-                  child: Obx(
-                      () => _positionedScaledCard(abIndex, boardNumber, true)),
-                ),
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: game.temporaryVisualOffsetForSlide,
+                    builder: (BuildContext context, int value, Widget? child) {
+                      return _positionedScaledCard(abIndex, boardNumber, true);
+                    },
+                  )),
         ));
       });
 }
@@ -105,17 +119,33 @@ Widget _positionedScaledCard(abIndex, boardNumber, facingFront) {
         : Clip.none, //clipping is slow so clip only when necessary
     children: [
       AnimatedPositioned(
-        //curve: Curves.fastOutSlowIn,
-        duration: Duration(milliseconds: timeFactorOfSlide * (slideTime - renderTwoFramesTime)), // move slightly quicker so have two frames to re-render final position
-        top: cardSlideOffset + cardScaleOffset,
-        left: cardScaleOffset,
-        height: cardSize,
-        width: cardSize,
-        child: SizedBox(
-            height: cardSize,
-            width: cardSize,
-            child: Obx(() => _cardChooser(abIndex, boardNumber, facingFront))),
-      ),
+          //curve: Curves.fastOutSlowIn,
+          duration: Duration(
+              milliseconds:
+                  timeFactorOfSlide * (slideTime - renderTwoFramesTime)),
+          // move slightly quicker so have two frames to re-render final position
+          top: cardSlideOffset + cardScaleOffset,
+          left: cardScaleOffset,
+          height: cardSize,
+          width: cardSize,
+          child: SizedBox(
+              height: cardSize,
+              width: cardSize,
+              child: ValueListenableBuilder<int>(
+                valueListenable: game.highlightedBoard,
+                builder: (BuildContext context, int value, Widget? child) {
+                  return abRow == game.getAbCurrentRowInt()
+                      ? ValueListenableBuilder<String>(
+                          valueListenable: game.currentTyping[abIndex % cols],
+                          builder: (BuildContext context, String value,
+                              Widget? child) {
+                            return _cardChooser(
+                                abIndex, boardNumber, facingFront);
+                          },
+                        )
+                      : _cardChooser(abIndex, boardNumber, facingFront);
+                },
+              ))),
     ],
   );
 }

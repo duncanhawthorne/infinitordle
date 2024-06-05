@@ -1,8 +1,9 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:infinitordle/wordlist.dart';
 
 //Debug
@@ -86,7 +87,8 @@ const int delayMult = noAnimations ? 0 : 1 * slowDownFactor;
 const gradualRevealDelayTime = delayMult * 150;
 const slideTime = durMult * 200;
 const flipTime = durMult * 500;
-const renderTwoFramesTime = delayMult * 33; // so that set state and animations don't happen exactly simultaneously
+const renderTwoFramesTime = delayMult *
+    33; // so that set state and animations don't happen exactly simultaneously
 const gradualRevealRowTime = gradualRevealDelayTime * (cols - 1) + flipTime;
 const visualCatchUpTime = delayMult * 750;
 

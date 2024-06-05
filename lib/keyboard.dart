@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
-import 'package:stroke_text/stroke_text.dart';
 //import 'package:get/get.dart';
 import 'package:refreshed/refreshed.dart';
+import 'package:stroke_text/stroke_text.dart';
 
 Widget keyboardRowWidget(keyBoardStartKeyIndex, kbRowLength) {
   return Container(
@@ -68,17 +68,18 @@ Widget _kbTextSquare(kbLetter, kbRowLength) {
               : kbLetter == ">"
                   ? Container(
                       padding: const EdgeInsets.all(7),
-                      child: Obx(() => Icon(
-                          game.isIllegalFiveLetterWord()
-                              ? Icons.cancel
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: game.illegalFiveLetterWord,
+                        builder:
+                            (BuildContext context, bool value, Widget? child) {
+                          return game.isIllegalFiveLetterWord()
+                              ? const Icon(Icons.cancel, color: red)
                               : game.getReadyForStreakCurrentRow()
-                                  ? Icons.fast_forward
-                                  : Icons.keyboard_return_sharp,
-                          color: game.isIllegalFiveLetterWord()
-                              ? red
-                              : game.getReadyForStreakCurrentRow()
-                                  ? green
-                                  : white)))
+                                  ? const Icon(Icons.fast_forward, color: green)
+                                  : const Icon(Icons.keyboard_return_sharp,
+                                      color: white);
+                        },
+                      ))
                   : _kbRegularTextCache[kbLetter]));
 }
 
@@ -100,28 +101,32 @@ final Map _kbRegularTextCache = {
 };
 
 Widget _kbMiniGrid(kbLetter, kbRowLength) {
-  return Obx(() => GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      scrollDirection: Axis.vertical,
-      shrinkWrap: true,
-      itemCount: game.getHighlightedBoard() != -1 ? 1 : numBoards,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: game.getHighlightedBoard() != -1
-            ? 1
-            : numBoards ~/ screen.numPresentationBigRowsOfBoards,
-        childAspectRatio: (game.getHighlightedBoard() != -1
-                ? 1
-                : 1 /
-                    ((numBoards / screen.numPresentationBigRowsOfBoards) /
-                        screen.numPresentationBigRowsOfBoards)) /
-            screen.keyAspectRatioLive *
-            (10 / kbRowLength),
-      ),
-      itemBuilder: (BuildContext context, int subIndex) {
-        //Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
-        //return _kbMiniSquareColorCache[color];
-        return Obx(() => _kbMiniSquareColorChooser(kbLetter, subIndex));
-      }));
+  return ValueListenableBuilder<int>(
+      valueListenable: game.highlightedBoard,
+      builder: (BuildContext context, int value, Widget? child) {
+        return GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: game.getHighlightedBoard() != -1 ? 1 : numBoards,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: game.getHighlightedBoard() != -1
+                  ? 1
+                  : numBoards ~/ screen.numPresentationBigRowsOfBoards,
+              childAspectRatio: (game.getHighlightedBoard() != -1
+                      ? 1
+                      : 1 /
+                          ((numBoards / screen.numPresentationBigRowsOfBoards) /
+                              screen.numPresentationBigRowsOfBoards)) /
+                  screen.keyAspectRatioLive *
+                  (10 / kbRowLength),
+            ),
+            itemBuilder: (BuildContext context, int subIndex) {
+              //Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
+              //return _kbMiniSquareColorCache[color];
+              return Obx(() => _kbMiniSquareColorChooser(kbLetter, subIndex));
+            });
+      });
 }
 
 Widget _kbMiniSquareColorChooser(kbLetter, subIndex) {
