@@ -1,20 +1,18 @@
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:infinitordle/helper.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:flutter/material.dart';
-
-import 'app_structure.dart';
-import 'src/sign_in_button.dart';
 import 'dart:async';
 
-
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:infinitordle/constants.dart';
+import 'package:infinitordle/helper.dart';
 //gID defined in secrets.dart, not included in repo
 //in format XXXXXX.apps.googleusercontent.com
 import 'package:infinitordle/secrets.dart';
 
+import 'app_structure.dart';
+import 'src/sign_in_button.dart';
+
 /// The type of the onClick callback for the (mobile) Sign In Button.
 //typedef HandleSignInFn = Future<void> Function();
-
 
 Widget lockStyleSignInButton(context) {
   return IconButton(
@@ -25,8 +23,7 @@ Widget lockStyleSignInButton(context) {
       try {
         Navigator.pop(context!, 'OK');
         focusNode.requestFocus();
-      }
-      catch(e) {
+      } catch (e) {
         p(["No pop", e]);
       }
     },
@@ -55,8 +52,7 @@ class Google {
       if (_user != null) {
         p(["login successful", _user]);
         successfulLoginExtractDetails();
-      }
-      else {
+      } else {
         p(["logout"]);
         logoutExtractDetails();
       }
@@ -159,7 +155,8 @@ class Google {
   Widget platformAdaptiveSignInButton(context) {
     // different buttons depending on web or mobile. See sign_in_button folder
     return buildSignInButton(
-        onPressed: signInDirectly, //relevant on web only, else uses separate code
+        onPressed:
+            signInDirectly, //relevant on web only, else uses separate code
         context: context);
   }
 

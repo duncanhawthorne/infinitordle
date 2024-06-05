@@ -1,17 +1,14 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings
-
-import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
-import 'package:infinitordle/card_flips.dart';
+import 'package:flutter/material.dart';
 import 'package:infinitordle/card_colors.dart';
-import 'package:infinitordle/saves.dart';
-import 'package:infinitordle/game_logic.dart';
-import 'package:infinitordle/screen.dart';
+import 'package:infinitordle/card_flips.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/google_logic.dart';
 import 'package:infinitordle/firebase.dart';
-
+import 'package:infinitordle/game_logic.dart';
+import 'package:infinitordle/google_logic.dart';
+import 'package:infinitordle/saves.dart';
+import 'package:infinitordle/screen.dart';
 import 'package:infinitordle/title_fix_stub.dart'
     if (dart.library.js_interop) 'package:infinitordle/title_fix_web.dart';
 
@@ -61,7 +58,7 @@ bool listEqual(a, b) {
 }
 
 void p(x) {
-  debugPrint("///// A " + DateTime.now().toString() + " " + (x ?? "null").toString());
+  debugPrint("///// A ${DateTime.now()} ${x ?? "null"}");
 }
 
 Color soften(boardNumber, color) {

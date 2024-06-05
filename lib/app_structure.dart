@@ -1,11 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/keyboard.dart';
 import 'package:infinitordle/gameboard.dart';
 import 'package:infinitordle/helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:infinitordle/keyboard.dart';
 
 FocusNode focusNode = FocusNode();
 

@@ -110,29 +110,33 @@ Widget signInRow(context) {
   StreamSubscription? subscription;
   subscription = g.googleSignIn.onCurrentUserChanged
       .listen((GoogleSignInAccount? account) async {
-        subscription!.cancel(); //FIXME doesn't work
-        p("subscription fire");
-        if (account != null) { //login
-          try {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context, 'OK');
-              focusNode.requestFocus();
-            }
-          }
-          catch(e) {
-            p("No pop");
-          }
+    subscription!.cancel(); //FIXME doesn't work
+    p("subscription fire");
+    if (account != null) {
+      //login
+      try {
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context, 'OK');
+          focusNode.requestFocus();
         }
+      } catch (e) {
+        p("No pop");
+      }
+    }
   });
   !g.signedIn() ? g.signInSilently() : null; //FIXME not suitable for mobile
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Text(!g.signedIn() ? (newLoginButtons && kIsWeb ? "" : "Sign in?") : appTitle),
+      Text(!g.signedIn()
+          ? (newLoginButtons && kIsWeb ? "" : "Sign in?")
+          : appTitle),
       Tooltip(
         message: !g.signedIn() ? "Sign in" : "Sign out",
         child: !g.signedIn()
-            ? newLoginButtons ? g.platformAdaptiveSignInButton(context) : lockStyleSignInButton(context)
+            ? newLoginButtons
+                ? g.platformAdaptiveSignInButton(context)
+                : lockStyleSignInButton(context)
             : IconButton(
                 iconSize: g.getUserIcon() == gUserIconDefault ? 25 : 50,
                 icon: g.getUserIcon() == gUserIconDefault

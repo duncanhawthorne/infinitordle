@@ -1,6 +1,6 @@
+import 'package:flutter/services.dart';
 import 'package:infinitordle/constants.dart';
 import 'package:web/web.dart' as web;
-import 'package:flutter/services.dart';
 
 void fixTitleReal() {
   if (isiOSMobile) {
