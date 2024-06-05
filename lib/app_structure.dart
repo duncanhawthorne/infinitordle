@@ -44,10 +44,6 @@ Widget _scaffold() {
 }
 
 Widget titleWidget() {
-  int numberWinsCache = game.getWinWords().length;
-  var infText = numberWinsCache == 0
-      ? "o"
-      : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
   return InkWell(
       onTap: () {
         showResetConfirmScreen();
@@ -59,27 +55,36 @@ Widget titleWidget() {
         child: DecoratedBox(
           decoration: const BoxDecoration(color: Colors.transparent),
           child: FittedBox(
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  color: white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screen.appBarHeight * 40 / 56,
-                  fontFamily: GoogleFonts.roboto().fontFamily,
-                ),
-                children: <TextSpan>[
-                  const TextSpan(text: appTitle1),
-                  TextSpan(
-                      text: infText,
+            child: ValueListenableBuilder<int>(
+                valueListenable: game.targetWordsChangedNotifier,
+                builder: (BuildContext context, int value, Widget? child) {
+                  int numberWinsCache = game.getWinWords().length;
+                  var infText = numberWinsCache == 0
+                      ? "o"
+                      : "∞" * (numberWinsCache ~/ 2) +
+                          "o" * (numberWinsCache % 2);
+                  return RichText(
+                    text: TextSpan(
                       style: TextStyle(
-                          color: numberWinsCache == 0 ||
-                                  game.getExpandingBoardEver()
-                              ? white
-                              : green)),
-                  const TextSpan(text: appTitle3),
-                ],
-              ),
-            ),
+                        color: white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: screen.appBarHeight * 40 / 56,
+                        fontFamily: GoogleFonts.roboto().fontFamily,
+                      ),
+                      children: <TextSpan>[
+                        const TextSpan(text: appTitle1),
+                        TextSpan(
+                            text: infText,
+                            style: TextStyle(
+                                color: numberWinsCache == 0 ||
+                                        game.getExpandingBoardEver()
+                                    ? white
+                                    : green)),
+                        const TextSpan(text: appTitle3),
+                      ],
+                    ),
+                  );
+                }),
           ),
         ),
       ));
