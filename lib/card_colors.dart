@@ -110,6 +110,12 @@ class CardColors {
       resetCardColorsCache();
     }
 
+    Color answer = getAbCardColorReal(abIndex, boardNumber);
+    cardColorsCache[boardNumber][abIndex] = answer;
+    return answer;
+  }
+
+  Color getAbCardColorReal(abIndex, boardNumber) {
     Color? answer;
     if (abIndex >= game.getAbCurrentRowInt() * cols) {
       return transp; //later rows
@@ -153,7 +159,6 @@ class CardColors {
       }
     }
 
-    cardColorsCache[boardNumber][abIndex] = answer;
     return answer;
   }
 
