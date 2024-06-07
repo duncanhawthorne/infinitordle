@@ -5,8 +5,8 @@ import 'package:infinitordle/constants.dart';
 import 'package:infinitordle/helper.dart';
 
 class CardColors {
-  var cardColorsCache = [];
-  var keyColorsCache = [];
+  Map<int, Map<int, Map<String, Color>>> cardColorsCache = {};
+  Map<int, Map<String, Color>> keyColorsCache = {};
 
   List<dynamic> firstRowsToShowCache = List.filled(numBoards, 0);
   List<dynamic> targetWordsCacheForKey = List.filled(numBoards, "x");
@@ -14,32 +14,34 @@ class CardColors {
   int getLastCardToConsiderForKeyColorsCache = 0;
 
   Color getBestColorForLetter(queryLetter, boardNumber) {
-    int kbIndex = keyboardList.indexOf(queryLetter);
-
     if (game.getLastCardToConsiderForKeyColors() !=
             getLastCardToConsiderForKeyColorsCache ||
         !listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
-            firstRowsToShowCache) ||
-        !listEqual(game.getCurrentTargetWords(), targetWordsCacheForKey)) {
+            firstRowsToShowCache)) {
       resetKeyColorsCache();
     }
 
     if (game.getHighlightedBoard() != -1) {
       boardNumber = game.getHighlightedBoard();
     }
-    if (boardNumber < keyColorsCache.length &&
-        kbIndex < keyColorsCache[boardNumber].length) {
-      Color? cacheColorAnswer = keyColorsCache[boardNumber][kbIndex];
-      if (cacheColorAnswer != null) {
-        return cacheColorAnswer;
-      } else {
-        // Haven't cached that get, so do so in the function below
-      }
-    } else {
-      // blank the cache
-      resetKeyColorsCache();
+
+    String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
+
+    if (!keyColorsCache.containsKey(boardNumber) ||
+        targetWordsCacheForKey[boardNumber] != targetWord) {
+      keyColorsCache[boardNumber] = {};
+      targetWordsCacheForKey[boardNumber] = targetWord;
     }
 
+    if (!keyColorsCache[boardNumber]!.containsKey(queryLetter)) {
+      keyColorsCache[boardNumber]![queryLetter] =
+          getBestColorForLetterReal(queryLetter, boardNumber);
+    }
+
+    return keyColorsCache[boardNumber]![queryLetter]!;
+  }
+
+  Color getBestColorForLetterReal(queryLetter, boardNumber) {
     Color? answer;
     //String queryLetter = keyboardList[kbIndex];
     int abStart = cols *
@@ -82,7 +84,6 @@ class CardColors {
     if (answer == null) {
       answer = grey; //not used yet by the player
     }
-    keyColorsCache[boardNumber][kbIndex] = answer;
     return answer;
   }
 
@@ -91,28 +92,21 @@ class CardColors {
       // Later rows
       return transp;
     }
-
-    if (cardColorsCache.isEmpty ||
-        cardColorsCache[0].length != (game.getAbCurrentRowInt() * cols) ||
-        !listEqual(game.getCurrentTargetWords(), targetWordsCacheForCard)) {
-      resetCardColorsCache();
+    String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
+    String testLetter = game.getCardLetterAtAbIndex(abIndex);
+    if (!cardColorsCache.containsKey(boardNumber) ||
+        !cardColorsCache[boardNumber]![-1]!.containsKey(targetWord)) {
+      cardColorsCache[boardNumber] = {
+        -1: {targetWord: transp}
+      };
     }
-    if (boardNumber < cardColorsCache.length &&
-        abIndex < cardColorsCache[boardNumber].length) {
-      Color? cacheColorAnswer = cardColorsCache[boardNumber][abIndex];
-      if (cacheColorAnswer != null) {
-        return cacheColorAnswer;
-      } else {
-        //Haven't cached that get, so do so in the function below
-      }
-    } else {
-      //blank the cache
-      resetCardColorsCache();
+    if (!cardColorsCache[boardNumber]!.containsKey(abIndex) ||
+        !cardColorsCache[boardNumber]![abIndex]!.containsKey(testLetter)) {
+      cardColorsCache[boardNumber]![abIndex] = {
+        testLetter: getAbCardColorReal(abIndex, boardNumber)
+      };
     }
-
-    Color answer = getAbCardColorReal(abIndex, boardNumber);
-    cardColorsCache[boardNumber][abIndex] = answer;
-    return answer;
+    return cardColorsCache[boardNumber]![abIndex]![testLetter]!;
   }
 
   Color getAbCardColorReal(abIndex, boardNumber) {
@@ -164,27 +158,13 @@ class CardColors {
 
   void resetKeyColorsCache() {
     for (int i = 0; i < numBoards; i++) {
-      targetWordsCacheForKey[i] = game.getCurrentTargetWords()[i];
+      targetWordsCacheForKey[i] = game.getCurrentTargetWordForBoard(i);
       firstRowsToShowCache[i] =
           game.getFirstAbRowToShowOnBoardDueToKnowledge(i);
     }
     getLastCardToConsiderForKeyColorsCache =
         game.getLastCardToConsiderForKeyColors();
 
-    keyColorsCache = [];
-    for (int i = 0; i < numBoards; i++) {
-      keyColorsCache.add(List<Color?>.generate((30), (i) => null));
-    }
-  }
-
-  void resetCardColorsCache() {
-    for (int i = 0; i < numBoards; i++) {
-      targetWordsCacheForCard[i] = game.getCurrentTargetWords()[i];
-    }
-    cardColorsCache = [];
-    for (int i = 0; i < numBoards; i++) {
-      cardColorsCache.add(List<Color?>.generate(
-          (game.getAbCurrentRowInt() * cols), (i) => null));
-    }
+    keyColorsCache = {};
   }
 }
