@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:infinitordle/firebase_options.dart';
+import 'package:infinitordle/secrets.dart';
 import 'package:infinitordle/wordlist.dart';
 
 //Debug
@@ -101,11 +103,11 @@ const bool debugFakeLogin = false;
 const String gUserFakeLogin = "joebloggs@gmail.com";
 const String gUserDefault = "JoeBloggs";
 const String gUserIconDefault = "JoeBloggs";
-final fbOn =
-    defaultTargetPlatform == TargetPlatform.windows && !kIsWeb ? false : true;
+final fbOn = firebaseOnReal &&
+    !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
 final fbAnalytics = fbOn && true;
-final gOn =
-    defaultTargetPlatform == TargetPlatform.windows && !kIsWeb ? false : true;
+final gOn = googleOnReal &&
+    !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
 const m3 = true;
 
 FirebaseFirestore? db = fbOn ? FirebaseFirestore.instance : null;

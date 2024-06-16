@@ -41,7 +41,9 @@ Future<void> main() async {
     });
   }
 
-  g.startGoogleAccountChangeListener();
+  if (gOn) {
+    g.startGoogleAccountChangeListener();
+  }
 
   runApp(const InfinitordleApp());
 }

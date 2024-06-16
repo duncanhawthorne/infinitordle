@@ -46,17 +46,19 @@ class Google {
   var gUserIcon = "JoeBloggs";
 
   void startGoogleAccountChangeListener() {
-    googleSignIn.onCurrentUserChanged
-        .listen((GoogleSignInAccount? account) async {
-      _user = account;
-      if (_user != null) {
-        p(["login successful", _user]);
-        successfulLoginExtractDetails();
-      } else {
-        p(["logout"]);
-        logoutExtractDetails();
-      }
-    });
+    if (gOn) {
+      googleSignIn.onCurrentUserChanged
+          .listen((GoogleSignInAccount? account) async {
+        _user = account;
+        if (_user != null) {
+          p(["login successful", _user]);
+          successfulLoginExtractDetails();
+        } else {
+          p(["logout"]);
+          logoutExtractDetails();
+        }
+      });
+    }
   }
 
   void signInSilently() async {

@@ -107,24 +107,28 @@ Future<void> showResetConfirmScreenReal(context) async {
 }
 
 Widget signInRow(context) {
-  StreamSubscription? subscription;
-  subscription = g.googleSignIn.onCurrentUserChanged
-      .listen((GoogleSignInAccount? account) async {
-    subscription!.cancel(); //FIXME doesn't work
-    p("subscription fire");
-    if (account != null) {
-      //login
-      try {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context, 'OK');
-          focusNode.requestFocus();
+  if (gOn) {
+    StreamSubscription? subscription;
+    subscription = g.googleSignIn.onCurrentUserChanged
+        .listen((GoogleSignInAccount? account) async {
+      subscription!.cancel(); //FIXME doesn't work
+      p("subscription fire");
+      if (account != null) {
+        //login
+        try {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context, 'OK');
+            focusNode.requestFocus();
+          }
+        } catch (e) {
+          p("No pop");
         }
-      } catch (e) {
-        p("No pop");
       }
-    }
-  });
-  !g.signedIn() ? g.signInSilently() : null; //FIXME not suitable for mobile
+    });
+  }
+  gOn && !g.signedIn()
+      ? g.signInSilently()
+      : null; //FIXME not suitable for mobile
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
