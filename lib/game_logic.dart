@@ -39,7 +39,7 @@ class Game {
     _targetWords = _getNewTargetWords(numBoards);
     _enteredWords = [];
     _winRecordBoards = [];
-    _firstKnowledge = getBlankFirstKnowledge(numBoards);
+    _firstKnowledge = _getBlankFirstKnowledge(numBoards);
     pushUpSteps = 0;
     _expandingBoard = false;
     _expandingBoardEver = false;
@@ -77,7 +77,7 @@ class Game {
             currentTypingString.substring(0, currentTypingString.length);
         _setCurrentTyping(
             currentTypingString.substring(0, currentTypingString.length - 1));
-        if (origTyping.length == cols && !isLegalWord(origTyping)) {
+        if (origTyping.length == cols && !_isLegalWord(origTyping)) {
           illegalFiveLetterWord = false;
         }
       }
@@ -85,7 +85,7 @@ class Game {
       //Submit guess
       if (currentTypingString.length == cols) {
         //Full word entered, so can submit
-        if (isLegalWord(currentTypingString) &&
+        if (_isLegalWord(currentTypingString) &&
             abCurrentRowInt < abLiveNumRowsPerBoard) {
           //Legal word so can enter the word
           //Note, not necessarily correct word
@@ -98,7 +98,7 @@ class Game {
         //Space to add extra letter
         _setCurrentTyping(currentTypingString + letter);
         if (currentTypingString.length == cols &&
-            !isLegalWord(currentTypingString)) {
+            !_isLegalWord(currentTypingString)) {
           illegalFiveLetterWord = true;
         }
       }
@@ -164,7 +164,7 @@ class Game {
       bool isWin,
       int maxAbRowOfBoard) async {
     //Delay for visual changes to have taken effect
-    await sleep(gradualRevealRowTime + visualCatchUpTime);
+    await _sleep(gradualRevealRowTime + visualCatchUpTime);
 
     //Code for losing game
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
@@ -215,7 +215,7 @@ class Game {
     //setStateGlobal();
 
     // Delay for sliding cards up to have taken effect
-    await sleep(slideTime);
+    await _sleep(slideTime);
 
     // Undo the visual slide (and do this instantaneously)
     temporaryVisualOffsetForSlide = 0;
@@ -224,7 +224,7 @@ class Game {
     _takeOneStepBack();
 
     // Pause, so can temporarily see new position
-    await sleep(visualCatchUpTime);
+    await _sleep(visualCatchUpTime);
   }
 
   void _takeOneStepBack() {
@@ -240,8 +240,8 @@ class Game {
     //unflip
     _setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
     //setStateGlobal();
-    await sleep(flipTime);
-    await sleep(visualCatchUpTime - flipTime);
+    await _sleep(flipTime);
+    await _sleep(visualCatchUpTime - flipTime);
 
     // Log the win officially, and get a new word
     _logWinAndSetNewWord(
@@ -250,8 +250,8 @@ class Game {
     //flip
     _setBoardFlourishFlipRow(winningBoardToFix, -1);
     //setStateGlobal();
-    await sleep(flipTime);
-    await sleep(visualCatchUpTime);
+    await _sleep(flipTime);
+    await _sleep(visualCatchUpTime);
   }
 
   void _logWinAndSetNewWord(int winRecordBoardsIndexToFix,
@@ -428,7 +428,7 @@ class Game {
         _enteredWords = gameTmp["enteredWords"] ?? [];
         _winRecordBoards = gameTmp["winRecordBoards"] ?? [];
         _firstKnowledge =
-            gameTmp["firstKnowledge"] ?? getBlankFirstKnowledge(numBoards);
+            gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards);
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
         _expandingBoard = gameTmp["expandingBoard"] ?? false;
         _expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
@@ -526,7 +526,7 @@ class Game {
 
   int getFirstAbRowToShowOnBoardDueToKnowledge(int boardNumber) {
     if (_firstKnowledge.length != numBoards) {
-      _firstKnowledge = getBlankFirstKnowledge(numBoards);
+      _firstKnowledge = _getBlankFirstKnowledge(numBoards);
       p("getFirstVisualRowToShowOnBoard error");
     }
     if (!_expandingBoard) {
@@ -591,8 +591,6 @@ class Game {
   int get extraRows => pushUpSteps - pushOffBoardRows;
 
   int get abCurrentRowInt => _enteredWords.length;
-
-  int get gbCurrentRowInt => getGBRowFromABRow(abCurrentRowInt);
 
   bool isBoardNormalHighlighted(int boardNumber) {
     return highlightedBoard == -1 || highlightedBoard == boardNumber;
@@ -670,4 +668,38 @@ class _CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
     }
     notifyListeners();
   }
+}
+
+List<int> _getBlankFirstKnowledge(int numberOfBoards) {
+  return List.filled(numberOfBoards, 0);
+}
+
+Future<void> _sleep(int delayAfterMult) async {
+  await Future.delayed(Duration(milliseconds: delayAfterMult), () {});
+}
+
+// Memoisation
+class _LegalWord {
+  Map<String, bool> legalWordCache = {};
+
+  bool call(String word) {
+    if (word.length != cols) {
+      return false;
+    }
+    if (!legalWordCache.containsKey(word)) {
+      if (legalWordCache.length > 3) {
+        //reset cache to keep it short
+        legalWordCache = {};
+      }
+      legalWordCache[word] = _isListContains(legalWords, word);
+    }
+    return legalWordCache[word]!; //null
+  }
+}
+
+_LegalWord _isLegalWord = _LegalWord();
+
+bool _isListContains(List<String> list, String bit) {
+  //sorted list so this is faster than doing contains
+  return binarySearch(list, bit) != -1;
 }

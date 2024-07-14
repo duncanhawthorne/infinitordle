@@ -57,12 +57,12 @@ Widget _gameboardWidgetWithNRows(
       ),
       itemBuilder: (BuildContext context, int rGbIndex) {
         return game.expandingBoard
-            ? _cardFlipperAlts(getABIndexFromRGBIndex(rGbIndex), boardNumber)
+            ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
             : ValueListenableBuilder<int>(
                 valueListenable: game.pushUpStepsNotifier,
                 builder: (BuildContext context, int value, Widget? child) {
                   return _cardFlipperAlts(
-                      getABIndexFromRGBIndex(rGbIndex), boardNumber);
+                      _getABIndexFromRGBIndex(rGbIndex), boardNumber);
                 },
               );
       });
@@ -121,7 +121,7 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
   int temporaryVisualOffsetForSlide = game.temporaryVisualOffsetForSlide;
 
   int abRow = abIndex ~/ cols;
-  int gbRow = getGBRowFromABRow(abRow);
+  int gbRow = _getGBRowFromABRow(abRow);
   bool shouldSlideCard = abRow < game.abCurrentRowInt;
   bool shouldShrinkCard = game.expandingBoard &&
       abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
@@ -190,14 +190,14 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
   bool hideCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
           abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
-          (rowOffTopOfMainBoard(abRow) &&
+          (_rowOffTopOfMainBoard(abRow) &&
               !facingFront &&
               justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
 
   String cardLetter = abRow ==
               game.abLiveNumRowsPerBoard -
                   1 && //code is formatting final row of cards
-          game.gbCurrentRowInt < 0 &&
+          _getGBRowFromABRow(game.abCurrentRowInt) < 0 &&
           game.currentTypingString.length > col
       //If need to type while off top of board (unlikely), show on final row
       ? game.currentTypingString[col]
@@ -209,12 +209,12 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
       ? transp
       : !facingFront
           ? grey
-          : soften(
+          : _soften(
               boardNumber, cardColors.getAbCardColor(abIndex, boardNumber));
   Color borderColor = hideCard
       ? transp
       : historicalWin
-          ? soften(boardNumber, green)
+          ? _soften(boardNumber, green)
           : transp;
   assert(_cardCache.containsKey(normalHighlighting));
   assert(_cardCache[normalHighlighting].containsKey(cardLetter));
@@ -285,3 +285,40 @@ final Map _cardTextCache = {
         (cardLetter): _cardTextConst(normalHighlighting, cardLetter)
     }
 };
+
+Color _soften(int boardNumber, Color color) {
+  if (game.isBoardNormalHighlighted(boardNumber) ||
+      !colorMap.containsKey(color)) {
+    return color;
+  } else {
+    return colorMap[color];
+  }
+}
+
+// ignore: unused_element
+int _getABRowFromGBRow(int gbRow) {
+  return gbRow + game.pushOffBoardRows;
+}
+
+int _getGBRowFromABRow(int abRow) {
+  return abRow - game.pushOffBoardRows;
+}
+
+// ignore: unused_element
+int _getABIndexFromGBIndex(int gbIndex) {
+  return gbIndex + cols * game.pushOffBoardRows;
+}
+
+// ignore: unused_element
+int _getGBIndexFromABIndex(int abIndex) {
+  return abIndex - cols * game.pushOffBoardRows;
+}
+
+int _getABIndexFromRGBIndex(int rGbIndex) {
+  return (game.abLiveNumRowsPerBoard - rGbIndex ~/ cols - 1) * cols +
+      rGbIndex % cols;
+}
+
+bool _rowOffTopOfMainBoard(int abRow) {
+  return abRow < game.abLiveNumRowsPerBoard - numRowsPerBoard;
+}

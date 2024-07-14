@@ -16,7 +16,7 @@ class CardColors {
   Color getBestColorForLetter(String queryLetter, int boardNumber) {
     if (game.getLastCardToConsiderForKeyColors() !=
             _getLastCardToConsiderForKeyColorsCache ||
-        !listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
+        !_listEqual(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
             _firstRowsToShowCache)) {
       _resetKeyColorsCache();
     }
@@ -167,4 +167,16 @@ class CardColors {
 
     _keyColorsCache.clear();
   }
+}
+
+bool _listEqual(List<int> a, List<int> b) {
+  if (a.length != b.length) {
+    return false;
+  }
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+  }
+  return true;
 }
