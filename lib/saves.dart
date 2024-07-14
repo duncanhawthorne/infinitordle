@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:infinitordle/google_logic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
@@ -8,9 +9,9 @@ import 'helper.dart';
 class Save {
   Future<void> loadUser() async {
     final prefs = await SharedPreferences.getInstance();
-    g.gUser = prefs.getString('gUser') ?? gUserDefault;
-    g.gUserIcon = prefs.getString('gUserIcon') ?? gUserIconDefault;
-    if (g.gUserIcon != gUserIconDefault) {
+    g.gUser = prefs.getString('gUser') ?? G.gUserDefault;
+    g.gUserIcon = prefs.getString('gUserIcon') ?? G.gUserIconDefault;
+    if (g.gUserIcon != G.gUserIconDefault) {
       NetworkImage(g.gUserIcon); //pre-load
     }
     p(["loadUser", g.gUser, g.gUserIcon]);

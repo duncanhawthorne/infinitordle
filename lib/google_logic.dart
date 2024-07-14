@@ -14,6 +14,9 @@ import 'src/sign_in_button.dart';
 /// The type of the onClick callback for the (mobile) Sign In Button.
 //typedef HandleSignInFn = Future<void> Function();
 
+const bool _debugFakeLogin = false;
+const String _gUserFakeLogin = "joebloggs@gmail.com";
+
 Widget lockStyleSignInButton(BuildContext context) {
   return IconButton(
     iconSize: 25,
@@ -30,7 +33,7 @@ Widget lockStyleSignInButton(BuildContext context) {
   );
 }
 
-class Google {
+class G {
   GoogleSignIn googleSignIn = GoogleSignIn(
     //gID defined in secrets.dart, not included in repo
     //in format XXXXXX.apps.googleusercontent.com
@@ -39,6 +42,9 @@ class Google {
       'email',
     ],
   );
+
+  static const String gUserDefault = "JoeBloggs";
+  static const String gUserIconDefault = "JoeBloggs";
 
   GoogleSignInAccount? _user;
 
@@ -72,7 +78,7 @@ class Google {
     p("webSignIn()");
     if (gOn) {
       try {
-        if (debugFakeLogin) {
+        if (_debugFakeLogin) {
           _debugLoginExtractDetails();
         } else {
           await googleSignIn.signIn();
@@ -86,7 +92,7 @@ class Google {
 
   Future<void> signOut() async {
     if (gOn) {
-      if (debugFakeLogin) {
+      if (_debugFakeLogin) {
       } else {
         try {
           await googleSignIn.disconnect();
@@ -102,7 +108,7 @@ class Google {
   Future<void> signInSilentlyThenDirectly() async {
     p("mobileSignIn()");
     if (gOn) {
-      if (debugFakeLogin) {
+      if (_debugFakeLogin) {
         _debugLoginExtractDetails();
       } else {
         await googleSignIn.signInSilently();
@@ -132,8 +138,8 @@ class Google {
 
   void _debugLoginExtractDetails() async {
     p("debugLoginExtractDetails");
-    assert(debugFakeLogin);
-    _gUser = gUserFakeLogin;
+    assert(_debugFakeLogin);
+    _gUser = _gUserFakeLogin;
     await save.saveUser();
     await save.loadKeys();
   }

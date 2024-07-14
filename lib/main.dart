@@ -56,7 +56,7 @@ class InfinitordleApp extends StatelessWidget {
     return MaterialApp(
       title: appTitle,
       theme: ThemeData(
-        useMaterial3: m3,
+        useMaterial3: true,
         scaffoldBackgroundColor: bg,
         colorScheme: ColorScheme.fromSeed(
           seedColor: bg,
@@ -88,8 +88,8 @@ class _InfinitordleState extends State<Infinitordle> {
     super.initState();
 
     //Hack to make these functions available globally
-    ssFunctionList.add(ss);
-    showResetScreenFunctionList.add(showResetConfirmScreen);
+    ssFunction = ss;
+    showResetScreenFunction = showResetConfirmScreen;
 
     game.initiateBoard();
     save.loadUser();

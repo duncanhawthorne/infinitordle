@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'constants.dart';
 
+const double _keyAspectRatioDefault = 1.5;
+
 class Screen {
   double appBarHeight = -1;
   double cardLiveMaxPixel = -1;
@@ -35,8 +37,8 @@ class Screen {
       _vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 
       keyboardSingleKeyLiveMaxPixelHeight = min(
-          keyAspectRatioDefault * scW / 10,
-          keyAspectRatioDefault * _vertSpaceAfterTitle * 0.17 / 3);
+          _keyAspectRatioDefault * scW / 10,
+          _keyAspectRatioDefault * _vertSpaceAfterTitle * 0.17 / 3);
 
       _vertSpaceForGameboard =
           _vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
@@ -66,7 +68,7 @@ class Screen {
         //if still space left over, no point squashing keyboard for nothing
 
         keyboardSingleKeyLiveMaxPixelHeight = min(
-            keyAspectRatioDefault * scW / 10,
+            _keyAspectRatioDefault * scW / 10,
             (_vertSpaceAfterTitle - fullSizeOfGameboards) / 3);
       }
 

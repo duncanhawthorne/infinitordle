@@ -2,9 +2,18 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:infinitordle/wordlist.dart';
 
 import 'constants.dart';
 import 'helper.dart';
+
+const _cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
+const _cheatTargetWordsInitial = ["scoff", "brunt", "armor", "tabby"];
+const _legalWords = kLegalWordsList;
+const _winnableWords = kWinnableWordsList;
+const _visualCatchUpTime = delayMult * 750;
+const _gradualRevealRowTime = gradualRevealDelayTime * (cols - 1) + flipTime;
+final Random _random = Random();
 
 class Game {
   //State to save
@@ -164,7 +173,7 @@ class Game {
       bool isWin,
       int maxAbRowOfBoard) async {
     //Delay for visual changes to have taken effect
-    await _sleep(gradualRevealRowTime + visualCatchUpTime);
+    await _sleep(_gradualRevealRowTime + _visualCatchUpTime);
 
     //Code for losing game
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
@@ -224,7 +233,7 @@ class Game {
     _takeOneStepBack();
 
     // Pause, so can temporarily see new position
-    await _sleep(visualCatchUpTime);
+    await _sleep(_visualCatchUpTime);
   }
 
   void _takeOneStepBack() {
@@ -241,7 +250,7 @@ class Game {
     _setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
     //setStateGlobal();
     await _sleep(flipTime);
-    await _sleep(visualCatchUpTime - flipTime);
+    await _sleep(_visualCatchUpTime - flipTime);
 
     // Log the win officially, and get a new word
     _logWinAndSetNewWord(
@@ -251,7 +260,7 @@ class Game {
     _setBoardFlourishFlipRow(winningBoardToFix, -1);
     //setStateGlobal();
     await _sleep(flipTime);
-    await _sleep(visualCatchUpTime);
+    await _sleep(_visualCatchUpTime);
   }
 
   void _logWinAndSetNewWord(int winRecordBoardsIndexToFix,
@@ -279,14 +288,14 @@ class Game {
   void _cheatInitiate() {
     // Speed initialise known entries using cheat mode for debugging
     for (int j = 0; j < numBoards; j++) {
-      if (cheatTargetWordsInitial.length > j) {
-        _targetWords[j] = cheatTargetWordsInitial[j];
+      if (_cheatTargetWordsInitial.length > j) {
+        _targetWords[j] = _cheatTargetWordsInitial[j];
       } else {
         _targetWords[j] = _getNewTargetWord();
       }
     }
-    for (int j = 0; j < cheatEnteredWordsInitial.length; j++) {
-      _enteredWords.add(cheatEnteredWordsInitial[j]);
+    for (int j = 0; j < _cheatEnteredWordsInitial.length; j++) {
+      _enteredWords.add(_cheatEnteredWordsInitial[j]);
       _winRecordBoards.add(-1);
     }
   }
@@ -501,7 +510,7 @@ class Game {
     String a = _targetWords[0];
     while (_targetWords.contains(a) || _enteredWords.contains(a)) {
       // Ensure a word we have never seen before
-      a = winnableWords[random.nextInt(winnableWords.length)];
+      a = _winnableWords[_random.nextInt(_winnableWords.length)];
     }
     return a;
   }
@@ -680,20 +689,20 @@ Future<void> _sleep(int delayAfterMult) async {
 
 // Memoisation
 class _LegalWord {
-  Map<String, bool> legalWordCache = {};
+  Map<String, bool> _legalWordCache = {};
 
   bool call(String word) {
     if (word.length != cols) {
       return false;
     }
-    if (!legalWordCache.containsKey(word)) {
-      if (legalWordCache.length > 3) {
+    if (!_legalWordCache.containsKey(word)) {
+      if (_legalWordCache.length > 3) {
         //reset cache to keep it short
-        legalWordCache = {};
+        _legalWordCache = {};
       }
-      legalWordCache[word] = _isListContains(legalWords, word);
+      _legalWordCache[word] = _isListContains(_legalWords, word);
     }
-    return legalWordCache[word]!; //null
+    return _legalWordCache[word]!; //null
   }
 }
 

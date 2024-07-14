@@ -6,6 +6,10 @@ import 'package:stroke_text/stroke_text.dart';
 import 'constants.dart';
 import 'helper.dart';
 
+const double _notionalCardSize = 1.0;
+const _renderTwoFramesTime = delayMult *
+    33; // so that set state and animations don't happen exactly simultaneously
+
 Widget gameboardWidget(int boardNumber) {
   return game.expandingBoard
       ? ValueListenableBuilder<int>(
@@ -146,7 +150,7 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
           //curve: Curves.fastOutSlowIn,
           duration: Duration(
               milliseconds:
-                  timeFactorOfSlide * (slideTime - renderTwoFramesTime)),
+                  timeFactorOfSlide * (slideTime - _renderTwoFramesTime)),
           // move slightly quicker so have two frames to re-render final position
           top: cardSlideOffset + cardScaleOffset,
           left: cardScaleOffset,
@@ -227,7 +231,7 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
 Widget _card(bool normalHighlighting, String cardLetter, Color cardColor,
     Color borderColor) {
   const double cardBorderRadiusFactor = 0.2;
-  const cardSizeFixed = notionalCardSize;
+  const cardSizeFixed = _notionalCardSize;
   return FittedBox(
     fit: BoxFit.contain,
     child: Padding(
@@ -248,6 +252,23 @@ Widget _card(bool normalHighlighting, String cardLetter, Color cardColor,
     ),
   );
 }
+
+const _softGreen = Color(0xff61B063);
+const _softAmber = Color(0xffFFCF40);
+const _softRed = Color(0xffF55549);
+const _offWhite = Color(0xff939393);
+
+final List cardColorsList = [
+  red,
+  amber,
+  green,
+  grey,
+  transp,
+  _softGreen,
+  _softAmber,
+  _softRed
+];
+final List borderColorsList = [green, _softGreen, transp];
 
 final Map _cardCache = {
   for (bool normalHighlighting in [true, false])
@@ -272,7 +293,7 @@ Widget _cardTextConst(bool normalHighlighting, String cardLetter) {
     textStyle: TextStyle(
       height: 1.15,
       leadingDistribution: TextLeadingDistribution.even,
-      color: normalHighlighting ? white : offWhite,
+      color: normalHighlighting ? white : _offWhite,
       fontWeight: FontWeight.bold,
     ),
   );
@@ -286,12 +307,21 @@ final Map _cardTextCache = {
     }
 };
 
+final Map _softColorMap = {
+  green: _softGreen,
+  amber: _softAmber,
+  red: _softRed,
+  white: _offWhite,
+  //grey: grey
+  bg: transp,
+};
+
 Color _soften(int boardNumber, Color color) {
   if (game.isBoardNormalHighlighted(boardNumber) ||
-      !colorMap.containsKey(color)) {
+      !_softColorMap.containsKey(color)) {
     return color;
   } else {
-    return colorMap[color];
+    return _softColorMap[color];
   }
 }
 

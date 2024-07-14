@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:web/web.dart' as web;
 
 import '../constants.dart';
+
+final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
 void fixTitleReal() {
   if (isiOSMobile) {

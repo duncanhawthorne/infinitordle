@@ -10,6 +10,7 @@ import 'constants.dart';
 import 'google_logic.dart';
 import 'helper.dart';
 
+const bool _newLoginButtons = false;
 FocusNode focusNode = FocusNode();
 
 Future<void> showResetConfirmScreenReal(BuildContext context) async {
@@ -132,17 +133,17 @@ Widget _signInRow(BuildContext context) {
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Text(!g.signedIn
-          ? (newLoginButtons && kIsWeb ? "" : "Sign in?")
+          ? (_newLoginButtons && kIsWeb ? "" : "Sign in?")
           : appTitle),
       Tooltip(
         message: !g.signedIn ? "Sign in" : "Sign out",
         child: !g.signedIn
-            ? newLoginButtons
+            ? _newLoginButtons
                 ? g.platformAdaptiveSignInButton(context)
                 : lockStyleSignInButton(context)
             : IconButton(
-                iconSize: g.gUserIcon == gUserIconDefault ? 25 : 50,
-                icon: g.gUserIcon == gUserIconDefault
+                iconSize: g.gUserIcon == G.gUserIconDefault ? 25 : 50,
+                icon: g.gUserIcon == G.gUserIconDefault
                     ? const Icon(Icons.face_outlined)
                     : CircleAvatar(backgroundImage: NetworkImage(g.gUserIcon)),
                 onPressed: () {

@@ -16,7 +16,7 @@ Save save = Save();
 Flips flips = Flips();
 CardColors cardColors = CardColors();
 Screen screen = Screen();
-Google g = Google();
+G g = G();
 FireBase fBase = FireBase();
 
 void p(var x) {
