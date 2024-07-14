@@ -5,20 +5,17 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/helper.dart';
 
+import 'constants.dart';
 import 'google_logic.dart';
+import 'helper.dart';
 
 FocusNode focusNode = FocusNode();
 
-Future<void> showResetConfirmScreenReal(context) async {
+Future<void> showResetConfirmScreenReal(BuildContext context) async {
   List winWordsCache = game.getWinWords();
   int numberWinsCache = winWordsCache.length;
-  bool gameOver =
-      game.getAbCurrentRowInt() >= game.getAbLiveNumRowsPerBoard() &&
-          game.winRecordBoards.isNotEmpty &&
-          game.winRecordBoards[game.winRecordBoards.length - 1] == -1;
+  bool gameOver = game.gameOver;
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
@@ -28,15 +25,15 @@ Future<void> showResetConfirmScreenReal(context) async {
           return AlertDialog(
             backgroundColor: bg,
             surfaceTintColor: bg,
-            title: gOn && g.signedIn() ? signInRow(context) : null,
+            title: gOn && g.signedIn ? _signInRow(context) : null,
             content: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  gOn && !g.signedIn()
-                      ? signInRow(context)
+                  gOn && !g.signedIn
+                      ? _signInRow(context)
                       : const SizedBox.shrink(),
-                  gOn && !g.signedIn()
+                  gOn && !g.signedIn
                       ? const SizedBox(height: 10)
                       : const SizedBox.shrink(),
                   Row(
@@ -44,12 +41,12 @@ Future<void> showResetConfirmScreenReal(context) async {
                     children: [
                       const Text('Scrollable board?'),
                       Tooltip(
-                          message: game.getExpandingBoard()
+                          message: game.expandingBoard
                               ? "Turn off scrollable board"
                               : "Turn on scrollable board",
                           child: IconButton(
                             iconSize: 25,
-                            icon: game.getExpandingBoard()
+                            icon: game.expandingBoard
                                 ? const Icon(Icons.visibility_outlined)
                                 : const Icon(Icons.visibility_off_outlined),
                             onPressed: () {
@@ -70,7 +67,7 @@ Future<void> showResetConfirmScreenReal(context) async {
                             iconSize: 25,
                             icon: const Icon(Icons.refresh_outlined),
                             onPressed: () {
-                              showResetConfirmationScreen(context);
+                              _showResetConfirmationScreen(context);
                               focusNode.requestFocus(); //state inside dialog
                             },
                           )),
@@ -106,7 +103,7 @@ Future<void> showResetConfirmScreenReal(context) async {
   );
 }
 
-Widget signInRow(context) {
+Widget _signInRow(BuildContext context) {
   if (gOn) {
     StreamSubscription? subscription;
     subscription = g.googleSignIn.onCurrentUserChanged
@@ -116,7 +113,9 @@ Widget signInRow(context) {
       if (account != null) {
         //login
         try {
+          // ignore: use_build_context_synchronously
           if (Navigator.canPop(context)) {
+            // ignore: use_build_context_synchronously
             Navigator.pop(context, 'OK');
             focusNode.requestFocus();
           }
@@ -126,29 +125,28 @@ Widget signInRow(context) {
       }
     });
   }
-  gOn && !g.signedIn()
+  gOn && !g.signedIn
       ? g.signInSilently()
       : null; //FIXME not suitable for mobile
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Text(!g.signedIn()
+      Text(!g.signedIn
           ? (newLoginButtons && kIsWeb ? "" : "Sign in?")
           : appTitle),
       Tooltip(
-        message: !g.signedIn() ? "Sign in" : "Sign out",
-        child: !g.signedIn()
+        message: !g.signedIn ? "Sign in" : "Sign out",
+        child: !g.signedIn
             ? newLoginButtons
                 ? g.platformAdaptiveSignInButton(context)
                 : lockStyleSignInButton(context)
             : IconButton(
-                iconSize: g.getUserIcon() == gUserIconDefault ? 25 : 50,
-                icon: g.getUserIcon() == gUserIconDefault
+                iconSize: g.gUserIcon == gUserIconDefault ? 25 : 50,
+                icon: g.gUserIcon == gUserIconDefault
                     ? const Icon(Icons.face_outlined)
-                    : CircleAvatar(
-                        backgroundImage: NetworkImage(g.getUserIcon())),
+                    : CircleAvatar(backgroundImage: NetworkImage(g.gUserIcon)),
                 onPressed: () {
-                  showLogoutConfirmationScreen(context);
+                  _showLogoutConfirmationScreen(context);
                   focusNode.requestFocus();
                 },
               ),
@@ -157,7 +155,7 @@ Widget signInRow(context) {
   );
 }
 
-Future<void> showLogoutConfirmationScreen(context) async {
+Future<void> _showLogoutConfirmationScreen(BuildContext context) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
@@ -188,7 +186,7 @@ Future<void> showLogoutConfirmationScreen(context) async {
   );
 }
 
-Future<void> showResetConfirmationScreen(context) async {
+Future<void> _showResetConfirmationScreen(BuildContext context) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: true,

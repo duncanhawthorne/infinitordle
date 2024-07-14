@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
-import 'package:infinitordle/constants.dart';
 import 'package:web/web.dart' as web;
+
+import 'constants.dart';
 
 void fixTitleReal() {
   if (isiOSMobile) {
@@ -22,7 +23,7 @@ void fixTitle1() {
 }
 
 void fixTitle2() {
-  var url = web.window.location.href;
+  String url = web.window.location.href;
   web.window.history.replaceState(
     //or pushState
     web.window.history.state, // Note that we don't change the historyState
@@ -32,7 +33,7 @@ void fixTitle2() {
 }
 
 void fixTitle3() {
-  var url = web.window.location.href;
+  String url = web.window.location.href;
   web.window.history.pushState(
     web.window.history.state, // Note that we don't change the historyState
     appTitle,

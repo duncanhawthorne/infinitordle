@@ -1,16 +1,16 @@
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:infinitordle/card_colors.dart';
-import 'package:infinitordle/card_flips.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/firebase.dart';
-import 'package:infinitordle/game_logic.dart';
-import 'package:infinitordle/google_logic.dart';
-import 'package:infinitordle/saves.dart';
-import 'package:infinitordle/screen.dart';
-import 'package:infinitordle/title_fix_stub.dart'
-    if (dart.library.js_interop) 'package:infinitordle/title_fix_web.dart';
+
+import 'card_colors.dart';
+import 'card_flips.dart';
+import 'constants.dart';
+import 'firebase.dart';
+import 'game_logic.dart';
+import 'google_logic.dart';
+import 'saves.dart';
+import 'screen.dart';
+import 'title_fix_stub.dart' if (dart.library.js_interop) 'title_fix_web.dart';
 
 Game game = Game();
 Save save = Save();
@@ -20,14 +20,14 @@ Screen screen = Screen();
 Google g = Google();
 FireBase fBase = FireBase();
 
-bool isListContains(list, bit) {
+bool isListContains(List<String> list, String bit) {
   //sorted list so this is faster than doing contains
   return binarySearch(list, bit) != -1;
 }
 
 // Memoisation
 class LegalWord {
-  var legalWordCache = {};
+  Map<String, bool> legalWordCache = {};
   bool call(String word) {
     if (word.length != cols) {
       return false;
@@ -45,7 +45,7 @@ class LegalWord {
 
 LegalWord isLegalWord = LegalWord();
 
-bool listEqual(a, b) {
+bool listEqual(List<int> a, List<int> b) {
   if (a.length != b.length) {
     return false;
   }
@@ -57,11 +57,11 @@ bool listEqual(a, b) {
   return true;
 }
 
-void p(x) {
+void p(var x) {
   debugPrint("///// A ${DateTime.now()} ${x ?? "null"}");
 }
 
-Color soften(boardNumber, color) {
+Color soften(int boardNumber, Color color) {
   if (game.isBoardNormalHighlighted(boardNumber) ||
       !colorMap.containsKey(color)) {
     return color;
@@ -70,7 +70,7 @@ Color soften(boardNumber, color) {
   }
 }
 
-List getBlankFirstKnowledge(numberOfBoards) {
+List<int> getBlankFirstKnowledge(int numberOfBoards) {
   return List.filled(numberOfBoards, 0);
 }
 
@@ -78,31 +78,31 @@ void fixTitle() {
   fixTitleReal(); //either from web or stub
 }
 
-Future<void> sleep(delayAfterMult) async {
+Future<void> sleep(int delayAfterMult) async {
   await Future.delayed(Duration(milliseconds: delayAfterMult), () {});
 }
 
-int getABRowFromGBRow(gbRow) {
-  return gbRow + game.getPushOffBoardRows();
+int getABRowFromGBRow(int gbRow) {
+  return gbRow + game.pushOffBoardRows;
 }
 
-int getGBRowFromABRow(abRow) {
-  return abRow - game.getPushOffBoardRows();
+int getGBRowFromABRow(int abRow) {
+  return abRow - game.pushOffBoardRows;
 }
 
-int getABIndexFromGBIndex(gbIndex) {
-  return gbIndex + cols * game.getPushOffBoardRows();
+int getABIndexFromGBIndex(int gbIndex) {
+  return gbIndex + cols * game.pushOffBoardRows;
 }
 
-int getGBIndexFromABIndex(abIndex) {
-  return abIndex - cols * game.getPushOffBoardRows();
+int getGBIndexFromABIndex(int abIndex) {
+  return abIndex - cols * game.pushOffBoardRows;
 }
 
-num getABIndexFromRGBIndex(rGbIndex) {
-  return (game.getAbLiveNumRowsPerBoard() - rGbIndex ~/ cols - 1) * cols +
+int getABIndexFromRGBIndex(int rGbIndex) {
+  return (game.abLiveNumRowsPerBoard - rGbIndex ~/ cols - 1) * cols +
       rGbIndex % cols;
 }
 
-bool rowOffTopOfMainBoard(abRow) {
-  return abRow < game.getAbLiveNumRowsPerBoard() - numRowsPerBoard;
+bool rowOffTopOfMainBoard(int abRow) {
+  return abRow < game.abLiveNumRowsPerBoard - numRowsPerBoard;
 }

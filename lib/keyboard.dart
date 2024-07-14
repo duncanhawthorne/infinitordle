@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/helper.dart';
 import 'package:stroke_text/stroke_text.dart';
 
-Widget keyboardRowWidget(keyBoardStartKeyIndex, kbRowLength) {
+import 'constants.dart';
+import 'helper.dart';
+
+Widget keyboardRowWidget(int keyBoardStartKeyIndex, int kbRowLength) {
   return Container(
     constraints: BoxConstraints(
         maxWidth: screen.keyboardSingleKeyLiveMaxPixelHeight *
@@ -24,7 +25,7 @@ Widget keyboardRowWidget(keyBoardStartKeyIndex, kbRowLength) {
   );
 }
 
-Widget _kbKeyStack(kbLetter, kbRowLength) {
+Widget _kbKeyStack(String kbLetter, int kbRowLength) {
   return Container(
     padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: Stack(
@@ -51,7 +52,7 @@ Widget _kbKeyStack(kbLetter, kbRowLength) {
   );
 }
 
-Widget _kbTextSquare(kbLetter, kbRowLength) {
+Widget _kbTextSquare(String kbLetter, int kbRowLength) {
   return SizedBox(
       height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
       width: screen.keyboardSingleKeyLiveMaxPixelWidth *
@@ -67,17 +68,17 @@ Widget _kbTextSquare(kbLetter, kbRowLength) {
                   ? Container(
                       padding: const EdgeInsets.all(7),
                       child: ValueListenableBuilder<bool>(
-                        valueListenable: game.illegalFiveLetterWord,
+                        valueListenable: game.illegalFiveLetterWordNotifier,
                         builder:
                             (BuildContext context, bool value, Widget? child) {
-                          return game.isIllegalFiveLetterWord()
+                          return game.isIllegalFiveLetterWord
                               ? const Icon(Icons.cancel, color: red)
                               : ValueListenableBuilder<int>(
                                   valueListenable:
                                       game.currentRowChangedNotifier,
                                   builder: (BuildContext context, int value,
                                       Widget? child) {
-                                    return game.getReadyForStreakCurrentRow()
+                                    return game.readyForStreakCurrentRow
                                         ? const Icon(Icons.fast_forward,
                                             color: green)
                                         : const Icon(
@@ -89,7 +90,7 @@ Widget _kbTextSquare(kbLetter, kbRowLength) {
                   : _kbRegularTextCache[kbLetter]));
 }
 
-Widget _kbRegularTextConst(kbLetter) {
+Widget _kbRegularTextConst(String kbLetter) {
   return StrokeText(
     text: kbLetter.toUpperCase(),
     strokeWidth: 0.2,
@@ -103,23 +104,24 @@ Widget _kbRegularTextConst(kbLetter) {
 }
 
 final Map _kbRegularTextCache = {
-  for (var kbLetter in keyboardList) (kbLetter): _kbRegularTextConst(kbLetter)
+  for (String kbLetter in keyboardList)
+    (kbLetter): _kbRegularTextConst(kbLetter)
 };
 
-Widget _kbMiniGrid(kbLetter, kbRowLength) {
+Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
   return ValueListenableBuilder<int>(
-      valueListenable: game.highlightedBoard,
+      valueListenable: game.highlightedBoardNotifier,
       builder: (BuildContext context, int value, Widget? child) {
         return GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
-            itemCount: game.getHighlightedBoard() != -1 ? 1 : numBoards,
+            itemCount: game.highlightedBoard != -1 ? 1 : numBoards,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: game.getHighlightedBoard() != -1
+              crossAxisCount: game.highlightedBoard != -1
                   ? 1
                   : numBoards ~/ screen.numPresentationBigRowsOfBoards,
-              childAspectRatio: (game.getHighlightedBoard() != -1
+              childAspectRatio: (game.highlightedBoard != -1
                       ? 1
                       : 1 /
                           ((numBoards / screen.numPresentationBigRowsOfBoards) /
@@ -136,11 +138,12 @@ Widget _kbMiniGrid(kbLetter, kbRowLength) {
                     return ValueListenableBuilder<int>(
                         valueListenable: game.targetWordsChangedNotifier,
                         builder:
-                            (BuildContext context, var value, Widget? child) {
-                          return ValueListenableBuilder<Map>(
-                              valueListenable: game.abCardFlourishFlipAngles,
-                              builder: (BuildContext context, var value,
-                                  Widget? child) {
+                            (BuildContext context, int value, Widget? child) {
+                          return ValueListenableBuilder<Map<int, List<double>>>(
+                              valueListenable:
+                                  game.abCardFlourishFlipAnglesNotifier,
+                              builder: (BuildContext context,
+                                  Map<int, List<double>> value, Widget? child) {
                                 return _kbMiniSquareColorChooser(
                                     kbLetter, subIndex);
                               });
@@ -150,17 +153,17 @@ Widget _kbMiniGrid(kbLetter, kbRowLength) {
       });
 }
 
-Widget _kbMiniSquareColorChooser(kbLetter, subIndex) {
+Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
   double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
   int numRows = screen.numPresentationBigRowsOfBoards;
-  bool specialHighlighting = game.getHighlightedBoard() != -1;
+  bool specialHighlighting = game.highlightedBoard != -1;
   return _kbMiniSquareColorRounded(color, subIndex, numRows, radius,
       specialHighlighting); //_kbMiniSquareColorCache[color][subIndex];
 }
 
-Widget _kbMiniSquareColorRounded(
-    color, subIndex, numRows, radius, specialHighlighting) {
+Widget _kbMiniSquareColorRounded(Color color, int subIndex, int numRows,
+    double radius, bool specialHighlighting) {
   return Container(
     decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -184,11 +187,3 @@ Widget _kbMiniSquareColorRounded(
         color: color),
   );
 }
-
-/*
-final Map _kbMiniSquareColorCache = {
-  for (var color in kbColorsList) (color): {
-    for (var subIndex in [0,1,2,3]) (subIndex): //FIXME
-    _kbMiniSquareColorConst(color, subIndex)}
-};
- */

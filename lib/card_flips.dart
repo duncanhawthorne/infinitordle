@@ -1,41 +1,41 @@
 import 'dart:math';
 
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/helper.dart';
+import 'constants.dart';
+import 'helper.dart';
 
 class Flips {
-  double getFlipAngle(abIndex, boardNumber) {
+  double getFlipAngle(int abIndex, int boardNumber) {
     int abRow = abIndex ~/ cols;
     double cardFlipAngle =
-        getPermFlipAngle(abIndex) - getFlourishFlipAngle(abIndex);
+        _getPermFlipAngle(abIndex) - _getFlourishFlipAngle(abIndex);
     double boardFlipAngle = 0;
-    if (abRow <= game.getAbCurrentRowInt()) {
+    if (abRow <= game.abCurrentRowInt) {
       //only test this if relevant, to help GetX hack .obs
-      boardFlipAngle = getFlourishBoardFlipAngle(boardNumber);
+      boardFlipAngle = _getFlourishBoardFlipAngle(boardNumber);
     }
     return max(0, cardFlipAngle - boardFlipAngle);
   }
 
-  double getPermFlipAngle(abIndex) {
+  double _getPermFlipAngle(int abIndex) {
     int abRow = abIndex ~/ cols;
-    if (abRow >= game.getAbCurrentRowInt()) {
+    if (abRow >= game.abCurrentRowInt) {
       return 0;
     } else {
       return 0.5;
     }
   }
 
-  double getFlourishFlipAngle(abIndex) {
+  double _getFlourishFlipAngle(int abIndex) {
     int abRow = abIndex ~/ cols;
     int i = abIndex % cols;
-    if (!game.abCardFlourishFlipAngles.value.containsKey(abRow)) {
+    if (!game.abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
       return 0;
     } else {
-      return game.abCardFlourishFlipAngles.value[abRow]![i];
+      return game.abCardFlourishFlipAnglesNotifier.value[abRow]![i];
     }
   }
 
-  double getFlourishBoardFlipAngle(boardNumber) {
+  double _getFlourishBoardFlipAngle(int boardNumber) {
     if (game.getBoardFlourishFlipRow(boardNumber) == -1) {
       return 0;
     } else {

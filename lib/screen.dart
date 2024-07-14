@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:infinitordle/constants.dart';
+
+import 'constants.dart';
 
 class Screen {
-  //Variables used outside of class
   double appBarHeight = -1;
   double cardLiveMaxPixel = -1;
   double keyAspectRatioLive = -1;
@@ -12,16 +12,15 @@ class Screen {
   double keyboardSingleKeyLiveMaxPixelWidth = -1;
   int numPresentationBigRowsOfBoards = -1;
   double fullSizeOfGameboards = -1;
-
-  //Variable used only inside of class
-  double vertSpaceForGameboard = -1;
-  double vertSpaceForCardWithWrap = -1;
-  double horizSpaceForCardNoWrap = -1;
   double scW = -1;
   double scH = -1;
-  double vertSpaceAfterTitle = -1;
 
-  void detectAndUpdateForScreenSize(context) {
+  double _vertSpaceForGameboard = -1;
+  double _vertSpaceForCardWithWrap = -1;
+  double _horizSpaceForCardNoWrap = -1;
+  double _vertSpaceAfterTitle = -1;
+
+  void detectAndUpdateForScreenSize(BuildContext context) {
     if (scW != MediaQuery.of(context).size.width ||
         scH !=
             MediaQuery.of(context).size.height -
@@ -33,19 +32,19 @@ class Screen {
           MediaQuery.of(context).padding.top -
           MediaQuery.of(context).padding.bottom;
       appBarHeight = scH * 0.055;
-      vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
+      _vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 
       keyboardSingleKeyLiveMaxPixelHeight = min(
           keyAspectRatioDefault * scW / 10,
-          keyAspectRatioDefault * vertSpaceAfterTitle * 0.17 / 3);
+          keyAspectRatioDefault * _vertSpaceAfterTitle * 0.17 / 3);
 
-      vertSpaceForGameboard =
-          vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
-      vertSpaceForCardWithWrap =
-          ((vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
-      horizSpaceForCardNoWrap =
+      _vertSpaceForGameboard =
+          _vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
+      _vertSpaceForCardWithWrap =
+          ((_vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
+      _horizSpaceForCardNoWrap =
           (scW - (numBoards - 1) * boardSpacer) / numBoards / cols;
-      if (vertSpaceForCardWithWrap > horizSpaceForCardNoWrap) {
+      if (_vertSpaceForCardWithWrap > _horizSpaceForCardNoWrap) {
         numPresentationBigRowsOfBoards = 2;
       } else {
         numPresentationBigRowsOfBoards = 1;
@@ -54,7 +53,7 @@ class Screen {
           ((numBoards / numPresentationBigRowsOfBoards).ceil()) - 1;
       int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
       cardLiveMaxPixel = min(
-          (vertSpaceForGameboard - numSpacersDown * boardSpacer) /
+          (_vertSpaceForGameboard - numSpacersDown * boardSpacer) /
               numPresentationBigRowsOfBoards /
               numRowsPerBoard,
           (scW - numSpacersAcross * boardSpacer) /
@@ -63,12 +62,12 @@ class Screen {
       fullSizeOfGameboards =
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
               numSpacersDown * boardSpacer;
-      if (vertSpaceForGameboard > fullSizeOfGameboards) {
+      if (_vertSpaceForGameboard > fullSizeOfGameboards) {
         //if still space left over, no point squashing keyboard for nothing
 
         keyboardSingleKeyLiveMaxPixelHeight = min(
             keyAspectRatioDefault * scW / 10,
-            (vertSpaceAfterTitle - fullSizeOfGameboards) / 3);
+            (_vertSpaceAfterTitle - fullSizeOfGameboards) / 3);
       }
 
       keyAspectRatioLive =

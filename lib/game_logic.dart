@@ -2,175 +2,153 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/helper.dart';
 
-class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
-  CustomMapNotifier() : super({});
-
-  void set(int abRow, int column, double tvalue) {
-    if (!value.containsKey(abRow)) {
-      value[abRow] = List<double>.generate(cols, (i) => 0.0);
-    }
-    value[abRow]![column] = tvalue;
-    notifyListeners();
-  }
-
-  void remove(int key) {
-    if (value.containsKey(key)) {
-      value.remove(key);
-    }
-    notifyListeners();
-  }
-}
+import 'constants.dart';
+import 'helper.dart';
 
 class Game {
   //State to save
-  List<dynamic> targetWords = ["x"];
-  List<dynamic> enteredWords = ["x"];
-  List<dynamic> winRecordBoards = [-1];
-  List<dynamic> firstKnowledge = ["x"];
+  List<String> _targetWords = ["x"];
+  List<String> _enteredWords = ["x"];
+  List<int> _winRecordBoards = [-1];
+  List<int> _firstKnowledge = [-1];
 
-  //int pushUpSteps = -1;
   final pushUpStepsNotifier = ValueNotifier(-1);
-
   int get pushUpSteps => pushUpStepsNotifier.value;
-
   set pushUpSteps(int value) => pushUpStepsNotifier.value = value;
-  bool expandingBoard = false;
-  bool expandingBoardEver = false;
+
+  bool _expandingBoard = false;
+  bool _expandingBoardEver = false;
 
   //Other state non-saved
-  final currentTyping =
+  final currentTypingNotifiers =
       List<ValueNotifier<String>>.generate(cols, (i) => ValueNotifier(""));
-  final highlightedBoard = ValueNotifier(0);
+  final highlightedBoardNotifier = ValueNotifier(0);
 
   //transitive state
-  bool aboutToWinCache = false;
-  final temporaryVisualOffsetForSlide = ValueNotifier(0);
-  String gameEncodedLastCache = "";
-  var abCardFlourishFlipAngles = CustomMapNotifier(); //{}.obs;
-  final boardFlourishFlipRows =
+  final temporaryVisualOffsetForSlideNotifier = ValueNotifier(0);
+  String _gameEncodedLastCache = "";
+  final abCardFlourishFlipAnglesNotifier = _CustomMapNotifier(); //{}.obs;
+  final boardFlourishFlipRowsNotifiers =
       List<ValueNotifier<int>>.generate(cols, (i) => ValueNotifier(100));
-  final illegalFiveLetterWord = ValueNotifier(false);
+  final illegalFiveLetterWordNotifier = ValueNotifier(false);
   final targetWordsChangedNotifier = ValueNotifier(0);
   final currentRowChangedNotifier = ValueNotifier(0);
 
   void initiateBoard() {
-    targetWords = getNewTargetWords(numBoards);
-    enteredWords = [];
-    winRecordBoards = [];
-    firstKnowledge = getBlankFirstKnowledge(numBoards);
+    _targetWords = _getNewTargetWords(numBoards);
+    _enteredWords = [];
+    _winRecordBoards = [];
+    _firstKnowledge = getBlankFirstKnowledge(numBoards);
     pushUpSteps = 0;
-    expandingBoard = false;
-    expandingBoardEver = false;
+    _expandingBoard = false;
+    _expandingBoardEver = false;
 
-    setCurrentTyping("");
-    setHighlightedBoard(-1);
+    _setCurrentTyping("");
+    highlightedBoard = -1;
 
-    aboutToWinCache = false;
-    setTemporaryVisualOffsetForSlide(0);
+    temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
-    for (var item in abCardFlourishFlipAngles.value.keys) {
-      abCardFlourishFlipAngles.remove(item);
+    for (int item in abCardFlourishFlipAnglesNotifier.value.keys) {
+      abCardFlourishFlipAnglesNotifier.remove(item);
     }
-    clearBoardFlourishFlipRows();
-    setIllegalFiveLetterWord(false);
+    _clearBoardFlourishFlipRows();
+    illegalFiveLetterWord = false;
     targetWordsChangedNotifier.value++;
     currentRowChangedNotifier.value++;
 
     if (cheatMode) {
-      cheatInitiate();
+      _cheatInitiate();
     }
     setStateGlobal();
   }
 
   void onKeyboardTapped(String letter) {
-    printCheatTargetWords();
+    _printCheatTargetWords();
     fixTitle();
 
     if (letter == " ") {
       //Ignore pressing of non-keys
     } else if (letter == "<") {
       //Backspace key
-      if (getCurrentTyping().isNotEmpty) {
+      if (currentTypingString.isNotEmpty) {
         //There is text to delete
         String origTyping =
-            getCurrentTyping().substring(0, getCurrentTyping().length);
-        setCurrentTyping(
-            getCurrentTyping().substring(0, getCurrentTyping().length - 1));
+            currentTypingString.substring(0, currentTypingString.length);
+        _setCurrentTyping(
+            currentTypingString.substring(0, currentTypingString.length - 1));
         if (origTyping.length == cols && !isLegalWord(origTyping)) {
-          setIllegalFiveLetterWord(false);
+          illegalFiveLetterWord = false;
         }
       }
     } else if (letter == ">") {
       //Submit guess
-      if (getCurrentTyping().length == cols) {
+      if (currentTypingString.length == cols) {
         //Full word entered, so can submit
-        if (isLegalWord(getCurrentTyping()) &&
-            getAbCurrentRowInt() < getAbLiveNumRowsPerBoard()) {
+        if (isLegalWord(currentTypingString) &&
+            abCurrentRowInt < abLiveNumRowsPerBoard) {
           //Legal word so can enter the word
           //Note, not necessarily correct word
-          handleLegalWordEntered();
+          _handleLegalWordEntered();
         }
       }
     } else {
       //pressing regular letter key
-      if (getCurrentTyping().length < cols) {
+      if (currentTypingString.length < cols) {
         //Space to add extra letter
-        setCurrentTyping(getCurrentTyping() + letter);
-        if (getCurrentTyping().length == cols &&
-            !isLegalWord(getCurrentTyping())) {
-          setIllegalFiveLetterWord(true);
+        _setCurrentTyping(currentTypingString + letter);
+        if (currentTypingString.length == cols &&
+            !isLegalWord(currentTypingString)) {
+          illegalFiveLetterWord = true;
         }
       }
     }
   }
 
-  void handleLegalWordEntered() {
+  void _handleLegalWordEntered() {
     // set some local variable to ensure threadsafe
-    int cardAbRowPreGuessToFix = getAbCurrentRowInt();
-    int firstKnowledgeToFix = getExtraRows() + getPushOffBoardRows();
-    int maxAbRowOfBoard = getAbLiveNumRowsPerBoard();
+    int cardAbRowPreGuessToFix = abCurrentRowInt;
+    int firstKnowledgeToFix = extraRows + pushOffBoardRows;
+    int maxAbRowOfBoard = abLiveNumRowsPerBoard;
 
-    enteredWords.add(getCurrentTyping());
-    setCurrentTyping("");
-    winRecordBoards.add(-2); //Add now, fix value later
+    _enteredWords.add(currentTypingString);
+    _setCurrentTyping("");
+    _winRecordBoards.add(-2); //Add now, fix value later
     currentRowChangedNotifier.value++;
     if (fbAnalytics) {
-      analytics!.logLevelUp(level: enteredWords.length);
+      analytics!.logLevelUp(level: _enteredWords.length);
     }
 
     //Test if it is correct word
     int winningBoardToFix =
-        getWinningBoardFromWordEnteredInAbRow(cardAbRowPreGuessToFix);
+        _getWinningBoardFromWordEnteredInAbRow(cardAbRowPreGuessToFix);
     bool isWin = winningBoardToFix != -1;
 
     if (!isWin) {
-      winRecordBoards[cardAbRowPreGuessToFix] = -1; //Confirm no win
+      _winRecordBoards[cardAbRowPreGuessToFix] = -1; //Confirm no win
     }
 
     save.saveKeys();
     //setStateGlobal(); //non-ephemeral state change, so needs setState even with GetX .obs
 
-    gradualRevealAbRow(cardAbRowPreGuessToFix);
-    handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
+    _gradualRevealAbRow(cardAbRowPreGuessToFix);
+    _handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
         firstKnowledgeToFix, isWin, maxAbRowOfBoard);
   }
 
-  void gradualRevealAbRow(abRow) {
+  void _gradualRevealAbRow(int abRow) {
     // flip to reveal the colors with pleasing animation
     for (int i = 0; i < cols; i++) {
-      setAbCardFlourishFlipAngle(abRow, i, 0.5);
+      _setAbCardFlourishFlipAngle(abRow, i, 0.5);
     }
     //setStateGlobal();
     for (int i = 0; i < cols; i++) {
       Future.delayed(Duration(milliseconds: gradualRevealDelayTime * i), () {
-        setAbCardFlourishFlipAngle(abRow, i, 0.0);
+        _setAbCardFlourishFlipAngle(abRow, i, 0.0);
         if (i == cols - 1) {
-          if (abCardFlourishFlipAngles.value.containsKey(abRow)) {
+          if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
             // Due to delays check still exists before remove
-            abCardFlourishFlipAngles.remove(abRow);
+            abCardFlourishFlipAnglesNotifier.remove(abRow);
             //setStateGlobal(); //needed even with getx .obs to refresh keyboard
           }
         }
@@ -179,8 +157,12 @@ class Game {
     }
   }
 
-  Future<void> handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
-      firstKnowledgeToFix, isWin, maxAbRowOfBoard) async {
+  Future<void> _handleWinLoseState(
+      int cardAbRowPreGuessToFix,
+      int winningBoardToFix,
+      int firstKnowledgeToFix,
+      bool isWin,
+      int maxAbRowOfBoard) async {
     //Delay for visual changes to have taken effect
     await sleep(gradualRevealRowTime + visualCatchUpTime);
 
@@ -193,7 +175,7 @@ class Game {
     if (!infMode && isWin) {
       //Code for totally winning game across all boards
       bool totallySolvedLocal = true;
-      for (var i = 0; i < numBoards; i++) {
+      for (int i = 0; i < numBoards; i++) {
         if (!getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
           totallySolvedLocal = false;
         }
@@ -204,48 +186,48 @@ class Game {
     }
 
     if (infMode && isWin) {
-      handleWinningWordEntered(
+      _handleWinningWordEntered(
           cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
     }
   }
 
-  Future<void> handleWinningWordEntered(
-      cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
+  Future<void> _handleWinningWordEntered(int cardAbRowPreGuessToFix,
+      int winningBoardToFix, int firstKnowledgeToFix) async {
     //Slide up and increment firstKnowledge
-    await slideUpAnimation();
+    await _slideUpAnimation();
     firstKnowledgeToFix++;
 
-    if (getReadyForStreakAbRowReal(cardAbRowPreGuessToFix)) {
+    if (_getReadyForStreakAbRowReal(cardAbRowPreGuessToFix)) {
       // Streak, so need to take another step back
 
       //Slide up and increment firstKnowledge
-      await slideUpAnimation();
+      await _slideUpAnimation();
       firstKnowledgeToFix++;
     }
 
-    await unflipSwapFlip(
+    await _unflipSwapFlip(
         cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
   }
 
-  Future<void> slideUpAnimation() async {
+  Future<void> _slideUpAnimation() async {
     //Slide the cards up visually, creating the illusion of stepping up
-    setTemporaryVisualOffsetForSlide(1);
+    temporaryVisualOffsetForSlide = 1;
     //setStateGlobal();
 
     // Delay for sliding cards up to have taken effect
     await sleep(slideTime);
 
     // Undo the visual slide (and do this instantaneously)
-    setTemporaryVisualOffsetForSlide(0);
+    temporaryVisualOffsetForSlide = 0;
 
     // Actually move the cards up, so state matches visual illusion above
-    takeOneStepBack();
+    _takeOneStepBack();
 
     // Pause, so can temporarily see new position
     await sleep(visualCatchUpTime);
   }
 
-  void takeOneStepBack() {
+  void _takeOneStepBack() {
     // This function is run after a delay so need to make sure threadsafe
     // Use variables at the time word was entered rather than live variables
     pushUpSteps++;
@@ -253,59 +235,59 @@ class Game {
     //setStateGlobal();
   }
 
-  Future<void> unflipSwapFlip(
-      cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix) async {
+  Future<void> _unflipSwapFlip(int cardAbRowPreGuessToFix,
+      int winningBoardToFix, int firstKnowledgeToFix) async {
     //unflip
-    setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
+    _setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
     //setStateGlobal();
     await sleep(flipTime);
     await sleep(visualCatchUpTime - flipTime);
 
     // Log the win officially, and get a new word
-    logWinAndSetNewWord(
+    _logWinAndSetNewWord(
         cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
 
     //flip
-    setBoardFlourishFlipRow(winningBoardToFix, -1);
+    _setBoardFlourishFlipRow(winningBoardToFix, -1);
     //setStateGlobal();
     await sleep(flipTime);
     await sleep(visualCatchUpTime);
   }
 
-  void logWinAndSetNewWord(
-      winRecordBoardsIndexToFix, winningBoardToFix, firstKnowledgeToFix) {
+  void _logWinAndSetNewWord(int winRecordBoardsIndexToFix,
+      int winningBoardToFix, int firstKnowledgeToFix) {
     // This function is run after a delay so need to make sure threadsafe
     // Use variables at the time word was entered rather than live variables
 
     // Log the word just entered as a win in the official record
     // Fix the fact that we stored a -1 in this place temporarily
-    if (winRecordBoards.length > winRecordBoardsIndexToFix) {
-      winRecordBoards[winRecordBoardsIndexToFix] = winningBoardToFix;
+    if (_winRecordBoards.length > winRecordBoardsIndexToFix) {
+      _winRecordBoards[winRecordBoardsIndexToFix] = winningBoardToFix;
     }
 
     // Update first knowledge for scroll back
-    firstKnowledge[winningBoardToFix] = firstKnowledgeToFix;
+    _firstKnowledge[winningBoardToFix] = firstKnowledgeToFix;
 
     // Create new target word for the board
-    targetWords[winningBoardToFix] = getNewTargetWord();
+    _targetWords[winningBoardToFix] = _getNewTargetWord();
     targetWordsChangedNotifier.value++;
 
     save.saveKeys();
     //setStateGlobal();
   }
 
-  void cheatInitiate() {
+  void _cheatInitiate() {
     // Speed initialise known entries using cheat mode for debugging
-    for (var j = 0; j < numBoards; j++) {
+    for (int j = 0; j < numBoards; j++) {
       if (cheatTargetWordsInitial.length > j) {
-        targetWords[j] = cheatTargetWordsInitial[j];
+        _targetWords[j] = cheatTargetWordsInitial[j];
       } else {
-        targetWords[j] = getNewTargetWord();
+        _targetWords[j] = _getNewTargetWord();
       }
     }
-    for (var j = 0; j < cheatEnteredWordsInitial.length; j++) {
-      enteredWords.add(cheatEnteredWordsInitial[j]);
-      winRecordBoards.add(-1);
+    for (int j = 0; j < cheatEnteredWordsInitial.length; j++) {
+      _enteredWords.add(cheatEnteredWordsInitial[j]);
+      _winRecordBoards.add(-1);
     }
   }
 
@@ -314,42 +296,42 @@ class Game {
     initiateBoard();
     if (fbAnalytics) {
       analytics!.logLevelStart(levelName: "Reset");
-      analytics!.logLevelUp(level: enteredWords.length);
+      analytics!.logLevelUp(level: _enteredWords.length);
     }
     save.saveKeys();
   }
 
   void toggleExpandingBoardState() {
-    if (expandingBoard) {
-      expandingBoard = false;
+    if (_expandingBoard) {
+      _expandingBoard = false;
     } else {
-      expandingBoard = true;
-      expandingBoardEver = true;
+      _expandingBoard = true;
+      _expandingBoardEver = true;
     }
     save.saveKeys();
     setStateGlobal();
   }
 
-  void toggleHighlightedBoard(boardNumber) {
-    if (getHighlightedBoard() == boardNumber) {
-      setHighlightedBoard(-1); //if already set turn off
+  void toggleHighlightedBoard(int boardNumber) {
+    if (highlightedBoard == boardNumber) {
+      highlightedBoard = -1; //if already set turn off
     } else {
-      setHighlightedBoard(boardNumber);
+      highlightedBoard = boardNumber;
     }
     //No need to save as local state
   }
 
-  String getCardLetterAtAbIndex(abIndex) {
+  String getCardLetterAtAbIndex(int abIndex) {
     int abRow = abIndex ~/ cols;
     int col = abIndex % cols;
     try {
       String letter = "";
-      if (abRow > getAbCurrentRowInt()) {
+      if (abRow > abCurrentRowInt) {
         letter = "";
-      } else if (abRow == getAbCurrentRowInt()) {
-        letter = getCurrentTypingAtCol(col);
+      } else if (abRow == abCurrentRowInt) {
+        letter = _getCurrentTypingAtCol(col);
       } else {
-        letter = enteredWords[abRow][col];
+        letter = _enteredWords[abRow][col];
       }
       return letter;
     } catch (e) {
@@ -358,22 +340,22 @@ class Game {
     }
   }
 
-  bool getTestHistoricalAbWin(abRow, boardNumber) {
+  bool getTestHistoricalAbWin(int abRow, int boardNumber) {
     if (abRow > 0 &&
-        winRecordBoards.length > abRow &&
-        winRecordBoards[abRow] == boardNumber) {
+        _winRecordBoards.length > abRow &&
+        _winRecordBoards[abRow] == boardNumber) {
       return true;
     }
     return false;
   }
 
-  bool getReadyForStreakAbRowReal(abRow) {
+  bool _getReadyForStreakAbRowReal(int abRow) {
     bool isStreak = true;
     if (abRow < 2) {
       isStreak = false;
     } else {
       for (int q = 0; q < 2; q++) {
-        if (abRow - 1 - q < 0 || winRecordBoards[abRow - 1 - q] != -1) {
+        if (abRow - 1 - q < 0 || _winRecordBoards[abRow - 1 - q] != -1) {
           isStreak = true;
         } else {
           isStreak = false;
@@ -384,16 +366,15 @@ class Game {
     return isStreak;
   }
 
-  bool getReadyForStreakCurrentRow() {
-    return getReadyForStreakAbRowReal(getAbCurrentRowInt());
-  }
+  bool get readyForStreakCurrentRow =>
+      _getReadyForStreakAbRowReal(abCurrentRowInt);
 
-  bool getDetectBoardSolvedByABRow(boardNumber, maxAbRowToCheck) {
-    for (var abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
-        abRow < min(getAbCurrentRowInt(), maxAbRowToCheck);
+  bool getDetectBoardSolvedByABRow(int boardNumber, int maxAbRowToCheck) {
+    for (int abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
+        abRow < min(abCurrentRowInt, maxAbRowToCheck);
         abRow++) {
       bool result = true;
-      for (var column = 0; column < cols; column++) {
+      for (int column = 0; column < cols; column++) {
         int abIndex = abRow * cols + column;
         if (cardColors.getAbCardColor(abIndex, boardNumber) != green) {
           result = false;
@@ -406,12 +387,12 @@ class Game {
     return false;
   }
 
-  int getWinningBoardFromWordEnteredInAbRow(cardAbRowPreGuessToFix) {
+  int _getWinningBoardFromWordEnteredInAbRow(int cardAbRowPreGuessToFix) {
     //bool isWin = false;
     int winningBoardToFix = -1;
-    for (var board = 0; board < numBoards; board++) {
+    for (int board = 0; board < numBoards; board++) {
       if (getCurrentTargetWordForBoard(board) ==
-          enteredWords[cardAbRowPreGuessToFix]) {
+          _enteredWords[cardAbRowPreGuessToFix]) {
         //isWin = true;
         winningBoardToFix = board;
       }
@@ -419,38 +400,38 @@ class Game {
     return winningBoardToFix;
   }
 
-  void loadFromEncodedState(gameEncoded, sync) {
+  void loadFromEncodedState(String gameEncoded, bool sync) {
     if (gameEncoded == "") {
       p(["loadFromEncodedState empty"]);
       setStateGlobal();
-    } else if (gameEncoded != gameEncodedLastCache) {
+    } else if (gameEncoded != _gameEncodedLastCache) {
       try {
         Map<String, dynamic> gameTmp = {};
         gameTmp = json.decode(gameEncoded);
 
         String tmpgUser = gameTmp["gUser"] ?? "Default";
-        if (tmpgUser != g.getUser() && tmpgUser != "Default") {
+        if (tmpgUser != g.gUser && tmpgUser != "Default") {
           //Error state, so set gUser properly and redo loadKeys from firebase
-          g.setUser(tmpgUser);
+          g.gUser = tmpgUser;
           save.loadKeys();
           setStateGlobal();
           return;
         }
 
-        targetWords = gameTmp["targetWords"] ?? getNewTargetWords(numBoards);
+        _targetWords = gameTmp["targetWords"] ?? _getNewTargetWords(numBoards);
 
-        if (targetWords.length != numBoards) {
+        if (_targetWords.length != numBoards) {
           resetBoard();
           return;
         }
 
-        enteredWords = gameTmp["enteredWords"] ?? [];
-        winRecordBoards = gameTmp["winRecordBoards"] ?? [];
-        firstKnowledge =
+        _enteredWords = gameTmp["enteredWords"] ?? [];
+        _winRecordBoards = gameTmp["winRecordBoards"] ?? [];
+        _firstKnowledge =
             gameTmp["firstKnowledge"] ?? getBlankFirstKnowledge(numBoards);
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
-        expandingBoard = gameTmp["expandingBoard"] ?? false;
-        expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
+        _expandingBoard = gameTmp["expandingBoard"] ?? false;
+        _expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
 
         //TRANSITIONAL logic from old variable naming convention
         int offsetRollback = gameTmp["offsetRollback"] ?? 0;
@@ -462,7 +443,7 @@ class Game {
       } catch (error) {
         p(["loadFromEncodedState error", error]);
       }
-      gameEncodedLastCache = gameEncoded;
+      _gameEncodedLastCache = gameEncoded;
       if (sync) {
         setStateGlobal();
       } else {
@@ -477,81 +458,81 @@ class Game {
   String getEncodeCurrentGameState() {
     Map<String, dynamic> gameTmp = {};
     gameTmp = {};
-    gameTmp["targetWords"] = targetWords;
-    gameTmp["gUser"] = g.getUser();
+    gameTmp["targetWords"] = _targetWords;
+    gameTmp["gUser"] = g.gUser;
 
-    gameTmp["enteredWords"] = enteredWords;
-    gameTmp["winRecordBoards"] = winRecordBoards;
-    gameTmp["firstKnowledge"] = firstKnowledge;
+    gameTmp["enteredWords"] = _enteredWords;
+    gameTmp["winRecordBoards"] = _winRecordBoards;
+    gameTmp["firstKnowledge"] = _firstKnowledge;
     gameTmp["pushUpSteps"] = pushUpSteps;
-    gameTmp["expandingBoard"] = expandingBoard;
-    gameTmp["expandingBoardEver"] = expandingBoardEver;
+    gameTmp["expandingBoard"] = _expandingBoard;
+    gameTmp["expandingBoardEver"] = _expandingBoardEver;
 
     return json.encode(gameTmp);
   }
 
-  void printCheatTargetWords() {
+  void _printCheatTargetWords() {
     if (cheatMode) {
       p([
-        targetWords,
-        enteredWords,
-        winRecordBoards,
-        getCurrentTyping(),
-        firstKnowledge,
-        getPushOffBoardRows(),
-        getExtraRows(),
+        _targetWords,
+        _enteredWords,
+        _winRecordBoards,
+        currentTypingString,
+        _firstKnowledge,
+        pushOffBoardRows,
+        extraRows,
         pushUpSteps,
-        getAbLiveNumRowsPerBoard(),
-        getAbCurrentRowInt(),
+        abLiveNumRowsPerBoard,
+        abCurrentRowInt,
       ]);
     }
   }
 
-  String getCurrentTargetWordForBoard(boardNumber) {
-    if (boardNumber < targetWords.length) {
+  String getCurrentTargetWordForBoard(int boardNumber) {
+    if (boardNumber < _targetWords.length) {
     } else {
       p("getCurrentTargetWordForBoard error");
-      targetWords = getNewTargetWords(numBoards);
+      _targetWords = _getNewTargetWords(numBoards);
     }
-    return targetWords[boardNumber];
+    return _targetWords[boardNumber];
   }
 
-  String getNewTargetWord() {
-    String a = targetWords[0];
-    while (targetWords.contains(a) || enteredWords.contains(a)) {
+  String _getNewTargetWord() {
+    String a = _targetWords[0];
+    while (_targetWords.contains(a) || _enteredWords.contains(a)) {
       // Ensure a word we have never seen before
       a = winnableWords[random.nextInt(winnableWords.length)];
     }
     return a;
   }
 
-  List getNewTargetWords(numberOfBoards) {
-    var starterList = [];
-    for (var i = 0; i < numberOfBoards; i++) {
-      starterList.add(getNewTargetWord());
+  List<String> _getNewTargetWords(int numberOfBoards) {
+    List<String> starterList = [];
+    for (int i = 0; i < numberOfBoards; i++) {
+      starterList.add(_getNewTargetWord());
     }
     return starterList;
   }
 
-  List getWinWords() {
-    var log = [];
-    for (var i = 0; i < winRecordBoards.length; i++) {
-      if (winRecordBoards[i] != -1) {
-        log.add(enteredWords[i]);
+  List<String> getWinWords() {
+    List<String> log = [];
+    for (int i = 0; i < _winRecordBoards.length; i++) {
+      if (_winRecordBoards[i] != -1) {
+        log.add(_enteredWords[i]);
       }
     }
     return log;
   }
 
-  int getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) {
-    if (firstKnowledge.length != numBoards) {
-      firstKnowledge = getBlankFirstKnowledge(numBoards);
+  int getFirstAbRowToShowOnBoardDueToKnowledge(int boardNumber) {
+    if (_firstKnowledge.length != numBoards) {
+      _firstKnowledge = getBlankFirstKnowledge(numBoards);
       p("getFirstVisualRowToShowOnBoard error");
     }
-    if (!expandingBoard) {
-      return getPushOffBoardRows();
-    } else if (boardNumber < firstKnowledge.length) {
-      return firstKnowledge[boardNumber];
+    if (!_expandingBoard) {
+      return pushOffBoardRows;
+    } else if (boardNumber < _firstKnowledge.length) {
+      return _firstKnowledge[boardNumber];
     } else {
       p("getFirstVisualRowToShowOnBoard error");
       return 0;
@@ -568,19 +549,19 @@ class Game {
     //  return enteredWords.length * cols;
     //}
     int count = 0;
-    for (int key in abCardFlourishFlipAngles.value.keys) {
+    for (int key in abCardFlourishFlipAnglesNotifier.value.keys) {
       for (int i = 0; i < cols; i++) {
-        if (abCardFlourishFlipAngles.value[key]![i] > 0) {
+        if (abCardFlourishFlipAnglesNotifier.value[key]![i] > 0) {
           count++;
         }
       }
       //count = (abCardFlourishFlipAngles[key]).where((x) => x > 0.0 ?? false).length + count;
     }
-    return enteredWords.length * cols - count;
+    return _enteredWords.length * cols - count;
   }
 
-  void setAbCardFlourishFlipAngle(int abRow, int column, double value) {
-    abCardFlourishFlipAngles.set(abRow, column, value);
+  void _setAbCardFlourishFlipAngle(int abRow, int column, double value) {
+    abCardFlourishFlipAnglesNotifier.set(abRow, column, value);
     /*
     if (!abCardFlourishFlipAngles.containsKey(abRow)) {
       abCardFlourishFlipAngles[abRow] =
@@ -591,117 +572,102 @@ class Game {
      */
   }
 
-  void clearBoardFlourishFlipRows() {
-    for (int i = 0; i < boardFlourishFlipRows.length; i++) {
-      setBoardFlourishFlipRow(i, -1);
+  void _clearBoardFlourishFlipRows() {
+    for (int i = 0; i < boardFlourishFlipRowsNotifiers.length; i++) {
+      _setBoardFlourishFlipRow(i, -1);
     }
   }
 
   // PRETTY MUCH PURE GETTERS AND SETTERS
 
-  int getAbLiveNumRowsPerBoard() {
-    return numRowsPerBoard + getExtraRows() + getPushOffBoardRows();
+  int get gbLiveNumRowsPerBoard => numRowsPerBoard + extraRows;
+
+  int get abLiveNumRowsPerBoard =>
+      numRowsPerBoard + extraRows + pushOffBoardRows;
+
+  int get pushOffBoardRows =>
+      _expandingBoard ? _firstKnowledge.cast<int>().reduce(min) : pushUpSteps;
+
+  int get extraRows => pushUpSteps - pushOffBoardRows;
+
+  int get abCurrentRowInt => _enteredWords.length;
+
+  int get gbCurrentRowInt => getGBRowFromABRow(abCurrentRowInt);
+
+  bool isBoardNormalHighlighted(int boardNumber) {
+    return highlightedBoard == -1 || highlightedBoard == boardNumber;
   }
 
-  int getGbLiveNumRowsPerBoard() {
-    return numRowsPerBoard + getExtraRows();
-  }
-
-  int getPushOffBoardRows() {
-    if (expandingBoard) {
-      return firstKnowledge.cast<int>().reduce(min);
-    } else {
-      return pushUpSteps;
-    }
-  }
-
-  int getExtraRows() {
-    return pushUpSteps - getPushOffBoardRows();
-  }
-
-  int getAbCurrentRowInt() {
-    return enteredWords.length;
-  }
-
-  int getGbCurrentRowInt() {
-    return getGBRowFromABRow(getAbCurrentRowInt());
-  }
-
-  bool isBoardNormalHighlighted(boardNumber) {
-    return getHighlightedBoard() == -1 || getHighlightedBoard() == boardNumber;
-  }
-
-  void setCurrentTyping(text) {
+  void _setCurrentTyping(String text) {
     for (int i = 0; i < cols; i++) {
       if (i < text.length) {
-        currentTyping[i].value = text.substring(i, i + 1);
+        currentTypingNotifiers[i].value = text.substring(i, i + 1);
       } else {
-        currentTyping[i].value = "";
+        currentTypingNotifiers[i].value = "";
       }
     }
   }
 
-  setIllegalFiveLetterWord(tf) {
-    illegalFiveLetterWord.value = tf;
+  set illegalFiveLetterWord(bool tf) =>
+      illegalFiveLetterWordNotifier.value = tf;
+
+  set temporaryVisualOffsetForSlide(int value) =>
+      temporaryVisualOffsetForSlideNotifier.value = value;
+
+  set highlightedBoard(value) => highlightedBoardNotifier.value = value;
+
+  void _setBoardFlourishFlipRow(int i, int val) {
+    boardFlourishFlipRowsNotifiers[i].value = val;
   }
 
-  setTemporaryVisualOffsetForSlide(value) {
-    temporaryVisualOffsetForSlide.value = value;
-  }
-
-  setHighlightedBoard(value) {
-    highlightedBoard.value = value;
-  }
-
-  void setBoardFlourishFlipRow(i, val) {
-    boardFlourishFlipRows[i].value = val;
-  }
+  bool get gameOver =>
+      abCurrentRowInt >= abLiveNumRowsPerBoard &&
+      _winRecordBoards.isNotEmpty &&
+      _winRecordBoards[_winRecordBoards.length - 1] == -1;
 
   // PURE GETTERS
 
-  bool getAboutToWinCache() {
-    return aboutToWinCache;
+  bool get expandingBoard => _expandingBoard;
+
+  bool get expandingBoardEver => _expandingBoardEver;
+
+  List<dynamic> get targetWords => _targetWords;
+
+  int get temporaryVisualOffsetForSlide =>
+      temporaryVisualOffsetForSlideNotifier.value;
+
+  int get highlightedBoard => highlightedBoardNotifier.value;
+
+  get currentTypingString => currentTypingNotifiers
+      .map((ValueNotifier<String> element) => element.value)
+      .reduce((String value, String element) => value + element);
+
+  String _getCurrentTypingAtCol(int col) {
+    return currentTypingNotifiers[col].value;
   }
 
-  bool getExpandingBoard() {
-    return expandingBoard;
+  bool get isIllegalFiveLetterWord => illegalFiveLetterWordNotifier.value;
+
+  int getBoardFlourishFlipRow(int i) {
+    return boardFlourishFlipRowsNotifiers[i].value;
+  }
+}
+
+class _CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
+  _CustomMapNotifier() : super({});
+
+  void set(int abRow, int column, double tvalue) {
+    if (!value.containsKey(abRow)) {
+      value[abRow] = List<double>.generate(cols, (i) => 0.0);
+    }
+    value[abRow]![column] = tvalue;
+    notifyListeners();
   }
 
-  bool getExpandingBoardEver() {
-    return expandingBoardEver;
-  }
-
-  List getCurrentTargetWords() {
-    return targetWords;
-  }
-
-  int getTemporaryVisualOffsetForSlide() {
-    return temporaryVisualOffsetForSlide.value;
-  }
-
-  int getHighlightedBoard() {
-    return highlightedBoard.value;
-  }
-
-  List getFirstKnowledge() {
-    return firstKnowledge;
-  }
-
-  String getCurrentTyping() {
-    return currentTyping
-        .map((var element) => element.value)
-        .reduce((value, element) => value + element);
-  }
-
-  String getCurrentTypingAtCol(col) {
-    return currentTyping[col].value;
-  }
-
-  bool isIllegalFiveLetterWord() {
-    return illegalFiveLetterWord.value;
-  }
-
-  int getBoardFlourishFlipRow(i) {
-    return boardFlourishFlipRows[i].value;
+  void remove(int key) {
+    if (value.containsKey(key)) {
+      value.remove(key);
+    }
+    notifyListeners();
   }
 }

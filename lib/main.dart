@@ -4,13 +4,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:infinitordle/app_structure.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/helper.dart';
-import 'package:infinitordle/popup_screens.dart';
 
+import 'app_structure.dart';
+import 'constants.dart';
 //firebase_options.dart as per direct download from google, not included in repo
 import 'firebase_options.dart';
+import 'helper.dart';
+import 'popup_screens.dart';
 
 Future<void> main() async {
   //debugRepaintRainbowEnabled = true;

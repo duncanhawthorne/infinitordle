@@ -4,9 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:infinitordle/firebase_options.dart';
-import 'package:infinitordle/secrets.dart';
-import 'package:infinitordle/wordlist.dart';
+
+import 'firebase_options.dart';
+import 'secrets.dart';
+import 'wordlist.dart';
 
 //Debug
 const bool cheatMode = false;
@@ -116,8 +117,8 @@ FirebaseAnalytics? analytics = fbAnalytics ? FirebaseAnalytics.instance : null;
 //Misc
 final Random random = Random();
 
-var ssFunctionList = [];
-var showResetScreenFunctionList = [];
+List<Function> ssFunctionList = [];
+List<Function> showResetScreenFunctionList = [];
 
 void setStateGlobal() {
   //Hack to make these functions available globally

@@ -1,19 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/helper.dart';
+
+import 'constants.dart';
+import 'helper.dart';
 
 class FireBase {
   List<String> recentSnapshotsCache = [];
 
-  void load(snapshot) {
+  void load(AsyncSnapshot<DocumentSnapshot> snapshot) {
     if (fbOn) {
       if (snapshot.hasError || !snapshot.hasData) {
       } else if (snapshot.connectionState == ConnectionState.waiting) {
       } else {
-        var userDocument = snapshot.data;
+        DocumentSnapshot<Object?>? userDocument = snapshot.data;
         if (userDocument != null && userDocument.exists) {
           String snapshotCurrent = userDocument["data"];
-          if (g.signedIn() && !recentSnapshotsCache.contains(snapshotCurrent)) {
+          if (g.signedIn && !recentSnapshotsCache.contains(snapshotCurrent)) {
             if (snapshotCurrent != game.getEncodeCurrentGameState()) {
               game.loadFromEncodedState(snapshotCurrent, false);
             }

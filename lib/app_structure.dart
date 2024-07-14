@@ -2,10 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/gameboard.dart';
-import 'package:infinitordle/helper.dart';
-import 'package:infinitordle/keyboard.dart';
+
+import 'constants.dart';
+import 'gameboard.dart';
+import 'helper.dart';
+import 'keyboard.dart';
 
 FocusNode focusNode = FocusNode();
 
@@ -14,11 +15,11 @@ Widget infinitordleWidget() {
 }
 
 Widget streamBuilderWrapperOnDocument() {
-  if (!fbOn || !g.signedIn()) {
+  if (!fbOn || !g.signedIn) {
     return _scaffold();
   } else {
     return StreamBuilder<DocumentSnapshot>(
-      stream: db!.collection('states').doc(g.getUser()).snapshots(),
+      stream: db!.collection('states').doc(g.gUser).snapshots(),
       builder:
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         fBase.load(snapshot);
@@ -59,7 +60,7 @@ Widget titleWidget() {
                 valueListenable: game.targetWordsChangedNotifier,
                 builder: (BuildContext context, int value, Widget? child) {
                   int numberWinsCache = game.getWinWords().length;
-                  var infText = numberWinsCache == 0
+                  String infText = numberWinsCache == 0
                       ? "o"
                       : "∞" * (numberWinsCache ~/ 2) +
                           "o" * (numberWinsCache % 2);
@@ -77,7 +78,7 @@ Widget titleWidget() {
                             text: infText,
                             style: TextStyle(
                                 color: numberWinsCache == 0 ||
-                                        game.getExpandingBoardEver()
+                                        game.expandingBoardEver
                                     ? white
                                     : green)),
                         const TextSpan(text: appTitle3),
@@ -123,7 +124,7 @@ Widget gameboardAndKeyboard() {
     child: Column(
       children: [
         Stack(alignment: Alignment.center, children: [
-          game.getHighlightedBoard() != -1
+          game.highlightedBoard != -1
               ? InkWell(
                   onTap: () => game.toggleHighlightedBoard(-1),
                   child: SizedBox(

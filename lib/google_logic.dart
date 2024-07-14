@@ -2,26 +2,26 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:infinitordle/constants.dart';
-import 'package:infinitordle/helper.dart';
-//gID defined in secrets.dart, not included in repo
-//in format XXXXXX.apps.googleusercontent.com
-import 'package:infinitordle/secrets.dart';
 
 import 'app_structure.dart';
+import 'constants.dart';
+import 'helper.dart';
+//gID defined in secrets.dart, not included in repo
+//in format XXXXXX.apps.googleusercontent.com
+import 'secrets.dart';
 import 'src/sign_in_button.dart';
 
 /// The type of the onClick callback for the (mobile) Sign In Button.
 //typedef HandleSignInFn = Future<void> Function();
 
-Widget lockStyleSignInButton(context) {
+Widget lockStyleSignInButton(BuildContext context) {
   return IconButton(
     iconSize: 25,
     icon: const Icon(Icons.lock_outlined),
     onPressed: () {
       g.signInDirectly(); //signInSilentlyThenDirectly();
       try {
-        Navigator.pop(context!, 'OK');
+        Navigator.pop(context, 'OK');
         focusNode.requestFocus();
       } catch (e) {
         p(["No pop", e]);
@@ -42,8 +42,8 @@ class Google {
 
   GoogleSignInAccount? _user;
 
-  var gUser = "JoeBloggs";
-  var gUserIcon = "JoeBloggs";
+  String _gUser = "JoeBloggs";
+  String _gUserIcon = "JoeBloggs";
 
   void startGoogleAccountChangeListener() {
     if (gOn) {
@@ -52,10 +52,10 @@ class Google {
         _user = account;
         if (_user != null) {
           p(["login successful", _user]);
-          successfulLoginExtractDetails();
+          _successfulLoginExtractDetails();
         } else {
           p(["logout"]);
-          logoutExtractDetails();
+          _logoutExtractDetails();
         }
       });
     }
@@ -64,7 +64,7 @@ class Google {
   void signInSilently() async {
     if (gOn) {
       await googleSignIn.signInSilently();
-      successfulLoginExtractDetails();
+      _successfulLoginExtractDetails();
     }
   }
 
@@ -73,10 +73,10 @@ class Google {
     if (gOn) {
       try {
         if (debugFakeLogin) {
-          debugLoginExtractDetails();
+          _debugLoginExtractDetails();
         } else {
           await googleSignIn.signIn();
-          successfulLoginExtractDetails();
+          _successfulLoginExtractDetails();
         }
       } catch (e) {
         p(["signInDirectly", e]);
@@ -90,7 +90,7 @@ class Google {
       } else {
         try {
           await googleSignIn.disconnect();
-          logoutExtractDetails();
+          _logoutExtractDetails();
         } catch (e) {
           p(["signOut", e]);
         }
@@ -103,7 +103,7 @@ class Google {
     p("mobileSignIn()");
     if (gOn) {
       if (debugFakeLogin) {
-        debugLoginExtractDetails();
+        _debugLoginExtractDetails();
       } else {
         await googleSignIn.signInSilently();
         _user = googleSignIn.currentUser;
@@ -113,34 +113,34 @@ class Google {
           await googleSignIn.signIn();
           _user = googleSignIn.currentUser;
         }
-        successfulLoginExtractDetails();
+        _successfulLoginExtractDetails();
       }
     }
   }
 
-  void successfulLoginExtractDetails() async {
+  void _successfulLoginExtractDetails() async {
     if (_user != null) {
       p("login extract details");
-      gUser = _user!.email;
+      _gUser = _user!.email;
       if (_user!.photoUrl != null) {
-        gUserIcon = _user!.photoUrl ?? gUserIconDefault;
+        _gUserIcon = _user!.photoUrl ?? gUserIconDefault;
       }
       await save.saveUser();
       await save.loadKeys();
     }
   }
 
-  void debugLoginExtractDetails() async {
+  void _debugLoginExtractDetails() async {
     p("debugLoginExtractDetails");
     assert(debugFakeLogin);
-    gUser = gUserFakeLogin;
+    _gUser = gUserFakeLogin;
     await save.saveUser();
     await save.loadKeys();
   }
 
-  void logoutExtractDetails() async {
+  void _logoutExtractDetails() async {
     p("logout extract details");
-    gUser = gUserDefault;
+    _gUser = gUserDefault;
     await save.saveUser();
     game.resetBoard();
     await save.loadKeys();
@@ -150,11 +150,11 @@ class Google {
     p("sign out and extract details");
     if (gOn) {
       await signOut();
-      logoutExtractDetails();
+      _logoutExtractDetails();
     }
   }
 
-  Widget platformAdaptiveSignInButton(context) {
+  Widget platformAdaptiveSignInButton(BuildContext context) {
     // different buttons depending on web or mobile. See sign_in_button folder
     return buildSignInButton(
         onPressed:
@@ -162,23 +162,13 @@ class Google {
         context: context);
   }
 
-  bool signedIn() {
-    return gUser != gUserDefault;
-  }
+  bool get signedIn => _gUser != gUserDefault;
 
-  String getUser() {
-    return gUser;
-  }
+  String get gUser => _gUser;
 
-  void setUser(g) {
-    gUser = g;
-  }
+  String get gUserIcon => _gUserIcon;
 
-  String getUserIcon() {
-    return gUserIcon;
-  }
+  set gUser(g) => _gUser = g;
 
-  void setUserIcon(gui) {
-    gUserIcon = gui;
-  }
+  set gUserIcon(gui) => _gUserIcon = gui;
 }
