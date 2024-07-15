@@ -110,58 +110,56 @@ final Map _kbRegularTextCache = {
 
 Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
   return ValueListenableBuilder<int>(
+      valueListenable: game.highlightedBoardNotifier,
+      builder: (BuildContext context, int value, Widget? child) {
+        return GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: game.highlightedBoard != -1 ? 1 : numBoards,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: game.highlightedBoard != -1
+                  ? 1
+                  : numBoards ~/ screen.numPresentationBigRowsOfBoards,
+              childAspectRatio: (game.highlightedBoard != -1
+                      ? 1
+                      : 1 /
+                          ((numBoards / screen.numPresentationBigRowsOfBoards) /
+                              screen.numPresentationBigRowsOfBoards)) /
+                  screen.keyAspectRatioLive *
+                  (10 / kbRowLength),
+            ),
+            itemBuilder: (BuildContext context, int subIndex) {
+              //Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
+              //return _kbMiniSquareColorCache[color];
+              return _kbMiniSquareColorChooser(kbLetter, subIndex);
+            });
+      });
+}
+
+Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
+  return ValueListenableBuilder<int>(
       valueListenable: game,
       builder: (BuildContext context, int value, Widget? child) {
         return ValueListenableBuilder<int>(
-            valueListenable: game.highlightedBoardNotifier,
+            valueListenable: game.pushUpStepsNotifier,
             builder: (BuildContext context, int value, Widget? child) {
-              return GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: game.highlightedBoard != -1 ? 1 : numBoards,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: game.highlightedBoard != -1
-                        ? 1
-                        : numBoards ~/ screen.numPresentationBigRowsOfBoards,
-                    childAspectRatio: (game.highlightedBoard != -1
-                            ? 1
-                            : 1 /
-                                ((numBoards /
-                                        screen.numPresentationBigRowsOfBoards) /
-                                    screen.numPresentationBigRowsOfBoards)) /
-                        screen.keyAspectRatioLive *
-                        (10 / kbRowLength),
-                  ),
-                  itemBuilder: (BuildContext context, int subIndex) {
-                    //Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
-                    //return _kbMiniSquareColorCache[color];
-                    return ValueListenableBuilder<int>(
-                        valueListenable: game.pushUpStepsNotifier,
-                        builder:
-                            (BuildContext context, int value, Widget? child) {
-                          return ValueListenableBuilder<int>(
-                              valueListenable: game.targetWordsChangedNotifier,
-                              builder: (BuildContext context, int value,
-                                  Widget? child) {
-                                return ValueListenableBuilder<
-                                        Map<int, List<double>>>(
-                                    valueListenable:
-                                        game.abCardFlourishFlipAnglesNotifier,
-                                    builder: (BuildContext context,
-                                        Map<int, List<double>> value,
-                                        Widget? child) {
-                                      return _kbMiniSquareColorChooser(
-                                          kbLetter, subIndex);
-                                    });
-                              });
+              return ValueListenableBuilder<int>(
+                  valueListenable: game.targetWordsChangedNotifier,
+                  builder: (BuildContext context, int value, Widget? child) {
+                    return ValueListenableBuilder<Map<int, List<double>>>(
+                        valueListenable: game.abCardFlourishFlipAnglesNotifier,
+                        builder: (BuildContext context,
+                            Map<int, List<double>> value, Widget? child) {
+                          return _kbMiniSquareColorChooserReal(
+                              kbLetter, subIndex);
                         });
                   });
             });
       });
 }
 
-Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
+Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {
   Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
   double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
   int numRows = screen.numPresentationBigRowsOfBoards;

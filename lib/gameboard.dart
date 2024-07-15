@@ -163,40 +163,42 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
           child: SizedBox(
               height: cardSize,
               width: cardSize,
-              child: ValueListenableBuilder<int>(
-                valueListenable: game.highlightedBoardNotifier,
-                builder: (BuildContext context, int value, Widget? child) {
-                  return ValueListenableBuilder<int>(
-                    valueListenable: game.currentRowChangedNotifier,
-                    builder: (BuildContext context, int value, Widget? child) {
-                      return abRow == game.abCurrentRowInt
-                          ? ValueListenableBuilder<String>(
-                              valueListenable:
-                                  game.currentTypingNotifiers[abIndex % cols],
-                              builder: (BuildContext context, String value,
-                                  Widget? child) {
-                                return _cardChooser(
-                                    abIndex, boardNumber, facingFront);
-                              },
-                            )
-                          : _cardChooser(abIndex, boardNumber, facingFront);
-                    },
-                  );
-                },
-              ))),
+              child: _cardChooser(abIndex, boardNumber, facingFront))),
     ],
   );
 }
 
 Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
+  int abRow = abIndex ~/ cols;
   return ValueListenableBuilder<int>(
-      valueListenable: game,
-      builder: (BuildContext context, int value, Widget? child) {
-        return _cardChooserReal(abIndex, boardNumber, facingFront);
-      });
+    valueListenable: game.highlightedBoardNotifier,
+    builder: (BuildContext context, int value, Widget? child) {
+      return ValueListenableBuilder<int>(
+        valueListenable: game.currentRowChangedNotifier,
+        builder: (BuildContext context, int value, Widget? child) {
+          return abRow == game.abCurrentRowInt
+              ? ValueListenableBuilder<String>(
+                  valueListenable: game.currentTypingNotifiers[abIndex % cols],
+                  builder: (BuildContext context, String value, Widget? child) {
+                    return _cardChooserReal(abIndex, boardNumber, facingFront);
+                  },
+                )
+              : _cardChooserReal(abIndex, boardNumber, facingFront);
+        },
+      );
+    },
+  );
 }
 
 Widget _cardChooserReal(int abIndex, int boardNumber, bool facingFront) {
+  return ValueListenableBuilder<int>(
+      valueListenable: game,
+      builder: (BuildContext context, int value, Widget? child) {
+        return _cardChooserRealReal(abIndex, boardNumber, facingFront);
+      });
+}
+
+Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
