@@ -11,14 +11,18 @@ const _renderTwoFramesTime = delayMult *
     33; // so that set state and animations don't happen exactly simultaneously
 
 Widget gameboardWidget(int boardNumber) {
-  return game.expandingBoard
-      ? ValueListenableBuilder<int>(
-          valueListenable: game.pushUpStepsNotifier,
-          builder: (BuildContext context, int value, Widget? child) {
-            return _gameboardWidgetReal(boardNumber);
-          },
-        )
-      : _gameboardWidgetReal(boardNumber);
+  return ValueListenableBuilder<bool>(
+      valueListenable: game.expandingBoardNotifier,
+      builder: (BuildContext context, bool value, Widget? child) {
+        return game.expandingBoard
+            ? ValueListenableBuilder<int>(
+                valueListenable: game.pushUpStepsNotifier,
+                builder: (BuildContext context, int value, Widget? child) {
+                  return _gameboardWidgetReal(boardNumber);
+                },
+              )
+            : _gameboardWidgetReal(boardNumber);
+      });
 }
 
 Widget _gameboardWidgetReal(int boardNumber) {
@@ -185,6 +189,14 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
 }
 
 Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
+  return ValueListenableBuilder<int>(
+      valueListenable: game,
+      builder: (BuildContext context, int value, Widget? child) {
+        return _cardChooserReal(abIndex, boardNumber, facingFront);
+      });
+}
+
+Widget _cardChooserReal(int abIndex, int boardNumber, bool facingFront) {
   int abRow = abIndex ~/ cols;
   int col = abIndex % cols;
   bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||

@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:infinitordle/wordlist.dart';
 
 import 'constants.dart';
 import 'helper.dart';
+import 'wordlist.dart';
 
 const _cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
 const _cheatTargetWordsInitial = ["scoff", "brunt", "armor", "tabby"];
@@ -15,18 +15,21 @@ const _visualCatchUpTime = delayMult * 750;
 const _gradualRevealRowTime = gradualRevealDelayTime * (cols - 1) + flipTime;
 final Random _random = Random();
 
-class Game {
+class Game extends ValueNotifier<int> {
+  Game() : super(0);
+
   //State to save
-  List<String> _targetWords = ["x"];
-  List<String> _enteredWords = ["x"];
-  List<int> _winRecordBoards = [-1];
-  List<int> _firstKnowledge = [-1];
+
+  final List<String> _targetWords = ["x"];
+  final List<String> _enteredWords = ["x"];
+  final List<int> _winRecordBoards = [-1];
+  final List<int> _firstKnowledge = [-1];
 
   final pushUpStepsNotifier = ValueNotifier(-1);
   int get pushUpSteps => pushUpStepsNotifier.value;
   set pushUpSteps(int value) => pushUpStepsNotifier.value = value;
 
-  bool _expandingBoard = false;
+  ValueNotifier<bool> expandingBoardNotifier = ValueNotifier(false);
   bool _expandingBoardEver = false;
 
   //Other state non-saved
@@ -45,12 +48,12 @@ class Game {
   final currentRowChangedNotifier = ValueNotifier(0);
 
   void initiateBoard() {
-    _targetWords = _getNewTargetWords(numBoards);
-    _enteredWords = [];
-    _winRecordBoards = [];
-    _firstKnowledge = _getBlankFirstKnowledge(numBoards);
+    _copyTo(_targetWords, _getNewTargetWords(numBoards));
+    _copyTo(_enteredWords, []);
+    _copyTo(_winRecordBoards, []);
+    _copyTo(_firstKnowledge, _getBlankFirstKnowledge(numBoards));
     pushUpSteps = 0;
-    _expandingBoard = false;
+    expandingBoard = false;
     _expandingBoardEver = false;
 
     _setCurrentTyping("");
@@ -69,7 +72,7 @@ class Game {
     if (cheatMode) {
       _cheatInitiate();
     }
-    setStateGlobal();
+    stateChange();
   }
 
   void onKeyboardTapped(String letter) {
@@ -311,14 +314,14 @@ class Game {
   }
 
   void toggleExpandingBoardState() {
-    if (_expandingBoard) {
-      _expandingBoard = false;
+    if (expandingBoard) {
+      expandingBoard = false;
     } else {
-      _expandingBoard = true;
+      expandingBoard = true;
       _expandingBoardEver = true;
     }
     save.saveKeys();
-    setStateGlobal();
+    stateChange();
   }
 
   void toggleHighlightedBoard(int boardNumber) {
@@ -412,7 +415,7 @@ class Game {
   void loadFromEncodedState(String gameEncoded, bool sync) {
     if (gameEncoded == "") {
       p(["loadFromEncodedState empty"]);
-      setStateGlobal();
+      stateChange();
     } else if (gameEncoded != _gameEncodedLastCache) {
       try {
         Map<String, dynamic> gameTmp = {};
@@ -423,23 +426,24 @@ class Game {
           //Error state, so set gUser properly and redo loadKeys from firebase
           g.gUser = tmpgUser;
           save.loadKeys();
-          setStateGlobal();
+          stateChange();
           return;
         }
 
-        _targetWords = gameTmp["targetWords"] ?? _getNewTargetWords(numBoards);
+        _copyTo(_targetWords,
+            gameTmp["targetWords"] ?? _getNewTargetWords(numBoards));
 
         if (_targetWords.length != numBoards) {
           resetBoard();
           return;
         }
 
-        _enteredWords = gameTmp["enteredWords"] ?? [];
-        _winRecordBoards = gameTmp["winRecordBoards"] ?? [];
-        _firstKnowledge =
-            gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards);
+        _copyTo(_enteredWords, gameTmp["enteredWords"] ?? []);
+        _copyTo(_winRecordBoards, gameTmp["winRecordBoards"] ?? []);
+        _copyTo(_firstKnowledge,
+            gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards));
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
-        _expandingBoard = gameTmp["expandingBoard"] ?? false;
+        expandingBoard = gameTmp["expandingBoard"] ?? false;
         _expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
 
         //TRANSITIONAL logic from old variable naming convention
@@ -454,7 +458,7 @@ class Game {
       }
       _gameEncodedLastCache = gameEncoded;
       if (sync) {
-        setStateGlobal();
+        stateChange();
       } else {
         //Future.delayed(const Duration(milliseconds: 0), () {
         //  // ASAP but not sync
@@ -474,7 +478,7 @@ class Game {
     gameTmp["winRecordBoards"] = _winRecordBoards;
     gameTmp["firstKnowledge"] = _firstKnowledge;
     gameTmp["pushUpSteps"] = pushUpSteps;
-    gameTmp["expandingBoard"] = _expandingBoard;
+    gameTmp["expandingBoard"] = expandingBoard;
     gameTmp["expandingBoardEver"] = _expandingBoardEver;
 
     return json.encode(gameTmp);
@@ -501,7 +505,7 @@ class Game {
     if (boardNumber < _targetWords.length) {
     } else {
       p("getCurrentTargetWordForBoard error");
-      _targetWords = _getNewTargetWords(numBoards);
+      _copyTo(_targetWords, _getNewTargetWords(numBoards));
     }
     return _targetWords[boardNumber];
   }
@@ -535,10 +539,10 @@ class Game {
 
   int getFirstAbRowToShowOnBoardDueToKnowledge(int boardNumber) {
     if (_firstKnowledge.length != numBoards) {
-      _firstKnowledge = _getBlankFirstKnowledge(numBoards);
+      _copyTo(_firstKnowledge, _getBlankFirstKnowledge(numBoards));
       p("getFirstVisualRowToShowOnBoard error");
     }
-    if (!_expandingBoard) {
+    if (!expandingBoard) {
       return pushOffBoardRows;
     } else if (boardNumber < _firstKnowledge.length) {
       return _firstKnowledge[boardNumber];
@@ -595,7 +599,7 @@ class Game {
       numRowsPerBoard + extraRows + pushOffBoardRows;
 
   int get pushOffBoardRows =>
-      _expandingBoard ? _firstKnowledge.cast<int>().reduce(min) : pushUpSteps;
+      expandingBoard ? _firstKnowledge.cast<int>().reduce(min) : pushUpSteps;
 
   int get extraRows => pushUpSteps - pushOffBoardRows;
 
@@ -621,7 +625,7 @@ class Game {
   set temporaryVisualOffsetForSlide(int value) =>
       temporaryVisualOffsetForSlideNotifier.value = value;
 
-  set highlightedBoard(value) => highlightedBoardNotifier.value = value;
+  set highlightedBoard(int value) => highlightedBoardNotifier.value = value;
 
   void _setBoardFlourishFlipRow(int i, int val) {
     boardFlourishFlipRowsNotifiers[i].value = val;
@@ -632,10 +636,11 @@ class Game {
       _winRecordBoards.isNotEmpty &&
       _winRecordBoards[_winRecordBoards.length - 1] == -1;
 
+  set expandingBoard(bool val) => expandingBoardNotifier.value = val;
+
   // PURE GETTERS
 
-  bool get expandingBoard => _expandingBoard;
-
+  bool get expandingBoard => expandingBoardNotifier.value;
   bool get expandingBoardEver => _expandingBoardEver;
 
   List<dynamic> get targetWords => _targetWords;
@@ -657,6 +662,11 @@ class Game {
 
   int getBoardFlourishFlipRow(int i) {
     return boardFlourishFlipRowsNotifiers[i].value;
+  }
+
+  void stateChange() {
+    notifyListeners();
+    //notifyListeners(); //setStateGlobal();
   }
 }
 
@@ -711,4 +721,11 @@ _LegalWord _isLegalWord = _LegalWord();
 bool _isListContains(List<String> list, String bit) {
   //sorted list so this is faster than doing contains
   return binarySearch(list, bit) != -1;
+}
+
+void _copyTo(List to, List from) {
+  to.clear();
+  for (var item in from) {
+    to.add(item);
+  }
 }

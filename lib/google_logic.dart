@@ -48,7 +48,7 @@ class G {
 
   GoogleSignInAccount? _user;
 
-  String _gUser = "JoeBloggs";
+  ValueNotifier<String> gUserNotifier = ValueNotifier("JoeBloggs");
   String _gUserIcon = "JoeBloggs";
 
   void startGoogleAccountChangeListener() {
@@ -127,9 +127,9 @@ class G {
   void _successfulLoginExtractDetails() async {
     if (_user != null) {
       p("login extract details");
-      _gUser = _user!.email;
+      gUser = _user!.email;
       if (_user!.photoUrl != null) {
-        _gUserIcon = _user!.photoUrl ?? gUserIconDefault;
+        gUserIcon = _user!.photoUrl ?? gUserIconDefault;
       }
       await save.saveUser();
       await save.loadKeys();
@@ -139,14 +139,14 @@ class G {
   void _debugLoginExtractDetails() async {
     p("debugLoginExtractDetails");
     assert(_debugFakeLogin);
-    _gUser = _gUserFakeLogin;
+    gUser = _gUserFakeLogin;
     await save.saveUser();
     await save.loadKeys();
   }
 
   void _logoutExtractDetails() async {
     p("logout extract details");
-    _gUser = gUserDefault;
+    gUser = gUserDefault;
     await save.saveUser();
     game.resetBoard();
     await save.loadKeys();
@@ -168,13 +168,13 @@ class G {
         context: context);
   }
 
-  bool get signedIn => _gUser != gUserDefault;
+  bool get signedIn => gUser != gUserDefault;
 
-  String get gUser => _gUser;
+  String get gUser => gUserNotifier.value;
 
   String get gUserIcon => _gUserIcon;
 
-  set gUser(g) => _gUser = g;
+  set gUser(g) => gUserNotifier.value = g;
 
   set gUserIcon(gui) => _gUserIcon = gui;
 }

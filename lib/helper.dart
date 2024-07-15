@@ -9,7 +9,7 @@ import 'google_logic.dart';
 import 'saves.dart';
 import 'screen.dart';
 import 'src/title_fix_stub.dart'
-    if (dart.library.js_interop) 'title_fix_web.dart';
+    if (dart.library.js_interop) 'src/title_fix_web.dart';
 
 Game game = Game();
 Save save = Save();

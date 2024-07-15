@@ -15,18 +15,22 @@ Widget infinitordleWidget() {
 }
 
 Widget streamBuilderWrapperOnDocument() {
-  if (!fbOn || !g.signedIn) {
-    return _scaffold();
-  } else {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: db!.collection('states').doc(g.gUser).snapshots(),
-      builder:
-          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        fBase.load(snapshot);
-        return _scaffold();
-      },
-    );
-  }
+  return ValueListenableBuilder<String>(
+      valueListenable: g.gUserNotifier,
+      builder: (BuildContext context, String value, Widget? child) {
+        if (!fbOn || !g.signedIn) {
+          return _scaffold();
+        } else {
+          return StreamBuilder<DocumentSnapshot>(
+            stream: db!.collection('states').doc(g.gUser).snapshots(),
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot) {
+              fBase.load(snapshot);
+              return _scaffold();
+            },
+          );
+        }
+      });
 }
 
 Widget _scaffold() {
@@ -57,34 +61,39 @@ Widget titleWidget() {
           decoration: const BoxDecoration(color: Colors.transparent),
           child: FittedBox(
             child: ValueListenableBuilder<int>(
-                valueListenable: game.targetWordsChangedNotifier,
+                valueListenable: game,
                 builder: (BuildContext context, int value, Widget? child) {
-                  int numberWinsCache = game.getWinWords().length;
-                  String infText = numberWinsCache == 0
-                      ? "o"
-                      : "∞" * (numberWinsCache ~/ 2) +
-                          "o" * (numberWinsCache % 2);
-                  return RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        color: white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: screen.appBarHeight * 40 / 56,
-                        fontFamily: GoogleFonts.roboto().fontFamily,
-                      ),
-                      children: <TextSpan>[
-                        const TextSpan(text: appTitle1),
-                        TextSpan(
-                            text: infText,
+                  return ValueListenableBuilder<int>(
+                      valueListenable: game.targetWordsChangedNotifier,
+                      builder:
+                          (BuildContext context, int value, Widget? child) {
+                        int numberWinsCache = game.getWinWords().length;
+                        String infText = numberWinsCache == 0
+                            ? "o"
+                            : "∞" * (numberWinsCache ~/ 2) +
+                                "o" * (numberWinsCache % 2);
+                        return RichText(
+                          text: TextSpan(
                             style: TextStyle(
-                                color: numberWinsCache == 0 ||
-                                        game.expandingBoardEver
-                                    ? white
-                                    : green)),
-                        const TextSpan(text: appTitle3),
-                      ],
-                    ),
-                  );
+                              color: white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: screen.appBarHeight * 40 / 56,
+                              fontFamily: GoogleFonts.roboto().fontFamily,
+                            ),
+                            children: <TextSpan>[
+                              const TextSpan(text: appTitle1),
+                              TextSpan(
+                                  text: infText,
+                                  style: TextStyle(
+                                      color: numberWinsCache == 0 ||
+                                              game.expandingBoardEver
+                                          ? white
+                                          : green)),
+                              const TextSpan(text: appTitle3),
+                            ],
+                          ),
+                        );
+                      });
                 }),
           ),
         ),
