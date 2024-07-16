@@ -83,7 +83,17 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
       builder: (BuildContext context, int value, Widget? child) {
         return abRow > game.abCurrentRowInt
             ? _cardFlipper(abIndex, boardNumber)
-            : ValueListenableBuilder<int>(
+            : ListenableBuilder(
+                listenable: Listenable.merge([
+                  game.boardFlourishFlipRowsNotifiers[boardNumber],
+                  game.abCardFlourishFlipAnglesNotifier,
+                ]),
+                builder: (BuildContext context, _) {
+                  return _cardFlipper(abIndex, boardNumber);
+                });
+
+        /*
+        ValueListenableBuilder<int>(
                 valueListenable:
                     game.boardFlourishFlipRowsNotifiers[boardNumber],
                 builder: (BuildContext context, int value, Widget? child) {
@@ -95,6 +105,8 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
                       });
                 },
               );
+
+         */
       });
 }
 
@@ -169,6 +181,26 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
 
 Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
   int abRow = abIndex ~/ cols;
+
+  return ListenableBuilder(
+      listenable: Listenable.merge([
+        game,
+        game.highlightedBoardNotifier,
+        game.currentRowChangedNotifier,
+      ]),
+      builder: (BuildContext context, _) {
+        return abRow == game.abCurrentRowInt
+            ? ValueListenableBuilder<String>(
+                valueListenable: game.currentTypingNotifiers[abIndex % cols],
+                builder: (BuildContext context, String value, Widget? child) {
+                  return _cardChooserRealReal(
+                      abIndex, boardNumber, facingFront);
+                },
+              )
+            : _cardChooserRealReal(abIndex, boardNumber, facingFront);
+      });
+
+  /*
   return ValueListenableBuilder<int>(
     valueListenable: game.highlightedBoardNotifier,
     builder: (BuildContext context, int value, Widget? child) {
@@ -187,8 +219,11 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
       );
     },
   );
+
+   */
 }
 
+/*
 Widget _cardChooserReal(int abIndex, int boardNumber, bool facingFront) {
   return ValueListenableBuilder<int>(
       valueListenable: game,
@@ -196,6 +231,8 @@ Widget _cardChooserReal(int abIndex, int boardNumber, bool facingFront) {
         return _cardChooserRealReal(abIndex, boardNumber, facingFront);
       });
 }
+
+ */
 
 Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   int abRow = abIndex ~/ cols;

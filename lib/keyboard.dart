@@ -138,6 +138,18 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
 }
 
 Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
+  return ListenableBuilder(
+      listenable: Listenable.merge([
+        game,
+        game.pushUpStepsNotifier,
+        game.targetWordsChangedNotifier,
+        game.abCardFlourishFlipAnglesNotifier
+      ]),
+      builder: (BuildContext context, _) {
+        return _kbMiniSquareColorChooserReal(kbLetter, subIndex);
+      });
+
+/*
   return ValueListenableBuilder<int>(
       valueListenable: game,
       builder: (BuildContext context, int value, Widget? child) {
@@ -157,6 +169,8 @@ Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
                   });
             });
       });
+
+ */
 }
 
 Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {

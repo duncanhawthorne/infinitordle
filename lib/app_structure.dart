@@ -63,44 +63,58 @@ Widget titleWidget() {
         child: DecoratedBox(
           decoration: const BoxDecoration(color: Colors.transparent),
           child: FittedBox(
-            child: ValueListenableBuilder<int>(
+            child: ListenableBuilder(
+                listenable: Listenable.merge([
+                  game,
+                  game.targetWordsChangedNotifier,
+                ]),
+                builder: (BuildContext context, _) {
+                  return titleWidgetReal();
+                }),
+
+            /*
+            ValueListenableBuilder<int>(
                 valueListenable: game,
                 builder: (BuildContext context, int value, Widget? child) {
                   return ValueListenableBuilder<int>(
                       valueListenable: game.targetWordsChangedNotifier,
                       builder:
                           (BuildContext context, int value, Widget? child) {
-                        int numberWinsCache = game.getWinWords().length;
-                        String infText = numberWinsCache == 0
-                            ? "o"
-                            : "∞" * (numberWinsCache ~/ 2) +
-                                "o" * (numberWinsCache % 2);
-                        return RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              color: white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: screen.appBarHeight * 40 / 56,
-                              fontFamily: GoogleFonts.roboto().fontFamily,
-                            ),
-                            children: <TextSpan>[
-                              const TextSpan(text: appTitle1),
-                              TextSpan(
-                                  text: infText,
-                                  style: TextStyle(
-                                      color: numberWinsCache == 0 ||
-                                              game.expandingBoardEver
-                                          ? white
-                                          : green)),
-                              const TextSpan(text: appTitle3),
-                            ],
-                          ),
-                        );
+                       return titleWidgetReal();
                       });
                 }),
+
+             */
           ),
         ),
       ));
+}
+
+Widget titleWidgetReal() {
+  int numberWinsCache = game.getWinWords().length;
+  String infText = numberWinsCache == 0
+      ? "o"
+      : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
+  return RichText(
+    text: TextSpan(
+      style: TextStyle(
+        color: white,
+        fontWeight: FontWeight.bold,
+        fontSize: screen.appBarHeight * 40 / 56,
+        fontFamily: GoogleFonts.roboto().fontFamily,
+      ),
+      children: <TextSpan>[
+        const TextSpan(text: appTitle1),
+        TextSpan(
+            text: infText,
+            style: TextStyle(
+                color: numberWinsCache == 0 || game.expandingBoardEver
+                    ? white
+                    : green)),
+        const TextSpan(text: appTitle3),
+      ],
+    ),
+  );
 }
 
 Widget bodyWidget() {
