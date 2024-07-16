@@ -88,7 +88,7 @@ class _InfinitordleState extends State<Infinitordle> {
     super.initState();
 
     //Hack to make these functions available globally
-    ssFunction = ss;
+    //ssFunction = ss;
     showResetScreenFunction = showResetConfirmScreen;
 
     game.initiateBoard();
