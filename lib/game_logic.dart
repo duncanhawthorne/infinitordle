@@ -20,17 +20,45 @@ final Random _random = Random();
 class Game extends ValueNotifier<int> {
   Game() : super(0);
 
-  //State to save
+  //getters / setters
+  List<dynamic> get targetWords => _targetWords;
 
+  int get pushUpSteps => pushUpStepsNotifier.value;
+
+  set pushUpSteps(int value) => pushUpStepsNotifier.value = value;
+
+  bool get expandingBoard => expandingBoardNotifier.value;
+
+  set expandingBoard(bool val) => expandingBoardNotifier.value = val;
+
+  bool get expandingBoardEver => _expandingBoardEver;
+
+  get currentTypingString => currentTypingNotifiers
+      .map((ValueNotifier<String> element) => element.value)
+      .reduce((String value, String element) => value + element);
+
+  int get highlightedBoard => highlightedBoardNotifier.value;
+
+  set highlightedBoard(int value) => highlightedBoardNotifier.value = value;
+
+  int get temporaryVisualOffsetForSlide =>
+      temporaryVisualOffsetForSlideNotifier.value;
+
+  set temporaryVisualOffsetForSlide(int value) =>
+      temporaryVisualOffsetForSlideNotifier.value = value;
+
+  bool get illegalFiveLetterWord => illegalFiveLetterWordNotifier.value;
+
+  set illegalFiveLetterWord(bool tf) =>
+      illegalFiveLetterWordNotifier.value = tf;
+
+  //State to save
   final List<String> _targetWords = ["x"];
   final List<String> _enteredWords = ["x"];
   final List<int> _winRecordBoards = [-1];
   final List<int> _firstKnowledge = [-1];
 
   final pushUpStepsNotifier = ValueNotifier(-1);
-  int get pushUpSteps => pushUpStepsNotifier.value;
-  set pushUpSteps(int value) => pushUpStepsNotifier.value = value;
-
   ValueNotifier<bool> expandingBoardNotifier = ValueNotifier(false);
   bool _expandingBoardEver = false;
 
@@ -593,7 +621,23 @@ class Game extends ValueNotifier<int> {
     }
   }
 
-  // PRETTY MUCH PURE GETTERS AND SETTERS
+  //setters
+
+  void _setCurrentTyping(String text) {
+    for (int i = 0; i < cols; i++) {
+      if (i < text.length) {
+        currentTypingNotifiers[i].value = text.substring(i, i + 1);
+      } else {
+        currentTypingNotifiers[i].value = "";
+      }
+    }
+  }
+
+  void _setBoardFlourishFlipRow(int i, int val) {
+    boardFlourishFlipRowsNotifiers[i].value = val;
+  }
+
+  //getters
 
   int get gbLiveNumRowsPerBoard => numRowsPerBoard + extraRows;
 
@@ -607,60 +651,18 @@ class Game extends ValueNotifier<int> {
 
   int get abCurrentRowInt => _enteredWords.length;
 
-  bool isBoardNormalHighlighted(int boardNumber) {
-    return highlightedBoard == -1 || highlightedBoard == boardNumber;
-  }
-
-  void _setCurrentTyping(String text) {
-    for (int i = 0; i < cols; i++) {
-      if (i < text.length) {
-        currentTypingNotifiers[i].value = text.substring(i, i + 1);
-      } else {
-        currentTypingNotifiers[i].value = "";
-      }
-    }
-  }
-
-  set illegalFiveLetterWord(bool tf) =>
-      illegalFiveLetterWordNotifier.value = tf;
-
-  set temporaryVisualOffsetForSlide(int value) =>
-      temporaryVisualOffsetForSlideNotifier.value = value;
-
-  set highlightedBoard(int value) => highlightedBoardNotifier.value = value;
-
-  void _setBoardFlourishFlipRow(int i, int val) {
-    boardFlourishFlipRowsNotifiers[i].value = val;
-  }
-
   bool get gameOver =>
       abCurrentRowInt >= abLiveNumRowsPerBoard &&
       _winRecordBoards.isNotEmpty &&
       _winRecordBoards[_winRecordBoards.length - 1] == -1;
 
-  set expandingBoard(bool val) => expandingBoardNotifier.value = val;
-
-  // PURE GETTERS
-
-  bool get expandingBoard => expandingBoardNotifier.value;
-  bool get expandingBoardEver => _expandingBoardEver;
-
-  List<dynamic> get targetWords => _targetWords;
-
-  int get temporaryVisualOffsetForSlide =>
-      temporaryVisualOffsetForSlideNotifier.value;
-
-  int get highlightedBoard => highlightedBoardNotifier.value;
-
-  get currentTypingString => currentTypingNotifiers
-      .map((ValueNotifier<String> element) => element.value)
-      .reduce((String value, String element) => value + element);
+  bool isBoardNormalHighlighted(int boardNumber) {
+    return highlightedBoard == -1 || highlightedBoard == boardNumber;
+  }
 
   String _getCurrentTypingAtCol(int col) {
     return currentTypingNotifiers[col].value;
   }
-
-  bool get isIllegalFiveLetterWord => illegalFiveLetterWordNotifier.value;
 
   int getBoardFlourishFlipRow(int i) {
     return boardFlourishFlipRowsNotifiers[i].value;

@@ -71,7 +71,7 @@ Widget _kbTextSquare(String kbLetter, int kbRowLength) {
                         valueListenable: game.illegalFiveLetterWordNotifier,
                         builder:
                             (BuildContext context, bool value, Widget? child) {
-                          return game.isIllegalFiveLetterWord
+                          return game.illegalFiveLetterWord
                               ? const Icon(Icons.cancel, color: red)
                               : ValueListenableBuilder<int>(
                                   valueListenable:
