@@ -11,16 +11,24 @@ import 'screen.dart';
 import 'src/title_fix_stub.dart'
     if (dart.library.js_interop) 'src/title_fix_web.dart';
 
-Game game = Game();
-Save save = Save();
-Flips flips = Flips();
-CardColors cardColors = CardColors();
-Screen screen = Screen();
-G g = G();
-FireBase fBase = FireBase();
+final Game game = Game();
+final Save save = Save();
+final Flips flips = Flips();
+final CardColors cardColors = CardColors();
+final Screen screen = Screen();
+final G g = G();
+final FireBase fBase = FireBase();
 
 void p(var x) {
   debugPrint("///// A ${DateTime.now()} ${x ?? "null"}");
+}
+
+void fixTitlePersistent() {
+  for (int i = 0; i < 2; i++) {
+    Future.delayed(Duration(seconds: i), () {
+      fixTitle();
+    });
+  }
 }
 
 void fixTitle() {

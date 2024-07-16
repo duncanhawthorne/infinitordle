@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'constants.dart';
 
 const double _keyAspectRatioDefault = 1.5;
+const double dividerHeight = 2;
 
 class Screen {
   double appBarHeight = -1;

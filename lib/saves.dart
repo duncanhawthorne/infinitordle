@@ -1,10 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'constants.dart';
+import 'firebase_options.dart';
 import 'google_logic.dart';
 import 'helper.dart';
+
+final fbOn = firebaseOnReal &&
+    !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
+final fbAnalytics = fbOn && true;
+
+FirebaseFirestore? db = fbOn ? FirebaseFirestore.instance : null;
+FirebaseAnalytics? analytics = fbAnalytics ? FirebaseAnalytics.instance : null;
 
 class Save {
   Future<void> loadUser() async {

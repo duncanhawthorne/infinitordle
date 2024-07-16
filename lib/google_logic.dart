@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'app_structure.dart';
-import 'constants.dart';
 import 'helper.dart';
 //gID defined in secrets.dart, not included in repo
 //in format XXXXXX.apps.googleusercontent.com
@@ -16,6 +16,9 @@ import 'src/sign_in_button.dart';
 
 const bool _debugFakeLogin = false;
 const String _gUserFakeLogin = "joebloggs@gmail.com";
+
+final gOn = googleOnReal &&
+    !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
 
 Widget lockStyleSignInButton(BuildContext context) {
   return IconButton(

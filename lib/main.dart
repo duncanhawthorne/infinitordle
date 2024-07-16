@@ -4,11 +4,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:infinitordle/saves.dart';
 
 import 'app_structure.dart';
 import 'constants.dart';
 //firebase_options.dart as per direct download from google, not included in repo
 import 'firebase_options.dart';
+import 'google_logic.dart';
 import 'helper.dart';
 
 Future<void> main() async {
@@ -34,11 +36,7 @@ Future<void> main() async {
     db = FirebaseFirestore.instance;
   }
 
-  for (int i = 0; i < 2; i++) {
-    Future.delayed(Duration(seconds: i), () {
-      fixTitle();
-    });
-  }
+  fixTitlePersistent();
 
   if (gOn) {
     g.startGoogleAccountChangeListener();

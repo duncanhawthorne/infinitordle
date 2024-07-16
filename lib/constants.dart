@@ -1,10 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'firebase_options.dart';
-import 'secrets.dart';
 import 'wordlist.dart';
 
 //Debug
@@ -41,17 +36,5 @@ const int delayMult = _noAnimations ? 0 : 1 * _slowDownFactor;
 const gradualRevealDelayTime = delayMult * 150;
 const slideTime = _durMult * 200;
 const flipTime = _durMult * 500;
-
-//Screen constants
-const double dividerHeight = 2;
-
-final fbOn = firebaseOnReal &&
-    !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
-final fbAnalytics = fbOn && true;
-final gOn = googleOnReal &&
-    !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
-
-FirebaseFirestore? db = fbOn ? FirebaseFirestore.instance : null;
-FirebaseAnalytics? analytics = fbAnalytics ? FirebaseAnalytics.instance : null;
 
 final navigatorKey = GlobalKey<NavigatorState>();

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:infinitordle/saves.dart';
 
-import 'constants.dart';
 import 'helper.dart';
 
 class FireBase {
