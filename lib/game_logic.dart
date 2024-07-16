@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:infinitordle/popup_screens.dart';
 
 import 'constants.dart';
 import 'helper.dart';
@@ -141,7 +142,7 @@ class Game extends ValueNotifier<int> {
     }
 
     save.saveKeys();
-    //setStateGlobal(); //non-ephemeral state change, so needs setState even with GetX .obs
+    //setStateGlobal(); //non-ephemeral state change, so needs setState
 
     _gradualRevealAbRow(cardAbRowPreGuessToFix);
     _handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
@@ -161,7 +162,7 @@ class Game extends ValueNotifier<int> {
           if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
             // Due to delays check still exists before remove
             abCardFlourishFlipAnglesNotifier.remove(abRow);
-            //setStateGlobal(); //needed even with getx .obs to refresh keyboard
+            //setStateGlobal(); //needed to refresh keyboard
           }
         }
         //setStateGlobal();

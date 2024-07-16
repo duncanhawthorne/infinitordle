@@ -10,7 +10,6 @@ import 'constants.dart';
 //firebase_options.dart as per direct download from google, not included in repo
 import 'firebase_options.dart';
 import 'helper.dart';
-import 'popup_screens.dart';
 
 Future<void> main() async {
   //debugRepaintRainbowEnabled = true;
@@ -55,6 +54,7 @@ class InfinitordleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: appTitle,
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: bg,
@@ -86,26 +86,9 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   initState() {
     super.initState();
-
-    //Hack to make these functions available globally
-    //ssFunction = ss;
-    showResetScreenFunction = showResetConfirmScreen;
-
     game.initiateBoard();
     save.loadUser();
     save.loadKeys();
-  }
-
-  void ss() {
-    try {
-      setState(() {});
-    } catch (e) {
-      p(["SS error ", e.toString()]);
-    }
-  }
-
-  Future<void> showResetConfirmScreen() async {
-    showResetConfirmScreenReal(context);
   }
 
   @override

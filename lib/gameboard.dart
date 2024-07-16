@@ -78,7 +78,6 @@ Widget _gameboardWidgetWithNRows(
 
 Widget _cardFlipperAlts(int abIndex, int boardNumber) {
   int abRow = abIndex ~/ cols;
-  //only test this if relevant, to help GetX hack .obs
   return ValueListenableBuilder<int>(
       valueListenable: game.currentRowChangedNotifier,
       builder: (BuildContext context, int value, Widget? child) {

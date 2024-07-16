@@ -13,6 +13,10 @@ import 'helper.dart';
 const bool _newLoginButtons = false;
 FocusNode focusNode = FocusNode();
 
+Future<void> showResetConfirmScreen() async {
+  showResetConfirmScreenReal(navigatorKey.currentContext!);
+}
+
 Future<void> showResetConfirmScreenReal(BuildContext context) async {
   List winWordsCache = game.getWinWords();
   int numberWinsCache = winWordsCache.length;
@@ -21,27 +25,28 @@ Future<void> showResetConfirmScreenReal(BuildContext context) async {
     context: context,
     barrierDismissible: true,
     builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: bg,
-            surfaceTintColor: bg,
-            title: gOn && g.signedIn ? _signInRow(context) : null,
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      return AlertDialog(
+        backgroundColor: bg,
+        surfaceTintColor: bg,
+        title: gOn && g.signedIn ? _signInRow(context) : null,
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              gOn && !g.signedIn
+                  ? _signInRow(context)
+                  : const SizedBox.shrink(),
+              gOn && !g.signedIn
+                  ? const SizedBox(height: 10)
+                  : const SizedBox.shrink(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  gOn && !g.signedIn
-                      ? _signInRow(context)
-                      : const SizedBox.shrink(),
-                  gOn && !g.signedIn
-                      ? const SizedBox(height: 10)
-                      : const SizedBox.shrink(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Scrollable board?'),
-                      Tooltip(
+                  const Text('Scrollable board?'),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: game.expandingBoardNotifier,
+                    builder: (BuildContext context, bool value, Widget? child) {
+                      return Tooltip(
                           message: game.expandingBoard
                               ? "Turn off scrollable board"
                               : "Turn on scrollable board",
@@ -52,53 +57,52 @@ Future<void> showResetConfirmScreenReal(BuildContext context) async {
                                 : const Icon(Icons.visibility_off_outlined),
                             onPressed: () {
                               game.toggleExpandingBoardState();
-                              setState(() {}); //state inside dialog
                             },
-                          )),
-                    ],
+                          ));
+                    },
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Reset board?'),
-                      Tooltip(
-                          message: "Reset board",
-                          child: IconButton(
-                            iconSize: 25,
-                            icon: const Icon(Icons.refresh_outlined),
-                            onPressed: () {
-                              _showResetConfirmationScreen(context);
-                              focusNode.requestFocus(); //state inside dialog
-                            },
-                          )),
-                    ],
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  Text(gameOver
-                      ? "You got " +
-                          numberWinsCache.toString() +
-                          " word" +
-                          (numberWinsCache == 1 ? "" : "s") +
-                          ": " +
-                          winWordsCache.join(", ") +
-                          "\n\nYou missed: " +
-                          game.targetWords.join(", ")
-                      : "You've got " +
-                          numberWinsCache.toString() +
-                          " word" +
-                          (numberWinsCache == 1 ? "" : "s") +
-                          ' so far' +
-                          (numberWinsCache != 0 ? ":" : "") +
-                          ' ' +
-                          winWordsCache.join(", ")),
-                  const SizedBox(height: 10),
                 ],
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Reset board?'),
+                  Tooltip(
+                      message: "Reset board",
+                      child: IconButton(
+                        iconSize: 25,
+                        icon: const Icon(Icons.refresh_outlined),
+                        onPressed: () {
+                          _showResetConfirmationScreen(context);
+                          focusNode.requestFocus(); //state inside dialog
+                        },
+                      )),
+                ],
+              ),
+              const Divider(),
+              const SizedBox(height: 10),
+              Text(gameOver
+                  ? "You got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ": " +
+                      winWordsCache.join(", ") +
+                      "\n\nYou missed: " +
+                      game.targetWords.join(", ")
+                  : "You've got " +
+                      numberWinsCache.toString() +
+                      " word" +
+                      (numberWinsCache == 1 ? "" : "s") +
+                      ' so far' +
+                      (numberWinsCache != 0 ? ":" : "") +
+                      ' ' +
+                      winWordsCache.join(", ")),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
       );
     },
   );

@@ -54,18 +54,4 @@ final gOn = googleOnReal &&
 FirebaseFirestore? db = fbOn ? FirebaseFirestore.instance : null;
 FirebaseAnalytics? analytics = fbAnalytics ? FirebaseAnalytics.instance : null;
 
-//Global functions
-//Function? ssFunction;
-Function? showResetScreenFunction;
-
-/*
-void setStateGlobal() {
-  //Hack to make these functions available globally
-  ssFunction!();
-}
- */
-
-void showResetConfirmScreen() {
-  //Hack to make these functions available globally
-  showResetScreenFunction!();
-}
+final navigatorKey = GlobalKey<NavigatorState>();

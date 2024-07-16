@@ -10,7 +10,6 @@ class Flips {
         _getPermFlipAngle(abIndex) - _getFlourishFlipAngle(abIndex);
     double boardFlipAngle = 0;
     if (abRow <= game.abCurrentRowInt) {
-      //only test this if relevant, to help GetX hack .obs
       boardFlipAngle = _getFlourishBoardFlipAngle(boardNumber);
     }
     return max(0, cardFlipAngle - boardFlipAngle);
