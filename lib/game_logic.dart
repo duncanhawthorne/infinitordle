@@ -170,7 +170,7 @@ class Game extends ValueNotifier<int> {
       _winRecordBoards[cardAbRowPreGuessToFix] = -1; //Confirm no win
     }
 
-    save.saveKeys();
+    //save.saveKeys();
     //setStateGlobal(); //non-ephemeral state change, so needs setState
 
     _gradualRevealAbRow(cardAbRowPreGuessToFix);
@@ -211,11 +211,11 @@ class Game extends ValueNotifier<int> {
     //Code for losing game
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
+      save.saveKeys();
       showResetConfirmScreen();
-    }
-
-    if (!infMode && isWin) {
+    } else if (!infMode && isWin) {
       //Code for totally winning game across all boards
+      save.saveKeys();
       bool totallySolvedLocal = true;
       for (int i = 0; i < numBoards; i++) {
         if (!getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
@@ -225,11 +225,11 @@ class Game extends ValueNotifier<int> {
       if (totallySolvedLocal) {
         // Leave the screen as is
       }
-    }
-
-    if (infMode && isWin) {
+    } else if (infMode && isWin) {
       _handleWinningWordEntered(
           cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+    } else {
+      save.saveKeys();
     }
   }
 
@@ -273,7 +273,7 @@ class Game extends ValueNotifier<int> {
     // This function is run after a delay so need to make sure threadsafe
     // Use variables at the time word was entered rather than live variables
     pushUpSteps++;
-    save.saveKeys();
+    //save.saveKeys();
     //setStateGlobal();
   }
 
