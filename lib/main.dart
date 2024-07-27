@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:infinitordle/saves.dart';
 
 import 'app_structure.dart';
 import 'constants.dart';
@@ -12,6 +11,7 @@ import 'constants.dart';
 import 'firebase_options.dart';
 import 'google_logic.dart';
 import 'helper.dart';
+import 'saves.dart';
 
 Future<void> main() async {
   //debugRepaintRainbowEnabled = true;

@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:infinitordle/popup_screens.dart';
-import 'package:infinitordle/saves.dart';
-import 'package:infinitordle/screen.dart';
 
 import 'constants.dart';
 import 'gameboard.dart';
 import 'helper.dart';
 import 'keyboard.dart';
+import 'popup_screens.dart';
+import 'saves.dart';
+import 'screen.dart';
 
 FocusNode focusNode = FocusNode();
 

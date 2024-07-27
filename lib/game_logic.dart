@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:infinitordle/popup_screens.dart';
-import 'package:infinitordle/saves.dart';
 
 import 'constants.dart';
 import 'helper.dart';
+import 'popup_screens.dart';
+import 'saves.dart';
 import 'wordlist.dart';
 
 const _cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
