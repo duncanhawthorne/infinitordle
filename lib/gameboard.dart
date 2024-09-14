@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:stroke_text/stroke_text.dart';
 
+import 'card_colors.dart';
+import 'card_flips.dart';
 import 'constants.dart';
-import 'helper.dart';
+import 'game_logic.dart';
+import 'screen.dart';
 
 const double _notionalCardSize = 1.0;
 const _renderTwoFramesTime = delayMult *
@@ -91,22 +94,6 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
                 builder: (BuildContext context, _) {
                   return _cardFlipper(abIndex, boardNumber);
                 });
-
-        /*
-        ValueListenableBuilder<int>(
-                valueListenable:
-                    game.boardFlourishFlipRowsNotifiers[boardNumber],
-                builder: (BuildContext context, int value, Widget? child) {
-                  return ValueListenableBuilder<Map<int, List<double>>>(
-                      valueListenable: game.abCardFlourishFlipAnglesNotifier,
-                      builder: (BuildContext context,
-                          Map<int, List<double>> value, Widget? child) {
-                        return _cardFlipper(abIndex, boardNumber);
-                      });
-                },
-              );
-
-         */
       });
 }
 
@@ -115,11 +102,11 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
       tween: Tween<double>(
           begin: 0, end: flips.getFlipAngle(abIndex, boardNumber)),
       duration: const Duration(milliseconds: flipTime),
-      builder: (BuildContext context, double val, __) {
+      builder: (BuildContext context, double angle, __) {
         return (Transform(
           alignment: Alignment.center,
-          transform: Matrix4.identity()..rotateX(val * (2 * pi)),
-          child: val <= 0.25
+          transform: Matrix4.identity()..rotateX(angle * (2 * pi)),
+          child: angle <= 0.25
               ? _positionedScaledCard(abIndex, boardNumber, false)
               : Transform(
                   alignment: Alignment.center,
@@ -199,40 +186,7 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
               )
             : _cardChooserRealReal(abIndex, boardNumber, facingFront);
       });
-
-  /*
-  return ValueListenableBuilder<int>(
-    valueListenable: game.highlightedBoardNotifier,
-    builder: (BuildContext context, int value, Widget? child) {
-      return ValueListenableBuilder<int>(
-        valueListenable: game.currentRowChangedNotifier,
-        builder: (BuildContext context, int value, Widget? child) {
-          return abRow == game.abCurrentRowInt
-              ? ValueListenableBuilder<String>(
-                  valueListenable: game.currentTypingNotifiers[abIndex % cols],
-                  builder: (BuildContext context, String value, Widget? child) {
-                    return _cardChooserReal(abIndex, boardNumber, facingFront);
-                  },
-                )
-              : _cardChooserReal(abIndex, boardNumber, facingFront);
-        },
-      );
-    },
-  );
-
-   */
 }
-
-/*
-Widget _cardChooserReal(int abIndex, int boardNumber, bool facingFront) {
-  return ValueListenableBuilder<int>(
-      valueListenable: game,
-      builder: (BuildContext context, int value, Widget? child) {
-        return _cardChooserRealReal(abIndex, boardNumber, facingFront);
-      });
-}
-
- */
 
 Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   int abRow = abIndex ~/ cols;

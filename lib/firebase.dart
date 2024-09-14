@@ -1,10 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import 'helper.dart';
+import 'game_logic.dart';
+import 'google_logic.dart';
 import 'saves.dart';
 
 class FireBase {
+  FireBase({required this.game, required this.g});
+
+  final Game game;
+  final G g;
+
   List<String> recentSnapshotsCache = [];
 
   void load(AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -29,3 +35,5 @@ class FireBase {
     }
   }
 }
+
+final FireBase fBase = FireBase(game: game, g: g);

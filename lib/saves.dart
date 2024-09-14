@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
+import 'game_logic.dart';
 import 'google_logic.dart';
 import 'helper.dart';
 
@@ -16,6 +17,11 @@ FirebaseFirestore? db = fbOn ? FirebaseFirestore.instance : null;
 FirebaseAnalytics? analytics = fbAnalytics ? FirebaseAnalytics.instance : null;
 
 class Save {
+  Save({required this.game, required this.g});
+
+  final Game game;
+  final G g;
+
   Future<void> loadUser() async {
     final prefs = await SharedPreferences.getInstance();
     g.gUser = prefs.getString('gUser') ?? G.gUserDefault;
@@ -23,14 +29,14 @@ class Save {
     if (g.gUserIcon != G.gUserIconDefault) {
       NetworkImage(g.gUserIcon); //pre-load
     }
-    p(["loadUser", g.gUser, g.gUserIcon]);
+    debug(["loadUser", g.gUser, g.gUserIcon]);
   }
 
   Future<void> saveUser() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('gUser', g.gUser);
     await prefs.setString('gUserIcon', g.gUserIcon);
-    p(["saveUser", g.gUser, g.gUserIcon]);
+    debug(["saveUser", g.gUser, g.gUserIcon]);
   }
 
   Future<void> loadKeys() async {
@@ -67,7 +73,7 @@ class Save {
           .collection("states")
           .doc(g.gUser)
           .set(dhState)
-          .onError((e, _) => p("Error writing document: $e"));
+          .onError((e, _) => debug("Error writing document: $e"));
     }
   }
 
@@ -80,9 +86,11 @@ class Save {
           final gameEncodedTmp = doc.data() as Map<String, dynamic>;
           gameEncoded = gameEncodedTmp["data"];
         },
-        onError: (e) => p("Error getting document: $e"),
+        onError: (e) => debug("Error getting document: $e"),
       );
     }
     return gameEncoded;
   }
 }
+
+final Save save = Save(game: game, g: g);

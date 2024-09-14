@@ -1,9 +1,13 @@
 import 'dart:math';
 
 import 'constants.dart';
-import 'helper.dart';
+import 'game_logic.dart';
 
 class Flips {
+  Flips({required this.game});
+
+  final Game game;
+
   double getFlipAngle(int abIndex, int boardNumber) {
     int abRow = abIndex ~/ cols;
     double cardFlipAngle =
@@ -17,28 +21,22 @@ class Flips {
 
   double _getPermFlipAngle(int abIndex) {
     int abRow = abIndex ~/ cols;
-    if (abRow >= game.abCurrentRowInt) {
-      return 0;
-    } else {
-      return 0.5;
-    }
+    return abRow >= game.abCurrentRowInt ? 0 : 0.5;
   }
 
   double _getFlourishFlipAngle(int abIndex) {
     int abRow = abIndex ~/ cols;
-    int i = abIndex % cols;
+    int col = abIndex % cols;
     if (!game.abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
       return 0;
     } else {
-      return game.abCardFlourishFlipAnglesNotifier.value[abRow]![i];
+      return game.abCardFlourishFlipAnglesNotifier.value[abRow]![col];
     }
   }
 
   double _getFlourishBoardFlipAngle(int boardNumber) {
-    if (game.getBoardFlourishFlipRow(boardNumber) == -1) {
-      return 0;
-    } else {
-      return 0.5;
-    }
+    return game.getBoardFlourishFlipRow(boardNumber) == -1 ? 0 : 0.5;
   }
 }
+
+final Flips flips = Flips(game: game);

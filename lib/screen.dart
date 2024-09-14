@@ -24,18 +24,22 @@ class Screen {
   double _horizSpaceForCardNoWrap = -1;
   double _vertSpaceAfterTitle = -1;
 
+  double scWCalc(BuildContext context) {
+    return MediaQuery.of(context).size.width;
+  }
+
+  double scHCalc(BuildContext context) {
+    return MediaQuery.of(context).size.height -
+        MediaQuery.of(context).padding.top -
+        MediaQuery.of(context).padding.bottom -
+        gestureInset();
+  }
+
   void detectAndUpdateForScreenSize(BuildContext context) {
-    if (scW != MediaQuery.of(context).size.width ||
-        scH !=
-            MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top -
-                MediaQuery.of(context).padding.bottom) {
+    if (scW != scWCalc(context) || scH != scHCalc(context)) {
       //recalculate these key values for screen size changes
-      scW = MediaQuery.of(context).size.width;
-      scH = MediaQuery.of(context).size.height -
-          MediaQuery.of(context).padding.top -
-          MediaQuery.of(context).padding.bottom -
-          gestureInset();
+      scW = scWCalc(context);
+      scH = scHCalc(context);
       appBarHeight = scH * 0.055;
       _vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 
@@ -82,3 +86,5 @@ class Screen {
     }
   }
 }
+
+final Screen screen = Screen();

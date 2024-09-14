@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings
-
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -7,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'constants.dart';
+import 'game_logic.dart';
 import 'google_logic.dart';
 import 'helper.dart';
 
@@ -83,22 +82,8 @@ Future<void> showResetConfirmScreenReal(BuildContext context) async {
               const Divider(),
               const SizedBox(height: 10),
               Text(gameOver
-                  ? "You got " +
-                      numberWinsCache.toString() +
-                      " word" +
-                      (numberWinsCache == 1 ? "" : "s") +
-                      ": " +
-                      winWordsCache.join(", ") +
-                      "\n\nYou missed: " +
-                      game.targetWords.join(", ")
-                  : "You've got " +
-                      numberWinsCache.toString() +
-                      " word" +
-                      (numberWinsCache == 1 ? "" : "s") +
-                      ' so far' +
-                      (numberWinsCache != 0 ? ":" : "") +
-                      ' ' +
-                      winWordsCache.join(", ")),
+                  ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${game.targetWords.join(", ")}"
+                  : "You've got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"} so far${numberWinsCache != 0 ? ":" : ""} ${winWordsCache.join(", ")}"),
               const SizedBox(height: 10),
             ],
           ),
@@ -114,7 +99,7 @@ Widget _signInRow(BuildContext context) {
     subscription = g.googleSignIn.onCurrentUserChanged
         .listen((GoogleSignInAccount? account) async {
       subscription!.cancel(); //FIXME doesn't work
-      p("subscription fire");
+      debug("subscription fire");
       if (account != null) {
         //login
         try {
@@ -125,7 +110,7 @@ Widget _signInRow(BuildContext context) {
             focusNode.requestFocus();
           }
         } catch (e) {
-          p("No pop");
+          debug("No pop");
         }
       }
     });

@@ -4,7 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'constants.dart';
+import 'firebase.dart';
+import 'game_logic.dart';
 import 'gameboard.dart';
+import 'google_logic.dart';
 import 'helper.dart';
 import 'keyboard.dart';
 import 'popup_screens.dart';

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:stroke_text/stroke_text.dart';
 
+import 'card_colors.dart';
 import 'constants.dart';
-import 'helper.dart';
+import 'game_logic.dart';
+import 'screen.dart';
 
 Widget keyboardRowWidget(int keyBoardStartKeyIndex, int kbRowLength) {
   return Container(
@@ -148,29 +150,6 @@ Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
       builder: (BuildContext context, _) {
         return _kbMiniSquareColorChooserReal(kbLetter, subIndex);
       });
-
-/*
-  return ValueListenableBuilder<int>(
-      valueListenable: game,
-      builder: (BuildContext context, int value, Widget? child) {
-        return ValueListenableBuilder<int>(
-            valueListenable: game.pushUpStepsNotifier,
-            builder: (BuildContext context, int value, Widget? child) {
-              return ValueListenableBuilder<int>(
-                  valueListenable: game.targetWordsChangedNotifier,
-                  builder: (BuildContext context, int value, Widget? child) {
-                    return ValueListenableBuilder<Map<int, List<double>>>(
-                        valueListenable: game.abCardFlourishFlipAnglesNotifier,
-                        builder: (BuildContext context,
-                            Map<int, List<double>> value, Widget? child) {
-                          return _kbMiniSquareColorChooserReal(
-                              kbLetter, subIndex);
-                        });
-                  });
-            });
-      });
-
- */
 }
 
 Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {

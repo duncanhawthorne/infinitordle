@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'app_structure.dart';
+import 'game_logic.dart';
 import 'helper.dart';
+import 'saves.dart';
 //gID defined in secrets.dart, not included in repo
 //in format XXXXXX.apps.googleusercontent.com
 import 'secrets.dart';
@@ -30,13 +32,17 @@ Widget lockStyleSignInButton(BuildContext context) {
         Navigator.pop(context, 'OK');
         focusNode.requestFocus();
       } catch (e) {
-        p(["No pop", e]);
+        debug(["No pop", e]);
       }
     },
   );
 }
 
 class G {
+  G({required this.game});
+
+  final Game game;
+
   GoogleSignIn googleSignIn = GoogleSignIn(
     //gID defined in secrets.dart, not included in repo
     //in format XXXXXX.apps.googleusercontent.com
@@ -60,10 +66,10 @@ class G {
           .listen((GoogleSignInAccount? account) async {
         _user = account;
         if (_user != null) {
-          p(["login successful", _user]);
+          debug(["login successful", _user]);
           _successfulLoginExtractDetails();
         } else {
-          p(["logout"]);
+          debug(["logout"]);
           _logoutExtractDetails();
         }
       });
@@ -78,7 +84,7 @@ class G {
   }
 
   Future<void> signInDirectly() async {
-    p("webSignIn()");
+    debug("webSignIn()");
     if (gOn) {
       try {
         if (_debugFakeLogin) {
@@ -88,7 +94,7 @@ class G {
           _successfulLoginExtractDetails();
         }
       } catch (e) {
-        p(["signInDirectly", e]);
+        debug(["signInDirectly", e]);
       }
     }
   }
@@ -101,7 +107,7 @@ class G {
           await googleSignIn.disconnect();
           _logoutExtractDetails();
         } catch (e) {
-          p(["signOut", e]);
+          debug(["signOut", e]);
         }
       }
       //logoutExtractDetails(); //now handled by listener
@@ -109,7 +115,7 @@ class G {
   }
 
   Future<void> signInSilentlyThenDirectly() async {
-    p("mobileSignIn()");
+    debug("mobileSignIn()");
     if (gOn) {
       if (_debugFakeLogin) {
         _debugLoginExtractDetails();
@@ -129,7 +135,7 @@ class G {
 
   void _successfulLoginExtractDetails() async {
     if (_user != null) {
-      p("login extract details");
+      debug("login extract details");
       gUser = _user!.email;
       if (_user!.photoUrl != null) {
         gUserIcon = _user!.photoUrl ?? gUserIconDefault;
@@ -140,7 +146,7 @@ class G {
   }
 
   void _debugLoginExtractDetails() async {
-    p("debugLoginExtractDetails");
+    debug("debugLoginExtractDetails");
     assert(_debugFakeLogin);
     gUser = _gUserFakeLogin;
     await save.saveUser();
@@ -148,7 +154,7 @@ class G {
   }
 
   void _logoutExtractDetails() async {
-    p("logout extract details");
+    debug("logout extract details");
     gUser = gUserDefault;
     await save.saveUser();
     game.resetBoard();
@@ -156,7 +162,7 @@ class G {
   }
 
   Future<void> signOutAndExtractDetails() async {
-    p("sign out and extract details");
+    debug("sign out and extract details");
     if (gOn) {
       await signOut();
       _logoutExtractDetails();
@@ -181,3 +187,5 @@ class G {
 
   set gUserIcon(gui) => _gUserIcon = gui;
 }
+
+final G g = G(game: game);
