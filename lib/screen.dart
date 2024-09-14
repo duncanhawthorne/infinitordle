@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
+import 'helper.dart';
 
 const double _keyAspectRatioDefault = 1.5;
 const double dividerHeight = 2;
@@ -33,7 +34,8 @@ class Screen {
       scW = MediaQuery.of(context).size.width;
       scH = MediaQuery.of(context).size.height -
           MediaQuery.of(context).padding.top -
-          MediaQuery.of(context).padding.bottom;
+          MediaQuery.of(context).padding.bottom -
+          gestureInset();
       appBarHeight = scH * 0.055;
       _vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 

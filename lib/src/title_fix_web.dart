@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:web/web.dart' as web;
 
 import '../constants.dart';
@@ -8,12 +7,13 @@ final isiOSMobile = kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
 void fixTitleReal() {
   if (isiOSMobile) {
-    fixTitle1();
-    fixTitle2();
+    //fixTitle1();
+    //fixTitle2();
     fixTitle3();
   }
 }
 
+/*
 void fixTitle1() {
   //https://github.com/flutter/flutter/issues/98248
   if (true) {
@@ -34,6 +34,7 @@ void fixTitle2() {
     url,
   );
 }
+ */
 
 void fixTitle3() {
   String url = web.window.location.href;
@@ -42,4 +43,17 @@ void fixTitle3() {
     appTitle,
     url,
   );
+}
+
+final isPwa =
+    kIsWeb && web.window.matchMedia('(display-mode: standalone)').matches;
+// Check if it's web iOS
+final isWebiOS = kIsWeb &&
+    web.window.navigator.userAgent.contains(RegExp(r'iPad|iPod|iPhone'));
+
+const double _iOSWebPWAInset = 25;
+
+double gestureInsetReal() {
+  // Check if it's an installed PWA
+  return isPwa && isWebiOS ? _iOSWebPWAInset : 0;
 }

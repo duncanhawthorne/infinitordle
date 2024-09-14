@@ -37,17 +37,23 @@ Widget streamBuilderWrapperOnDocument() {
 }
 
 Widget _scaffold() {
-  return Scaffold(
-    //backgroundColor: bg,
-    appBar: AppBar(
-      centerTitle: true,
-      titleSpacing: 0,
-      toolbarHeight: screen.appBarHeight,
-      title: titleWidget(),
-      backgroundColor: bg,
-      scrolledUnderElevation: 0.0,
+  return Container(
+    decoration: const BoxDecoration(color: bg),
+    child: Padding(
+      padding: EdgeInsets.only(bottom: gestureInset()),
+      child: Scaffold(
+        //backgroundColor: bg,
+        appBar: AppBar(
+          centerTitle: true,
+          titleSpacing: 0,
+          toolbarHeight: screen.appBarHeight,
+          title: titleWidget(),
+          backgroundColor: bg,
+          scrolledUnderElevation: 0.0,
+        ),
+        body: bodyWidget(),
+      ),
     ),
-    body: bodyWidget(),
   );
 }
 

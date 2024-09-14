@@ -34,3 +34,8 @@ void fixTitlePersistent() {
 void fixTitle() {
   fixTitleReal(); //either from web or stub
 }
+
+double gestureInset() {
+  // to workaround a bug in flutter on ios web
+  return gestureInsetReal(); //either from web or stub depending on platform
+}
