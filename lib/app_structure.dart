@@ -80,20 +80,6 @@ Widget titleWidget() {
                 builder: (BuildContext context, _) {
                   return titleWidgetReal();
                 }),
-
-            /*
-            ValueListenableBuilder<int>(
-                valueListenable: game,
-                builder: (BuildContext context, int value, Widget? child) {
-                  return ValueListenableBuilder<int>(
-                      valueListenable: game.targetWordsChangedNotifier,
-                      builder:
-                          (BuildContext context, int value, Widget? child) {
-                       return titleWidgetReal();
-                      });
-                }),
-
-             */
           ),
         ),
       ));
