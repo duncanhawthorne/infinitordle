@@ -54,6 +54,31 @@ Widget _kbKeyStack(String kbLetter, int kbRowLength) {
   );
 }
 
+Widget _backspaceKey() {
+  return Container(
+      padding: const EdgeInsets.all(7),
+      child: const Icon(Icons.keyboard_backspace, color: white));
+}
+
+Widget _enterKey() {
+  return Container(
+      padding: const EdgeInsets.all(7),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: game.illegalFiveLetterWordNotifier,
+        builder: (BuildContext context, bool value, Widget? child) {
+          return game.illegalFiveLetterWord
+              ? const Icon(Icons.cancel, color: red)
+              : ValueListenableBuilder<int>(
+                  valueListenable: game.currentRowChangedNotifier,
+                  builder: (BuildContext context, int value, Widget? child) {
+                    return game.readyForStreakCurrentRow
+                        ? const Icon(Icons.fast_forward, color: green)
+                        : const Icon(Icons.keyboard_return_sharp, color: white);
+                  });
+        },
+      ));
+}
+
 Widget _kbTextSquare(String kbLetter, int kbRowLength) {
   return SizedBox(
       height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
@@ -63,32 +88,9 @@ Widget _kbTextSquare(String kbLetter, int kbRowLength) {
       child: FittedBox(
           fit: BoxFit.fitHeight,
           child: kbLetter == "<"
-              ? Container(
-                  padding: const EdgeInsets.all(7),
-                  child: const Icon(Icons.keyboard_backspace, color: white))
+              ? _backspaceKey()
               : kbLetter == ">"
-                  ? Container(
-                      padding: const EdgeInsets.all(7),
-                      child: ValueListenableBuilder<bool>(
-                        valueListenable: game.illegalFiveLetterWordNotifier,
-                        builder:
-                            (BuildContext context, bool value, Widget? child) {
-                          return game.illegalFiveLetterWord
-                              ? const Icon(Icons.cancel, color: red)
-                              : ValueListenableBuilder<int>(
-                                  valueListenable:
-                                      game.currentRowChangedNotifier,
-                                  builder: (BuildContext context, int value,
-                                      Widget? child) {
-                                    return game.readyForStreakCurrentRow
-                                        ? const Icon(Icons.fast_forward,
-                                            color: green)
-                                        : const Icon(
-                                            Icons.keyboard_return_sharp,
-                                            color: white);
-                                  });
-                        },
-                      ))
+                  ? _enterKey()
                   : _kbRegularTextCache[kbLetter]));
 }
 
@@ -114,16 +116,17 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
   return ValueListenableBuilder<int>(
       valueListenable: game.highlightedBoardNotifier,
       builder: (BuildContext context, int value, Widget? child) {
+        final bool someBoardHighlighted = game.highlightedBoard != -1;
         return GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
-            itemCount: game.highlightedBoard != -1 ? 1 : numBoards,
+            itemCount: someBoardHighlighted ? 1 : numBoards,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: game.highlightedBoard != -1
+              crossAxisCount: someBoardHighlighted
                   ? 1
                   : numBoards ~/ screen.numPresentationBigRowsOfBoards,
-              childAspectRatio: (game.highlightedBoard != -1
+              childAspectRatio: (someBoardHighlighted
                       ? 1
                       : 1 /
                           ((numBoards / screen.numPresentationBigRowsOfBoards) /
@@ -151,10 +154,11 @@ Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
 }
 
 Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {
-  Color color = cardColors.getBestColorForKeyboardLetter(kbLetter, subIndex);
-  double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
-  int numRows = screen.numPresentationBigRowsOfBoards;
-  bool specialHighlighting = game.highlightedBoard != -1;
+  final Color color =
+      cardColors.getBestColorForKeyboardLetter(kbLetter, subIndex);
+  final double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
+  final int numRows = screen.numPresentationBigRowsOfBoards;
+  final bool specialHighlighting = game.highlightedBoard != -1;
   return _kbMiniSquareColorRounded(color, subIndex, numRows, radius,
       specialHighlighting); //_kbMiniSquareColorCache[color][subIndex];
 }

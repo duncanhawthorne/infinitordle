@@ -366,8 +366,8 @@ class Game extends ValueNotifier<int> {
   }
 
   String getCardLetterAtAbIndex(int abIndex) {
-    int abRow = abIndex ~/ cols;
-    int col = abIndex % cols;
+    final int abRow = abIndex ~/ cols;
+    final int col = abIndex % cols;
     try {
       if (abRow > abCurrentRowInt) {
         return "";

@@ -12,6 +12,7 @@ import 'screen.dart';
 const double _notionalCardSize = 1.0;
 const _renderTwoFramesTime = delayMult *
     33; // so that set state and animations don't happen exactly simultaneously
+const tau = 2 * pi;
 
 Widget gameboardWidget(int boardNumber) {
   return ValueListenableBuilder<bool>(
@@ -29,8 +30,8 @@ Widget gameboardWidget(int boardNumber) {
 }
 
 Widget _gameboardWidgetReal(int boardNumber) {
-  bool expandingBoard = game.expandingBoard;
-  int boardNumberRows = game.gbLiveNumRowsPerBoard;
+  final bool expandingBoard = game.expandingBoard;
+  final int boardNumberRows = game.gbLiveNumRowsPerBoard;
   // ignore: sized_box_for_whitespace
   return Container(
     height: numRowsPerBoard * screen.cardLiveMaxPixel, //notionalCardSize,
@@ -80,7 +81,7 @@ Widget _gameboardWidgetWithNRows(
 }
 
 Widget _cardFlipperAlts(int abIndex, int boardNumber) {
-  int abRow = abIndex ~/ cols;
+  final int abRow = abIndex ~/ cols;
   return ValueListenableBuilder<int>(
       valueListenable: game.currentRowChangedNotifier,
       builder: (BuildContext context, int value, Widget? child) {
@@ -105,44 +106,41 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
       builder: (BuildContext context, double angle, __) {
         return (Transform(
           alignment: Alignment.center,
-          transform: Matrix4.identity()..rotateX(angle * (2 * pi)),
-          child: angle <= 0.25
-              ? _positionedScaledCard(abIndex, boardNumber, false)
-              : Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()..rotateX(pi),
-                  child: ValueListenableBuilder<int>(
-                    valueListenable: game.temporaryVisualOffsetForSlideNotifier,
-                    builder: (BuildContext context, int value, Widget? child) {
-                      return _positionedScaledCard(abIndex, boardNumber, true);
-                    },
-                  )),
+          transform: Matrix4.identity()
+            ..rotateX(angle * tau + (angle <= 0.25 ? 0 : tau / 2)),
+          child: ValueListenableBuilder<int>(
+            valueListenable: game.temporaryVisualOffsetForSlideNotifier,
+            builder: (BuildContext context, int value, Widget? child) {
+              return _positionedScaledCard(abIndex, boardNumber, angle > 0.25);
+            },
+          ),
         ));
       });
 }
 
 Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
   const double shrinkCardScaleDefault = 0.75;
-  double cardSizeDefault = screen.cardLiveMaxPixel; //notionalCardSize;
-  int temporaryVisualOffsetForSlide = game.temporaryVisualOffsetForSlide;
+  final double cardSizeDefault = screen.cardLiveMaxPixel; //notionalCardSize;
+  final int temporaryVisualOffsetForSlide = game.temporaryVisualOffsetForSlide;
 
-  int abRow = abIndex ~/ cols;
-  int gbRow = _getGBRowFromABRow(abRow);
-  bool shouldSlideCard = abRow < game.abCurrentRowInt;
-  bool shouldShrinkCard = game.expandingBoard &&
+  final int abRow = abIndex ~/ cols;
+  final int gbRow = _getGBRowFromABRow(abRow);
+  final bool shouldSlideCard = abRow < game.abCurrentRowInt;
+  final bool shouldShrinkCard = game.expandingBoard &&
       abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
           game.abLiveNumRowsPerBoard - numRowsPerBoard;
 
-  double cardScaleFactor = shouldShrinkCard ? shrinkCardScaleDefault : 1.0;
-  double cardSize = cardSizeDefault * cardScaleFactor;
-  double cardScaleOffset = cardSizeDefault * (1 - cardScaleFactor) / 2;
-  double cardSlideOffset =
+  final double cardScaleFactor =
+      shouldShrinkCard ? shrinkCardScaleDefault : 1.0;
+  final double cardSize = cardSizeDefault * cardScaleFactor;
+  final double cardScaleOffset = cardSizeDefault * (1 - cardScaleFactor) / 2;
+  final double cardSlideOffset =
       shouldSlideCard ? -cardSizeDefault * temporaryVisualOffsetForSlide : 0;
   // if offset 1, do gradually. if offset 0, do instantaneously
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
   // and move visual cards back to original position instantly
-  int timeFactorOfSlide = temporaryVisualOffsetForSlide;
+  final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
   return Stack(
     clipBehavior: gbRow == 0 && cardSlideOffset != 0
         ? Clip.hardEdge
@@ -167,7 +165,7 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
 }
 
 Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
-  int abRow = abIndex ~/ cols;
+  final int abRow = abIndex ~/ cols;
 
   return ListenableBuilder(
       listenable: Listenable.merge([
@@ -189,20 +187,21 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
 }
 
 Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
-  int abRow = abIndex ~/ cols;
-  int col = abIndex % cols;
-  bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
+  final int abRow = abIndex ~/ cols;
+  final int col = abIndex % cols;
+  final bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.getBoardFlourishFlipRow(boardNumber) != -1 &&
           abRow == game.getBoardFlourishFlipRow(boardNumber);
-  bool justFlippedBackToFront = game.getBoardFlourishFlipRow(boardNumber) != -1;
-  bool hideCard =
+  final bool justFlippedBackToFront =
+      game.getBoardFlourishFlipRow(boardNumber) != -1;
+  final bool hideCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
           abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
           (_rowOffTopOfMainBoard(abRow) &&
               !facingFront &&
               justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
 
-  String cardLetter = abRow ==
+  final String cardLetter = abRow ==
               game.abLiveNumRowsPerBoard -
                   1 && //code is formatting final row of cards
           _getGBRowFromABRow(game.abCurrentRowInt) < 0 &&
@@ -212,14 +211,14 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
       : hideCard
           ? ""
           : game.getCardLetterAtAbIndex(abIndex);
-  bool normalHighlighting = game.isBoardNormalHighlighted(boardNumber);
-  Color cardColor = hideCard
+  final bool normalHighlighting = game.isBoardNormalHighlighted(boardNumber);
+  final Color cardColor = hideCard
       ? transp
       : !facingFront
           ? grey
           : _soften(
               boardNumber, cardColors.getAbCardColor(abIndex, boardNumber));
-  Color borderColor = hideCard
+  final Color borderColor = hideCard
       ? transp
       : historicalWin
           ? _soften(boardNumber, green)

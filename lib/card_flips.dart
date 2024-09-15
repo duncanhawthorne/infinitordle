@@ -9,24 +9,23 @@ class Flips {
   final Game game;
 
   double getFlipAngle(int abIndex, int boardNumber) {
-    int abRow = abIndex ~/ cols;
-    double cardFlipAngle =
+    final int abRow = abIndex ~/ cols;
+    final double cardFlipAngle =
         _getPermFlipAngle(abIndex) - _getFlourishFlipAngle(abIndex);
-    double boardFlipAngle = 0;
-    if (abRow <= game.abCurrentRowInt) {
-      boardFlipAngle = _getFlourishBoardFlipAngle(boardNumber);
-    }
+    final double boardFlipAngle = abRow <= game.abCurrentRowInt
+        ? _getFlourishBoardFlipAngle(boardNumber)
+        : 0;
     return max(0, cardFlipAngle - boardFlipAngle);
   }
 
   double _getPermFlipAngle(int abIndex) {
-    int abRow = abIndex ~/ cols;
+    final int abRow = abIndex ~/ cols;
     return abRow >= game.abCurrentRowInt ? 0 : 0.5;
   }
 
   double _getFlourishFlipAngle(int abIndex) {
-    int abRow = abIndex ~/ cols;
-    int col = abIndex % cols;
+    final int abRow = abIndex ~/ cols;
+    final int col = abIndex % cols;
     if (!game.abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
       return 0;
     } else {
