@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
-import 'helper.dart';
+import 'src/workarounds.dart';
 
 const double _keyAspectRatioDefault = 1.5;
 const double dividerHeight = 2;

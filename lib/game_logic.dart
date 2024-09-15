@@ -9,6 +9,7 @@ import 'google_logic.dart';
 import 'helper.dart';
 import 'popup_screens.dart';
 import 'saves.dart';
+import 'src/workarounds.dart';
 import 'wordlist.dart';
 
 const _cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];

@@ -8,11 +8,11 @@ import 'firebase.dart';
 import 'game_logic.dart';
 import 'gameboard.dart';
 import 'google_logic.dart';
-import 'helper.dart';
 import 'keyboard.dart';
 import 'popup_screens.dart';
 import 'saves.dart';
 import 'screen.dart';
+import 'src/workarounds.dart';
 
 FocusNode focusNode = FocusNode();
 

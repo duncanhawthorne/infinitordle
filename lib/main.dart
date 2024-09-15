@@ -11,9 +11,9 @@ import 'constants.dart';
 import 'firebase_options.dart';
 import 'game_logic.dart';
 import 'google_logic.dart';
-import 'helper.dart';
 import 'saves.dart';
 import 'screen.dart';
+import 'src/workarounds.dart';
 
 Future<void> main() async {
   //debugRepaintRainbowEnabled = true;
@@ -43,6 +43,8 @@ Future<void> main() async {
   if (gOn) {
     g.startGoogleAccountChangeListener();
   }
+
+  fixTitlePerm();
 
   runApp(const InfinitordleApp());
 }
