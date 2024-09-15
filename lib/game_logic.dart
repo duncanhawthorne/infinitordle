@@ -560,33 +560,21 @@ class Game extends ValueNotifier<int> {
   int getFirstAbRowToShowOnBoardDueToKnowledge(int boardNumber) {
     if (_firstKnowledge.length != numBoards) {
       _copyTo(_firstKnowledge, _getBlankFirstKnowledge(numBoards));
-      debug("getFirstVisualRowToShowOnBoard error");
+      debug("getFirstVisualRowToShowOnBoard error 1");
     }
     if (!expandingBoard) {
       return pushOffBoardRows;
     } else if (boardNumber < _firstKnowledge.length) {
       return _firstKnowledge[boardNumber];
     } else {
-      debug("getFirstVisualRowToShowOnBoard error");
+      debug("getFirstVisualRowToShowOnBoard error 2");
       return 0;
     }
   }
 
-  List<int> getFirstAbRowToShowOnBoardDueToKnowledgeAll() {
-    return List<int>.generate(
-        numBoards, (i) => getFirstAbRowToShowOnBoardDueToKnowledge(i));
-  }
-
   int getLastCardToConsiderForKeyColors() {
-    int count = 0;
-    for (int key in abCardFlourishFlipAnglesNotifier.value.keys) {
-      for (int i = 0; i < cols; i++) {
-        if (abCardFlourishFlipAnglesNotifier.value[key]![i] > 0) {
-          count++;
-        }
-      }
-    }
-    return _enteredWords.length * cols - count;
+    return _enteredWords.length * cols -
+        abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
   }
 
   void _setAbCardFlourishFlipAngle(int abRow, int column, double value) {
@@ -657,11 +645,26 @@ final Game game = Game();
 class _CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
   _CustomMapNotifier() : super({});
 
+  int _numberNonZeroItems() {
+    int count = 0;
+    for (int key in value.keys) {
+      for (int i = 0; i < cols; i++) {
+        if (value[key]![i] > 0) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  int numberNotYetFlourishFlipped = 0;
+
   void set(int abRow, int column, double tvalue) {
     if (!value.containsKey(abRow)) {
       value[abRow] = List<double>.generate(cols, (i) => 0.0);
     }
     value[abRow]![column] = tvalue;
+    numberNotYetFlourishFlipped = _numberNonZeroItems();
     notifyListeners();
   }
 
@@ -669,6 +672,7 @@ class _CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
     if (value.containsKey(key)) {
       value.remove(key);
     }
+    numberNotYetFlourishFlipped = _numberNonZeroItems();
     notifyListeners();
   }
 }

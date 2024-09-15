@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
@@ -18,60 +17,75 @@ class CardColors {
   final List<String> _targetWordsCacheForKey = List.filled(numBoards, "x");
   int _getLastCardToConsiderForKeyColorsCache = 0;
 
-  Color getBestColorForLetter(String queryLetter, int boardNumber) {
-    if (game.getLastCardToConsiderForKeyColors() !=
-            _getLastCardToConsiderForKeyColorsCache ||
-        !listEquals(game.getFirstAbRowToShowOnBoardDueToKnowledgeAll(),
-            _firstRowsToShowCache)) {
-      _resetKeyColorsCache();
+  Color getBestColorForKeyboardLetter(String letter, int boardNumber) {
+    final bool isGlobalCacheInvalid =
+        game.getLastCardToConsiderForKeyColors() !=
+            _getLastCardToConsiderForKeyColorsCache;
+
+    if (isGlobalCacheInvalid) {
+      _getLastCardToConsiderForKeyColorsCache =
+          game.getLastCardToConsiderForKeyColors();
+      _keyColorsCache.clear();
     }
 
     if (game.highlightedBoard != -1) {
+      //only care about color from highlighted board, if highlighted
       boardNumber = game.highlightedBoard;
     }
 
-    String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
+    final String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
 
-    if (!_keyColorsCache.containsKey(boardNumber) ||
-        _targetWordsCacheForKey[boardNumber] != targetWord) {
+    final bool isBoardCacheInvalid =
+        !_keyColorsCache.containsKey(boardNumber) ||
+            _targetWordsCacheForKey[boardNumber] != targetWord ||
+            game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) !=
+                _firstRowsToShowCache[boardNumber];
+
+    if (isBoardCacheInvalid) {
       _keyColorsCache[boardNumber] = {};
       _targetWordsCacheForKey[boardNumber] = targetWord;
+      _firstRowsToShowCache[boardNumber] =
+          game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
     }
 
-    if (!_keyColorsCache[boardNumber]!.containsKey(queryLetter)) {
-      _keyColorsCache[boardNumber]![queryLetter] =
-          _getBestColorForLetterReal(queryLetter, boardNumber);
+    final keyColorsCacheForBoard = _keyColorsCache[boardNumber]!;
+    if (!keyColorsCacheForBoard.containsKey(letter)) {
+      keyColorsCacheForBoard[letter] =
+          _getBestColorForKeyboardLetterReal(letter, boardNumber);
     }
 
-    return _keyColorsCache[boardNumber]![queryLetter]!;
+    return keyColorsCacheForBoard[letter]!;
   }
 
-  Color _getBestColorForLetterReal(queryLetter, boardNumber) {
-    int abStart = cols *
-        max(0, game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
-    int abEnd = game.getLastCardToConsiderForKeyColors();
+  bool _cardOnBoardOfColor(Color? color, String queryLetter, int boardNumber,
+      int abStart, int abEnd) {
+    //for transp, just check the existence of the letter rather than color
+    for (int abIndex = abStart; abIndex < abEnd; abIndex++) {
+      if (game.getCardLetterAtAbIndex(abIndex) == queryLetter &&
+          (color == transp || getAbCardColor(abIndex, boardNumber) == color)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
+  static const _cardColorsPriority = [green, amber, transp];
+
+  Color _getBestColorForKeyboardLetterReal(
+      String queryLetter, int boardNumber) {
     if (queryLetter == " ") {
       return transp;
     }
+
+    final int abStart = cols *
+        max(0, game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
+    final int abEnd = game.getLastCardToConsiderForKeyColors();
+
     // get color for the keyboard based on best (green > yellow > grey) color on the grid
-    for (int abIndex = abStart; abIndex < abEnd; abIndex++) {
-      if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
-        if (getAbCardColor(abIndex, boardNumber) == green) {
-          return green;
-        }
-      }
-    }
-    for (int abIndex = abStart; abIndex < abEnd; abIndex++) {
-      if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
-        if (getAbCardColor(abIndex, boardNumber) == amber) {
-          return amber;
-        }
-      }
-    }
-    for (int abIndex = abStart; abIndex < abEnd; abIndex++) {
-      if (game.getCardLetterAtAbIndex(abIndex) == queryLetter) {
-        return transp;
+    for (Color color in _cardColorsPriority) {
+      if (_cardOnBoardOfColor(
+          color, queryLetter, boardNumber, abStart, abEnd)) {
+        return color;
       }
     }
     return grey; //not used yet by the player
@@ -82,8 +96,8 @@ class CardColors {
       // Later rows
       return transp;
     }
-    String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
-    String testLetter = game.getCardLetterAtAbIndex(abIndex);
+    final String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
+    final String testLetter = game.getCardLetterAtAbIndex(abIndex);
     if (!_cardColorsCache.containsKey(boardNumber) ||
         !_cardColorsCache[boardNumber]![-1]!.containsKey(targetWord)) {
       _cardColorsCache[boardNumber] = {
@@ -104,7 +118,7 @@ class CardColors {
     int numberOfGreenThisLetterInCardRow = 0;
     for (int i = 0; i < cols; i++) {
       if (game.getCardLetterAtAbIndex(testAbRow * cols + i) == testLetter &&
-          targetWord[i] == game.getCardLetterAtAbIndex(testAbRow * cols + i)) {
+          targetWord[i] == testLetter) {
         numberOfGreenThisLetterInCardRow++;
       }
     }
@@ -123,15 +137,16 @@ class CardColors {
     return numberOfYellowThisLetterToLeftInCardRow;
   }
 
-  Color colorForRightLetterWrongColumn(int testAbRow, String testLetter,
+  Color _colorForRightLetterWrongColumn(int testAbRow, String testLetter,
       String targetWord, int testColumn, int boardNumber) {
-    int numberThisLetterInTargetWord = testLetter.allMatches(targetWord).length;
+    final int numberThisLetterInTargetWord =
+        testLetter.allMatches(targetWord).length;
 
-    int numberYellowToLeftThisLetterThisRow =
+    final int numberYellowToLeftThisLetterThisRow =
         _countYellowToLeftThisLetterThisRow(
             testAbRow, testLetter, targetWord, testColumn, boardNumber);
 
-    int numberGreenThisLetterThisRow =
+    final int numberGreenThisLetterThisRow =
         _countGreenThisLetterThisRow(testAbRow, testLetter, targetWord);
 
     //note if only one letter matching targetWord, then always returns Amber
@@ -144,32 +159,19 @@ class CardColors {
   Color _getAbCardColorReal(abIndex, boardNumber) {
     if (abIndex >= game.abCurrentRowInt * cols) {
       return transp; //later rows
+    }
+    final String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
+    final String testLetter = game.getCardLetterAtAbIndex(abIndex);
+    final int testAbRow = abIndex ~/ cols;
+    final int testColumn = abIndex % cols;
+    if (targetWord[testColumn] == testLetter) {
+      return green;
+    } else if (!targetWord.contains(testLetter)) {
+      return transp;
     } else {
-      String targetWord = game.getCurrentTargetWordForBoard(boardNumber);
-      String testLetter = game.getCardLetterAtAbIndex(abIndex);
-      int testAbRow = abIndex ~/ cols;
-      int testColumn = abIndex % cols;
-      if (targetWord[testColumn] == testLetter) {
-        return green;
-      } else if (!targetWord.contains(testLetter)) {
-        return transp;
-      } else {
-        return colorForRightLetterWrongColumn(
-            testAbRow, testLetter, targetWord, testColumn, boardNumber);
-      }
+      return _colorForRightLetterWrongColumn(
+          testAbRow, testLetter, targetWord, testColumn, boardNumber);
     }
-  }
-
-  void _resetKeyColorsCache() {
-    for (int i = 0; i < numBoards; i++) {
-      _targetWordsCacheForKey[i] = game.getCurrentTargetWordForBoard(i);
-      _firstRowsToShowCache[i] =
-          game.getFirstAbRowToShowOnBoardDueToKnowledge(i);
-    }
-    _getLastCardToConsiderForKeyColorsCache =
-        game.getLastCardToConsiderForKeyColors();
-
-    _keyColorsCache.clear();
   }
 }
 

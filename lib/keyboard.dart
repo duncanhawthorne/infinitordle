@@ -132,8 +132,6 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
                   (10 / kbRowLength),
             ),
             itemBuilder: (BuildContext context, int subIndex) {
-              //Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
-              //return _kbMiniSquareColorCache[color];
               return _kbMiniSquareColorChooser(kbLetter, subIndex);
             });
       });
@@ -153,7 +151,7 @@ Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
 }
 
 Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {
-  Color color = cardColors.getBestColorForLetter(kbLetter, subIndex);
+  Color color = cardColors.getBestColorForKeyboardLetter(kbLetter, subIndex);
   double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
   int numRows = screen.numPresentationBigRowsOfBoards;
   bool specialHighlighting = game.highlightedBoard != -1;
