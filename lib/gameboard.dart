@@ -98,22 +98,30 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
       });
 }
 
+Widget _cardBuilder(int abIndex, int boardNumber, bool facingFront) {
+  return ValueListenableBuilder<int>(
+    valueListenable: game.temporaryVisualOffsetForSlideNotifier,
+    builder: (BuildContext context, int value, Widget? child) {
+      return _positionedScaledCard(abIndex, boardNumber, facingFront);
+    },
+  );
+}
+
 Widget _cardFlipper(int abIndex, int boardNumber) {
+  final Widget childFront = _cardBuilder(abIndex, boardNumber, true);
+  final Widget childBack = _cardBuilder(abIndex, boardNumber, false);
+
   return TweenAnimationBuilder(
       tween: Tween<double>(
           begin: 0, end: flips.getFlipAngle(abIndex, boardNumber)),
       duration: const Duration(milliseconds: flipTime),
       builder: (BuildContext context, double angle, __) {
+        final bool isFront = angle > 0.25;
         return (Transform(
           alignment: Alignment.center,
           transform: Matrix4.identity()
-            ..rotateX(angle * tau + (angle <= 0.25 ? 0 : tau / 2)),
-          child: ValueListenableBuilder<int>(
-            valueListenable: game.temporaryVisualOffsetForSlideNotifier,
-            builder: (BuildContext context, int value, Widget? child) {
-              return _positionedScaledCard(abIndex, boardNumber, angle > 0.25);
-            },
-          ),
+            ..rotateX(angle * tau + (isFront ? tau / 2 : 0)),
+          child: isFront ? childFront : childBack,
         ));
       });
 }
@@ -141,6 +149,10 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
   // then do a real switch to what is in each card to move one place forward
   // and move visual cards back to original position instantly
   final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
+  final Widget chosenCard = SizedBox(
+      height: cardSize,
+      width: cardSize,
+      child: _cardChooser(abIndex, boardNumber, facingFront));
   return Stack(
     clipBehavior: gbRow == 0 && cardSlideOffset != 0
         ? Clip.hardEdge
@@ -156,10 +168,7 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
           left: cardScaleOffset,
           height: cardSize,
           width: cardSize,
-          child: SizedBox(
-              height: cardSize,
-              width: cardSize,
-              child: _cardChooser(abIndex, boardNumber, facingFront))),
+          child: chosenCard),
     ],
   );
 }
