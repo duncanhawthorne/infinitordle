@@ -38,8 +38,6 @@ Future<void> main() async {
     db = FirebaseFirestore.instance;
   }
 
-  fixTitlePersistent();
-
   if (gOn) {
     g.startGoogleAccountChangeListener();
   }
