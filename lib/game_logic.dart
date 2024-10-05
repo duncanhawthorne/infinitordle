@@ -1,9 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'card_colors.dart';
@@ -448,14 +447,15 @@ class Game extends ValueNotifier<int> {
         String tmpgUser = gameTmp["gUser"] ?? "Default";
         if (tmpgUser != g.gUser && tmpgUser != "Default") {
           //Error state, so set gUser properly and redo loadKeys from firebase
-          g.forceResetUserTo(tmpgUser);
-          _loadFromFirebaseOrFilesystem();
+          //g.forceResetUserTo(tmpgUser);
+          //_loadFromFirebaseOrFilesystem();
           stateChange();
           return;
         }
 
         _copyTo(_targetWords,
             gameTmp["targetWords"] ?? _getNewTargetWords(numBoards));
+        targetWordsChangedNotifier.value++;
 
         if (_targetWords.length != numBoards) {
           resetBoard();
@@ -463,6 +463,8 @@ class Game extends ValueNotifier<int> {
         }
 
         _copyTo(_enteredWords, gameTmp["enteredWords"] ?? []);
+        currentRowChangedNotifier.value++;
+
         _copyTo(_winRecordBoards, gameTmp["winRecordBoards"] ?? []);
         _copyTo(_firstKnowledge,
             gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards));
@@ -645,24 +647,17 @@ class Game extends ValueNotifier<int> {
 
   final List<String> _recentSnapshotsCache = [];
 
-  void loadFirebaseSnapshot(var snapshot) {
-    if (fbOn) {
-      if (snapshot.hasError || !snapshot.hasData) {
-      } else if (snapshot.connectionState == ConnectionState.waiting) {
-      } else {
-        DocumentSnapshot<Object?>? userDocument = snapshot.data;
-        if (userDocument != null && userDocument.exists) {
-          String snapshotCurrent = userDocument["data"];
-          if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
-            if (snapshotCurrent != getEncodeCurrentGameState()) {
-              _loadFromEncodedState(snapshotCurrent, false);
-              //stateChange();
-            }
-            _recentSnapshotsCache.add(snapshotCurrent);
-            if (_recentSnapshotsCache.length > 5) {
-              _recentSnapshotsCache.removeAt(0);
-            }
-          }
+  void loadSnapshotMini(var userDocument) {
+    debug("loadSnapshotMini");
+    if (userDocument != null) {
+      String snapshotCurrent = userDocument["data"];
+      if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
+        if (snapshotCurrent != getEncodeCurrentGameState()) {
+          _loadFromEncodedState(snapshotCurrent, true);
+        }
+        _recentSnapshotsCache.add(snapshotCurrent);
+        if (_recentSnapshotsCache.length > 5) {
+          _recentSnapshotsCache.removeAt(0);
         }
       }
     }
@@ -672,6 +667,20 @@ class Game extends ValueNotifier<int> {
     _loadFromFirebaseOrFilesystem(); //initial
     g.gUserNotifier.addListener(() {
       _loadFromFirebaseOrFilesystem();
+      _firebaseChangeListener(g.gUser);
+    });
+  }
+
+  void _firebaseChangeListener(String userId) {
+    StreamSubscription? listener;
+    listener =
+        db!.collection('states').doc(userId).snapshots().listen((snapshot) {
+      //useId is fixed for the duration of listener
+      if (g.gUser != userId) {
+        listener!.cancel();
+        return;
+      }
+      loadSnapshotMini(snapshot.data());
     });
   }
 

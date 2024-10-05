@@ -29,7 +29,7 @@ class G {
   static const bool _newLoginButtons = false;
 
   void forceResetUserTo(String x) {
-    debug("force reset");
+    debug(["force reset gUser from", gUser, "to", x]);
     _gUser = x;
     _saveUserToFilesystem(gUser, _gUserIcon);
   }

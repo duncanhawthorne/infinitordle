@@ -1,13 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'constants.dart';
-import 'firebase_saves.dart';
 import 'game_logic.dart';
 import 'gameboard.dart';
-import 'google/google.dart';
 import 'keyboard.dart';
 import 'popup_screens.dart';
 import 'screen.dart';
@@ -16,26 +13,7 @@ import 'src/workarounds.dart';
 FocusNode focusNode = FocusNode();
 
 Widget infinitordleWidget() {
-  return streamBuilderWrapperOnDocument();
-}
-
-Widget streamBuilderWrapperOnDocument() {
-  return ValueListenableBuilder<String>(
-      valueListenable: g.gUserNotifier,
-      builder: (BuildContext context, String value, Widget? child) {
-        if (!fbOn || !g.signedIn) {
-          return _scaffold();
-        } else {
-          return StreamBuilder<DocumentSnapshot>(
-            stream: db!.collection('states').doc(g.gUser).snapshots(),
-            builder: (BuildContext context,
-                AsyncSnapshot<DocumentSnapshot> snapshot) {
-              game.loadFirebaseSnapshot(snapshot);
-              return _scaffold();
-            },
-          );
-        }
-      });
+  return _scaffold();
 }
 
 Widget _scaffold() {
