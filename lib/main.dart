@@ -9,8 +9,8 @@ import 'app_structure.dart';
 import 'constants.dart';
 //firebase_options.dart as per direct download from google, not included in repo
 import 'firebase_options.dart';
+import 'firebase_saves.dart';
 import 'game_logic.dart';
-import 'saves.dart';
 import 'screen.dart';
 import 'src/workarounds.dart';
 
