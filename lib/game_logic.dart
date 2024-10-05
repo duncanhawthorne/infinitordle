@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'card_colors.dart';
 import 'constants.dart';
-import 'google_logic.dart';
+import 'google/google.dart';
 import 'helper.dart';
 import 'popup_screens.dart';
 import 'saves.dart';
@@ -20,7 +23,9 @@ const _gradualRevealRowTime = gradualRevealDelayTime * (cols - 1) + flipTime;
 final Random _random = Random();
 
 class Game extends ValueNotifier<int> {
-  Game() : super(0);
+  Game() : super(0) {
+    _userChangeListener();
+  }
 
   //getters / setters
   List<dynamic> get targetWords => _targetWords;
@@ -212,11 +217,11 @@ class Game extends ValueNotifier<int> {
     //Code for losing game
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
-      save.saveKeys();
+      _saveToFirebaseAndFilesystem();
       showResetConfirmScreen();
     } else if (!infMode && isWin) {
       //Code for totally winning game across all boards
-      save.saveKeys();
+      _saveToFirebaseAndFilesystem();
       bool totallySolvedLocal = true;
       for (int i = 0; i < numBoards; i++) {
         if (!getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
@@ -230,7 +235,7 @@ class Game extends ValueNotifier<int> {
       _handleWinningWordEntered(
           cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
     } else {
-      save.saveKeys();
+      _saveToFirebaseAndFilesystem();
     }
   }
 
@@ -315,7 +320,7 @@ class Game extends ValueNotifier<int> {
     _targetWords[winningBoardToFix] = _getNewTargetWord();
     targetWordsChangedNotifier.value++;
 
-    save.saveKeys();
+    _saveToFirebaseAndFilesystem();
     //setStateGlobal();
   }
 
@@ -341,7 +346,7 @@ class Game extends ValueNotifier<int> {
       analytics!.logLevelStart(levelName: "Reset");
       analytics!.logLevelUp(level: _enteredWords.length);
     }
-    save.saveKeys();
+    _saveToFirebaseAndFilesystem();
   }
 
   void toggleExpandingBoardState() {
@@ -351,7 +356,7 @@ class Game extends ValueNotifier<int> {
       expandingBoard = true;
       _expandingBoardEver = true;
     }
-    save.saveKeys();
+    _saveToFirebaseAndFilesystem();
     stateChange();
   }
 
@@ -431,7 +436,7 @@ class Game extends ValueNotifier<int> {
     return winningBoardToFix;
   }
 
-  void loadFromEncodedState(String gameEncoded, bool sync) {
+  void _loadFromEncodedState(String gameEncoded, bool sync) {
     if (gameEncoded == "") {
       debug(["loadFromEncodedState empty"]);
       stateChange();
@@ -443,8 +448,9 @@ class Game extends ValueNotifier<int> {
         String tmpgUser = gameTmp["gUser"] ?? "Default";
         if (tmpgUser != g.gUser && tmpgUser != "Default") {
           //Error state, so set gUser properly and redo loadKeys from firebase
-          g.gUser = tmpgUser;
-          save.loadKeys();
+          debug("shouldn't have got here"); //FIXME causes crash
+          //g.gUser = tmpgUser; //FIXME disabled to enable compile only
+          _loadFromFirebaseOrFilesystem();
           stateChange();
           return;
         }
@@ -636,6 +642,65 @@ class Game extends ValueNotifier<int> {
   void stateChange() {
     notifyListeners();
     //notifyListeners(); //setStateGlobal();
+  }
+
+  final List<String> _recentSnapshotsCache = [];
+
+  void loadFirebaseSnapshot(var snapshot) {
+    if (fbOn) {
+      if (snapshot.hasError || !snapshot.hasData) {
+      } else if (snapshot.connectionState == ConnectionState.waiting) {
+      } else {
+        DocumentSnapshot<Object?>? userDocument = snapshot.data;
+        if (userDocument != null && userDocument.exists) {
+          String snapshotCurrent = userDocument["data"];
+          if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
+            if (snapshotCurrent != getEncodeCurrentGameState()) {
+              _loadFromEncodedState(snapshotCurrent, false);
+              //stateChange();
+            }
+            _recentSnapshotsCache.add(snapshotCurrent);
+            if (_recentSnapshotsCache.length > 5) {
+              _recentSnapshotsCache.removeAt(0);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  void _userChangeListener() {
+    _loadFromFirebaseOrFilesystem(); //initial
+    g.gUserNotifier.addListener(() {
+      _loadFromFirebaseOrFilesystem();
+    });
+  }
+
+  Future<void> _loadFromFirebaseOrFilesystem() async {
+    final prefs = await SharedPreferences.getInstance();
+    String gameEncoded = "";
+
+    if (!fbOn || !g.signedIn) {
+      // load from local save
+      gameEncoded = prefs.getString('game') ?? "";
+    } else {
+      // load from firebase
+      gameEncoded = await fBase.firebasePull();
+    }
+    _loadFromEncodedState(gameEncoded, true);
+  }
+
+  Future<void> _saveToFirebaseAndFilesystem() async {
+    String gameEncoded = getEncodeCurrentGameState();
+
+    // save locally
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('game', gameEncoded);
+
+    // if possible save to firebase
+    if (fbOn && g.signedIn) {
+      fBase.firebasePush(gameEncoded);
+    }
   }
 }
 

@@ -4,10 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'constants.dart';
-import 'firebase.dart';
 import 'game_logic.dart';
 import 'gameboard.dart';
-import 'google_logic.dart';
+import 'google/google.dart';
 import 'keyboard.dart';
 import 'popup_screens.dart';
 import 'saves.dart';
@@ -31,7 +30,7 @@ Widget streamBuilderWrapperOnDocument() {
             stream: db!.collection('states').doc(g.gUser).snapshots(),
             builder: (BuildContext context,
                 AsyncSnapshot<DocumentSnapshot> snapshot) {
-              fBase.load(snapshot);
+              game.loadFirebaseSnapshot(snapshot);
               return _scaffold();
             },
           );

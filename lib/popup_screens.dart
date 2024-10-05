@@ -1,15 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 import 'constants.dart';
 import 'game_logic.dart';
-import 'google_logic.dart';
-import 'helper.dart';
+import 'google/google.dart';
 
-const bool _newLoginButtons = false;
 FocusNode focusNode = FocusNode();
 
 Future<void> showResetConfirmScreen() async {
@@ -27,13 +23,13 @@ Future<void> showResetConfirmScreenReal(BuildContext context) async {
       return AlertDialog(
         backgroundColor: bg,
         surfaceTintColor: bg,
-        title: gOn && g.signedIn ? _signInRow(context) : null,
+        title: gOn && g.signedIn ? g.signInRow(context) : null,
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               gOn && !g.signedIn
-                  ? _signInRow(context)
+                  ? g.signInRow(context)
                   : const SizedBox.shrink(),
               gOn && !g.signedIn
                   ? const SizedBox(height: 10)
@@ -88,89 +84,6 @@ Future<void> showResetConfirmScreenReal(BuildContext context) async {
             ],
           ),
         ),
-      );
-    },
-  );
-}
-
-Widget _signInRow(BuildContext context) {
-  if (gOn) {
-    StreamSubscription? subscription;
-    subscription = g.googleSignIn.onCurrentUserChanged
-        .listen((GoogleSignInAccount? account) async {
-      subscription!.cancel(); //FIXME doesn't work
-      debug("subscription fire");
-      if (account != null) {
-        //login
-        try {
-          // ignore: use_build_context_synchronously
-          if (Navigator.canPop(context)) {
-            // ignore: use_build_context_synchronously
-            Navigator.pop(context, 'OK');
-            focusNode.requestFocus();
-          }
-        } catch (e) {
-          debug("No pop");
-        }
-      }
-    });
-  }
-  gOn && !g.signedIn
-      ? g.signInSilently()
-      : null; //FIXME not suitable for mobile
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(!g.signedIn
-          ? (_newLoginButtons && kIsWeb ? "" : "Sign in?")
-          : appTitle),
-      Tooltip(
-        message: !g.signedIn ? "Sign in" : "Sign out",
-        child: !g.signedIn
-            ? _newLoginButtons
-                ? g.platformAdaptiveSignInButton(context)
-                : lockStyleSignInButton(context)
-            : IconButton(
-                iconSize: g.gUserIcon == G.gUserIconDefault ? 25 : 50,
-                icon: g.gUserIcon == G.gUserIconDefault
-                    ? const Icon(Icons.face_outlined)
-                    : CircleAvatar(backgroundImage: NetworkImage(g.gUserIcon)),
-                onPressed: () {
-                  _showLogoutConfirmationScreen(context);
-                  focusNode.requestFocus();
-                },
-              ),
-      ),
-    ],
-  );
-}
-
-Future<void> _showLogoutConfirmationScreen(BuildContext context) async {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: true,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: bg,
-        surfaceTintColor: bg,
-        title: const Text("Sign out?"),
-        //content: Text("Signed in as " + g.getUser()),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, 'Cancel');
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              g.signOutAndExtractDetails();
-              Navigator.pop(context, 'OK');
-              Navigator.pop(context, 'OK');
-            },
-            child: const Text('Sign out', style: TextStyle(color: red)),
-          ),
-        ],
       );
     },
   );
