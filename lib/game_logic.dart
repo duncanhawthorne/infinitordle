@@ -685,7 +685,7 @@ class Game extends ValueNotifier<int> {
       gameEncoded = prefs.getString('game') ?? "";
     } else {
       // load from firebase
-      gameEncoded = await fBase.firebasePull();
+      gameEncoded = await fBase.firebasePull(g);
     }
     _loadFromEncodedState(gameEncoded, true);
   }
@@ -699,7 +699,7 @@ class Game extends ValueNotifier<int> {
 
     // if possible save to firebase
     if (fbOn && g.signedIn) {
-      fBase.firebasePush(gameEncoded);
+      fBase.firebasePush(g, gameEncoded);
     }
   }
 }

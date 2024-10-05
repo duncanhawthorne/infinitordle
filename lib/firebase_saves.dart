@@ -3,7 +3,6 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
 import 'firebase_options.dart';
-import 'game_logic.dart';
 import 'google/google.dart';
 import 'helper.dart';
 
@@ -15,12 +14,7 @@ FirebaseFirestore? db = fbOn ? FirebaseFirestore.instance : null;
 FirebaseAnalytics? analytics = fbAnalytics ? FirebaseAnalytics.instance : null;
 
 class FBase {
-  FBase({required this.game, required this.g});
-
-  final Game game;
-  final G g;
-
-  Future<void> firebasePush(state) async {
+  Future<void> firebasePush(G g, state) async {
     if (fbOn && g.signedIn) {
       final dhState = <String, dynamic>{"data": state};
       db!
@@ -31,7 +25,7 @@ class FBase {
     }
   }
 
-  Future<String> firebasePull() async {
+  Future<String> firebasePull(G g) async {
     String gameEncoded = "";
     if (fbOn && g.signedIn) {
       final docRef = db!.collection("states").doc(g.gUser);
@@ -47,4 +41,4 @@ class FBase {
   }
 }
 
-final FBase fBase = FBase(game: game, g: g);
+final FBase fBase = FBase();
