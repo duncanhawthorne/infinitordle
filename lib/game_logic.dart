@@ -647,7 +647,7 @@ class Game extends ValueNotifier<int> {
 
   final List<String> _recentSnapshotsCache = [];
 
-  void loadSnapshotMini(var userDocument) {
+  void loadSnapshotMini(Map<String, dynamic>? userDocument) {
     debug("loadSnapshotMini");
     if (userDocument != null) {
       String snapshotCurrent = userDocument["data"];
