@@ -40,7 +40,7 @@ Widget _scaffold() {
 Widget titleWidget() {
   return InkWell(
       onTap: () {
-        showResetConfirmScreen();
+        showMainPopupScreen();
       },
       child: SizedBox(
         height: screen

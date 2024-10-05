@@ -217,7 +217,7 @@ class Game extends ValueNotifier<int> {
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
       _saveToFirebaseAndFilesystem();
-      showResetConfirmScreen();
+      showMainPopupScreen();
     } else if (!infMode && isWin) {
       //Code for totally winning game across all boards
       _saveToFirebaseAndFilesystem();

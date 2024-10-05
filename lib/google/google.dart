@@ -121,6 +121,7 @@ class G {
 
   Widget lockStyleSignInButton(BuildContext context) {
     return IconButton(
+      iconSize: _iconWidth,
       icon: Icon(Icons.lock, color: _color),
       onPressed: () {
         _signInSilentlyThenDirectly();
@@ -140,6 +141,7 @@ class G {
   static const bool _requireLogoutConfirm = true;
   Widget _logoutButton(BuildContext context) {
     return IconButton(
+      iconSize: _iconWidth,
       icon: _gUserIcon == _gUserIconDefault
           ? Icon(Icons.face_outlined, color: _color)
           : CircleAvatar(

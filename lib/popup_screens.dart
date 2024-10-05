@@ -8,11 +8,11 @@ import 'google/google.dart';
 
 FocusNode focusNode = FocusNode();
 
-Future<void> showResetConfirmScreen() async {
-  showResetConfirmScreenReal(navigatorKey.currentContext!);
+Future<void> showMainPopupScreen() async {
+  _showMainPopupScreenReal(navigatorKey.currentContext!);
 }
 
-Future<void> showResetConfirmScreenReal(BuildContext context) async {
+Future<void> _showMainPopupScreenReal(BuildContext context) async {
   List winWordsCache = game.getWinWords();
   int numberWinsCache = winWordsCache.length;
   bool gameOver = game.gameOver;
