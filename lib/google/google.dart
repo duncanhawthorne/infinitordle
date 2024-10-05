@@ -28,6 +28,12 @@ class G {
 
   static const bool _newLoginButtons = false;
 
+  void forceResetUserTo(String x) {
+    debug("force reset");
+    _gUser = x;
+    _saveUserToFilesystem(gUser, _gUserIcon);
+  }
+
   Widget signInRow(BuildContext context) {
     if (gOn) {
       StreamSubscription? subscription;

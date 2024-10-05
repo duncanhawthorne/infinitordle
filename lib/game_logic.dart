@@ -448,8 +448,7 @@ class Game extends ValueNotifier<int> {
         String tmpgUser = gameTmp["gUser"] ?? "Default";
         if (tmpgUser != g.gUser && tmpgUser != "Default") {
           //Error state, so set gUser properly and redo loadKeys from firebase
-          debug("shouldn't have got here"); //FIXME causes crash
-          //g.gUser = tmpgUser; //FIXME disabled to enable compile only
+          g.forceResetUserTo(tmpgUser);
           _loadFromFirebaseOrFilesystem();
           stateChange();
           return;
