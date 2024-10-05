@@ -35,55 +35,21 @@ class G {
   }
 
   Widget signInRow(BuildContext context) {
-    if (gOn) {
-      StreamSubscription? subscription;
-      subscription = g.googleSignIn.onCurrentUserChanged
-          .listen((GoogleSignInAccount? account) async {
-        subscription!.cancel(); //FIXME doesn't work
-        debug("subscription fire");
-        if (account != null) {
-          //login
-          try {
-            // ignore: use_build_context_synchronously
-            if (Navigator.canPop(context)) {
-              // ignore: use_build_context_synchronously
-              Navigator.pop(context, 'OK');
-              focusNode.requestFocus();
-            }
-          } catch (e) {
-            debug("No pop");
-          }
-        }
-      });
-    }
-    gOn && !g.signedIn
-        ? _signInSilently()
-        : null; //FIXME not suitable for mobile
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(!g.signedIn
-            ? (_newLoginButtons && kIsWeb ? "" : "Sign in?")
-            : appTitle),
-        Tooltip(
-          message: !g.signedIn ? "Sign in" : "Sign out",
-          child: !g.signedIn
-              ? _newLoginButtons
-                  ? _platformAdaptiveSignInButton(context)
-                  : lockStyleSignInButton(context)
-              : IconButton(
-                  iconSize: _gUserIcon == _gUserIconDefault ? 25 : 50,
-                  icon: _gUserIcon == _gUserIconDefault
-                      ? const Icon(Icons.face_outlined)
-                      : CircleAvatar(backgroundImage: NetworkImage(_gUserIcon)),
-                  onPressed: () {
-                    g.showLogoutConfirmationScreen(context);
-                    focusNode.requestFocus();
-                  },
-                ),
-        ),
-      ],
-    );
+    return ValueListenableBuilder<String>(
+        valueListenable: gUserNotifier,
+        builder: (context, audioOn, child) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(!signedIn
+                  ? (_newLoginButtons && kIsWeb ? "" : "Sign in?")
+                  : appTitle),
+              Tooltip(
+                  message: !signedIn ? "Sign in" : "Sign out",
+                  child: loginLogoutWidget(context, 25, _color)),
+            ],
+          );
+        });
   }
 
   Future<void> showLogoutConfirmationScreen(BuildContext context) async {
@@ -95,7 +61,6 @@ class G {
           backgroundColor: bg,
           surfaceTintColor: bg,
           title: const Text("Sign out?"),
-          //content: Text("Signed in as " + g.getUser()),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -107,7 +72,7 @@ class G {
               onPressed: () {
                 _signOutAndExtractDetails();
                 Navigator.pop(context, 'OK');
-                Navigator.pop(context, 'OK');
+                //Navigator.pop(context, 'OK');
               },
               child: const Text('Sign out', style: TextStyle(color: red)),
             ),
@@ -172,15 +137,21 @@ class G {
         g: this);
   }
 
+  static const bool _requireLogoutConfirm = true;
   Widget _logoutButton(BuildContext context) {
     return IconButton(
-      icon: _gUserIcon == G._gUserIconDefault
+      icon: _gUserIcon == _gUserIconDefault
           ? Icon(Icons.face_outlined, color: _color)
           : CircleAvatar(
               radius: _iconWidth / 2,
               backgroundImage: NetworkImage(_gUserIcon)),
       onPressed: () {
-        _signOutAndExtractDetails();
+        if (_requireLogoutConfirm) {
+          showLogoutConfirmationScreen(context);
+          focusNode.requestFocus();
+        } else {
+          _signOutAndExtractDetails();
+        }
       },
     );
   }
@@ -196,8 +167,8 @@ class G {
 
   Future<List<String>> _loadUserFromFilesystem() async {
     final prefs = await SharedPreferences.getInstance();
-    String gUser = prefs.getString('gUser') ?? G._gUserDefault;
-    String gUserIcon = prefs.getString('gUserIcon') ?? G._gUserIconDefault;
+    String gUser = prefs.getString('gUser') ?? _gUserDefault;
+    String gUserIcon = prefs.getString('gUserIcon') ?? _gUserIconDefault;
     debug(["loadUser", gUser, gUserIcon]);
     return [gUser, gUserIcon];
   }
