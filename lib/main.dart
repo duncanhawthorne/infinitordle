@@ -11,7 +11,6 @@ import 'constants.dart';
 import 'firebase_options.dart';
 import 'firebase_saves.dart';
 import 'game_logic.dart';
-import 'screen.dart';
 import 'src/workarounds.dart';
 
 Future<void> main() async {
@@ -86,7 +85,6 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
-    screen.detectAndUpdateForScreenSize(context);
     return infinitordleWidget();
   }
 }
