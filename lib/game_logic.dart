@@ -108,7 +108,7 @@ class Game extends ValueNotifier<int> {
     if (cheatMode) {
       _cheatInitiate();
     }
-    stateChange();
+    _stateChange();
   }
 
   void onKeyboardTapped(String letter) {
@@ -356,7 +356,7 @@ class Game extends ValueNotifier<int> {
       _expandingBoardEver = true;
     }
     _saveToFirebaseAndFilesystem();
-    stateChange();
+    _stateChange();
   }
 
   void toggleHighlightedBoard(int boardNumber) {
@@ -435,10 +435,10 @@ class Game extends ValueNotifier<int> {
     return winningBoardToFix;
   }
 
-  void _loadFromEncodedState(String gameEncoded, bool sync) {
+  void _loadFromEncodedState(String gameEncoded) {
     if (gameEncoded == "") {
       debug(["loadFromEncodedState empty"]);
-      stateChange();
+      _stateChange();
     } else if (gameEncoded != _gameEncodedLastCache) {
       try {
         Map<String, dynamic> gameTmp = {};
@@ -449,7 +449,9 @@ class Game extends ValueNotifier<int> {
           //Error state, so set gUser properly and redo loadKeys from firebase
           //g.forceResetUserTo(tmpgUser);
           //_loadFromFirebaseOrFilesystem();
-          stateChange();
+          debug(["users dont match", tmpgUser, g.gUser]);
+          _stateChange();
+          //don't load up
           return;
         }
 
@@ -483,14 +485,8 @@ class Game extends ValueNotifier<int> {
         debug(["loadFromEncodedState error", error]);
       }
       _gameEncodedLastCache = gameEncoded;
-      if (sync) {
-        stateChange();
-      } else {
-        //Future.delayed(const Duration(milliseconds: 0), () {
-        //  // ASAP but not sync
-        //  ss();
-        //});
-      }
+      _saveToFirebaseAndFilesystem();
+      _stateChange();
     }
   }
 
@@ -640,20 +636,20 @@ class Game extends ValueNotifier<int> {
     return boardFlourishFlipRowsNotifiers[i].value;
   }
 
-  void stateChange() {
+  void _stateChange() {
     notifyListeners();
     //notifyListeners(); //setStateGlobal();
   }
 
   final List<String> _recentSnapshotsCache = [];
 
-  void loadSnapshotMini(Map<String, dynamic>? userDocument) {
-    debug("loadSnapshotMini");
+  void loadFirebaseSnapshot(Map<String, dynamic>? userDocument) {
+    debug("loadFirebaseSnapshot");
     if (userDocument != null) {
       String snapshotCurrent = userDocument["data"];
       if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
         if (snapshotCurrent != getEncodeCurrentGameState()) {
-          _loadFromEncodedState(snapshotCurrent, true);
+          _loadFromEncodedState(snapshotCurrent);
         }
         _recentSnapshotsCache.add(snapshotCurrent);
         if (_recentSnapshotsCache.length > 5) {
@@ -680,7 +676,7 @@ class Game extends ValueNotifier<int> {
         listener!.cancel();
         return;
       }
-      loadSnapshotMini(snapshot.data());
+      loadFirebaseSnapshot(snapshot.data());
     });
   }
 
@@ -695,7 +691,7 @@ class Game extends ValueNotifier<int> {
       // load from firebase
       gameEncoded = await fBase.firebasePull(g);
     }
-    _loadFromEncodedState(gameEncoded, true);
+    _loadFromEncodedState(gameEncoded);
   }
 
   Future<void> _saveToFirebaseAndFilesystem() async {
