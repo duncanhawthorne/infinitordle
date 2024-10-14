@@ -58,9 +58,9 @@ class Screen {
       } else {
         numPresentationBigRowsOfBoards = 1;
       }
-      int numSpacersAcross =
+      final int numSpacersAcross =
           ((numBoards / numPresentationBigRowsOfBoards).ceil()) - 1;
-      int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
+      final int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
       cardLiveMaxPixel = min(
           (_vertSpaceForGameboard - numSpacersDown * boardSpacer) /
               numPresentationBigRowsOfBoards /

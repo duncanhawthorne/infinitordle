@@ -21,7 +21,8 @@ Widget keyboardRowWidget(int keyBoardStartKeyIndex, int kbRowLength) {
           childAspectRatio: 1 / screen.keyAspectRatioLive * (10 / kbRowLength),
         ),
         itemBuilder: (BuildContext context, int offsetIndex) {
-          String kbLetter = keyboardList[keyBoardStartKeyIndex + offsetIndex];
+          final String kbLetter =
+              keyboardList[keyBoardStartKeyIndex + offsetIndex];
           return _kbKeyStack(kbLetter, kbRowLength);
         }),
   );
@@ -31,9 +32,9 @@ Widget _kbKeyStack(String kbLetter, int kbRowLength) {
   return Container(
     padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
     child: Stack(
-      children: [
+      children: <Widget>[
         Center(
-          child: ["<", ">"].contains(kbLetter)
+          child: <String>["<", ">"].contains(kbLetter)
               ? const SizedBox.shrink()
               : _kbMiniGrid(kbLetter, kbRowLength),
         ),
@@ -107,7 +108,7 @@ Widget _kbRegularTextConst(String kbLetter) {
   );
 }
 
-final Map _kbRegularTextCache = {
+final Map<String, Widget> _kbRegularTextCache = <String, Widget>{
   for (String kbLetter in keyboardList)
     (kbLetter): _kbRegularTextConst(kbLetter)
 };
@@ -142,7 +143,7 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
 
 Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   return ListenableBuilder(
-      listenable: Listenable.merge([
+      listenable: Listenable.merge(<Listenable?>[
         game,
         game.pushUpStepsNotifier,
         game.targetWordsChangedNotifier,

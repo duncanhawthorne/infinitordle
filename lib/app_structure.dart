@@ -54,7 +54,7 @@ Widget titleWidget() {
           decoration: const BoxDecoration(color: Colors.transparent),
           child: FittedBox(
             child: ListenableBuilder(
-                listenable: Listenable.merge([
+                listenable: Listenable.merge(<Listenable?>[
                   game,
                   game.targetWordsChangedNotifier,
                 ]),
@@ -67,8 +67,8 @@ Widget titleWidget() {
 }
 
 Widget titleWidgetReal() {
-  int numberWinsCache = game.getWinWords().length;
-  String infText = numberWinsCache == 0
+  final int numberWinsCache = game.getWinWords().length;
+  final String infText = numberWinsCache == 0
       ? "o"
       : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
   return RichText(
@@ -100,11 +100,11 @@ Widget bodyWidget() {
 Widget keyboardListenerWrapper() {
   return Focus(
     // https://stackoverflow.com/questions/68333803/flutter-rawkeyboardlistener-triggering-system-sounds-on-macos
-    onKeyEvent: (focus, onKey) => KeyEventResult.handled,
+    onKeyEvent: (FocusNode focus, KeyEvent onKey) => KeyEventResult.handled,
     child: KeyboardListener(
       focusNode: focusNode,
       autofocus: true,
-      onKeyEvent: (keyEvent) {
+      onKeyEvent: (KeyEvent keyEvent) {
         if (keyEvent is KeyDownEvent) {
           if (keyboardList.contains(keyEvent.character)) {
             game.onKeyboardTapped(keyEvent.character ?? " ");
@@ -124,8 +124,8 @@ Widget gameboardAndKeyboard() {
   return Container(
     color: bg,
     child: Column(
-      children: [
-        Stack(alignment: Alignment.center, children: [
+      children: <Widget>[
+        Stack(alignment: Alignment.center, children: <Widget>[
           game.highlightedBoard != -1
               ? InkWell(
                   onTap: () => game.toggleHighlightedBoard(-1),
@@ -138,19 +138,19 @@ Widget gameboardAndKeyboard() {
           Wrap(
             spacing: boardSpacer,
             runSpacing: boardSpacer,
-            children: [
+            children: <Widget>[
               // Split into 2 halves so that don't get a wrap on 3 + 1 basis
               Wrap(
                 spacing: boardSpacer,
                 runSpacing: boardSpacer,
-                children: List.generate(
-                    numBoards ~/ 2, (index) => gameboardWidget(index)),
+                children: List<Widget>.generate(
+                    numBoards ~/ 2, (int index) => gameboardWidget(index)),
               ),
               Wrap(
                 spacing: boardSpacer,
                 runSpacing: boardSpacer,
-                children: List.generate(numBoards - (numBoards ~/ 2),
-                    (index) => gameboardWidget(numBoards ~/ 2 + index)),
+                children: List<Widget>.generate(numBoards - (numBoards ~/ 2),
+                    (int index) => gameboardWidget(numBoards ~/ 2 + index)),
               ),
             ],
           )

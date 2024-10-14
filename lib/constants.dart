@@ -10,31 +10,31 @@ const String appTitle = "infinitordle";
 const String appTitle1 = cheatMode ? "cheat" : "infinit";
 const String appTitle3 = "rdle";
 
-const bg = Color(0xff222222);
-const grey = Color(0xff555555);
-const white = Colors.white;
-const green = Colors.green;
-const amber = Colors.amber;
-const red = Colors.red;
-const transp = Colors.transparent;
+const Color bg = Color(0xff222222);
+const Color grey = Color(0xff555555);
+const Color white = Colors.white;
+const MaterialColor green = Colors.green;
+const MaterialColor amber = Colors.amber;
+const MaterialColor red = Colors.red;
+const Color transp = Colors.transparent;
 
 //Game design
-const numBoards = 4; //must be divisible by 2
-const numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
-const cols = 5; //number of letters in a word
+const int numBoards = 4; //must be divisible by 2
+const int numRowsPerBoard = 8; // originally 5 + number of boards, i.e. 9
+const int cols = 5; //number of letters in a word
 const bool infMode = true;
 const double boardSpacer = 8;
 
 //Helper text
-const keyboardList = kKbdList;
+const List<String> keyboardList = kKbdList;
 
 //Animations
-const _noAnimations = false;
-const _slowDownFactor = cheatMode ? 1 : 1;
+const bool _noAnimations = false;
+const int _slowDownFactor = cheatMode ? 1 : 1;
 const int _durMult = _noAnimations ? 0 : 1 * _slowDownFactor;
 const int delayMult = _noAnimations ? 0 : 1 * _slowDownFactor;
-const gradualRevealDelayTime = delayMult * 150;
-const slideTime = _durMult * 200;
-const flipTime = _durMult * 500;
+const int gradualRevealDelayTime = delayMult * 150;
+const int slideTime = _durMult * 200;
+const int flipTime = _durMult * 500;
 
-final navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

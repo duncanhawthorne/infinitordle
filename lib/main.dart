@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,7 +22,7 @@ Future<void> main() async {
   //debugProfilePaintsEnabled = true;
 
   WidgetsFlutterBinding.ensureInitialized();
-  Future.delayed(const Duration(milliseconds: 1000 * 5), () {
+  Future<Null>.delayed(const Duration(milliseconds: 1000 * 5), () {
     FlutterNativeSplash
         .remove(); //Hack, but makes sure removed shortly after starting
   });
@@ -36,6 +37,8 @@ Future<void> main() async {
     db = FirebaseFirestore.instance;
   }
 
+  SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(statusBarColor: bg));
   fixTitlePerm();
 
   runApp(const InfinitordleApp());
@@ -50,6 +53,8 @@ class InfinitordleApp extends StatelessWidget {
       title: appTitle,
       navigatorKey: navigatorKey,
       theme: ThemeData(
+        primaryColor: bg,
+        //ios pwa status bar color
         useMaterial3: true,
         scaffoldBackgroundColor: bg,
         colorScheme: ColorScheme.fromSeed(
@@ -78,7 +83,7 @@ class Infinitordle extends StatefulWidget {
 
 class _InfinitordleState extends State<Infinitordle> {
   @override
-  initState() {
+  void initState() {
     super.initState();
     game.initiateBoard();
   }

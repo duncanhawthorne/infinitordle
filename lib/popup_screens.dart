@@ -9,13 +9,13 @@ import 'google/google.dart';
 FocusNode focusNode = FocusNode();
 
 Future<void> showMainPopupScreen() async {
-  _showMainPopupScreenReal(navigatorKey.currentContext!);
+  unawaited(_showMainPopupScreenReal(navigatorKey.currentContext!));
 }
 
 Future<void> _showMainPopupScreenReal(BuildContext context) async {
-  List winWordsCache = game.getWinWords();
-  int numberWinsCache = winWordsCache.length;
-  bool gameOver = game.gameOver;
+  final List<String> winWordsCache = game.getWinWords();
+  final int numberWinsCache = winWordsCache.length;
+  final bool gameOver = game.gameOver;
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
@@ -27,7 +27,7 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               gOn && !g.signedIn
                   ? g.signInRow(context)
                   : const SizedBox.shrink(),
@@ -36,7 +36,7 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
                   : const SizedBox.shrink(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   const Text('Scrollable board?'),
                   ValueListenableBuilder<bool>(
                     valueListenable: game.expandingBoardNotifier,
@@ -61,7 +61,7 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   const Text('Reset board?'),
                   Tooltip(
                       message: "Reset board",

@@ -1,4 +1,4 @@
-const kWinnableWordsList = [
+const List<String> kWinnableWordsList = <String>[
   'aback',
   'abase',
   'abate',
@@ -2310,7 +2310,7 @@ const kWinnableWordsList = [
   'zonal'
 ];
 
-const kLegalWordsList = [
+const List<String> kLegalWordsList = <String>[
   'aahed',
   'aalii',
   'aargh',
@@ -15260,7 +15260,7 @@ const kLegalWordsList = [
   'zymic'
 ];
 
-const kKbdList = [
+const List<String> kKbdList = <String>[
   'q',
   'w',
   'e',

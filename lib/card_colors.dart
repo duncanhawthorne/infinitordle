@@ -10,11 +10,14 @@ class CardColors {
 
   final Game game;
 
-  final Map<int, Map<int, Map<String, Color>>> _cardColorsCache = {};
-  final Map<int, Map<String, Color>> _keyColorsCache = {};
+  final Map<int, Map<int, Map<String, Color>>> _cardColorsCache =
+      <int, Map<int, Map<String, Color>>>{};
+  final Map<int, Map<String, Color>> _keyColorsCache =
+      <int, Map<String, Color>>{};
 
-  final List<int> _firstRowsToShowCache = List.filled(numBoards, 0);
-  final List<String> _targetWordsCacheForKey = List.filled(numBoards, "x");
+  final List<int> _firstRowsToShowCache = List<int>.filled(numBoards, 0);
+  final List<String> _targetWordsCacheForKey =
+      List<String>.filled(numBoards, "x");
   int _getLastCardToConsiderForKeyColorsCache = 0;
 
   Color getBestColorForKeyboardLetter(String letter, int boardNumber) {
@@ -42,13 +45,14 @@ class CardColors {
                 _firstRowsToShowCache[boardNumber];
 
     if (isBoardCacheInvalid) {
-      _keyColorsCache[boardNumber] = {};
+      _keyColorsCache[boardNumber] = <String, Color>{};
       _targetWordsCacheForKey[boardNumber] = targetWord;
       _firstRowsToShowCache[boardNumber] =
           game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
     }
 
-    final keyColorsCacheForBoard = _keyColorsCache[boardNumber]!;
+    final Map<String, Color> keyColorsCacheForBoard =
+        _keyColorsCache[boardNumber]!;
     if (!keyColorsCacheForBoard.containsKey(letter)) {
       keyColorsCacheForBoard[letter] =
           _getBestColorForKeyboardLetterReal(letter, boardNumber);
@@ -69,7 +73,7 @@ class CardColors {
     return false;
   }
 
-  static const _cardColorsPriority = [green, amber, transp];
+  static const List<Color> _cardColorsPriority = <Color>[green, amber, transp];
 
   Color _getBestColorForKeyboardLetterReal(
       String queryLetter, int boardNumber) {
@@ -100,13 +104,13 @@ class CardColors {
     final String testLetter = game.getCardLetterAtAbIndex(abIndex);
     if (!_cardColorsCache.containsKey(boardNumber) ||
         !_cardColorsCache[boardNumber]![-1]!.containsKey(targetWord)) {
-      _cardColorsCache[boardNumber] = {
-        -1: {targetWord: transp}
+      _cardColorsCache[boardNumber] = <int, Map<String, Color>>{
+        -1: <String, Color>{targetWord: transp}
       };
     }
     if (!_cardColorsCache[boardNumber]!.containsKey(abIndex) ||
         !_cardColorsCache[boardNumber]![abIndex]!.containsKey(testLetter)) {
-      _cardColorsCache[boardNumber]![abIndex] = {
+      _cardColorsCache[boardNumber]![abIndex] = <String, Color>{
         testLetter: _getAbCardColorReal(abIndex, boardNumber)
       };
     }
@@ -156,7 +160,7 @@ class CardColors {
         : transp;
   }
 
-  Color _getAbCardColorReal(abIndex, boardNumber) {
+  Color _getAbCardColorReal(int abIndex, int boardNumber) {
     if (abIndex >= game.abCurrentRowInt * cols) {
       return transp; //later rows
     }

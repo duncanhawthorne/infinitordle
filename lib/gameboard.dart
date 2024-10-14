@@ -10,9 +10,9 @@ import 'game_logic.dart';
 import 'screen.dart';
 
 const double _notionalCardSize = 1.0;
-const _renderTwoFramesTime = delayMult *
+const int _renderTwoFramesTime = delayMult *
     33; // so that set state and animations don't happen exactly simultaneously
-const tau = 2 * pi;
+const double tau = 2 * pi;
 
 Widget gameboardWidget(int boardNumber) {
   return ValueListenableBuilder<bool>(
@@ -88,7 +88,7 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
         return abRow > game.abCurrentRowInt
             ? _cardFlipper(abIndex, boardNumber)
             : ListenableBuilder(
-                listenable: Listenable.merge([
+                listenable: Listenable.merge(<Listenable?>[
                   game.boardFlourishFlipRowsNotifiers[boardNumber],
                   game.abCardFlourishFlipAnglesNotifier,
                 ]),
@@ -111,7 +111,7 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
   final Widget childFront = _cardBuilder(abIndex, boardNumber, true);
   final Widget childBack = _cardBuilder(abIndex, boardNumber, false);
 
-  return TweenAnimationBuilder(
+  return TweenAnimationBuilder<double>(
       tween: Tween<double>(
           begin: 0, end: flips.getFlipAngle(abIndex, boardNumber)),
       duration: const Duration(milliseconds: flipTime),
@@ -157,7 +157,7 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
     clipBehavior: gbRow == 0 && cardSlideOffset != 0
         ? Clip.hardEdge
         : Clip.none, //clipping is slow so clip only when necessary
-    children: [
+    children: <Widget>[
       AnimatedPositioned(
           //curve: Curves.fastOutSlowIn,
           duration: Duration(
@@ -177,7 +177,7 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
   final int abRow = abIndex ~/ cols;
 
   return ListenableBuilder(
-      listenable: Listenable.merge([
+      listenable: Listenable.merge(<Listenable?>[
         game,
         game.highlightedBoardNotifier,
         game.currentRowChangedNotifier,
@@ -233,17 +233,17 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
           ? _soften(boardNumber, green)
           : transp;
   assert(_cardCache.containsKey(normalHighlighting));
-  assert(_cardCache[normalHighlighting].containsKey(cardLetter));
-  assert(_cardCache[normalHighlighting][cardLetter].containsKey(cardColor));
-  assert(_cardCache[normalHighlighting][cardLetter][cardColor]
+  assert(_cardCache[normalHighlighting]!.containsKey(cardLetter));
+  assert(_cardCache[normalHighlighting]![cardLetter]!.containsKey(cardColor));
+  assert(_cardCache[normalHighlighting]![cardLetter]![cardColor]!
       .containsKey(borderColor));
-  return _cardCache[normalHighlighting][cardLetter][cardColor][borderColor];
+  return _cardCache[normalHighlighting]![cardLetter]![cardColor]![borderColor]!;
 }
 
 Widget _card(bool normalHighlighting, String cardLetter, Color cardColor,
     Color borderColor) {
   const double cardBorderRadiusFactor = 0.2;
-  const cardSizeFixed = _notionalCardSize;
+  const double cardSizeFixed = _notionalCardSize;
   return FittedBox(
     fit: BoxFit.contain,
     child: Padding(
@@ -258,19 +258,19 @@ Widget _card(bool normalHighlighting, String cardLetter, Color cardColor,
             color: cardColor),
         child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: _cardTextCache[normalHighlighting][cardLetter],
+          child: _cardTextCache[normalHighlighting]![cardLetter],
         ),
       ),
     ),
   );
 }
 
-const _softGreen = Color(0xff61B063);
-const _softAmber = Color(0xffFFCF40);
-const _softRed = Color(0xffF55549);
-const _offWhite = Color(0xff939393);
+const Color _softGreen = Color(0xff61B063);
+const Color _softAmber = Color(0xffFFCF40);
+const Color _softRed = Color(0xffF55549);
+const Color _offWhite = Color(0xff939393);
 
-final List cardColorsList = [
+final List<Color> cardColorsList = <Color>[
   red,
   amber,
   green,
@@ -280,15 +280,16 @@ final List cardColorsList = [
   _softAmber,
   _softRed
 ];
-final List borderColorsList = [green, _softGreen, transp];
+final List<Color> borderColorsList = <Color>[green, _softGreen, transp];
 
-final Map _cardCache = {
-  for (bool normalHighlighting in [true, false])
-    (normalHighlighting): {
+final Map<bool, Map<String, Map<Color, Map<Color, Widget>>>> _cardCache =
+    <bool, Map<String, Map<Color, Map<Color, Widget>>>>{
+  for (bool normalHighlighting in <bool>[true, false])
+    (normalHighlighting): <String, Map<Color, Map<Color, Widget>>>{
       for (String cardLetter in keyboardList)
-        (cardLetter): {
+        (cardLetter): <Color, Map<Color, Widget>>{
           for (Color cardColor in cardColorsList)
-            (cardColor): {
+            (cardColor): <Color, Widget>{
               for (Color borderColor in borderColorsList)
                 (borderColor): _card(
                     normalHighlighting, cardLetter, cardColor, borderColor)
@@ -311,15 +312,16 @@ Widget _cardTextConst(bool normalHighlighting, String cardLetter) {
   );
 }
 
-final Map _cardTextCache = {
-  for (bool normalHighlighting in [true, false])
-    (normalHighlighting): {
+final Map<bool, Map<String, Widget>> _cardTextCache =
+    <bool, Map<String, Widget>>{
+  for (bool normalHighlighting in <bool>[true, false])
+    (normalHighlighting): <String, Widget>{
       for (String cardLetter in keyboardList)
         (cardLetter): _cardTextConst(normalHighlighting, cardLetter)
     }
 };
 
-final Map _softColorMap = {
+final Map<Color, Color> _softColorMap = <Color, Color>{
   green: _softGreen,
   amber: _softAmber,
   red: _softRed,
@@ -333,7 +335,7 @@ Color _soften(int boardNumber, Color color) {
       !_softColorMap.containsKey(color)) {
     return color;
   } else {
-    return _softColorMap[color];
+    return _softColorMap[color]!;
   }
 }
 

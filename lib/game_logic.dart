@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,12 +14,24 @@ import 'helper.dart';
 import 'popup_screens.dart';
 import 'wordlist.dart';
 
-const _cheatEnteredWordsInitial = ["maple", "windy", "scour", "fight", "kebab"];
-const _cheatTargetWordsInitial = ["scoff", "brunt", "armor", "tabby"];
-const _legalWords = kLegalWordsList;
-const _winnableWords = kWinnableWordsList;
-const _visualCatchUpTime = delayMult * 750;
-const _gradualRevealRowTime = gradualRevealDelayTime * (cols - 1) + flipTime;
+const List<String> _cheatEnteredWordsInitial = <String>[
+  "maple",
+  "windy",
+  "scour",
+  "fight",
+  "kebab"
+];
+const List<String> _cheatTargetWordsInitial = <String>[
+  "scoff",
+  "brunt",
+  "armor",
+  "tabby"
+];
+const List<String> _legalWords = kLegalWordsList;
+const List<String> _winnableWords = kWinnableWordsList;
+const int _visualCatchUpTime = delayMult * 750;
+const int _gradualRevealRowTime =
+    gradualRevealDelayTime * (cols - 1) + flipTime;
 final Random _random = Random();
 
 class Game extends ValueNotifier<int> {
@@ -39,7 +52,7 @@ class Game extends ValueNotifier<int> {
 
   bool get expandingBoardEver => _expandingBoardEver;
 
-  get currentTypingString => currentTypingNotifiers
+  String get currentTypingString => currentTypingNotifiers
       .map((ValueNotifier<String> element) => element.value)
       .reduce((String value, String element) => value + element);
 
@@ -59,34 +72,39 @@ class Game extends ValueNotifier<int> {
       illegalFiveLetterWordNotifier.value = tf;
 
   //State to save
-  final List<String> _targetWords = ["x"];
-  final List<String> _enteredWords = ["x"];
-  final List<int> _winRecordBoards = [-1];
-  final List<int> _firstKnowledge = [-1];
+  final List<String> _targetWords = <String>["x"];
+  final List<String> _enteredWords = <String>["x"];
+  final List<int> _winRecordBoards = <int>[-1];
+  final List<int> _firstKnowledge = <int>[-1];
 
-  final pushUpStepsNotifier = ValueNotifier(-1);
-  ValueNotifier<bool> expandingBoardNotifier = ValueNotifier(false);
+  final ValueNotifier<int> pushUpStepsNotifier = ValueNotifier<int>(-1);
+  ValueNotifier<bool> expandingBoardNotifier = ValueNotifier<bool>(false);
   bool _expandingBoardEver = false;
 
   //Other state non-saved
-  final currentTypingNotifiers =
-      List<ValueNotifier<String>>.generate(cols, (i) => ValueNotifier(""));
-  final highlightedBoardNotifier = ValueNotifier(0);
+  final List<ValueNotifier<String>> currentTypingNotifiers =
+      List<ValueNotifier<String>>.generate(
+          cols, (int i) => ValueNotifier<String>(""));
+  final ValueNotifier<int> highlightedBoardNotifier = ValueNotifier<int>(0);
 
   //transitive state
-  final temporaryVisualOffsetForSlideNotifier = ValueNotifier(0);
+  final ValueNotifier<int> temporaryVisualOffsetForSlideNotifier =
+      ValueNotifier<int>(0);
   String _gameEncodedLastCache = "";
-  final abCardFlourishFlipAnglesNotifier = _CustomMapNotifier(); //{}.obs;
-  final boardFlourishFlipRowsNotifiers =
-      List<ValueNotifier<int>>.generate(cols, (i) => ValueNotifier(100));
-  final illegalFiveLetterWordNotifier = ValueNotifier(false);
-  final targetWordsChangedNotifier = ValueNotifier(0);
-  final currentRowChangedNotifier = ValueNotifier(0);
+  final CustomMapNotifier abCardFlourishFlipAnglesNotifier =
+      CustomMapNotifier(); //{}.obs;
+  final List<ValueNotifier<int>> boardFlourishFlipRowsNotifiers =
+      List<ValueNotifier<int>>.generate(
+          cols, (int i) => ValueNotifier<int>(100));
+  final ValueNotifier<bool> illegalFiveLetterWordNotifier =
+      ValueNotifier<bool>(false);
+  final ValueNotifier<int> targetWordsChangedNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<int> currentRowChangedNotifier = ValueNotifier<int>(0);
 
   void initiateBoard() {
     _copyTo(_targetWords, _getNewTargetWords(numBoards));
-    _copyTo(_enteredWords, []);
-    _copyTo(_winRecordBoards, []);
+    _copyTo(_enteredWords, <String>[]);
+    _copyTo(_winRecordBoards, <int>[]);
     _copyTo(_firstKnowledge, _getBlankFirstKnowledge(numBoards));
     pushUpSteps = 0;
     expandingBoard = false;
@@ -120,7 +138,7 @@ class Game extends ValueNotifier<int> {
       //Backspace key
       if (currentTypingString.isNotEmpty) {
         //There is text to delete
-        String origTyping =
+        final String origTyping =
             currentTypingString.substring(0, currentTypingString.length);
         _setCurrentTyping(
             currentTypingString.substring(0, currentTypingString.length - 1));
@@ -154,9 +172,9 @@ class Game extends ValueNotifier<int> {
 
   void _handleLegalWordEntered() {
     // set some local variable to ensure threadsafe
-    int cardAbRowPreGuessToFix = abCurrentRowInt;
-    int firstKnowledgeToFix = extraRows + pushOffBoardRows;
-    int maxAbRowOfBoard = abLiveNumRowsPerBoard;
+    final int cardAbRowPreGuessToFix = abCurrentRowInt;
+    final int firstKnowledgeToFix = extraRows + pushOffBoardRows;
+    final int maxAbRowOfBoard = abLiveNumRowsPerBoard;
 
     _enteredWords.add(currentTypingString);
     _setCurrentTyping("");
@@ -167,9 +185,9 @@ class Game extends ValueNotifier<int> {
     }
 
     //Test if it is correct word
-    int winningBoardToFix =
+    final int winningBoardToFix =
         _getWinningBoardFromWordEnteredInAbRow(cardAbRowPreGuessToFix);
-    bool isWin = winningBoardToFix != -1;
+    final bool isWin = winningBoardToFix != -1;
 
     if (!isWin) {
       _winRecordBoards[cardAbRowPreGuessToFix] = -1; //Confirm no win
@@ -190,7 +208,8 @@ class Game extends ValueNotifier<int> {
     }
     //setStateGlobal();
     for (int i = 0; i < cols; i++) {
-      Future.delayed(Duration(milliseconds: gradualRevealDelayTime * i), () {
+      Future<Null>.delayed(Duration(milliseconds: gradualRevealDelayTime * i),
+          () {
         _setAbCardFlourishFlipAngle(abRow, i, 0.0);
         if (i == cols - 1) {
           if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
@@ -216,11 +235,11 @@ class Game extends ValueNotifier<int> {
     //Code for losing game
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
-      _saveToFirebaseAndFilesystem();
-      showMainPopupScreen();
+      unawaited(_saveToFirebaseAndFilesystem());
+      unawaited(showMainPopupScreen());
     } else if (!infMode && isWin) {
       //Code for totally winning game across all boards
-      _saveToFirebaseAndFilesystem();
+      unawaited(_saveToFirebaseAndFilesystem());
       bool totallySolvedLocal = true;
       for (int i = 0; i < numBoards; i++) {
         if (!getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
@@ -231,10 +250,10 @@ class Game extends ValueNotifier<int> {
         // Leave the screen as is
       }
     } else if (infMode && isWin) {
-      _handleWinningWordEntered(
-          cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+      unawaited(_handleWinningWordEntered(
+          cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix));
     } else {
-      _saveToFirebaseAndFilesystem();
+      unawaited(_saveToFirebaseAndFilesystem());
     }
   }
 
@@ -380,7 +399,7 @@ class Game extends ValueNotifier<int> {
         return _enteredWords[abRow][col];
       }
     } catch (e) {
-      debug(["Crash getCardLetterAtAbIndex", abIndex, e]);
+      debug(<Object>["Crash getCardLetterAtAbIndex", abIndex, e]);
       return "";
     }
   }
@@ -412,7 +431,7 @@ class Game extends ValueNotifier<int> {
         abRow++) {
       bool result = true;
       for (int column = 0; column < cols; column++) {
-        int abIndex = abRow * cols + column;
+        final int abIndex = abRow * cols + column;
         if (cardColors.getAbCardColor(abIndex, boardNumber) != green) {
           result = false;
         }
@@ -437,19 +456,19 @@ class Game extends ValueNotifier<int> {
 
   void _loadFromEncodedState(String gameEncoded) {
     if (gameEncoded == "") {
-      debug(["loadFromEncodedState empty"]);
+      debug(<String>["loadFromEncodedState empty"]);
       _stateChange();
     } else if (gameEncoded != _gameEncodedLastCache) {
       try {
-        Map<String, dynamic> gameTmp = {};
+        Map<String, dynamic> gameTmp = <String, dynamic>{};
         gameTmp = json.decode(gameEncoded);
 
-        String tmpgUser = gameTmp["gUser"] ?? "Default";
+        final String tmpgUser = gameTmp["gUser"] ?? "Default";
         if (tmpgUser != g.gUser && tmpgUser != "Default") {
           //Error state, so set gUser properly and redo loadKeys from firebase
           //g.forceResetUserTo(tmpgUser);
           //_loadFromFirebaseOrFilesystem();
-          debug(["users dont match", tmpgUser, g.gUser]);
+          debug(<String>["users dont match", tmpgUser, g.gUser]);
           _stateChange();
           //don't load up
           return;
@@ -464,10 +483,10 @@ class Game extends ValueNotifier<int> {
           return;
         }
 
-        _copyTo(_enteredWords, gameTmp["enteredWords"] ?? []);
+        _copyTo(_enteredWords, gameTmp["enteredWords"] ?? <String>[]);
         currentRowChangedNotifier.value++;
 
-        _copyTo(_winRecordBoards, gameTmp["winRecordBoards"] ?? []);
+        _copyTo(_winRecordBoards, gameTmp["winRecordBoards"] ?? <int>[]);
         _copyTo(_firstKnowledge,
             gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards));
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
@@ -475,14 +494,14 @@ class Game extends ValueNotifier<int> {
         _expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
 
         //TRANSITIONAL logic from old variable naming convention
-        int offsetRollback = gameTmp["offsetRollback"] ?? 0;
+        final int offsetRollback = gameTmp["offsetRollback"] ?? 0;
         if (offsetRollback != 0) {
-          debug(["One-off migration"]);
+          debug(<String>["One-off migration"]);
           pushUpSteps = offsetRollback;
         }
         //TRANSITIONAL logic from old variable naming convention
       } catch (error) {
-        debug(["loadFromEncodedState error", error]);
+        debug(<Object>["loadFromEncodedState error", error]);
       }
       _gameEncodedLastCache = gameEncoded;
       _saveToFirebaseAndFilesystem();
@@ -491,7 +510,7 @@ class Game extends ValueNotifier<int> {
   }
 
   String getEncodeCurrentGameState() {
-    final Map<String, dynamic> gameStateTmp = {};
+    final Map<String, dynamic> gameStateTmp = <String, dynamic>{};
     gameStateTmp["targetWords"] = _targetWords;
     gameStateTmp["gUser"] = g.gUser;
 
@@ -507,7 +526,7 @@ class Game extends ValueNotifier<int> {
 
   void _printCheatTargetWords() {
     if (cheatMode) {
-      debug([
+      debug(<dynamic>[
         _targetWords,
         _enteredWords,
         _winRecordBoards,
@@ -542,7 +561,7 @@ class Game extends ValueNotifier<int> {
   }
 
   List<String> _getNewTargetWords(int numberOfBoards) {
-    List<String> starterList = [];
+    final List<String> starterList = <String>[];
     for (int i = 0; i < numberOfBoards; i++) {
       starterList.add(_getNewTargetWord());
     }
@@ -550,7 +569,7 @@ class Game extends ValueNotifier<int> {
   }
 
   List<String> getWinWords() {
-    List<String> log = [];
+    final List<String> log = <String>[];
     for (int i = 0; i < _winRecordBoards.length; i++) {
       if (_winRecordBoards[i] != -1) {
         log.add(_enteredWords[i]);
@@ -641,12 +660,12 @@ class Game extends ValueNotifier<int> {
     //notifyListeners(); //setStateGlobal();
   }
 
-  final List<String> _recentSnapshotsCache = [];
+  final List<String> _recentSnapshotsCache = <String>[];
 
   void loadFirebaseSnapshot(Map<String, dynamic>? userDocument) {
     debug("loadFirebaseSnapshot");
     if (userDocument != null) {
-      String snapshotCurrent = userDocument["data"];
+      final String snapshotCurrent = userDocument["data"];
       if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
         if (snapshotCurrent != getEncodeCurrentGameState()) {
           _loadFromEncodedState(snapshotCurrent);
@@ -668,9 +687,13 @@ class Game extends ValueNotifier<int> {
   }
 
   void _firebaseChangeListener(String userId) {
+    // ignore: always_specify_types
     StreamSubscription? listener;
-    listener =
-        db!.collection('states').doc(userId).snapshots().listen((snapshot) {
+    listener = db!
+        .collection('states')
+        .doc(userId)
+        .snapshots()
+        .listen((DocumentSnapshot<Map<String, dynamic>> snapshot) {
       //useId is fixed for the duration of listener
       if (g.gUser != userId) {
         listener!.cancel();
@@ -681,7 +704,7 @@ class Game extends ValueNotifier<int> {
   }
 
   Future<void> _loadFromFirebaseOrFilesystem() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     String gameEncoded = "";
 
     if (!fbOn || !g.signedIn) {
@@ -695,23 +718,23 @@ class Game extends ValueNotifier<int> {
   }
 
   Future<void> _saveToFirebaseAndFilesystem() async {
-    String gameEncoded = getEncodeCurrentGameState();
+    final String gameEncoded = getEncodeCurrentGameState();
 
     // save locally
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('game', gameEncoded);
 
     // if possible save to firebase
     if (fbOn && g.signedIn) {
-      fBase.firebasePush(g, gameEncoded);
+      unawaited(fBase.firebasePush(g, gameEncoded));
     }
   }
 }
 
 final Game game = Game();
 
-class _CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
-  _CustomMapNotifier() : super({});
+class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
+  CustomMapNotifier() : super(<int, List<double>>{});
 
   int _numberNonZeroItems() {
     int count = 0;
@@ -729,7 +752,7 @@ class _CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
 
   void set(int abRow, int column, double tvalue) {
     if (!value.containsKey(abRow)) {
-      value[abRow] = List<double>.generate(cols, (i) => 0.0);
+      value[abRow] = List<double>.generate(cols, (int i) => 0.0);
     }
     value[abRow]![column] = tvalue;
     numberNotYetFlourishFlipped = _numberNonZeroItems();
@@ -746,16 +769,16 @@ class _CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
 }
 
 List<int> _getBlankFirstKnowledge(int numberOfBoards) {
-  return List.filled(numberOfBoards, 0);
+  return List<int>.filled(numberOfBoards, 0);
 }
 
 Future<void> _sleep(int delayAfterMult) async {
-  await Future.delayed(Duration(milliseconds: delayAfterMult), () {});
+  await Future<Null>.delayed(Duration(milliseconds: delayAfterMult), () {});
 }
 
 // Memoisation
 class _LegalWord {
-  Map<String, bool> _legalWordCache = {};
+  Map<String, bool> _legalWordCache = <String, bool>{};
 
   bool call(String word) {
     if (word.length != cols) {
@@ -764,7 +787,7 @@ class _LegalWord {
     if (!_legalWordCache.containsKey(word)) {
       if (_legalWordCache.length > 3) {
         //reset cache to keep it short
-        _legalWordCache = {};
+        _legalWordCache = <String, bool>{};
       }
       _legalWordCache[word] = _isListContains(_legalWords, word);
     }
@@ -779,9 +802,9 @@ bool _isListContains(List<String> list, String bit) {
   return binarySearch(list, bit) != -1;
 }
 
-void _copyTo(List to, List from) {
+void _copyTo(List<dynamic> to, List<dynamic> from) {
   to.clear();
-  for (var item in from) {
+  for (dynamic item in from) {
     to.add(item);
   }
 }
