@@ -9,7 +9,7 @@ import '../app_structure.dart';
 import '../constants.dart';
 import '../google/src/sign_in_button/mobile.dart';
 import '../helper.dart';
-import 'secrets.dart';
+import '../secrets.dart';
 
 /// The type of the onClick callback for the (mobile) Sign In Button.
 //typedef HandleSignInFn = Future<void> Function();
