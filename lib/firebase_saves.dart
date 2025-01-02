@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
+import 'game_logic.dart';
 import 'google/google.dart';
 
 class FBase {
@@ -19,7 +20,7 @@ class FBase {
   late final bool fbAnalytics = firebaseOn && true;
 
   static const String _userSaves = "states";
-  static const String _data = "data";
+  static const String data = "data";
 
   static final Logger _log = Logger('FB');
 
@@ -45,7 +46,7 @@ class FBase {
   Future<void> firebasePush(G g, dynamic state) async {
     await initialize();
     if (firebaseOn && g.signedIn) {
-      final Map<String, dynamic> dhState = <String, dynamic>{_data: state};
+      final Map<String, dynamic> dhState = <String, dynamic>{data: state};
       await _db!
           .collection(_userSaves)
           .doc(g.gUser)
@@ -64,12 +65,32 @@ class FBase {
         (DocumentSnapshot<dynamic> doc) {
           final Map<String, dynamic> gameEncodedTmp =
               doc.data() as Map<String, dynamic>;
-          gameEncoded = gameEncodedTmp[_data];
+          gameEncoded = gameEncodedTmp[data];
         },
         onError: (dynamic e) => _log.severe("Error getting document: $e"),
       );
     }
     return gameEncoded;
+  }
+
+  Future<void> firebaseChangeListener(String userId) async {
+    if (fBase.firebaseOn) {
+      await fBase.initialize();
+      // ignore: always_specify_types
+      StreamSubscription? listener;
+      listener = fBase.db!
+          .collection(_userSaves)
+          .doc(userId)
+          .snapshots()
+          .listen((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+        //useId is fixed for the duration of listener
+        if (g.gUser != userId) {
+          listener!.cancel();
+          return;
+        }
+        game.loadFirebaseSnapshot(snapshot.data());
+      });
+    }
   }
 }
 

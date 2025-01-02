@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -665,7 +664,7 @@ class Game extends ValueNotifier<int> {
   void loadFirebaseSnapshot(Map<String, dynamic>? userDocument) {
     logGlobal("loadFirebaseSnapshot");
     if (userDocument != null) {
-      final String snapshotCurrent = userDocument["data"];
+      final String snapshotCurrent = userDocument[FBase.data];
       if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
         if (snapshotCurrent != getEncodeCurrentGameState()) {
           _loadFromEncodedState(snapshotCurrent);
@@ -682,24 +681,7 @@ class Game extends ValueNotifier<int> {
     _loadFromFirebaseOrFilesystem(); //initial
     g.gUserNotifier.addListener(() {
       _loadFromFirebaseOrFilesystem();
-      _firebaseChangeListener(g.gUser);
-    });
-  }
-
-  void _firebaseChangeListener(String userId) {
-    // ignore: always_specify_types
-    StreamSubscription? listener;
-    listener = fBase.db!
-        .collection('states')
-        .doc(userId)
-        .snapshots()
-        .listen((DocumentSnapshot<Map<String, dynamic>> snapshot) {
-      //useId is fixed for the duration of listener
-      if (g.gUser != userId) {
-        listener!.cancel();
-        return;
-      }
-      loadFirebaseSnapshot(snapshot.data());
+      fBase.firebaseChangeListener(g.gUser);
     });
   }
 
