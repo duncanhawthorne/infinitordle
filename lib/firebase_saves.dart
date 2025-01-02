@@ -8,19 +8,25 @@ import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
 import 'google/google.dart';
-import 'helper.dart';
-
-final bool firebaseOn = firebaseOnReal &&
-    !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
-final bool fbAnalytics = firebaseOn && true;
-
-FirebaseAnalytics? analytics;
 
 class FBase {
+  FBase() {
+    //unawaited(fBase.initialize());
+  }
+
+  final bool firebaseOn = firebaseOnReal &&
+      !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
+  late final bool fbAnalytics = firebaseOn && true;
+
+  static const String _userSaves = "states";
+  static const String _data = "data";
+
   static final Logger _log = Logger('FB');
 
   FirebaseFirestore? get db => _db;
   FirebaseFirestore? _db;
+
+  FirebaseAnalytics? analytics;
 
   Future<void> initialize() async {
     if (firebaseOn) {
@@ -37,29 +43,30 @@ class FBase {
   }
 
   Future<void> firebasePush(G g, dynamic state) async {
+    await initialize();
     if (firebaseOn && g.signedIn) {
-      final Map<String, dynamic> dhState = <String, dynamic>{"data": state};
-      unawaited(_db!
-          .collection("states")
+      final Map<String, dynamic> dhState = <String, dynamic>{_data: state};
+      await _db!
+          .collection(_userSaves)
           .doc(g.gUser)
           .set(dhState)
-          .onError((Object? e, _) => logGlobal("Error writing document: $e")));
+          .onError((Object? e, _) => _log.severe("Error writing document: $e"));
     }
   }
 
   Future<String> firebasePull(G g) async {
+    await initialize();
     String gameEncoded = "";
     if (firebaseOn && g.signedIn) {
       final DocumentReference<Map<String, dynamic>> docRef =
-          _db!.collection("states").doc(g.gUser);
+          _db!.collection(_userSaves).doc(g.gUser);
       await docRef.get().then(
-        // ignore: always_specify_types
-        (DocumentSnapshot doc) {
+        (DocumentSnapshot<dynamic> doc) {
           final Map<String, dynamic> gameEncodedTmp =
               doc.data() as Map<String, dynamic>;
-          gameEncoded = gameEncodedTmp["data"];
+          gameEncoded = gameEncodedTmp[_data];
         },
-        onError: (dynamic e) => logGlobal("Error getting document: $e"),
+        onError: (dynamic e) => _log.severe("Error getting document: $e"),
       );
     }
     return gameEncoded;

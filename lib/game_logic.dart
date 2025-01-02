@@ -180,8 +180,8 @@ class Game extends ValueNotifier<int> {
     _setCurrentTyping("");
     _winRecordBoards.add(-2); //Add now, fix value later
     currentRowChangedNotifier.value++;
-    if (fbAnalytics) {
-      analytics!.logLevelUp(level: _enteredWords.length);
+    if (fBase.fbAnalytics) {
+      fBase.analytics!.logLevelUp(level: _enteredWords.length);
     }
 
     //Test if it is correct word
@@ -360,9 +360,9 @@ class Game extends ValueNotifier<int> {
   void resetBoard() {
     logGlobal("Reset board");
     initiateBoard();
-    if (fbAnalytics) {
-      analytics!.logLevelStart(levelName: "Reset");
-      analytics!.logLevelUp(level: _enteredWords.length);
+    if (fBase.fbAnalytics) {
+      fBase.analytics!.logLevelStart(levelName: "Reset");
+      fBase.analytics!.logLevelUp(level: _enteredWords.length);
     }
     _saveToFirebaseAndFilesystem();
   }
@@ -707,7 +707,7 @@ class Game extends ValueNotifier<int> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String gameEncoded = "";
 
-    if (!firebaseOn || !g.signedIn) {
+    if (!fBase.firebaseOn || !g.signedIn) {
       // load from local save
       gameEncoded = prefs.getString('game') ?? "";
     } else {
@@ -725,7 +725,7 @@ class Game extends ValueNotifier<int> {
     await prefs.setString('game', gameEncoded);
 
     // if possible save to firebase
-    if (firebaseOn && g.signedIn) {
+    if (fBase.firebaseOn && g.signedIn) {
       unawaited(fBase.firebasePush(g, gameEncoded));
     }
   }
