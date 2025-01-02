@@ -399,7 +399,7 @@ class Game extends ValueNotifier<int> {
         return _enteredWords[abRow][col];
       }
     } catch (e) {
-      logGlobal(<Object>["Crash getCardLetterAtAbIndex", abIndex, e]);
+      logGlobal("Crash getCardLetterAtAbIndex $abIndex $e");
       return "";
     }
   }
@@ -456,7 +456,7 @@ class Game extends ValueNotifier<int> {
 
   void _loadFromEncodedState(String gameEncoded) {
     if (gameEncoded == "") {
-      logGlobal(<String>["loadFromEncodedState empty"]);
+      logGlobal("loadFromEncodedState empty");
       _stateChange();
     } else if (gameEncoded != _gameEncodedLastCache) {
       try {
@@ -468,7 +468,7 @@ class Game extends ValueNotifier<int> {
           //Error state, so set gUser properly and redo loadKeys from firebase
           //g.forceResetUserTo(tmpgUser);
           //_loadFromFirebaseOrFilesystem();
-          logGlobal(<String>["users dont match", tmpgUser, g.gUser]);
+          logGlobal("users dont match $tmpgUser ${g.gUser}");
           _stateChange();
           //don't load up
           return;
@@ -496,12 +496,12 @@ class Game extends ValueNotifier<int> {
         //TRANSITIONAL logic from old variable naming convention
         final int offsetRollback = gameTmp["offsetRollback"] ?? 0;
         if (offsetRollback != 0) {
-          logGlobal(<String>["One-off migration"]);
+          logGlobal("One-off migration");
           pushUpSteps = offsetRollback;
         }
         //TRANSITIONAL logic from old variable naming convention
       } catch (error) {
-        logGlobal(<Object>["loadFromEncodedState error", error]);
+        logGlobal("loadFromEncodedState error $error");
       }
       _gameEncodedLastCache = gameEncoded;
       _saveToFirebaseAndFilesystem();

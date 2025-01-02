@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../app_structure.dart';
 import '../constants.dart';
 import '../google/src/sign_in_button/mobile.dart';
-import '../helper.dart';
 import '../secrets.dart';
 
 /// The type of the onClick callback for the (mobile) Sign In Button.
@@ -32,7 +31,7 @@ class G {
   static const bool _newLoginButtons = false;
 
   void forceResetUserTo(String x) {
-    logGlobal(<String>["force reset gUser from", gUser, "to", x]);
+    _log.info("force reset gUser from $gUser to $x");
     _gUser = x;
     _saveUserToFilesystem(gUser, _gUserIcon);
   }
