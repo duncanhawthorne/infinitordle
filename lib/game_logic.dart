@@ -358,7 +358,7 @@ class Game extends ValueNotifier<int> {
   }
 
   void resetBoard() {
-    debug("Reset board");
+    logGlobal("Reset board");
     initiateBoard();
     if (fbAnalytics) {
       analytics!.logLevelStart(levelName: "Reset");
@@ -399,7 +399,7 @@ class Game extends ValueNotifier<int> {
         return _enteredWords[abRow][col];
       }
     } catch (e) {
-      debug(<Object>["Crash getCardLetterAtAbIndex", abIndex, e]);
+      logGlobal(<Object>["Crash getCardLetterAtAbIndex", abIndex, e]);
       return "";
     }
   }
@@ -456,7 +456,7 @@ class Game extends ValueNotifier<int> {
 
   void _loadFromEncodedState(String gameEncoded) {
     if (gameEncoded == "") {
-      debug(<String>["loadFromEncodedState empty"]);
+      logGlobal(<String>["loadFromEncodedState empty"]);
       _stateChange();
     } else if (gameEncoded != _gameEncodedLastCache) {
       try {
@@ -468,7 +468,7 @@ class Game extends ValueNotifier<int> {
           //Error state, so set gUser properly and redo loadKeys from firebase
           //g.forceResetUserTo(tmpgUser);
           //_loadFromFirebaseOrFilesystem();
-          debug(<String>["users dont match", tmpgUser, g.gUser]);
+          logGlobal(<String>["users dont match", tmpgUser, g.gUser]);
           _stateChange();
           //don't load up
           return;
@@ -496,12 +496,12 @@ class Game extends ValueNotifier<int> {
         //TRANSITIONAL logic from old variable naming convention
         final int offsetRollback = gameTmp["offsetRollback"] ?? 0;
         if (offsetRollback != 0) {
-          debug(<String>["One-off migration"]);
+          logGlobal(<String>["One-off migration"]);
           pushUpSteps = offsetRollback;
         }
         //TRANSITIONAL logic from old variable naming convention
       } catch (error) {
-        debug(<Object>["loadFromEncodedState error", error]);
+        logGlobal(<Object>["loadFromEncodedState error", error]);
       }
       _gameEncodedLastCache = gameEncoded;
       _saveToFirebaseAndFilesystem();
@@ -526,7 +526,7 @@ class Game extends ValueNotifier<int> {
 
   void _printCheatTargetWords() {
     if (cheatMode) {
-      debug(<dynamic>[
+      logGlobal(<dynamic>[
         _targetWords,
         _enteredWords,
         _winRecordBoards,
@@ -544,7 +544,7 @@ class Game extends ValueNotifier<int> {
   String getCurrentTargetWordForBoard(int boardNumber) {
     if (boardNumber < _targetWords.length) {
     } else {
-      debug("getCurrentTargetWordForBoard error");
+      logGlobal("getCurrentTargetWordForBoard error");
       _copyTo(_targetWords, _getNewTargetWords(numBoards));
     }
     return _targetWords[boardNumber];
@@ -581,14 +581,14 @@ class Game extends ValueNotifier<int> {
   int getFirstAbRowToShowOnBoardDueToKnowledge(int boardNumber) {
     if (_firstKnowledge.length != numBoards) {
       _copyTo(_firstKnowledge, _getBlankFirstKnowledge(numBoards));
-      debug("getFirstVisualRowToShowOnBoard error 1");
+      logGlobal("getFirstVisualRowToShowOnBoard error 1");
     }
     if (!expandingBoard) {
       return pushOffBoardRows;
     } else if (boardNumber < _firstKnowledge.length) {
       return _firstKnowledge[boardNumber];
     } else {
-      debug("getFirstVisualRowToShowOnBoard error 2");
+      logGlobal("getFirstVisualRowToShowOnBoard error 2");
       return 0;
     }
   }
@@ -663,7 +663,7 @@ class Game extends ValueNotifier<int> {
   final List<String> _recentSnapshotsCache = <String>[];
 
   void loadFirebaseSnapshot(Map<String, dynamic>? userDocument) {
-    debug("loadFirebaseSnapshot");
+    logGlobal("loadFirebaseSnapshot");
     if (userDocument != null) {
       final String snapshotCurrent = userDocument["data"];
       if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
@@ -689,7 +689,7 @@ class Game extends ValueNotifier<int> {
   void _firebaseChangeListener(String userId) {
     // ignore: always_specify_types
     StreamSubscription? listener;
-    listener = db!
+    listener = fBase.db!
         .collection('states')
         .doc(userId)
         .snapshots()
@@ -707,7 +707,7 @@ class Game extends ValueNotifier<int> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String gameEncoded = "";
 
-    if (!fbOn || !g.signedIn) {
+    if (!firebaseOn || !g.signedIn) {
       // load from local save
       gameEncoded = prefs.getString('game') ?? "";
     } else {
@@ -725,7 +725,7 @@ class Game extends ValueNotifier<int> {
     await prefs.setString('game', gameEncoded);
 
     // if possible save to firebase
-    if (fbOn && g.signedIn) {
+    if (firebaseOn && g.signedIn) {
       unawaited(fBase.firebasePush(g, gameEncoded));
     }
   }
