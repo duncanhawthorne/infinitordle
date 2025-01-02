@@ -20,7 +20,9 @@ class FBase {
   late final bool fbAnalytics = firebaseOn && true;
 
   static const String _userSaves = "states";
-  static const String data = "data";
+  static const String _data = "data";
+
+  String get data => _data;
 
   static final Logger _log = Logger('FB');
 
@@ -46,7 +48,7 @@ class FBase {
   Future<void> firebasePush(G g, dynamic state) async {
     await initialize();
     if (firebaseOn && g.signedIn) {
-      final Map<String, dynamic> dhState = <String, dynamic>{data: state};
+      final Map<String, dynamic> dhState = <String, dynamic>{_data: state};
       await _db!
           .collection(_userSaves)
           .doc(g.gUser)
@@ -65,7 +67,7 @@ class FBase {
         (DocumentSnapshot<dynamic> doc) {
           final Map<String, dynamic> gameEncodedTmp =
               doc.data() as Map<String, dynamic>;
-          gameEncoded = gameEncodedTmp[data];
+          gameEncoded = gameEncodedTmp[_data];
         },
         onError: (dynamic e) => _log.severe("Error getting document: $e"),
       );

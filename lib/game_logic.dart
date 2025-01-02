@@ -664,7 +664,7 @@ class Game extends ValueNotifier<int> {
   void loadFirebaseSnapshot(Map<String, dynamic>? userDocument) {
     logGlobal("loadFirebaseSnapshot");
     if (userDocument != null) {
-      final String snapshotCurrent = userDocument[FBase.data];
+      final String snapshotCurrent = userDocument[fBase.data];
       if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
         if (snapshotCurrent != getEncodeCurrentGameState()) {
           _loadFromEncodedState(snapshotCurrent);
