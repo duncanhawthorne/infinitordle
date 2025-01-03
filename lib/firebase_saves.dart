@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
-import 'game_logic.dart';
 import 'google/google.dart';
 
 class FBase {
@@ -72,7 +71,8 @@ class FBase {
     return gameEncoded;
   }
 
-  Future<void> firebaseChangeListener(String userId) async {
+  Future<void> firebaseChangeListener(String userId,
+      {required Function callback}) async {
     await initialize();
     if (fBase.firebaseOn) {
       // ignore: always_specify_types
@@ -82,7 +82,7 @@ class FBase {
           .doc(userId)
           .snapshots()
           .listen((DocumentSnapshot<Map<String, dynamic>> snapshot) {
-        //useId is fixed for the duration of listener
+        //userId is fixed for the duration of listener
         if (g.gUser != userId) {
           listener!.cancel();
           return;
@@ -92,7 +92,7 @@ class FBase {
         if (userDocument != null) {
           snapshotCurrentOrNull = userDocument[_data];
         }
-        game.loadFirebaseSnapshot(snapshotCurrentOrNull);
+        callback(snapshotCurrentOrNull);
       });
     }
   }

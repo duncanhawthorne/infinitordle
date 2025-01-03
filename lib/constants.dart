@@ -25,6 +25,9 @@ const int cols = 5; //number of letters in a word
 const bool infMode = true;
 const double boardSpacer = 8;
 
+const String kBackspace = "<";
+const String kEnter = ">";
+
 //Helper text
 const List<String> keyboardList = kKbdList;
 

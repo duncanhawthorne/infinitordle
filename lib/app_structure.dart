@@ -109,9 +109,9 @@ Widget keyboardListenerWrapper() {
           if (keyboardList.contains(keyEvent.character)) {
             game.onKeyboardTapped(keyEvent.character ?? " ");
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
-            game.onKeyboardTapped(">");
+            game.onKeyboardTapped(kEnter);
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
-            game.onKeyboardTapped("<");
+            game.onKeyboardTapped(kBackspace);
           }
         }
       },

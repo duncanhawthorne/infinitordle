@@ -34,7 +34,7 @@ Widget _kbKeyStack(String kbLetter, int kbRowLength) {
     child: Stack(
       children: <Widget>[
         Center(
-          child: <String>["<", ">"].contains(kbLetter)
+          child: <String>[kBackspace, kEnter].contains(kbLetter)
               ? const SizedBox.shrink()
               : _kbMiniGrid(kbLetter, kbRowLength),
         ),
@@ -88,9 +88,9 @@ Widget _kbTextSquare(String kbLetter, int kbRowLength) {
           kbRowLength, //double.infinity,
       child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: kbLetter == "<"
+          child: kbLetter == kBackspace
               ? _backspaceKey()
-              : kbLetter == ">"
+              : kbLetter == kEnter
                   ? _enterKey()
                   : _kbRegularTextCache[kbLetter]));
 }

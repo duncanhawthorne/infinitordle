@@ -135,7 +135,7 @@ class Game extends ValueNotifier<int> {
 
     if (letter == " ") {
       //Ignore pressing of non-keys
-    } else if (letter == "<") {
+    } else if (letter == kBackspace) {
       //Backspace key
       if (currentTypingString.isNotEmpty) {
         //There is text to delete
@@ -147,7 +147,7 @@ class Game extends ValueNotifier<int> {
           illegalFiveLetterWord = false;
         }
       }
-    } else if (letter == ">") {
+    } else if (letter == kEnter) {
       //Submit guess
       if (currentTypingString.length == cols) {
         //Full word entered, so can submit
@@ -685,7 +685,7 @@ class Game extends ValueNotifier<int> {
     _loadFromFirebaseOrFilesystem(); //initial
     g.gUserNotifier.addListener(() {
       _loadFromFirebaseOrFilesystem();
-      fBase.firebaseChangeListener(g.gUser);
+      fBase.firebaseChangeListener(g.gUser, callback: loadFirebaseSnapshot);
     });
   }
 
