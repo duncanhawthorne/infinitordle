@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'card_colors.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
 import 'google/google.dart';
-import 'helper.dart';
 import 'popup_screens.dart';
 import 'wordlist.dart';
 
@@ -37,6 +37,8 @@ class Game extends ValueNotifier<int> {
   Game() : super(0) {
     _userChangeListener();
   }
+
+  static final Logger _log = Logger('IN');
 
   //getters / setters
   List<dynamic> get targetWords => _targetWords;
@@ -357,7 +359,7 @@ class Game extends ValueNotifier<int> {
   }
 
   void resetBoard() {
-    logGlobal("Reset board");
+    _log.info("Reset board");
     initiateBoard();
     if (fBase.fbAnalytics) {
       fBase.analytics!.logLevelStart(levelName: "Reset");
@@ -398,7 +400,7 @@ class Game extends ValueNotifier<int> {
         return _enteredWords[abRow][col];
       }
     } catch (e) {
-      logGlobal("Crash getCardLetterAtAbIndex $abIndex $e");
+      _log.severe("Crash getCardLetterAtAbIndex $abIndex $e");
       return "";
     }
   }
@@ -455,7 +457,7 @@ class Game extends ValueNotifier<int> {
 
   void _loadFromEncodedState(String gameEncoded) {
     if (gameEncoded == "") {
-      logGlobal("loadFromEncodedState empty");
+      _log.severe("loadFromEncodedState empty");
       _stateChange();
     } else if (gameEncoded != _gameEncodedLastCache) {
       try {
@@ -467,7 +469,7 @@ class Game extends ValueNotifier<int> {
           //Error state, so set gUser properly and redo loadKeys from firebase
           //g.forceResetUserTo(tmpgUser);
           //_loadFromFirebaseOrFilesystem();
-          logGlobal("users dont match $tmpgUser ${g.gUser}");
+          _log.severe("users dont match $tmpgUser ${g.gUser}");
           _stateChange();
           //don't load up
           return;
@@ -495,12 +497,12 @@ class Game extends ValueNotifier<int> {
         //TRANSITIONAL logic from old variable naming convention
         final int offsetRollback = gameTmp["offsetRollback"] ?? 0;
         if (offsetRollback != 0) {
-          logGlobal("One-off migration");
+          _log.severe("One-off migration");
           pushUpSteps = offsetRollback;
         }
         //TRANSITIONAL logic from old variable naming convention
       } catch (error) {
-        logGlobal("loadFromEncodedState error $error");
+        _log.severe("loadFromEncodedState error $error");
       }
       _gameEncodedLastCache = gameEncoded;
       _saveToFirebaseAndFilesystem();
@@ -508,7 +510,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
-  String getEncodeCurrentGameState() {
+  String _getEncodeCurrentGameState() {
     final Map<String, dynamic> gameStateTmp = <String, dynamic>{};
     gameStateTmp["targetWords"] = _targetWords;
     gameStateTmp["gUser"] = g.gUser;
@@ -525,7 +527,7 @@ class Game extends ValueNotifier<int> {
 
   void _printCheatTargetWords() {
     if (cheatMode) {
-      logGlobal(<dynamic>[
+      _log.fine(<dynamic>[
         _targetWords,
         _enteredWords,
         _winRecordBoards,
@@ -543,7 +545,7 @@ class Game extends ValueNotifier<int> {
   String getCurrentTargetWordForBoard(int boardNumber) {
     if (boardNumber < _targetWords.length) {
     } else {
-      logGlobal("getCurrentTargetWordForBoard error");
+      _log.severe("getCurrentTargetWordForBoard error");
       _copyTo(_targetWords, _getNewTargetWords(numBoards));
     }
     return _targetWords[boardNumber];
@@ -580,14 +582,14 @@ class Game extends ValueNotifier<int> {
   int getFirstAbRowToShowOnBoardDueToKnowledge(int boardNumber) {
     if (_firstKnowledge.length != numBoards) {
       _copyTo(_firstKnowledge, _getBlankFirstKnowledge(numBoards));
-      logGlobal("getFirstVisualRowToShowOnBoard error 1");
+      _log.severe("getFirstVisualRowToShowOnBoard error 1");
     }
     if (!expandingBoard) {
       return pushOffBoardRows;
     } else if (boardNumber < _firstKnowledge.length) {
       return _firstKnowledge[boardNumber];
     } else {
-      logGlobal("getFirstVisualRowToShowOnBoard error 2");
+      _log.severe("getFirstVisualRowToShowOnBoard error 2");
       return 0;
     }
   }
@@ -661,12 +663,12 @@ class Game extends ValueNotifier<int> {
 
   final List<String> _recentSnapshotsCache = <String>[];
 
-  void loadFirebaseSnapshot(Map<String, dynamic>? userDocument) {
-    logGlobal("loadFirebaseSnapshot");
-    if (userDocument != null) {
-      final String snapshotCurrent = userDocument[fBase.data];
+  void loadFirebaseSnapshot(String? snapshotCurrentOrNull) {
+    _log.info("loadFirebaseSnapshot");
+    if (snapshotCurrentOrNull != null) {
+      final String snapshotCurrent = snapshotCurrentOrNull;
       if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
-        if (snapshotCurrent != getEncodeCurrentGameState()) {
+        if (snapshotCurrent != _getEncodeCurrentGameState()) {
           _loadFromEncodedState(snapshotCurrent);
         }
         _recentSnapshotsCache.add(snapshotCurrent);
@@ -700,7 +702,7 @@ class Game extends ValueNotifier<int> {
   }
 
   Future<void> _saveToFirebaseAndFilesystem() async {
-    final String gameEncoded = getEncodeCurrentGameState();
+    final String gameEncoded = _getEncodeCurrentGameState();
 
     // save locally
     final SharedPreferences prefs = await SharedPreferences.getInstance();

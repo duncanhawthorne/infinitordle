@@ -22,11 +22,8 @@ class FBase {
   static const String _userSaves = "states";
   static const String _data = "data";
 
-  String get data => _data;
-
   static final Logger _log = Logger('FB');
 
-  FirebaseFirestore? get db => _db;
   FirebaseFirestore? _db;
 
   FirebaseAnalytics? analytics;
@@ -76,11 +73,11 @@ class FBase {
   }
 
   Future<void> firebaseChangeListener(String userId) async {
+    await initialize();
     if (fBase.firebaseOn) {
-      await fBase.initialize();
       // ignore: always_specify_types
       StreamSubscription? listener;
-      listener = fBase.db!
+      listener = _db!
           .collection(_userSaves)
           .doc(userId)
           .snapshots()
@@ -90,7 +87,12 @@ class FBase {
           listener!.cancel();
           return;
         }
-        game.loadFirebaseSnapshot(snapshot.data());
+        String? snapshotCurrentOrNull;
+        final Map<String, dynamic>? userDocument = snapshot.data();
+        if (userDocument != null) {
+          snapshotCurrentOrNull = userDocument[_data];
+        }
+        game.loadFirebaseSnapshot(snapshotCurrentOrNull);
       });
     }
   }
