@@ -9,7 +9,7 @@ import 'google/google.dart';
 FocusNode focusNode = FocusNode();
 
 Future<void> showMainPopupScreen() async {
-  unawaited(_showMainPopupScreenReal(navigatorKey.currentContext!));
+  await _showMainPopupScreenReal(navigatorKey.currentContext!);
 }
 
 Future<void> _showMainPopupScreenReal(BuildContext context) async {

@@ -236,11 +236,12 @@ class Game extends ValueNotifier<int> {
     //Code for losing game
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
-      unawaited(_saveToFirebaseAndFilesystem());
-      unawaited(showMainPopupScreen());
+      await Future.wait(<Future<void>>[
+        _saveToFirebaseAndFilesystem(),
+        showMainPopupScreen()
+      ]);
     } else if (!infMode && isWin) {
       //Code for totally winning game across all boards
-      unawaited(_saveToFirebaseAndFilesystem());
       bool totallySolvedLocal = true;
       for (int i = 0; i < numBoards; i++) {
         if (!getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
@@ -250,11 +251,12 @@ class Game extends ValueNotifier<int> {
       if (totallySolvedLocal) {
         // Leave the screen as is
       }
+      await _saveToFirebaseAndFilesystem();
     } else if (infMode && isWin) {
-      unawaited(_handleWinningWordEntered(
-          cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix));
+      await _handleWinningWordEntered(
+          cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
     } else {
-      unawaited(_saveToFirebaseAndFilesystem());
+      await _saveToFirebaseAndFilesystem();
     }
   }
 
@@ -710,7 +712,7 @@ class Game extends ValueNotifier<int> {
 
     // if possible save to firebase
     if (fBase.firebaseOn && g.signedIn) {
-      unawaited(fBase.firebasePush(g, gameEncoded));
+      await fBase.firebasePush(g, gameEncoded);
     }
   }
 }
