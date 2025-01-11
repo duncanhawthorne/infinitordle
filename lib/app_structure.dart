@@ -126,15 +126,20 @@ Widget gameboardAndKeyboard() {
     child: Column(
       children: <Widget>[
         Stack(alignment: Alignment.center, children: <Widget>[
-          game.highlightedBoard != -1
-              ? InkWell(
-                  onTap: () => game.toggleHighlightedBoard(-1),
-                  child: SizedBox(
-                    width: screen.scW,
-                    height: screen.fullSizeOfGameboards,
-                  ),
-                )
-              : const SizedBox.shrink(),
+          ValueListenableBuilder<int>(
+              valueListenable: game.highlightedBoardNotifier,
+              builder: (BuildContext context, int value, Widget? child) {
+                return game.highlightedBoard != -1
+                    //click away to de-highlight all boards
+                    ? InkWell(
+                        onTap: () => game.toggleHighlightedBoard(-1),
+                        child: SizedBox(
+                          width: screen.scW,
+                          height: screen.fullSizeOfGameboards,
+                        ),
+                      )
+                    : const SizedBox.shrink();
+              }),
           Wrap(
             spacing: boardSpacer,
             runSpacing: boardSpacer,
