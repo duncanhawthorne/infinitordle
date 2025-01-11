@@ -78,6 +78,7 @@ class CardColors {
   Color _getBestColorForKeyboardLetterReal(
       String queryLetter, int boardNumber) {
     if (queryLetter == " ") {
+      assert(false);
       return transp;
     }
 

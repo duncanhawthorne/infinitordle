@@ -133,7 +133,7 @@ class Game extends ValueNotifier<int> {
   void onKeyboardTapped(String letter) {
     _printCheatTargetWords();
 
-    if (letter == " ") {
+    if (letter == kNonKey) {
       //Ignore pressing of non-keys
     } else if (letter == kBackspace) {
       //Backspace key

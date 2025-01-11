@@ -107,7 +107,7 @@ Widget keyboardListenerWrapper() {
       onKeyEvent: (KeyEvent keyEvent) {
         if (keyEvent is KeyDownEvent) {
           if (keyboardList.contains(keyEvent.character)) {
-            game.onKeyboardTapped(keyEvent.character ?? " ");
+            game.onKeyboardTapped(keyEvent.character ?? kNonKey);
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
             game.onKeyboardTapped(kEnter);
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {

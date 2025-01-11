@@ -27,6 +27,7 @@ const double boardSpacer = 8;
 
 const String kBackspace = "<";
 const String kEnter = ">";
+const String kNonKey = " ";
 
 //Helper text
 const List<String> keyboardList = kKbdList;
