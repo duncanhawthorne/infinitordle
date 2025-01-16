@@ -40,7 +40,7 @@ final bool isPwa =
 final bool isWebiOS = kIsWeb &&
     web.window.navigator.userAgent.contains(RegExp(r'iPad|iPod|iPhone'));
 
-const double _iOSWebPWAInset = 25;
+const double _iOSWebPWAInset = 50;
 
 double gestureInsetReal() {
   // Check if it's an installed PWA
