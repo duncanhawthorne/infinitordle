@@ -19,9 +19,10 @@ Widget gameboardWidget(int boardNumber) {
       valueListenable: game.expandingBoardNotifier,
       builder: (BuildContext context, bool value, Widget? child) {
         return game.expandingBoard
-            ? ValueListenableBuilder<int>(
-                valueListenable: game.pushUpStepsNotifier,
-                builder: (BuildContext context, int value, Widget? child) {
+            ? ListenableBuilder(
+                listenable: Listenable.merge(
+                    <Listenable?>[game.pushUpStepsNotifier, game]),
+                builder: (BuildContext context, _) {
                   return _gameboardWidgetReal(boardNumber);
                 },
               )

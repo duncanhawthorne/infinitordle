@@ -316,9 +316,11 @@ class Game extends ValueNotifier<int> {
     _logWinAndSetNewWord(
         cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
 
+    _stateChange();
+
     //flip
     _setBoardFlourishFlipRow(winningBoardToFix, -1);
-    //setStateGlobal();
+
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime);
   }
