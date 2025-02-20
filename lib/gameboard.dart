@@ -10,24 +10,28 @@ import 'game_logic.dart';
 import 'screen.dart';
 
 const double _notionalCardSize = 1.0;
-const int _renderTwoFramesTime = delayMult *
+const int _renderTwoFramesTime =
+    delayMult *
     33; // so that set state and animations don't happen exactly simultaneously
 const double tau = 2 * pi;
 
 Widget gameboardWidget(int boardNumber) {
   return ValueListenableBuilder<bool>(
-      valueListenable: game.expandingBoardNotifier,
-      builder: (BuildContext context, bool value, Widget? child) {
-        return game.expandingBoard
-            ? ListenableBuilder(
-                listenable: Listenable.merge(
-                    <Listenable?>[game.pushUpStepsNotifier, game]),
-                builder: (BuildContext context, _) {
-                  return _gameboardWidgetReal(boardNumber);
-                },
-              )
-            : _gameboardWidgetReal(boardNumber);
-      });
+    valueListenable: game.expandingBoardNotifier,
+    builder: (BuildContext context, bool value, Widget? child) {
+      return game.expandingBoard
+          ? ListenableBuilder(
+            listenable: Listenable.merge(<Listenable?>[
+              game.pushUpStepsNotifier,
+              game,
+            ]),
+            builder: (BuildContext context, _) {
+              return _gameboardWidgetReal(boardNumber);
+            },
+          )
+          : _gameboardWidgetReal(boardNumber);
+    },
+  );
 }
 
 Widget _gameboardWidgetReal(int boardNumber) {
@@ -45,58 +49,70 @@ Widget _gameboardWidgetReal(int boardNumber) {
           game.toggleHighlightedBoard(boardNumber);
         },
         child: _gameboardWidgetWithNRows(
-            boardNumber, boardNumberRows, expandingBoard),
+          boardNumber,
+          boardNumberRows,
+          expandingBoard,
+        ),
       ),
     ),
   );
 }
 
 Widget _gameboardWidgetWithNRows(
-    int boardNumber, int boardNumberRows, bool expandingBoard) {
+  int boardNumber,
+  int boardNumberRows,
+  bool expandingBoard,
+) {
   return GridView.builder(
-      padding: EdgeInsets.zero,
-      //https://github.com/flutter/flutter/issues/20241
-      cacheExtent: 10000,
-      //prevents top card reloading (and flipping) on scroll
-      reverse: true,
-      //makes stick to bottom
-      physics: expandingBoard
-          ? const AlwaysScrollableScrollPhysics()
-          : const NeverScrollableScrollPhysics(),
-      //turns off ios scrolling
-      itemCount: boardNumberRows * cols,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: cols,
-      ),
-      itemBuilder: (BuildContext context, int rGbIndex) {
-        return game.expandingBoard
-            ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
-            : ValueListenableBuilder<int>(
-                valueListenable: game.pushUpStepsNotifier,
-                builder: (BuildContext context, int value, Widget? child) {
-                  return _cardFlipperAlts(
-                      _getABIndexFromRGBIndex(rGbIndex), boardNumber);
-                },
+    padding: EdgeInsets.zero,
+    //https://github.com/flutter/flutter/issues/20241
+    cacheExtent: 10000,
+    //prevents top card reloading (and flipping) on scroll
+    reverse: true,
+    //makes stick to bottom
+    physics:
+        expandingBoard
+            ? const AlwaysScrollableScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
+    //turns off ios scrolling
+    itemCount: boardNumberRows * cols,
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: cols,
+    ),
+    itemBuilder: (BuildContext context, int rGbIndex) {
+      return game.expandingBoard
+          ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
+          : ValueListenableBuilder<int>(
+            valueListenable: game.pushUpStepsNotifier,
+            builder: (BuildContext context, int value, Widget? child) {
+              return _cardFlipperAlts(
+                _getABIndexFromRGBIndex(rGbIndex),
+                boardNumber,
               );
-      });
+            },
+          );
+    },
+  );
 }
 
 Widget _cardFlipperAlts(int abIndex, int boardNumber) {
   final int abRow = abIndex ~/ cols;
   return ValueListenableBuilder<int>(
-      valueListenable: game.currentRowChangedNotifier,
-      builder: (BuildContext context, int value, Widget? child) {
-        return abRow > game.abCurrentRowInt
-            ? _cardFlipper(abIndex, boardNumber)
-            : ListenableBuilder(
-                listenable: Listenable.merge(<Listenable?>[
-                  game.boardFlourishFlipRowsNotifiers[boardNumber],
-                  game.abCardFlourishFlipAnglesNotifier,
-                ]),
-                builder: (BuildContext context, _) {
-                  return _cardFlipper(abIndex, boardNumber);
-                });
-      });
+    valueListenable: game.currentRowChangedNotifier,
+    builder: (BuildContext context, int value, Widget? child) {
+      return abRow > game.abCurrentRowInt
+          ? _cardFlipper(abIndex, boardNumber)
+          : ListenableBuilder(
+            listenable: Listenable.merge(<Listenable?>[
+              game.boardFlourishFlipRowsNotifiers[boardNumber],
+              game.abCardFlourishFlipAnglesNotifier,
+            ]),
+            builder: (BuildContext context, _) {
+              return _cardFlipper(abIndex, boardNumber);
+            },
+          );
+    },
+  );
 }
 
 Widget _cardBuilder(int abIndex, int boardNumber, bool facingFront) {
@@ -113,18 +129,21 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
   final Widget childBack = _cardBuilder(abIndex, boardNumber, false);
 
   return TweenAnimationBuilder<double>(
-      tween: Tween<double>(
-          begin: 0, end: flips.getFlipAngle(abIndex, boardNumber)),
-      duration: const Duration(milliseconds: flipTime),
-      builder: (BuildContext context, double angle, __) {
-        final bool isFront = angle > 0.25;
-        return (Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.identity()
-            ..rotateX(angle * tau + (isFront ? tau / 2 : 0)),
-          child: isFront ? childFront : childBack,
-        ));
-      });
+    tween: Tween<double>(
+      begin: 0,
+      end: flips.getFlipAngle(abIndex, boardNumber),
+    ),
+    duration: const Duration(milliseconds: flipTime),
+    builder: (BuildContext context, double angle, __) {
+      final bool isFront = angle > 0.25;
+      return (Transform(
+        alignment: Alignment.center,
+        transform:
+            Matrix4.identity()..rotateX(angle * tau + (isFront ? tau / 2 : 0)),
+        child: isFront ? childFront : childBack,
+      ));
+    },
+  );
 }
 
 Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
@@ -135,7 +154,8 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
   final int abRow = abIndex ~/ cols;
   final int gbRow = _getGBRowFromABRow(abRow);
   final bool shouldSlideCard = abRow < game.abCurrentRowInt;
-  final bool shouldShrinkCard = game.expandingBoard &&
+  final bool shouldShrinkCard =
+      game.expandingBoard &&
       abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
           game.abLiveNumRowsPerBoard - numRowsPerBoard;
 
@@ -151,25 +171,28 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
   // and move visual cards back to original position instantly
   final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
   final Widget chosenCard = SizedBox(
-      height: cardSize,
-      width: cardSize,
-      child: _cardChooser(abIndex, boardNumber, facingFront));
+    height: cardSize,
+    width: cardSize,
+    child: _cardChooser(abIndex, boardNumber, facingFront),
+  );
   return Stack(
-    clipBehavior: gbRow == 0 && cardSlideOffset != 0
-        ? Clip.hardEdge
-        : Clip.none, //clipping is slow so clip only when necessary
+    clipBehavior:
+        gbRow == 0 && cardSlideOffset != 0
+            ? Clip.hardEdge
+            : Clip.none, //clipping is slow so clip only when necessary
     children: <Widget>[
       AnimatedPositioned(
-          //curve: Curves.fastOutSlowIn,
-          duration: Duration(
-              milliseconds:
-                  timeFactorOfSlide * (slideTime - _renderTwoFramesTime)),
-          // move slightly quicker so have two frames to re-render final position
-          top: cardSlideOffset + cardScaleOffset,
-          left: cardScaleOffset,
-          height: cardSize,
-          width: cardSize,
-          child: chosenCard),
+        //curve: Curves.fastOutSlowIn,
+        duration: Duration(
+          milliseconds: timeFactorOfSlide * (slideTime - _renderTwoFramesTime),
+        ),
+        // move slightly quicker so have two frames to re-render final position
+        top: cardSlideOffset + cardScaleOffset,
+        left: cardScaleOffset,
+        height: cardSize,
+        width: cardSize,
+        child: chosenCard,
+      ),
     ],
   );
 }
@@ -178,71 +201,84 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
   final int abRow = abIndex ~/ cols;
 
   return ListenableBuilder(
-      listenable: Listenable.merge(<Listenable?>[
-        game,
-        game.highlightedBoardNotifier,
-        game.currentRowChangedNotifier,
-      ]),
-      builder: (BuildContext context, _) {
-        return abRow == game.abCurrentRowInt
-            ? ValueListenableBuilder<String>(
-                valueListenable: game.currentTypingNotifiers[abIndex % cols],
-                builder: (BuildContext context, String value, Widget? child) {
-                  return _cardChooserRealReal(
-                      abIndex, boardNumber, facingFront);
-                },
-              )
-            : _cardChooserRealReal(abIndex, boardNumber, facingFront);
-      });
+    listenable: Listenable.merge(<Listenable?>[
+      game,
+      game.highlightedBoardNotifier,
+      game.currentRowChangedNotifier,
+    ]),
+    builder: (BuildContext context, _) {
+      return abRow == game.abCurrentRowInt
+          ? ValueListenableBuilder<String>(
+            valueListenable: game.currentTypingNotifiers[abIndex % cols],
+            builder: (BuildContext context, String value, Widget? child) {
+              return _cardChooserRealReal(abIndex, boardNumber, facingFront);
+            },
+          )
+          : _cardChooserRealReal(abIndex, boardNumber, facingFront);
+    },
+  );
 }
 
 Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   final int abRow = abIndex ~/ cols;
   final int col = abIndex % cols;
-  final bool historicalWin = game.getTestHistoricalAbWin(abRow, boardNumber) ||
+  final bool historicalWin =
+      game.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.getBoardFlourishFlipRow(boardNumber) != -1 &&
           abRow == game.getBoardFlourishFlipRow(boardNumber);
   final bool justFlippedBackToFront =
       game.getBoardFlourishFlipRow(boardNumber) != -1;
   final bool hideCard =
       (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-          abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
-          (_rowOffTopOfMainBoard(abRow) &&
-              !facingFront &&
-              justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
+      abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
+      (_rowOffTopOfMainBoard(abRow) &&
+          !facingFront &&
+          justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
 
-  final String cardLetter = abRow ==
-              game.abLiveNumRowsPerBoard -
-                  1 && //code is formatting final row of cards
-          _getGBRowFromABRow(game.abCurrentRowInt) < 0 &&
-          game.currentTypingString.length > col
-      //If need to type while off top of board (unlikely), show on final row
-      ? game.currentTypingString[col]
-      : hideCard
+  final String cardLetter =
+      abRow ==
+                  game.abLiveNumRowsPerBoard -
+                      1 && //code is formatting final row of cards
+              _getGBRowFromABRow(game.abCurrentRowInt) < 0 &&
+              game.currentTypingString.length > col
+          //If need to type while off top of board (unlikely), show on final row
+          ? game.currentTypingString[col]
+          : hideCard
           ? ""
           : game.getCardLetterAtAbIndex(abIndex);
   final bool normalHighlighting = game.isBoardNormalHighlighted(boardNumber);
-  final Color cardColor = hideCard
-      ? transp
-      : !facingFront
+  final Color cardColor =
+      hideCard
+          ? transp
+          : !facingFront
           ? grey
           : _soften(
-              boardNumber, cardColors.getAbCardColor(abIndex, boardNumber));
-  final Color borderColor = hideCard
-      ? transp
-      : historicalWin
+            boardNumber,
+            cardColors.getAbCardColor(abIndex, boardNumber),
+          );
+  final Color borderColor =
+      hideCard
+          ? transp
+          : historicalWin
           ? _soften(boardNumber, green)
           : transp;
   assert(_cardCache.containsKey(normalHighlighting));
   assert(_cardCache[normalHighlighting]!.containsKey(cardLetter));
   assert(_cardCache[normalHighlighting]![cardLetter]!.containsKey(cardColor));
-  assert(_cardCache[normalHighlighting]![cardLetter]![cardColor]!
-      .containsKey(borderColor));
+  assert(
+    _cardCache[normalHighlighting]![cardLetter]![cardColor]!.containsKey(
+      borderColor,
+    ),
+  );
   return _cardCache[normalHighlighting]![cardLetter]![cardColor]![borderColor]!;
 }
 
-Widget _card(bool normalHighlighting, String cardLetter, Color cardColor,
-    Color borderColor) {
+Widget _card(
+  bool normalHighlighting,
+  String cardLetter,
+  Color cardColor,
+  Color borderColor,
+) {
   const double cardBorderRadiusFactor = 0.2;
   const double cardSizeFixed = _notionalCardSize;
   return FittedBox(
@@ -253,10 +289,12 @@ Widget _card(bool normalHighlighting, String cardLetter, Color cardColor,
         height: cardSizeFixed,
         width: cardSizeFixed,
         decoration: BoxDecoration(
-            border: Border.all(color: borderColor, width: 0.05 * cardSizeFixed),
-            borderRadius:
-                BorderRadius.circular(cardBorderRadiusFactor * cardSizeFixed),
-            color: cardColor),
+          border: Border.all(color: borderColor, width: 0.05 * cardSizeFixed),
+          borderRadius: BorderRadius.circular(
+            cardBorderRadiusFactor * cardSizeFixed,
+          ),
+          color: cardColor,
+        ),
         child: FittedBox(
           fit: BoxFit.fitHeight,
           child: _cardTextCache[normalHighlighting]![cardLetter],
@@ -279,25 +317,29 @@ final List<Color> cardColorsList = <Color>[
   transp,
   _softGreen,
   _softAmber,
-  _softRed
+  _softRed,
 ];
 final List<Color> borderColorsList = <Color>[green, _softGreen, transp];
 
 final Map<bool, Map<String, Map<Color, Map<Color, Widget>>>> _cardCache =
     <bool, Map<String, Map<Color, Map<Color, Widget>>>>{
-  for (bool normalHighlighting in <bool>[true, false])
-    (normalHighlighting): <String, Map<Color, Map<Color, Widget>>>{
-      for (String cardLetter in keyboardList)
-        (cardLetter): <Color, Map<Color, Widget>>{
-          for (Color cardColor in cardColorsList)
-            (cardColor): <Color, Widget>{
-              for (Color borderColor in borderColorsList)
-                (borderColor): _card(
-                    normalHighlighting, cardLetter, cardColor, borderColor)
-            }
-        }
-    }
-};
+      for (bool normalHighlighting in <bool>[true, false])
+        (normalHighlighting): <String, Map<Color, Map<Color, Widget>>>{
+          for (String cardLetter in keyboardList)
+            (cardLetter): <Color, Map<Color, Widget>>{
+              for (Color cardColor in cardColorsList)
+                (cardColor): <Color, Widget>{
+                  for (Color borderColor in borderColorsList)
+                    (borderColor): _card(
+                      normalHighlighting,
+                      cardLetter,
+                      cardColor,
+                      borderColor,
+                    ),
+                },
+            },
+        },
+    };
 
 Widget _cardTextConst(bool normalHighlighting, String cardLetter) {
   return StrokeText(
@@ -315,12 +357,12 @@ Widget _cardTextConst(bool normalHighlighting, String cardLetter) {
 
 final Map<bool, Map<String, Widget>> _cardTextCache =
     <bool, Map<String, Widget>>{
-  for (bool normalHighlighting in <bool>[true, false])
-    (normalHighlighting): <String, Widget>{
-      for (String cardLetter in keyboardList)
-        (cardLetter): _cardTextConst(normalHighlighting, cardLetter)
-    }
-};
+      for (bool normalHighlighting in <bool>[true, false])
+        (normalHighlighting): <String, Widget>{
+          for (String cardLetter in keyboardList)
+            (cardLetter): _cardTextConst(normalHighlighting, cardLetter),
+        },
+    };
 
 final Map<Color, Color> _softColorMap = <Color, Color>{
   green: _softGreen,

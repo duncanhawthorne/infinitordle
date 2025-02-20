@@ -21,8 +21,7 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   Future<Null>.delayed(const Duration(milliseconds: 1000 * 5), () {
-    FlutterNativeSplash
-        .remove(); //Hack, but makes sure removed shortly after starting
+    FlutterNativeSplash.remove(); //Hack, but makes sure removed shortly after starting
   });
 
   unawaited(fBase.initialize());
@@ -30,7 +29,8 @@ Future<void> main() async {
   setupGlobalLogger();
 
   SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(statusBarColor: bg));
+    const SystemUiOverlayStyle(statusBarColor: bg),
+  );
   fixTitlePerm();
 
   runApp(const InfinitordleApp());

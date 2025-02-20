@@ -44,8 +44,9 @@ class Screen {
       _vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 
       keyboardSingleKeyLiveMaxPixelHeight = min(
-          _keyAspectRatioDefault * scW / 10,
-          _keyAspectRatioDefault * _vertSpaceAfterTitle * 0.17 / 3);
+        _keyAspectRatioDefault * scW / 10,
+        _keyAspectRatioDefault * _vertSpaceAfterTitle * 0.17 / 3,
+      );
 
       _vertSpaceForGameboard =
           _vertSpaceAfterTitle - keyboardSingleKeyLiveMaxPixelHeight * 3;
@@ -62,25 +63,29 @@ class Screen {
           ((numBoards / numPresentationBigRowsOfBoards).ceil()) - 1;
       final int numSpacersDown = (numPresentationBigRowsOfBoards) - 1;
       cardLiveMaxPixel = min(
-          (_vertSpaceForGameboard - numSpacersDown * boardSpacer) /
-              numPresentationBigRowsOfBoards /
-              numRowsPerBoard,
-          (scW - numSpacersAcross * boardSpacer) /
-              (numBoards / numPresentationBigRowsOfBoards).ceil() /
-              cols);
+        (_vertSpaceForGameboard - numSpacersDown * boardSpacer) /
+            numPresentationBigRowsOfBoards /
+            numRowsPerBoard,
+        (scW - numSpacersAcross * boardSpacer) /
+            (numBoards / numPresentationBigRowsOfBoards).ceil() /
+            cols,
+      );
       fullSizeOfGameboards =
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
-              numSpacersDown * boardSpacer;
+          numSpacersDown * boardSpacer;
       if (_vertSpaceForGameboard > fullSizeOfGameboards) {
         //if still space left over, no point squashing keyboard for nothing
 
         keyboardSingleKeyLiveMaxPixelHeight = min(
-            _keyAspectRatioDefault * scW / 10,
-            (_vertSpaceAfterTitle - fullSizeOfGameboards) / 3);
+          _keyAspectRatioDefault * scW / 10,
+          (_vertSpaceAfterTitle - fullSizeOfGameboards) / 3,
+        );
       }
 
-      keyAspectRatioLive =
-          max(0.5, keyboardSingleKeyLiveMaxPixelHeight / (scW / 10));
+      keyAspectRatioLive = max(
+        0.5,
+        keyboardSingleKeyLiveMaxPixelHeight / (scW / 10),
+      );
       keyboardSingleKeyLiveMaxPixelWidth =
           keyboardSingleKeyLiveMaxPixelHeight / keyAspectRatioLive;
     }

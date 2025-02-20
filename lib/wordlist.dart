@@ -2307,7 +2307,7 @@ const List<String> kWinnableWordsList = <String>[
   'youth',
   'zebra',
   'zesty',
-  'zonal'
+  'zonal',
 ];
 
 const List<String> kLegalWordsList = <String>[
@@ -15257,7 +15257,7 @@ const List<String> kLegalWordsList = <String>[
   'zygal',
   'zygon',
   'zymes',
-  'zymic'
+  'zymic',
 ];
 
 const List<String> kKbdList = <String>[

@@ -18,13 +18,13 @@ const List<String> _cheatEnteredWordsInitial = <String>[
   "windy",
   "scour",
   "fight",
-  "kebab"
+  "kebab",
 ];
 const List<String> _cheatTargetWordsInitial = <String>[
   "scoff",
   "brunt",
   "armor",
-  "tabby"
+  "tabby",
 ];
 const List<String> _legalWords = kLegalWordsList;
 const List<String> _winnableWords = kWinnableWordsList;
@@ -85,7 +85,9 @@ class Game extends ValueNotifier<int> {
   //Other state non-saved
   final List<ValueNotifier<String>> currentTypingNotifiers =
       List<ValueNotifier<String>>.generate(
-          cols, (int i) => ValueNotifier<String>(""));
+        cols,
+        (int i) => ValueNotifier<String>(""),
+      );
   final ValueNotifier<int> highlightedBoardNotifier = ValueNotifier<int>(0);
 
   //transitive state
@@ -96,9 +98,12 @@ class Game extends ValueNotifier<int> {
       CustomMapNotifier(); //{}.obs;
   final List<ValueNotifier<int>> boardFlourishFlipRowsNotifiers =
       List<ValueNotifier<int>>.generate(
-          cols, (int i) => ValueNotifier<int>(100));
-  final ValueNotifier<bool> illegalFiveLetterWordNotifier =
-      ValueNotifier<bool>(false);
+        cols,
+        (int i) => ValueNotifier<int>(100),
+      );
+  final ValueNotifier<bool> illegalFiveLetterWordNotifier = ValueNotifier<bool>(
+    false,
+  );
   final ValueNotifier<int> targetWordsChangedNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> currentRowChangedNotifier = ValueNotifier<int>(0);
 
@@ -139,10 +144,13 @@ class Game extends ValueNotifier<int> {
       //Backspace key
       if (currentTypingString.isNotEmpty) {
         //There is text to delete
-        final String origTyping =
-            currentTypingString.substring(0, currentTypingString.length);
+        final String origTyping = currentTypingString.substring(
+          0,
+          currentTypingString.length,
+        );
         _setCurrentTyping(
-            currentTypingString.substring(0, currentTypingString.length - 1));
+          currentTypingString.substring(0, currentTypingString.length - 1),
+        );
         if (origTyping.length == cols && !_isLegalWord(origTyping)) {
           illegalFiveLetterWord = false;
         }
@@ -186,8 +194,9 @@ class Game extends ValueNotifier<int> {
     }
 
     //Test if it is correct word
-    final int winningBoardToFix =
-        _getWinningBoardFromWordEnteredInAbRow(cardAbRowPreGuessToFix);
+    final int winningBoardToFix = _getWinningBoardFromWordEnteredInAbRow(
+      cardAbRowPreGuessToFix,
+    );
     final bool isWin = winningBoardToFix != -1;
 
     if (!isWin) {
@@ -198,8 +207,13 @@ class Game extends ValueNotifier<int> {
     //setStateGlobal(); //non-ephemeral state change, so needs setState
 
     _gradualRevealAbRow(cardAbRowPreGuessToFix);
-    _handleWinLoseState(cardAbRowPreGuessToFix, winningBoardToFix,
-        firstKnowledgeToFix, isWin, maxAbRowOfBoard);
+    _handleWinLoseState(
+      cardAbRowPreGuessToFix,
+      winningBoardToFix,
+      firstKnowledgeToFix,
+      isWin,
+      maxAbRowOfBoard,
+    );
   }
 
   void _gradualRevealAbRow(int abRow) {
@@ -209,27 +223,30 @@ class Game extends ValueNotifier<int> {
     }
     //setStateGlobal();
     for (int i = 0; i < cols; i++) {
-      Future<Null>.delayed(Duration(milliseconds: gradualRevealDelayTime * i),
-          () {
-        _setAbCardFlourishFlipAngle(abRow, i, 0.0);
-        if (i == cols - 1) {
-          if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
-            // Due to delays check still exists before remove
-            abCardFlourishFlipAnglesNotifier.remove(abRow);
-            //setStateGlobal(); //needed to refresh keyboard
+      Future<Null>.delayed(
+        Duration(milliseconds: gradualRevealDelayTime * i),
+        () {
+          _setAbCardFlourishFlipAngle(abRow, i, 0.0);
+          if (i == cols - 1) {
+            if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
+              // Due to delays check still exists before remove
+              abCardFlourishFlipAnglesNotifier.remove(abRow);
+              //setStateGlobal(); //needed to refresh keyboard
+            }
           }
-        }
-        //setStateGlobal();
-      });
+          //setStateGlobal();
+        },
+      );
     }
   }
 
   Future<void> _handleWinLoseState(
-      int cardAbRowPreGuessToFix,
-      int winningBoardToFix,
-      int firstKnowledgeToFix,
-      bool isWin,
-      int maxAbRowOfBoard) async {
+    int cardAbRowPreGuessToFix,
+    int winningBoardToFix,
+    int firstKnowledgeToFix,
+    bool isWin,
+    int maxAbRowOfBoard,
+  ) async {
     //Delay for visual changes to have taken effect
     await _sleep(_gradualRevealRowTime + _visualCatchUpTime);
 
@@ -238,7 +255,7 @@ class Game extends ValueNotifier<int> {
       //All rows full, game over
       await Future.wait(<Future<void>>[
         _saveToFirebaseAndFilesystem(),
-        showMainPopupScreen()
+        showMainPopupScreen(),
       ]);
     } else if (!infMode && isWin) {
       //Code for totally winning game across all boards
@@ -254,14 +271,20 @@ class Game extends ValueNotifier<int> {
       await _saveToFirebaseAndFilesystem();
     } else if (infMode && isWin) {
       await _handleWinningWordEntered(
-          cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+        cardAbRowPreGuessToFix,
+        winningBoardToFix,
+        firstKnowledgeToFix,
+      );
     } else {
       await _saveToFirebaseAndFilesystem();
     }
   }
 
-  Future<void> _handleWinningWordEntered(int cardAbRowPreGuessToFix,
-      int winningBoardToFix, int firstKnowledgeToFix) async {
+  Future<void> _handleWinningWordEntered(
+    int cardAbRowPreGuessToFix,
+    int winningBoardToFix,
+    int firstKnowledgeToFix,
+  ) async {
     //Slide up and increment firstKnowledge
     await _slideUpAnimation();
     firstKnowledgeToFix++;
@@ -275,7 +298,10 @@ class Game extends ValueNotifier<int> {
     }
 
     await _unflipSwapFlip(
-        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+      cardAbRowPreGuessToFix,
+      winningBoardToFix,
+      firstKnowledgeToFix,
+    );
   }
 
   Future<void> _slideUpAnimation() async {
@@ -304,8 +330,11 @@ class Game extends ValueNotifier<int> {
     //setStateGlobal();
   }
 
-  Future<void> _unflipSwapFlip(int cardAbRowPreGuessToFix,
-      int winningBoardToFix, int firstKnowledgeToFix) async {
+  Future<void> _unflipSwapFlip(
+    int cardAbRowPreGuessToFix,
+    int winningBoardToFix,
+    int firstKnowledgeToFix,
+  ) async {
     //unflip
     _setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
     //setStateGlobal();
@@ -314,7 +343,10 @@ class Game extends ValueNotifier<int> {
 
     // Log the win officially, and get a new word
     _logWinAndSetNewWord(
-        cardAbRowPreGuessToFix, winningBoardToFix, firstKnowledgeToFix);
+      cardAbRowPreGuessToFix,
+      winningBoardToFix,
+      firstKnowledgeToFix,
+    );
 
     _stateChange();
 
@@ -325,8 +357,11 @@ class Game extends ValueNotifier<int> {
     await _sleep(_visualCatchUpTime);
   }
 
-  void _logWinAndSetNewWord(int winRecordBoardsIndexToFix,
-      int winningBoardToFix, int firstKnowledgeToFix) {
+  void _logWinAndSetNewWord(
+    int winRecordBoardsIndexToFix,
+    int winningBoardToFix,
+    int firstKnowledgeToFix,
+  ) {
     // This function is run after a delay so need to make sure threadsafe
     // Use variables at the time word was entered rather than live variables
 
@@ -431,9 +466,11 @@ class Game extends ValueNotifier<int> {
       _getReadyForStreakAbRowReal(abCurrentRowInt);
 
   bool getDetectBoardSolvedByABRow(int boardNumber, int maxAbRowToCheck) {
-    for (int abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
-        abRow < min(abCurrentRowInt, maxAbRowToCheck);
-        abRow++) {
+    for (
+      int abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
+      abRow < min(abCurrentRowInt, maxAbRowToCheck);
+      abRow++
+    ) {
       bool result = true;
       for (int column = 0; column < cols; column++) {
         final int abIndex = abRow * cols + column;
@@ -479,8 +516,10 @@ class Game extends ValueNotifier<int> {
           return;
         }
 
-        _copyTo(_targetWords,
-            gameTmp["targetWords"] ?? _getNewTargetWords(numBoards));
+        _copyTo(
+          _targetWords,
+          gameTmp["targetWords"] ?? _getNewTargetWords(numBoards),
+        );
         targetWordsChangedNotifier.value++;
 
         if (_targetWords.length != numBoards) {
@@ -492,8 +531,10 @@ class Game extends ValueNotifier<int> {
         currentRowChangedNotifier.value++;
 
         _copyTo(_winRecordBoards, gameTmp["winRecordBoards"] ?? <int>[]);
-        _copyTo(_firstKnowledge,
-            gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards));
+        _copyTo(
+          _firstKnowledge,
+          gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards),
+        );
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
         expandingBoard = gameTmp["expandingBoard"] ?? false;
         _expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;

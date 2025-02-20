@@ -12,9 +12,10 @@ class Flips {
     final int abRow = abIndex ~/ cols;
     final double cardFlipAngle =
         _getPermFlipAngle(abIndex) - _getFlourishFlipAngle(abIndex);
-    final double boardFlipAngle = abRow <= game.abCurrentRowInt
-        ? _getFlourishBoardFlipAngle(boardNumber)
-        : 0;
+    final double boardFlipAngle =
+        abRow <= game.abCurrentRowInt
+            ? _getFlourishBoardFlipAngle(boardNumber)
+            : 0;
     return max(0, cardFlipAngle - boardFlipAngle);
   }
 

@@ -42,18 +42,21 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
                     valueListenable: game.expandingBoardNotifier,
                     builder: (BuildContext context, bool value, Widget? child) {
                       return Tooltip(
-                          message: game.expandingBoard
-                              ? "Turn off scrollable board"
-                              : "Turn on scrollable board",
-                          child: IconButton(
-                            iconSize: 25,
-                            icon: game.expandingBoard
-                                ? const Icon(Icons.visibility_outlined)
-                                : const Icon(Icons.visibility_off_outlined),
-                            onPressed: () {
-                              game.toggleExpandingBoardState();
-                            },
-                          ));
+                        message:
+                            game.expandingBoard
+                                ? "Turn off scrollable board"
+                                : "Turn on scrollable board",
+                        child: IconButton(
+                          iconSize: 25,
+                          icon:
+                              game.expandingBoard
+                                  ? const Icon(Icons.visibility_outlined)
+                                  : const Icon(Icons.visibility_off_outlined),
+                          onPressed: () {
+                            game.toggleExpandingBoardState();
+                          },
+                        ),
+                      );
                     },
                   ),
                 ],
@@ -64,22 +67,25 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
                 children: <Widget>[
                   const Text('Reset board?'),
                   Tooltip(
-                      message: "Reset board",
-                      child: IconButton(
-                        iconSize: 25,
-                        icon: const Icon(Icons.refresh_outlined),
-                        onPressed: () {
-                          _showResetConfirmationScreen(context);
-                          focusNode.requestFocus(); //state inside dialog
-                        },
-                      )),
+                    message: "Reset board",
+                    child: IconButton(
+                      iconSize: 25,
+                      icon: const Icon(Icons.refresh_outlined),
+                      onPressed: () {
+                        _showResetConfirmationScreen(context);
+                        focusNode.requestFocus(); //state inside dialog
+                      },
+                    ),
+                  ),
                 ],
               ),
               const Divider(),
               const SizedBox(height: 10),
-              Text(gameOver
-                  ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${game.targetWords.join(", ")}"
-                  : "You've got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"} so far${numberWinsCache != 0 ? ":" : ""} ${winWordsCache.join(", ")}"),
+              Text(
+                gameOver
+                    ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${game.targetWords.join(", ")}"
+                    : "You've got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"} so far${numberWinsCache != 0 ? ":" : ""} ${winWordsCache.join(", ")}",
+              ),
               const SizedBox(height: 10),
             ],
           ),

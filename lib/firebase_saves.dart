@@ -14,7 +14,8 @@ class FBase {
     //unawaited(fBase.initialize());
   }
 
-  final bool firebaseOn = firebaseOnReal &&
+  final bool firebaseOn =
+      firebaseOnReal &&
       !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
   late final bool fbAnalytics = firebaseOn && true;
 
@@ -57,31 +58,29 @@ class FBase {
     await initialize();
     String gameEncoded = "";
     if (firebaseOn && g.signedIn) {
-      final DocumentReference<Map<String, dynamic>> docRef =
-          _db!.collection(_userSaves).doc(g.gUser);
-      await docRef.get().then(
-        (DocumentSnapshot<dynamic> doc) {
-          final Map<String, dynamic> gameEncodedTmp =
-              doc.data() as Map<String, dynamic>;
-          gameEncoded = gameEncodedTmp[_data];
-        },
-        onError: (dynamic e) => _log.severe("Error getting document: $e"),
-      );
+      final DocumentReference<Map<String, dynamic>> docRef = _db!
+          .collection(_userSaves)
+          .doc(g.gUser);
+      await docRef.get().then((DocumentSnapshot<dynamic> doc) {
+        final Map<String, dynamic> gameEncodedTmp =
+            doc.data() as Map<String, dynamic>;
+        gameEncoded = gameEncodedTmp[_data];
+      }, onError: (dynamic e) => _log.severe("Error getting document: $e"));
     }
     return gameEncoded;
   }
 
-  Future<void> firebaseChangeListener(String userId,
-      {required Function callback}) async {
+  Future<void> firebaseChangeListener(
+    String userId, {
+    required Function callback,
+  }) async {
     await initialize();
     if (fBase.firebaseOn) {
       // ignore: always_specify_types
       StreamSubscription? listener;
-      listener = _db!
-          .collection(_userSaves)
-          .doc(userId)
-          .snapshots()
-          .listen((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+      listener = _db!.collection(_userSaves).doc(userId).snapshots().listen((
+        DocumentSnapshot<Map<String, dynamic>> snapshot,
+      ) {
         //userId is fixed for the duration of listener
         if (g.gUser != userId) {
           listener!.cancel();
