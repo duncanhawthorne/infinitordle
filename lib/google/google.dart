@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../popup_screens.dart';
 import '../secrets.dart';
+import 'google_touch_override.dart';
 
 final bool gOn =
     googleOnReal &&
@@ -16,6 +17,7 @@ final bool gOn =
 class G {
   G._() {
     _loadUser();
+    _loggingInProcessListener();
   }
 
   factory G() {
@@ -44,6 +46,13 @@ class G {
 
   double _iconWidth = 1;
   Color _color = Colors.white;
+
+  void _loggingInProcessListener() {
+    setPreventTouchDefaultInJs(true);
+    loggingInProcess.addListener(() {
+      setPreventTouchDefaultInJs(!loggingInProcess.value);
+    });
+  }
 
   Widget loginLogoutWidget(
     BuildContext context,
