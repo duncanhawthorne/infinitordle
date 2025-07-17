@@ -7,8 +7,8 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../popup_screens.dart';
-import '../secrets.dart';
 import 'google_touch_override.dart';
+import 'secrets.dart';
 
 final bool gOn =
     googleOnReal &&

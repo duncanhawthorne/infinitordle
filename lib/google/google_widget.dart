@@ -7,8 +7,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../secrets.dart';
 import 'google.dart';
+import 'secrets.dart';
 import 'src/web_wrapper.dart' as web;
 
 /// To run this example, replace this value with your client ID, and/or
