@@ -113,6 +113,8 @@ class G {
     if (googleWidgetLogoutFunction != null) {
       print("logout now now");
       googleWidgetLogoutFunction!();
+    } else {
+      extractDetailsFromLogout();
     }
   }
 
