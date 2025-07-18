@@ -49,6 +49,7 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
 }
 
 Widget signInRow(BuildContext context) {
+  g.googleLogoutConfirmationFunction = showLogoutConfirmationScreen;
   return ValueListenableBuilder<String>(
     valueListenable: g.gUserNotifier,
     builder: (BuildContext context, String stringText, Widget? child) {
@@ -177,7 +178,12 @@ Future<void> _showResetConfirmationScreen(BuildContext context) async {
   );
 }
 
-Future<void> showLogoutConfirmationScreen(BuildContext context) async {
+void showLogoutConfirmationScreen() {
+  _showLogoutConfirmationScreenReal(navigatorKey.currentContext!);
+  focusNodePopup.requestFocus();
+}
+
+Future<void> _showLogoutConfirmationScreenReal(BuildContext context) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
