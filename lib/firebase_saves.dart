@@ -8,6 +8,7 @@ import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
 import 'google/google.dart';
+import 'google/google_user.dart';
 
 class FBase {
   FBase() {
