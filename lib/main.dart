@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ios_web_touch_override/flutter_ios_web_touch_override.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -33,6 +34,7 @@ Future<void> main() async {
   );
   fixTitlePerm();
 
+  blockTouchDefault(true);
   runApp(const InfinitordleApp());
 }
 

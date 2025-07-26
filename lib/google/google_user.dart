@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_ios_web_touch_override/flutter_ios_web_touch_override.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'google_touch_override.dart';
 import 'google_widget.dart';
 
 class G {
@@ -51,9 +51,9 @@ class G {
   Color _color = Colors.white;
 
   void _loggingInProcessListener() {
-    setPreventTouchDefaultInJs(true);
+    blockTouchDefault(true);
     loggingInProcess.addListener(() {
-      setPreventTouchDefaultInJs(!loggingInProcess.value);
+      blockTouchDefault(!loggingInProcess.value);
     });
   }
 
