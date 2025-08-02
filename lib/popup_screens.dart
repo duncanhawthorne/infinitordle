@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'game_logic.dart';
 import 'google/google.dart';
-import 'google/google_widget.dart';
 
 FocusNode focusNodePopup = FocusNode();
 
@@ -76,8 +75,8 @@ Widget googleWidgetRow(BuildContext context) {
         builder: (BuildContext context, bool value, Widget? child) {
           return Visibility(
             visible: g.loggingInProcess.value,
-            maintainState: true,
-            child: const GoogleSignInWidget(),
+            maintainState: false,
+            child: g.gWidget,
           );
         },
       ),
