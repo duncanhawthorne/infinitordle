@@ -21,14 +21,14 @@ Widget gameboardWidget(int boardNumber) {
     builder: (BuildContext context, bool value, Widget? child) {
       return game.expandingBoard
           ? ListenableBuilder(
-            listenable: Listenable.merge(<Listenable?>[
-              game.pushUpStepsNotifier,
-              game,
-            ]),
-            builder: (BuildContext context, _) {
-              return _gameboardWidgetReal(boardNumber);
-            },
-          )
+              listenable: Listenable.merge(<Listenable?>[
+                game.pushUpStepsNotifier,
+                game,
+              ]),
+              builder: (BuildContext context, _) {
+                return _gameboardWidgetReal(boardNumber);
+              },
+            )
           : _gameboardWidgetReal(boardNumber);
     },
   );
@@ -70,10 +70,9 @@ Widget _gameboardWidgetWithNRows(
     //prevents top card reloading (and flipping) on scroll
     reverse: true,
     //makes stick to bottom
-    physics:
-        expandingBoard
-            ? const AlwaysScrollableScrollPhysics()
-            : const NeverScrollableScrollPhysics(),
+    physics: expandingBoard
+        ? const AlwaysScrollableScrollPhysics()
+        : const NeverScrollableScrollPhysics(),
     //turns off ios scrolling
     itemCount: boardNumberRows * cols,
     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -83,14 +82,14 @@ Widget _gameboardWidgetWithNRows(
       return game.expandingBoard
           ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
           : ValueListenableBuilder<int>(
-            valueListenable: game.pushUpStepsNotifier,
-            builder: (BuildContext context, int value, Widget? child) {
-              return _cardFlipperAlts(
-                _getABIndexFromRGBIndex(rGbIndex),
-                boardNumber,
-              );
-            },
-          );
+              valueListenable: game.pushUpStepsNotifier,
+              builder: (BuildContext context, int value, Widget? child) {
+                return _cardFlipperAlts(
+                  _getABIndexFromRGBIndex(rGbIndex),
+                  boardNumber,
+                );
+              },
+            );
     },
   );
 }
@@ -103,14 +102,14 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
       return abRow > game.abCurrentRowInt
           ? _cardFlipper(abIndex, boardNumber)
           : ListenableBuilder(
-            listenable: Listenable.merge(<Listenable?>[
-              game.boardFlourishFlipRowsNotifiers[boardNumber],
-              game.abCardFlourishFlipAnglesNotifier,
-            ]),
-            builder: (BuildContext context, _) {
-              return _cardFlipper(abIndex, boardNumber);
-            },
-          );
+              listenable: Listenable.merge(<Listenable?>[
+                game.boardFlourishFlipRowsNotifiers[boardNumber],
+                game.abCardFlourishFlipAnglesNotifier,
+              ]),
+              builder: (BuildContext context, _) {
+                return _cardFlipper(abIndex, boardNumber);
+              },
+            );
     },
   );
 }
@@ -138,8 +137,8 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
       final bool isFront = angle > 0.25;
       return (Transform(
         alignment: Alignment.center,
-        transform:
-            Matrix4.identity()..rotateX(angle * tau + (isFront ? tau / 2 : 0)),
+        transform: Matrix4.identity()
+          ..rotateX(angle * tau + (isFront ? tau / 2 : 0)),
         child: isFront ? childFront : childBack,
       ));
     },
@@ -159,12 +158,14 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
       abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
           game.abLiveNumRowsPerBoard - numRowsPerBoard;
 
-  final double cardScaleFactor =
-      shouldShrinkCard ? shrinkCardScaleDefault : 1.0;
+  final double cardScaleFactor = shouldShrinkCard
+      ? shrinkCardScaleDefault
+      : 1.0;
   final double cardSize = cardSizeDefault * cardScaleFactor;
   final double cardScaleOffset = cardSizeDefault * (1 - cardScaleFactor) / 2;
-  final double cardSlideOffset =
-      shouldSlideCard ? -cardSizeDefault * temporaryVisualOffsetForSlide : 0;
+  final double cardSlideOffset = shouldSlideCard
+      ? -cardSizeDefault * temporaryVisualOffsetForSlide
+      : 0;
   // if offset 1, do gradually. if offset 0, do instantaneously
   // so slide visual cards into new position slowly
   // then do a real switch to what is in each card to move one place forward
@@ -176,10 +177,9 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
     child: _cardChooser(abIndex, boardNumber, facingFront),
   );
   return Stack(
-    clipBehavior:
-        gbRow == 0 && cardSlideOffset != 0
-            ? Clip.hardEdge
-            : Clip.none, //clipping is slow so clip only when necessary
+    clipBehavior: gbRow == 0 && cardSlideOffset != 0
+        ? Clip.hardEdge
+        : Clip.none, //clipping is slow so clip only when necessary
     children: <Widget>[
       AnimatedPositioned(
         //curve: Curves.fastOutSlowIn,
@@ -209,11 +209,11 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
     builder: (BuildContext context, _) {
       return abRow == game.abCurrentRowInt
           ? ValueListenableBuilder<String>(
-            valueListenable: game.currentTypingNotifiers[abIndex % cols],
-            builder: (BuildContext context, String value, Widget? child) {
-              return _cardChooserRealReal(abIndex, boardNumber, facingFront);
-            },
-          )
+              valueListenable: game.currentTypingNotifiers[abIndex % cols],
+              builder: (BuildContext context, String value, Widget? child) {
+                return _cardChooserRealReal(abIndex, boardNumber, facingFront);
+              },
+            )
           : _cardChooserRealReal(abIndex, boardNumber, facingFront);
     },
   );
@@ -237,31 +237,26 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
 
   final String cardLetter =
       abRow ==
-                  game.abLiveNumRowsPerBoard -
-                      1 && //code is formatting final row of cards
-              _getGBRowFromABRow(game.abCurrentRowInt) < 0 &&
-              game.currentTypingString.length > col
-          //If need to type while off top of board (unlikely), show on final row
-          ? game.currentTypingString[col]
-          : hideCard
-          ? ""
-          : game.getCardLetterAtAbIndex(abIndex);
+              game.abLiveNumRowsPerBoard -
+                  1 && //code is formatting final row of cards
+          _getGBRowFromABRow(game.abCurrentRowInt) < 0 &&
+          game.currentTypingString.length > col
+      //If need to type while off top of board (unlikely), show on final row
+      ? game.currentTypingString[col]
+      : hideCard
+      ? ""
+      : game.getCardLetterAtAbIndex(abIndex);
   final bool normalHighlighting = game.isBoardNormalHighlighted(boardNumber);
-  final Color cardColor =
-      hideCard
-          ? transp
-          : !facingFront
-          ? grey
-          : _soften(
-            boardNumber,
-            cardColors.getAbCardColor(abIndex, boardNumber),
-          );
-  final Color borderColor =
-      hideCard
-          ? transp
-          : historicalWin
-          ? _soften(boardNumber, green)
-          : transp;
+  final Color cardColor = hideCard
+      ? transp
+      : !facingFront
+      ? grey
+      : _soften(boardNumber, cardColors.getAbCardColor(abIndex, boardNumber));
+  final Color borderColor = hideCard
+      ? transp
+      : historicalWin
+      ? _soften(boardNumber, green)
+      : transp;
   assert(_cardCache.containsKey(normalHighlighting));
   assert(_cardCache[normalHighlighting]!.containsKey(cardLetter));
   assert(_cardCache[normalHighlighting]![cardLetter]!.containsKey(cardColor));

@@ -27,17 +27,14 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
-                children:
-                    <Widget?>[
-                      signInRow(context),
-                      !g.loggingInProcess.value
-                          ? null
-                          : googleWidgetRow(context),
-                      scrollableBoardRow(context),
-                      resetRow(context),
-                      const Divider(),
-                      wordsWonRow(context),
-                    ].whereType<Widget>().toList(),
+                children: <Widget?>[
+                  signInRow(context),
+                  !g.loggingInProcess.value ? null : googleWidgetRow(context),
+                  scrollableBoardRow(context),
+                  resetRow(context),
+                  const Divider(),
+                  wordsWonRow(context),
+                ].whereType<Widget>().toList(),
               );
             },
           ),
@@ -113,16 +110,14 @@ Widget scrollableBoardRow(BuildContext context) {
         valueListenable: game.expandingBoardNotifier,
         builder: (BuildContext context, bool value, Widget? child) {
           return Tooltip(
-            message:
-                game.expandingBoard
-                    ? "Turn off scrollable board"
-                    : "Turn on scrollable board",
+            message: game.expandingBoard
+                ? "Turn off scrollable board"
+                : "Turn on scrollable board",
             child: IconButton(
               iconSize: 25,
-              icon:
-                  game.expandingBoard
-                      ? const Icon(Icons.visibility_outlined)
-                      : const Icon(Icons.visibility_off_outlined),
+              icon: game.expandingBoard
+                  ? const Icon(Icons.visibility_outlined)
+                  : const Icon(Icons.visibility_off_outlined),
               onPressed: () {
                 game.toggleExpandingBoardState();
               },
