@@ -1,9 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'wordlist.dart';
 
 //Debug
-const bool cheatMode = false;
+const bool cheatMode = kDebugMode && false;
 
 //Branding
 const String appTitle = "infinitordle";
