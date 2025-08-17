@@ -43,7 +43,10 @@ dependencies:
 
   google_fonts: ^6.1.0
   stroke_text: ^0.0.3
-  
+  google_user:
+    git:
+      url: https://github.com/duncanhawthorne/google_user.git
+      ref: main
   flutter_ios_web_touch_override:
     git:
       url: https://github.com/duncanhawthorne/flutter_ios_web_touch_override.git

@@ -4,11 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_user/google_user.dart';
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
 import 'google/google.dart';
-import 'google/google_user.dart';
 
 class FBase {
   FBase() {
