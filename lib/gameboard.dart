@@ -15,6 +15,8 @@ const int _renderTwoFramesTime =
     33; // so that set state and animations don't happen exactly simultaneously
 const double tau = 2 * pi;
 
+/// Builds the gameboard widget for a specific [boardNumber].
+/// Listens to [expandingBoardNotifier] and [pushUpStepsNotifier] to handle layouts.
 Widget gameboardWidget(int boardNumber) {
   return ValueListenableBuilder<bool>(
     valueListenable: game.expandingBoardNotifier,
@@ -34,6 +36,7 @@ Widget gameboardWidget(int boardNumber) {
   );
 }
 
+/// Internal helper to build the actual board container and gesture detector.
 Widget _gameboardWidgetReal(int boardNumber) {
   final bool expandingBoard = game.expandingBoard;
   final int boardNumberRows = game.gbLiveNumRowsPerBoard;
@@ -58,6 +61,7 @@ Widget _gameboardWidgetReal(int boardNumber) {
   );
 }
 
+/// Builds the grid of cards for the gameboard.
 Widget _gameboardWidgetWithNRows(
   int boardNumber,
   int boardNumberRows,
@@ -94,6 +98,7 @@ Widget _gameboardWidgetWithNRows(
   );
 }
 
+/// Orchestrates listeners for individual cards to trigger animations efficiently.
 Widget _cardFlipperAlts(int abIndex, int boardNumber) {
   final int abRow = abIndex ~/ cols;
   return ValueListenableBuilder<int>(
@@ -114,6 +119,7 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
   );
 }
 
+/// Builds the visual card widget with a slide animation listener.
 Widget _cardBuilder(int abIndex, int boardNumber, bool facingFront) {
   return ValueListenableBuilder<int>(
     valueListenable: game.temporaryVisualOffsetForSlideNotifier,
@@ -123,6 +129,7 @@ Widget _cardBuilder(int abIndex, int boardNumber, bool facingFront) {
   );
 }
 
+/// Handles the 3D flip animation of a card.
 Widget _cardFlipper(int abIndex, int boardNumber) {
   final Widget childFront = _cardBuilder(abIndex, boardNumber, true);
   final Widget childBack = _cardBuilder(abIndex, boardNumber, false);
@@ -145,6 +152,7 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
   );
 }
 
+/// Positioned and scales the card, handling the sliding animation for board shifts.
 Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
   const double shrinkCardScaleDefault = 0.75;
   final double cardSizeDefault = screen.cardLiveMaxPixel; //notionalCardSize;
@@ -197,6 +205,7 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
   );
 }
 
+/// Listens to game state to decide which letter and color to show on a card.
 Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
   final int abRow = abIndex ~/ cols;
 
@@ -219,6 +228,7 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
   );
 }
 
+/// Determines visibility, letter, and colors for a card based on logic and historical state.
 Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   final int abRow = abIndex ~/ cols;
   final int col = abIndex % cols;
@@ -268,6 +278,7 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   return _cardCache[normalHighlighting]![cardLetter]![cardColor]![borderColor]!;
 }
 
+/// Basic card building block with border and background color.
 Widget _card(
   bool normalHighlighting,
   String cardLetter,
@@ -304,6 +315,7 @@ const Color _softAmber = Color(0xffFFCF40);
 const Color _softRed = Color(0xffF55549);
 const Color _offWhite = Color(0xff939393);
 
+/// List of available card colors.
 final List<Color> cardColorsList = <Color>[
   red,
   amber,
@@ -314,8 +326,11 @@ final List<Color> cardColorsList = <Color>[
   _softAmber,
   _softRed,
 ];
+
+/// List of available border colors.
 final List<Color> borderColorsList = <Color>[green, _softGreen, transp];
 
+/// Cache for built card widgets.
 final Map<bool, Map<String, Map<Color, Map<Color, Widget>>>> _cardCache =
     <bool, Map<String, Map<Color, Map<Color, Widget>>>>{
       for (bool normalHighlighting in <bool>[true, false])
@@ -336,6 +351,7 @@ final Map<bool, Map<String, Map<Color, Map<Color, Widget>>>> _cardCache =
         },
     };
 
+/// Creates the text widget for a card's letter.
 Widget _cardTextConst(bool normalHighlighting, String cardLetter) {
   return StrokeText(
     text: cardLetter.toUpperCase(),
@@ -350,6 +366,7 @@ Widget _cardTextConst(bool normalHighlighting, String cardLetter) {
   );
 }
 
+/// Cache for card text widgets.
 final Map<bool, Map<String, Widget>> _cardTextCache =
     <bool, Map<String, Widget>>{
       for (bool normalHighlighting in <bool>[true, false])
@@ -368,6 +385,7 @@ final Map<Color, Color> _softColorMap = <Color, Color>{
   bg: transp,
 };
 
+/// Softens colors for non-highlighted boards.
 Color _soften(int boardNumber, Color color) {
   if (game.isBoardNormalHighlighted(boardNumber) ||
       !_softColorMap.containsKey(color)) {
@@ -382,6 +400,7 @@ int _getABRowFromGBRow(int gbRow) {
   return gbRow + game.pushOffBoardRows;
 }
 
+/// Converts a board-relative row index to an absolute row index.
 int _getGBRowFromABRow(int abRow) {
   return abRow - game.pushOffBoardRows;
 }
@@ -396,11 +415,13 @@ int _getGBIndexFromABIndex(int abIndex) {
   return abIndex - cols * game.pushOffBoardRows;
 }
 
+/// Converts a grid index to an absolute board index.
 int _getABIndexFromRGBIndex(int rGbIndex) {
   return (game.abLiveNumRowsPerBoard - rGbIndex ~/ cols - 1) * cols +
       rGbIndex % cols;
 }
 
+/// Checks if a row is scrolled off the top of the main visible board.
 bool _rowOffTopOfMainBoard(int abRow) {
   return abRow < game.abLiveNumRowsPerBoard - numRowsPerBoard;
 }

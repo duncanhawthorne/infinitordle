@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'game_logic.dart';
 
+/// Manages the colors of cards and keyboard keys based on game state and logic.
 class CardColors {
   CardColors({required this.game});
 
@@ -22,6 +23,7 @@ class CardColors {
   );
   int _getLastCardToConsiderForKeyColorsCache = 0;
 
+  /// Returns the best color (Green > Amber > Grey) for a letter on the keyboard for a specific board.
   Color getBestColorForKeyboardLetter(String letter, int boardNumber) {
     final bool isGlobalCacheInvalid =
         game.getLastCardToConsiderForKeyColors() !=
@@ -65,6 +67,7 @@ class CardColors {
     return keyColorsCacheForBoard[letter]!;
   }
 
+  /// Checks if a letter of a specific color exists on the board within a range of rows.
   bool _cardOnBoardOfColor(
     Color? color,
     String queryLetter,
@@ -84,6 +87,7 @@ class CardColors {
 
   static const List<Color> _cardColorsPriority = <Color>[green, amber, transp];
 
+  /// Internal logic to find the best color for a keyboard letter.
   Color _getBestColorForKeyboardLetterReal(
     String queryLetter,
     int boardNumber,
@@ -113,6 +117,7 @@ class CardColors {
     return grey; //not used yet by the player
   }
 
+  /// Returns the color of a card at [abIndex] for a specific [boardNumber].
   Color getAbCardColor(int abIndex, int boardNumber) {
     if (abIndex >= game.abCurrentRowInt * cols) {
       // Later rows
@@ -135,6 +140,7 @@ class CardColors {
     return _cardColorsCache[boardNumber]![abIndex]![testLetter]!;
   }
 
+  /// Counts how many times [testLetter] appears as a 'Green' (correct spot) match in a row.
   int _countGreenThisLetterThisRow(
     int testAbRow,
     String testLetter,
@@ -150,6 +156,7 @@ class CardColors {
     return numberOfGreenThisLetterInCardRow;
   }
 
+  /// Counts 'Yellow' matches for [testLetter] to the left of [testColumn] in a row.
   int _countYellowToLeftThisLetterThisRow(
     int testAbRow,
     String testLetter,
@@ -167,6 +174,7 @@ class CardColors {
     return numberOfYellowThisLetterToLeftInCardRow;
   }
 
+  /// Determines if a letter that is in the word but wrong column should be colored Amber or Transparent.
   Color _colorForRightLetterWrongColumn(
     int testAbRow,
     String testLetter,
@@ -199,6 +207,7 @@ class CardColors {
         : transp;
   }
 
+  /// Internal logic to calculate the color of a card.
   Color _getAbCardColorReal(int abIndex, int boardNumber) {
     if (abIndex >= game.abCurrentRowInt * cols) {
       return transp; //later rows
@@ -223,4 +232,5 @@ class CardColors {
   }
 }
 
+/// Global instance of [CardColors] to be used across the app.
 final CardColors cardColors = CardColors(game: game);

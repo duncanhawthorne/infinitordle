@@ -10,11 +10,13 @@ import 'package:logging/logging.dart';
 import 'firebase_options.dart';
 import 'google/google.dart';
 
+/// Manages Firebase services, including Firestore for cloud saves and Analytics.
 class FBase {
   FBase() {
     //unawaited(fBase.initialize());
   }
 
+  /// Indicates if Firebase is enabled for the current platform.
   final bool firebaseOn =
       firebaseOnReal &&
       !(defaultTargetPlatform == TargetPlatform.windows && !kIsWeb);
@@ -29,6 +31,7 @@ class FBase {
 
   FirebaseAnalytics? analytics;
 
+  /// Initializes Firebase and its sub-services if [firebaseOn] is true.
   Future<void> initialize() async {
     if (firebaseOn) {
       await Firebase.initializeApp(
@@ -43,6 +46,7 @@ class FBase {
     }
   }
 
+  /// Pushes the current game state to Firebase Firestore for the signed-in user.
   Future<void> firebasePush(G g, dynamic state) async {
     await initialize();
     if (firebaseOn && g.signedIn) {
@@ -55,6 +59,7 @@ class FBase {
     }
   }
 
+  /// Pulls the game state from Firebase Firestore for the signed-in user.
   Future<String> firebasePull(G g) async {
     await initialize();
     String gameEncoded = "";
@@ -71,6 +76,7 @@ class FBase {
     return gameEncoded;
   }
 
+  /// Sets up a real-time listener for changes to the user's game state in Firestore.
   Future<void> firebaseChangeListener(
     String userId, {
     required Function callback,
@@ -98,4 +104,5 @@ class FBase {
   }
 }
 
+/// Global instance of [FBase] to be used across the app.
 final FBase fBase = FBase();

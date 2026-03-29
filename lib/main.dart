@@ -13,6 +13,8 @@ import 'game_logic.dart';
 import 'helper.dart';
 import 'src/workarounds.dart';
 
+/// Entry point of the application.
+/// Initializes services, sets up logging, and runs the main app widget.
 Future<void> main() async {
   //debugRepaintRainbowEnabled = true;
   //debugProfileBuildsEnabled = true;
@@ -38,6 +40,7 @@ Future<void> main() async {
   runApp(const InfinitordleApp());
 }
 
+/// The root widget of the Infinitordle application.
 class InfinitordleApp extends StatelessWidget {
   const InfinitordleApp({super.key});
 
@@ -68,6 +71,7 @@ class InfinitordleApp extends StatelessWidget {
   }
 }
 
+/// Main stateful widget for the game.
 class Infinitordle extends StatefulWidget {
   const Infinitordle({super.key});
 

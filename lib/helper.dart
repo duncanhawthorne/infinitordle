@@ -4,10 +4,12 @@ import 'package:logging/logging.dart';
 
 final Logger _globalLog = Logger('GL');
 
+/// Logs a message [x] to the global logger.
 void logGlobal(dynamic x) {
   _globalLog.info(x);
 }
 
+/// Configures the global logging system, setting levels and output formats.
 void setupGlobalLogger() {
   Logger.root.level = (kDebugMode) ? Level.FINE : Level.INFO;
   //logging.hierarchicalLoggingEnabled = true;

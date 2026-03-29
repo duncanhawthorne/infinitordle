@@ -33,6 +33,7 @@ const int _gradualRevealRowTime =
     gradualRevealDelayTime * (cols - 1) + flipTime;
 final Random _random = Random();
 
+/// Core game logic and state management for Infinitordle.
 class Game extends ValueNotifier<int> {
   Game() : super(0) {
     _userChangeListener();
@@ -107,6 +108,7 @@ class Game extends ValueNotifier<int> {
   final ValueNotifier<int> targetWordsChangedNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> currentRowChangedNotifier = ValueNotifier<int>(0);
 
+  /// Resets the game state and initiates a new board.
   void initiateBoard() {
     _copyTo(_targetWords, _getNewTargetWords(numBoards));
     _copyTo(_enteredWords, <String>[]);
@@ -135,6 +137,7 @@ class Game extends ValueNotifier<int> {
     _stateChange();
   }
 
+  /// Handles user input from the on-screen keyboard.
   void onKeyboardTapped(String letter) {
     _printCheatTargetWords();
 
@@ -179,6 +182,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Processes a legally entered 5-letter word guess.
   void _handleLegalWordEntered() {
     // set some local variable to ensure threadsafe
     final int cardAbRowPreGuessToFix = abCurrentRowInt;
@@ -216,6 +220,7 @@ class Game extends ValueNotifier<int> {
     );
   }
 
+  /// Animates the reveal of a row's colors letter by letter.
   void _gradualRevealAbRow(int abRow) {
     // flip to reveal the colors with pleasing animation
     for (int i = 0; i < cols; i++) {
@@ -240,6 +245,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Handles game flow after a word has been revealed, checking for win or loss.
   Future<void> _handleWinLoseState(
     int cardAbRowPreGuessToFix,
     int winningBoardToFix,
@@ -280,6 +286,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Logic specifically for when a correct word is guessed in infinite mode.
   Future<void> _handleWinningWordEntered(
     int cardAbRowPreGuessToFix,
     int winningBoardToFix,
@@ -304,6 +311,7 @@ class Game extends ValueNotifier<int> {
     );
   }
 
+  /// Visual animation for boards sliding up.
   Future<void> _slideUpAnimation() async {
     //Slide the cards up visually, creating the illusion of stepping up
     temporaryVisualOffsetForSlide = 1;
@@ -322,6 +330,7 @@ class Game extends ValueNotifier<int> {
     await _sleep(_visualCatchUpTime);
   }
 
+  /// Increments state to shift boards up.
   void _takeOneStepBack() {
     // This function is run after a delay so need to make sure threadsafe
     // Use variables at the time word was entered rather than live variables
@@ -330,6 +339,7 @@ class Game extends ValueNotifier<int> {
     //setStateGlobal();
   }
 
+  /// Animates the flipping and resetting of a solved board.
   Future<void> _unflipSwapFlip(
     int cardAbRowPreGuessToFix,
     int winningBoardToFix,
@@ -357,6 +367,7 @@ class Game extends ValueNotifier<int> {
     await _sleep(_visualCatchUpTime);
   }
 
+  /// Records a win and generates a new target word for the board.
   void _logWinAndSetNewWord(
     int winRecordBoardsIndexToFix,
     int winningBoardToFix,
@@ -382,6 +393,7 @@ class Game extends ValueNotifier<int> {
     //setStateGlobal();
   }
 
+  /// Initial state for debugging with cheat mode.
   void _cheatInitiate() {
     // Speed initialise known entries using cheat mode for debugging
     for (int i = 0; i < numBoards; i++) {
@@ -397,6 +409,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Resets the game and saves the new state.
   void resetBoard() {
     _log.info("Reset board");
     initiateBoard();
@@ -407,6 +420,7 @@ class Game extends ValueNotifier<int> {
     _saveToFirebaseAndFilesystem();
   }
 
+  /// Toggles between normal and expanding board layout.
   void toggleExpandingBoardState() {
     if (expandingBoard) {
       expandingBoard = false;
@@ -418,6 +432,7 @@ class Game extends ValueNotifier<int> {
     _stateChange();
   }
 
+  /// Highlights a specific board for focus.
   void toggleHighlightedBoard(int boardNumber) {
     if (highlightedBoard == boardNumber) {
       highlightedBoard = -1; //if already set turn off
@@ -427,6 +442,7 @@ class Game extends ValueNotifier<int> {
     //No need to save as local state
   }
 
+  /// Returns the letter at a specific grid index.
   String getCardLetterAtAbIndex(int abIndex) {
     final int abRow = abIndex ~/ cols;
     final int col = abIndex % cols;
@@ -444,12 +460,14 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Checks if a specific board was won at a specific row index.
   bool getTestHistoricalAbWin(int abRow, int boardNumber) {
     return abRow > 0 &&
         _winRecordBoards.length > abRow &&
         _winRecordBoards[abRow] == boardNumber;
   }
 
+  /// Logic to determine if a streak bonus (jump up) is applicable.
   bool _getReadyForStreakAbRowReal(int abRow) {
     if (abRow < 2) {
       return false;
@@ -462,9 +480,11 @@ class Game extends ValueNotifier<int> {
     return true;
   }
 
+  /// Getter for streak readiness of current row.
   bool get readyForStreakCurrentRow =>
       _getReadyForStreakAbRowReal(abCurrentRowInt);
 
+  /// Checks if a board has been solved within a given number of rows.
   bool getDetectBoardSolvedByABRow(int boardNumber, int maxAbRowToCheck) {
     for (
       int abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
@@ -485,6 +505,7 @@ class Game extends ValueNotifier<int> {
     return false;
   }
 
+  /// Identifies which board (if any) matched the newly entered word.
   int _getWinningBoardFromWordEnteredInAbRow(int cardAbRowPreGuessToFix) {
     int winningBoardToFix = -1;
     for (int board = 0; board < numBoards; board++) {
@@ -496,6 +517,7 @@ class Game extends ValueNotifier<int> {
     return winningBoardToFix;
   }
 
+  /// Loads game state from a JSON encoded string.
   void _loadFromEncodedState(String gameEncoded) {
     if (gameEncoded == "") {
       _log.severe("loadFromEncodedState empty");
@@ -555,6 +577,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Encodes current game state into a JSON string.
   String _getEncodeCurrentGameState() {
     final Map<String, dynamic> gameStateTmp = <String, dynamic>{};
     gameStateTmp["targetWords"] = _targetWords;
@@ -570,6 +593,7 @@ class Game extends ValueNotifier<int> {
     return json.encode(gameStateTmp);
   }
 
+  /// Utility for debug printing target words.
   void _printCheatTargetWords() {
     if (cheatMode) {
       _log.fine(<dynamic>[
@@ -587,6 +611,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Returns the target word for a specific board.
   String getCurrentTargetWordForBoard(int boardNumber) {
     if (boardNumber < _targetWords.length) {
     } else {
@@ -596,6 +621,7 @@ class Game extends ValueNotifier<int> {
     return _targetWords[boardNumber];
   }
 
+  /// Randomly selects a new target word not currently in use or recently guessed.
   String _getNewTargetWord() {
     String newTargetWord = _targetWords[0];
     while (_targetWords.contains(newTargetWord) ||
@@ -606,6 +632,7 @@ class Game extends ValueNotifier<int> {
     return newTargetWord;
   }
 
+  /// Generates initial target words for all boards.
   List<String> _getNewTargetWords(int numberOfBoards) {
     final List<String> starterList = <String>[];
     for (int i = 0; i < numberOfBoards; i++) {
@@ -614,6 +641,7 @@ class Game extends ValueNotifier<int> {
     return starterList;
   }
 
+  /// Returns a list of words that successfully solved boards.
   List<String> getWinWords() {
     final List<String> log = <String>[];
     for (int i = 0; i < _winRecordBoards.length; i++) {
@@ -624,6 +652,7 @@ class Game extends ValueNotifier<int> {
     return log;
   }
 
+  /// Calculates which row index is the first that should be visible for a board.
   int getFirstAbRowToShowOnBoardDueToKnowledge(int boardNumber) {
     if (_firstKnowledge.length != numBoards) {
       _copyTo(_firstKnowledge, _getBlankFirstKnowledge(numBoards));
@@ -639,15 +668,18 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Returns the index of the last card relevant for coloring keys.
   int getLastCardToConsiderForKeyColors() {
     return _enteredWords.length * cols -
         abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
   }
 
+  /// Helper to set card flip angles for flourishing animations.
   void _setAbCardFlourishFlipAngle(int abRow, int column, double value) {
     abCardFlourishFlipAnglesNotifier.set(abRow, column, value);
   }
 
+  /// Resets flourish animation state for all boards.
   void _clearBoardFlourishFlipRows() {
     for (int i = 0; i < boardFlourishFlipRowsNotifiers.length; i++) {
       _setBoardFlourishFlipRow(i, -1);
@@ -656,6 +688,7 @@ class Game extends ValueNotifier<int> {
 
   //setters
 
+  /// Updates current typing state and notifies relevant watchers.
   void _setCurrentTyping(String text) {
     for (int i = 0; i < cols; i++) {
       if (i < text.length) {
@@ -666,6 +699,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Sets flourish flip animation row for a board.
   void _setBoardFlourishFlipRow(int i, int val) {
     boardFlourishFlipRowsNotifiers[i].value = val;
   }
@@ -689,18 +723,22 @@ class Game extends ValueNotifier<int> {
       _winRecordBoards.isNotEmpty &&
       _winRecordBoards[_winRecordBoards.length - 1] == -1;
 
+  /// Checks if a board should be highlighted or dimmed.
   bool isBoardNormalHighlighted(int boardNumber) {
     return highlightedBoard == -1 || highlightedBoard == boardNumber;
   }
 
+  /// Returns currently typed letter at a column.
   String _getCurrentTypingAtCol(int col) {
     return currentTypingNotifiers[col].value;
   }
 
+  /// Returns flourish flip row for a board.
   int getBoardFlourishFlipRow(int i) {
     return boardFlourishFlipRowsNotifiers[i].value;
   }
 
+  /// Triggers update notification for listeners.
   void _stateChange() {
     notifyListeners();
     //notifyListeners(); //setStateGlobal();
@@ -708,6 +746,7 @@ class Game extends ValueNotifier<int> {
 
   final List<String> _recentSnapshotsCache = <String>[];
 
+  /// Loads game state from a Firebase snapshot.
   void loadFirebaseSnapshot(String? snapshotCurrentOrNull) {
     _log.info("loadFirebaseSnapshot");
     if (snapshotCurrentOrNull != null) {
@@ -724,6 +763,7 @@ class Game extends ValueNotifier<int> {
     }
   }
 
+  /// Listens to user auth changes to reload state.
   void _userChangeListener() {
     _loadFromFirebaseOrFilesystem(); //initial
     g.gUserNotifier.addListener(() {
@@ -732,6 +772,7 @@ class Game extends ValueNotifier<int> {
     });
   }
 
+  /// Loads state from either Firebase or local shared preferences.
   Future<void> _loadFromFirebaseOrFilesystem() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String gameEncoded = "";
@@ -746,6 +787,7 @@ class Game extends ValueNotifier<int> {
     _loadFromEncodedState(gameEncoded);
   }
 
+  /// Saves state to local shared preferences and Firebase if possible.
   Future<void> _saveToFirebaseAndFilesystem() async {
     final String gameEncoded = _getEncodeCurrentGameState();
 
@@ -760,8 +802,10 @@ class Game extends ValueNotifier<int> {
   }
 }
 
+/// Global singleton instance of [Game].
 final Game game = Game();
 
+/// Notifier for managing card flip flourish animations.
 class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
   CustomMapNotifier() : super(<int, List<double>>{});
 

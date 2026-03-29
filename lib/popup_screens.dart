@@ -8,10 +8,12 @@ import 'google/google.dart';
 
 FocusNode focusNodePopup = FocusNode();
 
+/// Shows the main settings and status popup screen.
 Future<void> showMainPopupScreen() async {
   await _showMainPopupScreenReal(navigatorKey.currentContext!);
 }
 
+/// Internal helper to build and show the main popup dialog.
 Future<void> _showMainPopupScreenReal(BuildContext context) async {
   return showDialog<void>(
     context: context,
@@ -44,6 +46,7 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
   );
 }
 
+/// Builds the row for signing in/out.
 Widget signInRow(BuildContext context) {
   g.googleLogoutConfirmationFunction = showLogoutConfirmationScreen;
   return ValueListenableBuilder<String>(
@@ -63,6 +66,7 @@ Widget signInRow(BuildContext context) {
   );
 }
 
+/// Builds the Google sign-in widget row.
 Widget googleWidgetRow(BuildContext context) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.end,
@@ -81,6 +85,7 @@ Widget googleWidgetRow(BuildContext context) {
   );
 }
 
+/// Builds the row for resetting the game board.
 Widget resetRow(BuildContext context) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,6 +106,7 @@ Widget resetRow(BuildContext context) {
   );
 }
 
+/// Builds the row for toggling the scrollable board state.
 Widget scrollableBoardRow(BuildContext context) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,6 +135,7 @@ Widget scrollableBoardRow(BuildContext context) {
   );
 }
 
+/// Builds the row showing which words have been won and missed.
 Widget wordsWonRow(BuildContext context) {
   final List<String> winWordsCache = game.getWinWords();
   final int numberWinsCache = winWordsCache.length;
@@ -140,6 +147,7 @@ Widget wordsWonRow(BuildContext context) {
   );
 }
 
+/// Shows a confirmation dialog before resetting the board.
 Future<void> _showResetConfirmationScreen(BuildContext context) async {
   return showDialog<void>(
     context: context,
@@ -172,11 +180,13 @@ Future<void> _showResetConfirmationScreen(BuildContext context) async {
   );
 }
 
+/// Shows a confirmation dialog before logging out.
 void showLogoutConfirmationScreen() {
   _showLogoutConfirmationScreenReal(navigatorKey.currentContext!);
   focusNodePopup.requestFocus();
 }
 
+/// Internal helper to build and show the logout confirmation dialog.
 Future<void> _showLogoutConfirmationScreenReal(BuildContext context) async {
   return showDialog<void>(
     context: context,

@@ -12,10 +12,12 @@ import 'src/workarounds.dart';
 
 FocusNode focusNode = FocusNode();
 
+/// Returns the main widget for the Infinitordle game.
 Widget infinitordleWidget() {
   return _scaffold();
 }
 
+/// Builds the main scaffold of the application, including the AppBar and body.
 Widget _scaffold() {
   return Container(
     decoration: const BoxDecoration(color: bg),
@@ -42,6 +44,7 @@ Widget _scaffold() {
   );
 }
 
+/// Builds the interactive title widget in the AppBar.
 Widget titleWidget() {
   return InkWell(
     onTap: () {
@@ -69,6 +72,7 @@ Widget titleWidget() {
   );
 }
 
+/// Generates the stylized "infinitordle" title text, showing win count via symbols.
 Widget titleWidgetReal() {
   final int numberWinsCache = game.getWinWords().length;
   final String infText =
@@ -98,10 +102,12 @@ Widget titleWidgetReal() {
   );
 }
 
+/// Returns the body widget of the app, wrapped in a keyboard listener.
 Widget bodyWidget() {
   return keyboardListenerWrapper();
 }
 
+/// Wraps the game content to handle physical keyboard events.
 Widget keyboardListenerWrapper() {
   return Focus(
     // https://stackoverflow.com/questions/68333803/flutter-rawkeyboardlistener-triggering-system-sounds-on-macos
@@ -125,6 +131,7 @@ Widget keyboardListenerWrapper() {
   );
 }
 
+/// Lays out the game boards and the on-screen keyboard.
 Widget gameboardAndKeyboard() {
   return Container(
     color: bg,

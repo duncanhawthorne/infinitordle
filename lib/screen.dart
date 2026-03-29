@@ -8,6 +8,7 @@ import 'src/workarounds.dart';
 const double _keyAspectRatioDefault = 1.5;
 const double dividerHeight = 2;
 
+/// A utility class to manage and calculate screen-related dimensions and layout constraints.
 class Screen {
   double appBarHeight = -1;
   double cardLiveMaxPixel = -1;
@@ -24,10 +25,13 @@ class Screen {
   double _horizSpaceForCardNoWrap = -1;
   double _vertSpaceAfterTitle = -1;
 
+  /// Calculates the screen width based on the provided [context].
   double scWCalc(BuildContext context) {
     return MediaQuery.of(context).size.width;
   }
 
+  /// Calculates the available screen height based on the provided [context],
+  /// accounting for system padding and gesture insets.
   double scHCalc(BuildContext context) {
     return MediaQuery.of(context).size.height -
         MediaQuery.of(context).padding.top -
@@ -35,6 +39,7 @@ class Screen {
         gestureInset();
   }
 
+  /// Detects screen size changes and updates internal layout variables.
   void detectAndUpdateForScreenSize(BuildContext context) {
     if (scW != scWCalc(context) || scH != scHCalc(context)) {
       //recalculate these key values for screen size changes
@@ -92,4 +97,5 @@ class Screen {
   }
 }
 
+/// Global instance of [Screen] to be used across the app.
 final Screen screen = Screen();

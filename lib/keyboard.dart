@@ -6,6 +6,9 @@ import 'constants.dart';
 import 'game_logic.dart';
 import 'screen.dart';
 
+/// Builds a row of the on-screen keyboard.
+/// [keyBoardStartKeyIndex] is the starting index in the [keyboardList].
+/// [kbRowLength] is the number of keys in this row.
 Widget keyboardRowWidget(int keyBoardStartKeyIndex, int kbRowLength) {
   return Container(
     constraints: BoxConstraints(
@@ -31,6 +34,7 @@ Widget keyboardRowWidget(int keyBoardStartKeyIndex, int kbRowLength) {
   );
 }
 
+/// Builds an individual key on the keyboard, including its background colors and text/icon.
 Widget _kbKeyStack(String kbLetter, int kbRowLength) {
   return Container(
     padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
@@ -61,6 +65,7 @@ Widget _kbKeyStack(String kbLetter, int kbRowLength) {
   );
 }
 
+/// Returns the icon widget for the backspace key.
 Widget _backspaceKey() {
   return Container(
     padding: const EdgeInsets.all(7),
@@ -68,6 +73,7 @@ Widget _backspaceKey() {
   );
 }
 
+/// Returns the icon widget for the enter key, dynamically changing based on game state.
 Widget _enterKey() {
   return Container(
     padding: const EdgeInsets.all(7),
@@ -89,6 +95,7 @@ Widget _enterKey() {
   );
 }
 
+/// Builds the visual representation of the key's label or icon.
 Widget _kbTextSquare(String kbLetter, int kbRowLength) {
   return SizedBox(
     height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
@@ -108,6 +115,7 @@ Widget _kbTextSquare(String kbLetter, int kbRowLength) {
   );
 }
 
+/// Creates a stroked text widget for a regular letter key.
 Widget _kbRegularTextConst(String kbLetter) {
   return StrokeText(
     text: kbLetter.toUpperCase(),
@@ -121,11 +129,13 @@ Widget _kbRegularTextConst(String kbLetter) {
   );
 }
 
+/// Cache for the regular letter key widgets.
 final Map<String, Widget> _kbRegularTextCache = <String, Widget>{
   for (String kbLetter in keyboardList)
     (kbLetter): _kbRegularTextConst(kbLetter),
 };
 
+/// Builds a mini-grid inside a key to show statuses for multiple boards simultaneously.
 Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
   return ValueListenableBuilder<int>(
     valueListenable: game.highlightedBoardNotifier,
@@ -158,6 +168,7 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
   );
 }
 
+/// Listens to multiple game states to determine the color of a mini-square in a key.
 Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
@@ -172,6 +183,7 @@ Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   );
 }
 
+/// Retrieves the actual color for a mini-square based on the game logic.
 Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {
   final Color color = cardColors.getBestColorForKeyboardLetter(
     kbLetter,
@@ -189,6 +201,7 @@ Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {
   ); //_kbMiniSquareColorCache[color][subIndex];
 }
 
+/// Draws a color-filled box with specific corner radii for the mini-grid in a keyboard key.
 Widget _kbMiniSquareColorRounded(
   Color color,
   int subIndex,
