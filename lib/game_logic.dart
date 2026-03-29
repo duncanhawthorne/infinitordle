@@ -154,7 +154,7 @@ class Game extends ChangeNotifier {
         _setCurrentTyping(
           currentTypingString.substring(0, currentTypingString.length - 1),
         );
-        if (origTyping.length == cols && !_isLegalWord(origTyping)) {
+        if (origTyping.length == cols && illegalFiveLetterWord) {
           illegalFiveLetterWord = false;
         }
       }
@@ -859,26 +859,9 @@ Future<void> _sleep(int delayAfterMult) async {
   await Future<Null>.delayed(Duration(milliseconds: delayAfterMult), () {});
 }
 
-// Memoisation
-class _LegalWord {
-  Map<String, bool> _legalWordCache = <String, bool>{};
-
-  bool call(String word) {
-    if (word.length != cols) {
-      return false;
-    }
-    if (!_legalWordCache.containsKey(word)) {
-      if (_legalWordCache.length > 3) {
-        //reset cache to keep it short
-        _legalWordCache.clear();
-      }
-      _legalWordCache[word] = _legalWordsSet.contains(word);
-    }
-    return _legalWordCache[word]!;
-  }
+bool _isLegalWord(String word) {
+  return word.length == cols && _legalWordsSet.contains(word);
 }
-
-_LegalWord _isLegalWord = _LegalWord();
 
 void _copyTo<T>(List<T> to, List<T> from) {
   to
