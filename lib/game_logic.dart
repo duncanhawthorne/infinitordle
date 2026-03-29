@@ -26,7 +26,7 @@ const List<String> _cheatTargetWordsInitial = <String>[
   "armor",
   "tabby",
 ];
-const List<String> _legalWords = kLegalWordsList;
+const Set<String> _legalWordsSet = <String>{...kLegalWordsList};
 const List<String> _winnableWords = kWinnableWordsList;
 const int _visualCatchUpTime = delayMult * 750;
 const int _gradualRevealRowTime =
@@ -34,15 +34,15 @@ const int _gradualRevealRowTime =
 final Random _random = Random();
 
 /// Core game logic and state management for Infinitordle.
-class Game extends ValueNotifier<int> {
-  Game() : super(0) {
+class Game extends ChangeNotifier {
+  Game() {
     _userChangeListener();
   }
 
   static final Logger _log = Logger('IN');
 
   //getters / setters
-  List<dynamic> get targetWords => _targetWords;
+  List<String> get targetWords => _targetWords;
 
   int get pushUpSteps => pushUpStepsNotifier.value;
 
@@ -540,7 +540,9 @@ class Game extends ValueNotifier<int> {
 
         _copyTo(
           _targetWords,
-          gameTmp["targetWords"] ?? _getNewTargetWords(numBoards),
+          List<String>.from(
+            gameTmp["targetWords"] ?? _getNewTargetWords(numBoards),
+          ),
         );
         targetWordsChangedNotifier.value++;
 
@@ -549,13 +551,21 @@ class Game extends ValueNotifier<int> {
           return;
         }
 
-        _copyTo(_enteredWords, gameTmp["enteredWords"] ?? <String>[]);
+        _copyTo(
+          _enteredWords,
+          List<String>.from(gameTmp["enteredWords"] ?? <String>[]),
+        );
         currentRowChangedNotifier.value++;
 
-        _copyTo(_winRecordBoards, gameTmp["winRecordBoards"] ?? <int>[]);
+        _copyTo(
+          _winRecordBoards,
+          List<int>.from(gameTmp["winRecordBoards"] ?? <int>[]),
+        );
         _copyTo(
           _firstKnowledge,
-          gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards),
+          List<int>.from(
+            gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards),
+          ),
         );
         pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
         expandingBoard = gameTmp["expandingBoard"] ?? false;
@@ -741,7 +751,7 @@ class Game extends ValueNotifier<int> {
   /// Triggers update notification for listeners.
   void _stateChange() {
     notifyListeners();
-    //notifyListeners(); //setStateGlobal();
+    //setStateGlobal();
   }
 
   final List<String> _recentSnapshotsCache = <String>[];
@@ -860,24 +870,18 @@ class _LegalWord {
     if (!_legalWordCache.containsKey(word)) {
       if (_legalWordCache.length > 3) {
         //reset cache to keep it short
-        _legalWordCache = <String, bool>{};
+        _legalWordCache.clear();
       }
-      _legalWordCache[word] = _isListContains(_legalWords, word);
+      _legalWordCache[word] = _legalWordsSet.contains(word);
     }
-    return _legalWordCache[word]!; //null
+    return _legalWordCache[word]!;
   }
 }
 
 _LegalWord _isLegalWord = _LegalWord();
 
-bool _isListContains(List<String> list, String bit) {
-  //sorted list so this is faster than doing contains
-  return binarySearch(list, bit) != -1;
-}
-
-void _copyTo(List<dynamic> to, List<dynamic> from) {
-  to.clear();
-  for (dynamic item in from) {
-    to.add(item);
-  }
+void _copyTo<T>(List<T> to, List<T> from) {
+  to
+    ..clear()
+    ..addAll(from);
 }
