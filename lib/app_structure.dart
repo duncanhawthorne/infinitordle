@@ -77,10 +77,9 @@ Widget titleWidget() {
 /// Generates the stylized "infinitordle" title text, showing win count via symbols.
 Widget titleWidgetReal() {
   final int numberWinsCache = gameS.getWinWords().length;
-  final String infText =
-      numberWinsCache == 0
-          ? "o"
-          : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
+  final String infText = numberWinsCache == 0
+      ? "o"
+      : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
   return RichText(
     text: TextSpan(
       style: TextStyle(
@@ -94,8 +93,9 @@ Widget titleWidgetReal() {
         TextSpan(
           text: infText,
           style: TextStyle(
-            color:
-                numberWinsCache == 0 || gameS.expandingBoardEver ? white : green,
+            color: numberWinsCache == 0 || gameS.expandingBoardEver
+                ? white
+                : green,
           ),
         ),
         const TextSpan(text: appTitle3),
@@ -148,12 +148,12 @@ Widget gameboardAndKeyboard() {
                 return gameE.highlightedBoard != -1
                     //click away to de-highlight all boards
                     ? InkWell(
-                      onTap: () => gameE.toggleHighlightedBoard(-1),
-                      child: SizedBox(
-                        width: screen.scW,
-                        height: screen.fullSizeOfGameboards,
-                      ),
-                    )
+                        onTap: () => gameE.toggleHighlightedBoard(-1),
+                        child: SizedBox(
+                          width: screen.scW,
+                          height: screen.fullSizeOfGameboards,
+                        ),
+                      )
                     : const SizedBox.shrink();
               },
             ),

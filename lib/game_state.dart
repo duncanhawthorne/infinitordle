@@ -30,7 +30,6 @@ final Random _random = Random();
 
 /// Core game state for Infinitordle.
 class GameState extends ChangeNotifier {
-
   GameState() {
     _io = GameIO(onDataLoadedCallback: _loadFromEncodedState);
   }
@@ -431,7 +430,6 @@ class GameState extends ChangeNotifier {
       abCurrentRowInt >= abLiveNumRowsPerBoard &&
       _winRecordBoards.isNotEmpty &&
       _winRecordBoards[_winRecordBoards.length - 1] == -1;
-
 
   /// Triggers update notification for listeners.
   void _stateChange() {

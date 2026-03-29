@@ -400,13 +400,13 @@ Color _soften(int boardNumber, Color color) {
 String _getCardLetter(int abIndex) {
   final int abRow = abIndex ~/ cols;
   final int col = abIndex % cols;
-    if (abRow > gameS.abCurrentRowInt) {
-      return "";
-    } else if (abRow == gameS.abCurrentRowInt) {
-      return gameE.getCurrentTypingAtCol(col);
-    } else {
-      return gameS.getCardLetterAtAbIndex(abIndex);
-    }
+  if (abRow > gameS.abCurrentRowInt) {
+    return "";
+  } else if (abRow == gameS.abCurrentRowInt) {
+    return gameE.getCurrentTypingAtCol(col);
+  } else {
+    return gameS.getCardLetterAtAbIndex(abIndex);
+  }
 }
 
 // ignore: unused_element

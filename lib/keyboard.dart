@@ -43,10 +43,9 @@ Widget _kbKeyStack(String kbLetter, int kbRowLength) {
     child: Stack(
       children: <Widget>[
         Center(
-          child:
-              <String>[kBackspace, kEnter].contains(kbLetter)
-                  ? const SizedBox.shrink()
-                  : _kbMiniGrid(kbLetter, kbRowLength),
+          child: <String>[kBackspace, kEnter].contains(kbLetter)
+              ? const SizedBox.shrink()
+              : _kbMiniGrid(kbLetter, kbRowLength),
         ),
         Center(
           child: Material(
@@ -85,13 +84,13 @@ Widget _enterKey() {
         return gameO.illegalFiveLetterWord
             ? const Icon(Icons.cancel, color: red)
             : ValueListenableBuilder<int>(
-              valueListenable: gameS.currentRowChangedNotifier,
-              builder: (BuildContext context, int value, Widget? child) {
-                return gameS.readyForStreakCurrentRow
-                    ? const Icon(Icons.fast_forward, color: green)
-                    : const Icon(Icons.keyboard_return_sharp, color: white);
-              },
-            );
+                valueListenable: gameS.currentRowChangedNotifier,
+                builder: (BuildContext context, int value, Widget? child) {
+                  return gameS.readyForStreakCurrentRow
+                      ? const Icon(Icons.fast_forward, color: green)
+                      : const Icon(Icons.keyboard_return_sharp, color: white);
+                },
+              );
       },
     ),
   );
@@ -107,12 +106,11 @@ Widget _kbTextSquare(String kbLetter, int kbRowLength) {
         kbRowLength, //double.infinity,
     child: FittedBox(
       fit: BoxFit.fitHeight,
-      child:
-          kbLetter == kBackspace
-              ? _backspaceKey()
-              : kbLetter == kEnter
-              ? _enterKey()
-              : _kbRegularTextCache[kbLetter],
+      child: kbLetter == kBackspace
+          ? _backspaceKey()
+          : kbLetter == kEnter
+          ? _enterKey()
+          : _kbRegularTextCache[kbLetter],
     ),
   );
 }
@@ -149,16 +147,15 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
         shrinkWrap: true,
         itemCount: someBoardHighlighted ? 1 : numBoards,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount:
-              someBoardHighlighted
-                  ? 1
-                  : numBoards ~/ screen.numPresentationBigRowsOfBoards,
+          crossAxisCount: someBoardHighlighted
+              ? 1
+              : numBoards ~/ screen.numPresentationBigRowsOfBoards,
           childAspectRatio:
               (someBoardHighlighted
                   ? 1
                   : 1 /
-                      ((numBoards / screen.numPresentationBigRowsOfBoards) /
-                          screen.numPresentationBigRowsOfBoards)) /
+                        ((numBoards / screen.numPresentationBigRowsOfBoards) /
+                            screen.numPresentationBigRowsOfBoards)) /
               screen.keyAspectRatioLive *
               (10 / kbRowLength),
         ),
@@ -214,26 +211,24 @@ Widget _kbMiniSquareColorRounded(
   return Container(
     decoration: BoxDecoration(
       borderRadius: BorderRadius.only(
-        topLeft:
-            specialHighlighting || subIndex == 0
-                ? Radius.circular(radius)
-                : const Radius.circular(0),
+        topLeft: specialHighlighting || subIndex == 0
+            ? Radius.circular(radius)
+            : const Radius.circular(0),
         topRight:
             specialHighlighting ||
-                    subIndex == 1 && numRows == 2 ||
-                    subIndex == 3 && numRows == 1
-                ? Radius.circular(radius)
-                : const Radius.circular(0),
+                subIndex == 1 && numRows == 2 ||
+                subIndex == 3 && numRows == 1
+            ? Radius.circular(radius)
+            : const Radius.circular(0),
         bottomLeft:
             specialHighlighting ||
-                    subIndex == 2 && numRows == 2 ||
-                    subIndex == 0 && numRows == 1
-                ? Radius.circular(radius)
-                : const Radius.circular(0),
-        bottomRight:
-            specialHighlighting || subIndex == 3
-                ? Radius.circular(radius)
-                : const Radius.circular(0),
+                subIndex == 2 && numRows == 2 ||
+                subIndex == 0 && numRows == 1
+            ? Radius.circular(radius)
+            : const Radius.circular(0),
+        bottomRight: specialHighlighting || subIndex == 3
+            ? Radius.circular(radius)
+            : const Radius.circular(0),
       ),
       color: color,
     ),

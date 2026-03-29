@@ -32,8 +32,8 @@ class CardColors {
         _getLastCardToConsiderForKeyColorsCache;
 
     if (isGlobalCacheInvalid) {
-      _getLastCardToConsiderForKeyColorsCache =
-          gameO.getLastCardToConsiderForKeyColors();
+      _getLastCardToConsiderForKeyColorsCache = gameO
+          .getLastCardToConsiderForKeyColors();
       _keyColorsCache.clear();
     }
 
@@ -184,8 +184,9 @@ class CardColors {
     int testColumn,
     int boardNumber,
   ) {
-    final int numberThisLetterInTargetWord =
-        testLetter.allMatches(targetWord).length;
+    final int numberThisLetterInTargetWord = testLetter
+        .allMatches(targetWord)
+        .length;
 
     final int numberYellowToLeftThisLetterThisRow =
         _countYellowToLeftThisLetterThisRow(
