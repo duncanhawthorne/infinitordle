@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 
 import 'constants.dart';
 import 'game_ephemeral.dart';
+import 'game_io.dart';
 import 'game_state.dart';
 import 'popup_screens.dart';
 import 'wordlist.dart';
@@ -173,7 +174,7 @@ class GameOrchestrator extends ChangeNotifier {
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
       await Future.wait(<Future<void>>[
-        gameS.saveToFirebaseAndFilesystem(),
+        gameI.saveToFirebaseAndFilesystem(),
         showMainPopupScreen(),
       ]);
     } else if (!infMode && isWin) {
@@ -187,7 +188,7 @@ class GameOrchestrator extends ChangeNotifier {
       if (totallySolvedLocal) {
         // Leave the screen as is
       }
-      await gameS.saveToFirebaseAndFilesystem();
+      await gameI.saveToFirebaseAndFilesystem();
     } else if (infMode && isWin) {
       await _handleWinningWordEntered(
         cardAbRowPreGuessToFix,
@@ -195,7 +196,7 @@ class GameOrchestrator extends ChangeNotifier {
         firstKnowledgeToFix,
       );
     } else {
-      await gameS.saveToFirebaseAndFilesystem();
+      await gameI.saveToFirebaseAndFilesystem();
     }
   }
 

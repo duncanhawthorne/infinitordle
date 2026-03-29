@@ -1,15 +1,14 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'card_colors.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
 import 'game_ephemeral.dart';
+import 'game_io.dart';
 import 'google/google.dart';
 import 'wordlist.dart';
 
@@ -32,9 +31,6 @@ final Random _random = Random();
 
 /// Core game state for Infinitordle.
 class GameState extends ChangeNotifier {
-  GameState() {
-    _userChangeListener();
-  }
 
   static final Logger _log = Logger('GS');
 
@@ -136,7 +132,7 @@ class GameState extends ChangeNotifier {
     _targetWords[winningBoardToFix] = _getNewTargetWord();
     targetWordsChangedNotifier.value++;
 
-    saveToFirebaseAndFilesystem();
+    gameI.saveToFirebaseAndFilesystem(); //FIXME shouldn't call gameI
     //setStateGlobal();
   }
 
@@ -164,7 +160,7 @@ class GameState extends ChangeNotifier {
       fBase.analytics!.logLevelStart(levelName: "Reset");
       fBase.analytics!.logLevelUp(level: _enteredWords.length);
     }
-    saveToFirebaseAndFilesystem();
+    gameI.saveToFirebaseAndFilesystem(); //FIXME shouldn't call gameI
   }
 
   /// Toggles between normal and expanding board layout.
@@ -175,7 +171,7 @@ class GameState extends ChangeNotifier {
       expandingBoard = true;
       _expandingBoardEver = true;
     }
-    saveToFirebaseAndFilesystem();
+    gameI.saveToFirebaseAndFilesystem(); //FIXME shouldn't call gameI
     _stateChange();
   }
 
@@ -255,7 +251,7 @@ class GameState extends ChangeNotifier {
   }
 
   /// Loads game state from a JSON encoded string.
-  void _loadFromEncodedState(String gameEncoded) {
+  void loadFromEncodedState(String gameEncoded) {
     if (gameEncoded == "") {
       _log.severe("loadFromEncodedState empty");
       _stateChange();
@@ -319,13 +315,13 @@ class GameState extends ChangeNotifier {
         _log.severe("loadFromEncodedState error $error");
       }
       _gameEncodedLastCache = gameEncoded;
-      saveToFirebaseAndFilesystem();
+      gameI.saveToFirebaseAndFilesystem(); //FIXME shouldn't call gameI
       _stateChange();
     }
   }
 
   /// Encodes current game state into a JSON string.
-  String _getEncodeCurrentGameState() {
+  String getEncodeCurrentGameState() {
     final Map<String, dynamic> gameStateTmp = <String, dynamic>{};
     gameStateTmp["targetWords"] = _targetWords;
     gameStateTmp["gUser"] = g.gUser;
@@ -442,62 +438,6 @@ class GameState extends ChangeNotifier {
     //setStateGlobal();
   }
 
-  final List<String> _recentSnapshotsCache = <String>[];
-
-  /// Loads game state from a Firebase snapshot.
-  void loadFirebaseSnapshot(String? snapshotCurrentOrNull) {
-    _log.info("loadFirebaseSnapshot");
-    if (snapshotCurrentOrNull != null) {
-      final String snapshotCurrent = snapshotCurrentOrNull;
-      if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
-        if (snapshotCurrent != _getEncodeCurrentGameState()) {
-          _loadFromEncodedState(snapshotCurrent);
-        }
-        _recentSnapshotsCache.add(snapshotCurrent);
-        if (_recentSnapshotsCache.length > 5) {
-          _recentSnapshotsCache.removeAt(0);
-        }
-      }
-    }
-  }
-
-  /// Listens to user auth changes to reload state.
-  void _userChangeListener() {
-    _loadFromFirebaseOrFilesystem(); //initial
-    g.gUserNotifier.addListener(() {
-      _loadFromFirebaseOrFilesystem();
-      fBase.firebaseChangeListener(g.gUser, callback: loadFirebaseSnapshot);
-    });
-  }
-
-  /// Loads state from either Firebase or local shared preferences.
-  Future<void> _loadFromFirebaseOrFilesystem() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String gameEncoded = "";
-
-    if (!fBase.firebaseOn || !g.signedIn) {
-      // load from local save
-      gameEncoded = prefs.getString('game') ?? "";
-    } else {
-      // load from firebase
-      gameEncoded = await fBase.firebasePull(g);
-    }
-    _loadFromEncodedState(gameEncoded);
-  }
-
-  /// Saves state to local shared preferences and Firebase if possible.
-  Future<void> saveToFirebaseAndFilesystem() async {
-    final String gameEncoded = _getEncodeCurrentGameState();
-
-    // save locally
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('game', gameEncoded);
-
-    // if possible save to firebase
-    if (fBase.firebaseOn && g.signedIn) {
-      await fBase.firebasePush(g, gameEncoded);
-    }
-  }
 }
 
 /// Global singleton instance of [GameState].
