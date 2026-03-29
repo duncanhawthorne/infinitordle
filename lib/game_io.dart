@@ -2,16 +2,17 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_saves.dart';
-import 'game_state.dart';
 import 'google/google.dart';
 
 /// Core game IO for Infinitordle.
 class GameIO {
-  GameIO() {
+  GameIO({required this.onDataLoadedCallback}) {
     _userChangeListener();
   }
 
-  static final Logger _log = Logger('GS');
+  static final Logger _log = Logger('GI');
+
+  final void Function(String) onDataLoadedCallback;
 
   final List<String> _recentSnapshotsCache = <String>[];
 
@@ -21,7 +22,7 @@ class GameIO {
     if (snapshotCurrentOrNull != null) {
       final String snapshotCurrent = snapshotCurrentOrNull;
       if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
-        gameS.loadFromEncodedState(snapshotCurrent);
+        onDataLoadedCallback.call(snapshotCurrent);
         _recentSnapshotsCache.add(snapshotCurrent);
         if (_recentSnapshotsCache.length > 5) {
           _recentSnapshotsCache.removeAt(0);
@@ -51,7 +52,7 @@ class GameIO {
       // load from firebase
       gameEncoded = await fBase.firebasePull(g);
     }
-    gameS.loadFromEncodedState(gameEncoded);
+    onDataLoadedCallback.call(gameEncoded);
   }
 
   /// Saves state to local shared preferences and Firebase if possible.
@@ -66,6 +67,3 @@ class GameIO {
     }
   }
 }
-
-/// Global singleton instance of [GameIO].
-final GameIO gameI = GameIO();

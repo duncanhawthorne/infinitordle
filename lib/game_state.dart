@@ -30,6 +30,13 @@ final Random _random = Random();
 
 /// Core game state for Infinitordle.
 class GameState extends ChangeNotifier {
+
+  GameState() {
+    _io = GameIO(onDataLoadedCallback: _loadFromEncodedState);
+  }
+
+  late final GameIO _io;
+
   static final Logger _log = Logger('GS');
 
   //getters / setters
@@ -237,7 +244,7 @@ class GameState extends ChangeNotifier {
   }
 
   /// Loads game state from a JSON encoded string.
-  void loadFromEncodedState(String gameEncoded) {
+  void _loadFromEncodedState(String gameEncoded) {
     if (gameEncoded == gameS.getEncodeCurrentGameState()) {
       return;
     }
@@ -326,7 +333,7 @@ class GameState extends ChangeNotifier {
   }
 
   Future<void> saveToFirebaseAndFilesystem() async {
-    await gameI.saveToFirebaseAndFilesystemReal(getEncodeCurrentGameState()); //FIXME shouldn't call gameI
+    await _io.saveToFirebaseAndFilesystemReal(getEncodeCurrentGameState());
   }
 
   /// Utility for debug printing target words.
