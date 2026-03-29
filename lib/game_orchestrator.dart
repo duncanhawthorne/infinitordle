@@ -76,14 +76,10 @@ class GameOrchestrator extends ChangeNotifier {
       //Backspace key
       if (typingPreTap.isNotEmpty) {
         //There is text to delete
-        final String origTyping = typingPreTap.substring(
-          0,
-          typingPreTap.length,
-        );
         gameE.setCurrentTyping(
           typingPreTap.substring(0, typingPreTap.length - 1),
         );
-        if (origTyping.length == cols && illegalFiveLetterWord) {
+        if (illegalFiveLetterWord) {
           illegalFiveLetterWord = false;
         }
       }
@@ -103,7 +99,8 @@ class GameOrchestrator extends ChangeNotifier {
       if (typingPreTap.length < cols) {
         //Space to add extra letter
         gameE.setCurrentTyping(typingPreTap + letter);
-        if (typingPreTap.length == cols && !_isLegalWord(typingPreTap)) {
+        final String typingPostTap = gameE.currentTypingString;
+        if (typingPostTap.length == cols && !_isLegalWord(typingPostTap)) {
           illegalFiveLetterWord = true;
         }
       }
