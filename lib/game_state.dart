@@ -38,9 +38,6 @@ class GameState extends ChangeNotifier {
 
   static final Logger _log = Logger('GS');
 
-  String get currentTypingString =>
-      gameE.currentTypingString;
-
   //getters / setters
   List<String> get targetWords => _targetWords;
 
@@ -67,16 +64,6 @@ class GameState extends ChangeNotifier {
 
   //transitive state
   String _gameEncodedLastCache = "";
-  final CustomMapNotifier abCardFlourishFlipAnglesNotifier =
-      CustomMapNotifier(); //{}.obs;
-  final List<ValueNotifier<int>> boardFlourishFlipRowsNotifiers =
-      List<ValueNotifier<int>>.generate(
-        cols,
-        (int i) => ValueNotifier<int>(100),
-      );
-  final ValueNotifier<bool> illegalFiveLetterWordNotifier = ValueNotifier<bool>(
-    false,
-  );
   final ValueNotifier<int> targetWordsChangedNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> currentRowChangedNotifier = ValueNotifier<int>(0);
 
@@ -101,11 +88,11 @@ class GameState extends ChangeNotifier {
   }
 
   /// Processes a legally entered 5-letter word guess.
-  int handleLegalWordEnteredState() {
+  int handleLegalWordEnteredState(String enteredWord) {
     // set some local variable to ensure threadsafe
-    final int cardAbRowPreGuessToFix = gameS.abCurrentRowInt; //FIXME CALCED TWICE
+    final int cardAbRowPreGuessToFix = abCurrentRowInt; //FIXME CALCED TWICE
 
-    _enteredWords.add(currentTypingString);
+    _enteredWords.add(enteredWord);
     _winRecordBoards.add(-2); //Add now, fix value later
 
     currentRowChangedNotifier.value++;
@@ -360,7 +347,7 @@ class GameState extends ChangeNotifier {
         _targetWords,
         _enteredWords,
         _winRecordBoards,
-        currentTypingString,
+        //currentTypingString,
         _firstKnowledge,
         pushOffBoardRows,
         extraRows,
@@ -427,13 +414,6 @@ class GameState extends ChangeNotifier {
       return 0;
     }
   }
-
-  /// Returns the index of the last card relevant for coloring keys.
-  int getLastCardToConsiderForKeyColors() {
-    return _enteredWords.length * cols -
-        abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
-  }
-
 
   //setters
 
@@ -523,41 +503,7 @@ class GameState extends ChangeNotifier {
 /// Global singleton instance of [GameState].
 final GameState gameS = GameState();
 
-/// Notifier for managing card flip flourish animations.
-class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
-  CustomMapNotifier() : super(<int, List<double>>{});
 
-  int _numberNonZeroItems() {
-    int count = 0;
-    for (int key in value.keys) {
-      for (int i = 0; i < cols; i++) {
-        if (value[key]![i] > 0) {
-          count++;
-        }
-      }
-    }
-    return count;
-  }
-
-  int numberNotYetFlourishFlipped = 0;
-
-  void set(int abRow, int column, double tvalue) {
-    if (!value.containsKey(abRow)) {
-      value[abRow] = List<double>.generate(cols, (int i) => 0.0);
-    }
-    value[abRow]![column] = tvalue;
-    numberNotYetFlourishFlipped = _numberNonZeroItems();
-    notifyListeners();
-  }
-
-  void remove(int key) {
-    if (value.containsKey(key)) {
-      value.remove(key);
-    }
-    numberNotYetFlourishFlipped = _numberNonZeroItems();
-    notifyListeners();
-  }
-}
 
 List<int> _getBlankFirstKnowledge(int numberOfBoards) {
   return List<int>.filled(numberOfBoards, 0);

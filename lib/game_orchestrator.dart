@@ -117,7 +117,9 @@ class GameOrchestrator extends ChangeNotifier {
     final int firstKnowledgeToFix = gameS.extraRows + gameS.pushOffBoardRows;
     final int maxAbRowOfBoard = gameS.abLiveNumRowsPerBoard;
 
-    final int winningBoardToFix = gameS.handleLegalWordEnteredState();
+    final int winningBoardToFix = gameS.handleLegalWordEnteredState(
+      gameE.currentTypingString,
+    );
     final bool isWin = winningBoardToFix != -1; //FIXME CALCED TWICE
     gameE.setCurrentTyping("");
 
@@ -276,6 +278,12 @@ class GameOrchestrator extends ChangeNotifier {
 
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime);
+  }
+
+  /// Returns the index of the last card relevant for coloring keys.
+  int getLastCardToConsiderForKeyColors() {
+    return gameS.abCurrentRowInt * cols -
+        abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
   }
 
   /// Helper to set card flip angles for flourishing animations.
