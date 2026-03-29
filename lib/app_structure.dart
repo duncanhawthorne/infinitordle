@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'constants.dart';
 import 'game_ephemeral.dart';
-import 'game_logic.dart';
+import 'game_state.dart';
 import 'game_orchestrator.dart';
 import 'gameboard.dart';
 import 'keyboard.dart';

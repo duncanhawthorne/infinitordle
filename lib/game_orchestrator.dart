@@ -5,7 +5,7 @@ import 'package:logging/logging.dart';
 
 import 'constants.dart';
 import 'game_ephemeral.dart';
-import 'game_logic.dart';
+import 'game_state.dart';
 import 'popup_screens.dart';
 import 'wordlist.dart';
 

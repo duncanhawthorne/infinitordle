@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'constants.dart';
 import 'game_ephemeral.dart';
-import 'game_logic.dart';
+import 'game_state.dart';
 import 'game_orchestrator.dart';
 
 /// Manages the colors of cards and keyboard keys based on game state and logic.

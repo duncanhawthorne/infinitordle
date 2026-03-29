@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'constants.dart';
-import 'game_logic.dart';
+import 'game_state.dart';
 import 'game_orchestrator.dart';
 
 /// Manages the flip animations and states for cards on the game boards.

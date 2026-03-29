@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
-import 'game_logic.dart';
+import 'game_state.dart';
 import 'google/google.dart';
 
 FocusNode focusNodePopup = FocusNode();
