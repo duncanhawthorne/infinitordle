@@ -1,6 +1,5 @@
 
 
-import 'package:flutter/cupertino.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,7 +8,7 @@ import 'game_state.dart';
 import 'google/google.dart';
 
 /// Core game IO for Infinitordle.
-class GameIO extends ChangeNotifier {
+class GameIO {
   GameIO() {
     _userChangeListener();
   }
