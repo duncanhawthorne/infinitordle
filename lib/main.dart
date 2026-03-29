@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_structure.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
-import 'game_logic.dart';
+import 'game_orchestrator.dart';
 import 'helper.dart';
 import 'src/workarounds.dart';
 

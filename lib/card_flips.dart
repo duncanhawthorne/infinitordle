@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'constants.dart';
 import 'game_logic.dart';
+import 'game_orchestrator.dart';
 
 /// Manages the flip animations and states for cards on the game boards.
 class Flips {
@@ -16,7 +17,7 @@ class Flips {
     final double cardFlipAngle =
         _getPermFlipAngle(abIndex) - _getFlourishFlipAngle(abIndex);
     final double boardFlipAngle =
-        abRow <= game.abCurrentRowInt
+        abRow <= gameS.abCurrentRowInt
             ? _getFlourishBoardFlipAngle(boardNumber)
             : 0;
     return max(0, cardFlipAngle - boardFlipAngle);
@@ -25,7 +26,7 @@ class Flips {
   /// Returns 0.5 (flipped) if the row has been entered, otherwise 0.
   double _getPermFlipAngle(int abIndex) {
     final int abRow = abIndex ~/ cols;
-    return abRow >= game.abCurrentRowInt ? 0 : 0.5;
+    return abRow >= gameS.abCurrentRowInt ? 0 : 0.5;
   }
 
   /// Retrieves the temporary flourish flip angle from the game logic notifier.

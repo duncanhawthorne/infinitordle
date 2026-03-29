@@ -3,7 +3,9 @@ import 'package:stroke_text/stroke_text.dart';
 
 import 'card_colors.dart';
 import 'constants.dart';
+import 'game_ephemeral.dart';
 import 'game_logic.dart';
+import 'game_orchestrator.dart';
 import 'screen.dart';
 
 /// Builds a row of the on-screen keyboard.
@@ -83,9 +85,9 @@ Widget _enterKey() {
         return game.illegalFiveLetterWord
             ? const Icon(Icons.cancel, color: red)
             : ValueListenableBuilder<int>(
-              valueListenable: game.currentRowChangedNotifier,
+              valueListenable: gameS.currentRowChangedNotifier,
               builder: (BuildContext context, int value, Widget? child) {
-                return game.readyForStreakCurrentRow
+                return gameS.readyForStreakCurrentRow
                     ? const Icon(Icons.fast_forward, color: green)
                     : const Icon(Icons.keyboard_return_sharp, color: white);
               },
@@ -138,9 +140,9 @@ final Map<String, Widget> _kbRegularTextCache = <String, Widget>{
 /// Builds a mini-grid inside a key to show statuses for multiple boards simultaneously.
 Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
   return ValueListenableBuilder<int>(
-    valueListenable: game.highlightedBoardNotifier,
+    valueListenable: gameE.highlightedBoardNotifier,
     builder: (BuildContext context, int value, Widget? child) {
-      final bool someBoardHighlighted = game.highlightedBoard != -1;
+      final bool someBoardHighlighted = gameE.highlightedBoard != -1;
       return GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         scrollDirection: Axis.vertical,
@@ -173,8 +175,8 @@ Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
       game,
-      game.pushUpStepsNotifier,
-      game.targetWordsChangedNotifier,
+      gameS.pushUpStepsNotifier,
+      gameS.targetWordsChangedNotifier,
       game.abCardFlourishFlipAnglesNotifier,
     ]),
     builder: (BuildContext context, _) {
@@ -191,7 +193,7 @@ Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {
   );
   final double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
   final int numRows = screen.numPresentationBigRowsOfBoards;
-  final bool specialHighlighting = game.highlightedBoard != -1;
+  final bool specialHighlighting = gameE.highlightedBoard != -1;
   return _kbMiniSquareColorRounded(
     color,
     subIndex,

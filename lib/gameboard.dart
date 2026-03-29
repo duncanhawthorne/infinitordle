@@ -6,7 +6,9 @@ import 'package:stroke_text/stroke_text.dart';
 import 'card_colors.dart';
 import 'card_flips.dart';
 import 'constants.dart';
+import 'game_ephemeral.dart';
 import 'game_logic.dart';
+import 'game_orchestrator.dart';
 import 'screen.dart';
 
 const double _notionalCardSize = 1.0;
@@ -19,12 +21,12 @@ const double tau = 2 * pi;
 /// Listens to [expandingBoardNotifier] and [pushUpStepsNotifier] to handle layouts.
 Widget gameboardWidget(int boardNumber) {
   return ValueListenableBuilder<bool>(
-    valueListenable: game.expandingBoardNotifier,
+    valueListenable: gameS.expandingBoardNotifier,
     builder: (BuildContext context, bool value, Widget? child) {
-      return game.expandingBoard
+      return gameS.expandingBoard
           ? ListenableBuilder(
               listenable: Listenable.merge(<Listenable?>[
-                game.pushUpStepsNotifier,
+                gameS.pushUpStepsNotifier,
                 game,
               ]),
               builder: (BuildContext context, _) {
@@ -38,8 +40,8 @@ Widget gameboardWidget(int boardNumber) {
 
 /// Internal helper to build the actual board container and gesture detector.
 Widget _gameboardWidgetReal(int boardNumber) {
-  final bool expandingBoard = game.expandingBoard;
-  final int boardNumberRows = game.gbLiveNumRowsPerBoard;
+  final bool expandingBoard = gameS.expandingBoard;
+  final int boardNumberRows = gameS.gbLiveNumRowsPerBoard;
   // ignore: sized_box_for_whitespace
   return Container(
     height: numRowsPerBoard * screen.cardLiveMaxPixel, //notionalCardSize,
@@ -49,7 +51,7 @@ Widget _gameboardWidgetReal(int boardNumber) {
       child: InkWell(
         borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
         onTap: () {
-          game.toggleHighlightedBoard(boardNumber);
+          gameE.toggleHighlightedBoard(boardNumber);
         },
         child: _gameboardWidgetWithNRows(
           boardNumber,
@@ -83,10 +85,10 @@ Widget _gameboardWidgetWithNRows(
       crossAxisCount: cols,
     ),
     itemBuilder: (BuildContext context, int rGbIndex) {
-      return game.expandingBoard
+      return gameS.expandingBoard
           ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
           : ValueListenableBuilder<int>(
-              valueListenable: game.pushUpStepsNotifier,
+              valueListenable: gameS.pushUpStepsNotifier,
               builder: (BuildContext context, int value, Widget? child) {
                 return _cardFlipperAlts(
                   _getABIndexFromRGBIndex(rGbIndex),
@@ -102,9 +104,9 @@ Widget _gameboardWidgetWithNRows(
 Widget _cardFlipperAlts(int abIndex, int boardNumber) {
   final int abRow = abIndex ~/ cols;
   return ValueListenableBuilder<int>(
-    valueListenable: game.currentRowChangedNotifier,
+    valueListenable: gameS.currentRowChangedNotifier,
     builder: (BuildContext context, int value, Widget? child) {
-      return abRow > game.abCurrentRowInt
+      return abRow > gameS.abCurrentRowInt
           ? _cardFlipper(abIndex, boardNumber)
           : ListenableBuilder(
               listenable: Listenable.merge(<Listenable?>[
@@ -160,11 +162,11 @@ Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
 
   final int abRow = abIndex ~/ cols;
   final int gbRow = _getGBRowFromABRow(abRow);
-  final bool shouldSlideCard = abRow < game.abCurrentRowInt;
+  final bool shouldSlideCard = abRow < gameS.abCurrentRowInt;
   final bool shouldShrinkCard =
-      game.expandingBoard &&
+      gameS.expandingBoard &&
       abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
-          game.abLiveNumRowsPerBoard - numRowsPerBoard;
+          gameS.abLiveNumRowsPerBoard - numRowsPerBoard;
 
   final double cardScaleFactor = shouldShrinkCard
       ? shrinkCardScaleDefault
@@ -212,13 +214,13 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
       game,
-      game.highlightedBoardNotifier,
-      game.currentRowChangedNotifier,
+      gameE.highlightedBoardNotifier,
+      gameS.currentRowChangedNotifier,
     ]),
     builder: (BuildContext context, _) {
-      return abRow == game.abCurrentRowInt
+      return abRow == gameS.abCurrentRowInt
           ? ValueListenableBuilder<String>(
-              valueListenable: game.currentTypingNotifiers[abIndex % cols],
+              valueListenable: gameE.currentTypingNotifiers[abIndex % cols],
               builder: (BuildContext context, String value, Widget? child) {
                 return _cardChooserRealReal(abIndex, boardNumber, facingFront);
               },
@@ -233,30 +235,30 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   final int abRow = abIndex ~/ cols;
   final int col = abIndex % cols;
   final bool historicalWin =
-      game.getTestHistoricalAbWin(abRow, boardNumber) ||
+      gameS.getTestHistoricalAbWin(abRow, boardNumber) ||
       game.getBoardFlourishFlipRow(boardNumber) != -1 &&
           abRow == game.getBoardFlourishFlipRow(boardNumber);
   final bool justFlippedBackToFront =
       game.getBoardFlourishFlipRow(boardNumber) != -1;
   final bool hideCard =
-      (!infMode && game.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-      abRow < game.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
+      (!infMode && gameS.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
+      abRow < gameS.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
       (_rowOffTopOfMainBoard(abRow) &&
           !facingFront &&
           justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
 
   final String cardLetter =
       abRow ==
-              game.abLiveNumRowsPerBoard -
+              gameS.abLiveNumRowsPerBoard -
                   1 && //code is formatting final row of cards
-          _getGBRowFromABRow(game.abCurrentRowInt) < 0 &&
-          game.currentTypingString.length > col
+          _getGBRowFromABRow(gameS.abCurrentRowInt) < 0 &&
+          gameE.currentTypingString.length > col
       //If need to type while off top of board (unlikely), show on final row
-      ? game.currentTypingString[col]
+      ? gameE.currentTypingString[col]
       : hideCard
       ? ""
-      : game.getCardLetterAtAbIndex(abIndex);
-  final bool normalHighlighting = game.isBoardNormalHighlighted(boardNumber);
+      : gameS.getCardLetterAtAbIndex(abIndex);
+  final bool normalHighlighting = gameE.isBoardNormalHighlighted(boardNumber);
   final Color cardColor = hideCard
       ? transp
       : !facingFront
@@ -387,7 +389,7 @@ final Map<Color, Color> _softColorMap = <Color, Color>{
 
 /// Softens colors for non-highlighted boards.
 Color _soften(int boardNumber, Color color) {
-  if (game.isBoardNormalHighlighted(boardNumber) ||
+  if (gameE.isBoardNormalHighlighted(boardNumber) ||
       !_softColorMap.containsKey(color)) {
     return color;
   } else {
@@ -397,31 +399,31 @@ Color _soften(int boardNumber, Color color) {
 
 // ignore: unused_element
 int _getABRowFromGBRow(int gbRow) {
-  return gbRow + game.pushOffBoardRows;
+  return gbRow + gameS.pushOffBoardRows;
 }
 
 /// Converts a board-relative row index to an absolute row index.
 int _getGBRowFromABRow(int abRow) {
-  return abRow - game.pushOffBoardRows;
+  return abRow - gameS.pushOffBoardRows;
 }
 
 // ignore: unused_element
 int _getABIndexFromGBIndex(int gbIndex) {
-  return gbIndex + cols * game.pushOffBoardRows;
+  return gbIndex + cols * gameS.pushOffBoardRows;
 }
 
 // ignore: unused_element
 int _getGBIndexFromABIndex(int abIndex) {
-  return abIndex - cols * game.pushOffBoardRows;
+  return abIndex - cols * gameS.pushOffBoardRows;
 }
 
 /// Converts a grid index to an absolute board index.
 int _getABIndexFromRGBIndex(int rGbIndex) {
-  return (game.abLiveNumRowsPerBoard - rGbIndex ~/ cols - 1) * cols +
+  return (gameS.abLiveNumRowsPerBoard - rGbIndex ~/ cols - 1) * cols +
       rGbIndex % cols;
 }
 
 /// Checks if a row is scrolled off the top of the main visible board.
 bool _rowOffTopOfMainBoard(int abRow) {
-  return abRow < game.abLiveNumRowsPerBoard - numRowsPerBoard;
+  return abRow < gameS.abLiveNumRowsPerBoard - numRowsPerBoard;
 }

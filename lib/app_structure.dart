@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'constants.dart';
+import 'game_ephemeral.dart';
 import 'game_logic.dart';
+import 'game_orchestrator.dart';
 import 'gameboard.dart';
 import 'keyboard.dart';
 import 'popup_screens.dart';
@@ -60,7 +62,7 @@ Widget titleWidget() {
           child: ListenableBuilder(
             listenable: Listenable.merge(<Listenable?>[
               game,
-              game.targetWordsChangedNotifier,
+              gameS.targetWordsChangedNotifier,
             ]),
             builder: (BuildContext context, _) {
               return titleWidgetReal();
@@ -74,7 +76,7 @@ Widget titleWidget() {
 
 /// Generates the stylized "infinitordle" title text, showing win count via symbols.
 Widget titleWidgetReal() {
-  final int numberWinsCache = game.getWinWords().length;
+  final int numberWinsCache = gameS.getWinWords().length;
   final String infText =
       numberWinsCache == 0
           ? "o"
@@ -93,7 +95,7 @@ Widget titleWidgetReal() {
           text: infText,
           style: TextStyle(
             color:
-                numberWinsCache == 0 || game.expandingBoardEver ? white : green,
+                numberWinsCache == 0 || gameS.expandingBoardEver ? white : green,
           ),
         ),
         const TextSpan(text: appTitle3),
@@ -141,12 +143,12 @@ Widget gameboardAndKeyboard() {
           alignment: Alignment.center,
           children: <Widget>[
             ValueListenableBuilder<int>(
-              valueListenable: game.highlightedBoardNotifier,
+              valueListenable: gameE.highlightedBoardNotifier,
               builder: (BuildContext context, int value, Widget? child) {
-                return game.highlightedBoard != -1
+                return gameE.highlightedBoard != -1
                     //click away to de-highlight all boards
                     ? InkWell(
-                      onTap: () => game.toggleHighlightedBoard(-1),
+                      onTap: () => gameE.toggleHighlightedBoard(-1),
                       child: SizedBox(
                         width: screen.scW,
                         height: screen.fullSizeOfGameboards,

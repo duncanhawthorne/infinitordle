@@ -9,8 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'card_colors.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
+import 'game_ephemeral.dart';
+import 'game_orchestrator.dart';
 import 'google/google.dart';
-import 'popup_screens.dart';
 import 'wordlist.dart';
 
 const List<String> _cheatEnteredWordsInitial = <String>[
@@ -26,20 +27,20 @@ const List<String> _cheatTargetWordsInitial = <String>[
   "armor",
   "tabby",
 ];
-const Set<String> _legalWordsSet = <String>{...kLegalWordsList};
 const List<String> _winnableWords = kWinnableWordsList;
-const int _visualCatchUpTime = delayMult * 750;
-const int _gradualRevealRowTime =
-    gradualRevealDelayTime * (cols - 1) + flipTime;
+
 final Random _random = Random();
 
 /// Core game logic and state management for Infinitordle.
-class Game extends ChangeNotifier {
-  Game() {
+class GameState extends ChangeNotifier {
+  GameState() {
     _userChangeListener();
   }
 
-  static final Logger _log = Logger('IN');
+  static final Logger _log = Logger('GS');
+
+  String get currentTypingString =>
+      gameE.currentTypingString;
 
   //getters / setters
   List<String> get targetWords => _targetWords;
@@ -54,25 +55,6 @@ class Game extends ChangeNotifier {
 
   bool get expandingBoardEver => _expandingBoardEver;
 
-  String get currentTypingString => currentTypingNotifiers
-      .map((ValueNotifier<String> element) => element.value)
-      .reduce((String value, String element) => value + element);
-
-  int get highlightedBoard => highlightedBoardNotifier.value;
-
-  set highlightedBoard(int value) => highlightedBoardNotifier.value = value;
-
-  int get temporaryVisualOffsetForSlide =>
-      temporaryVisualOffsetForSlideNotifier.value;
-
-  set temporaryVisualOffsetForSlide(int value) =>
-      temporaryVisualOffsetForSlideNotifier.value = value;
-
-  bool get illegalFiveLetterWord => illegalFiveLetterWordNotifier.value;
-
-  set illegalFiveLetterWord(bool tf) =>
-      illegalFiveLetterWordNotifier.value = tf;
-
   //State to save
   final List<String> _targetWords = <String>["x"];
   final List<String> _enteredWords = <String>["x"];
@@ -83,17 +65,8 @@ class Game extends ChangeNotifier {
   ValueNotifier<bool> expandingBoardNotifier = ValueNotifier<bool>(false);
   bool _expandingBoardEver = false;
 
-  //Other state non-saved
-  final List<ValueNotifier<String>> currentTypingNotifiers =
-      List<ValueNotifier<String>>.generate(
-        cols,
-        (int i) => ValueNotifier<String>(""),
-      );
-  final ValueNotifier<int> highlightedBoardNotifier = ValueNotifier<int>(0);
 
   //transitive state
-  final ValueNotifier<int> temporaryVisualOffsetForSlideNotifier =
-      ValueNotifier<int>(0);
   String _gameEncodedLastCache = "";
   final CustomMapNotifier abCardFlourishFlipAnglesNotifier =
       CustomMapNotifier(); //{}.obs;
@@ -109,7 +82,7 @@ class Game extends ChangeNotifier {
   final ValueNotifier<int> currentRowChangedNotifier = ValueNotifier<int>(0);
 
   /// Resets the game state and initiates a new board.
-  void initiateBoard() {
+  void initiateBoardState() {
     _copyTo(_targetWords, _getNewTargetWords(numBoards));
     _copyTo(_enteredWords, <String>[]);
     _copyTo(_winRecordBoards, <int>[]);
@@ -118,16 +91,7 @@ class Game extends ChangeNotifier {
     expandingBoard = false;
     _expandingBoardEver = false;
 
-    _setCurrentTyping("");
-    highlightedBoard = -1;
-
-    temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
-    for (int item in abCardFlourishFlipAnglesNotifier.value.keys) {
-      abCardFlourishFlipAnglesNotifier.remove(item);
-    }
-    _clearBoardFlourishFlipRows();
-    illegalFiveLetterWord = false;
     targetWordsChangedNotifier.value++;
     currentRowChangedNotifier.value++;
 
@@ -137,61 +101,14 @@ class Game extends ChangeNotifier {
     _stateChange();
   }
 
-  /// Handles user input from the on-screen keyboard.
-  void onKeyboardTapped(String letter) {
-    _printCheatTargetWords();
-
-    if (letter == kNonKey) {
-      //Ignore pressing of non-keys
-    } else if (letter == kBackspace) {
-      //Backspace key
-      if (currentTypingString.isNotEmpty) {
-        //There is text to delete
-        final String origTyping = currentTypingString.substring(
-          0,
-          currentTypingString.length,
-        );
-        _setCurrentTyping(
-          currentTypingString.substring(0, currentTypingString.length - 1),
-        );
-        if (origTyping.length == cols && illegalFiveLetterWord) {
-          illegalFiveLetterWord = false;
-        }
-      }
-    } else if (letter == kEnter) {
-      //Submit guess
-      if (currentTypingString.length == cols) {
-        //Full word entered, so can submit
-        if (_isLegalWord(currentTypingString) &&
-            abCurrentRowInt < abLiveNumRowsPerBoard) {
-          //Legal word so can enter the word
-          //Note, not necessarily correct word
-          _handleLegalWordEntered();
-        }
-      }
-    } else {
-      //pressing regular letter key
-      if (currentTypingString.length < cols) {
-        //Space to add extra letter
-        _setCurrentTyping(currentTypingString + letter);
-        if (currentTypingString.length == cols &&
-            !_isLegalWord(currentTypingString)) {
-          illegalFiveLetterWord = true;
-        }
-      }
-    }
-  }
-
   /// Processes a legally entered 5-letter word guess.
-  void _handleLegalWordEntered() {
+  int handleLegalWordEnteredState() {
     // set some local variable to ensure threadsafe
-    final int cardAbRowPreGuessToFix = abCurrentRowInt;
-    final int firstKnowledgeToFix = extraRows + pushOffBoardRows;
-    final int maxAbRowOfBoard = abLiveNumRowsPerBoard;
+    final int cardAbRowPreGuessToFix = gameS.abCurrentRowInt; //FIXME CALCED TWICE
 
     _enteredWords.add(currentTypingString);
-    _setCurrentTyping("");
     _winRecordBoards.add(-2); //Add now, fix value later
+
     currentRowChangedNotifier.value++;
     if (fBase.fbAnalytics) {
       fBase.analytics!.logLevelUp(level: _enteredWords.length);
@@ -201,174 +118,18 @@ class Game extends ChangeNotifier {
     final int winningBoardToFix = _getWinningBoardFromWordEnteredInAbRow(
       cardAbRowPreGuessToFix,
     );
-    final bool isWin = winningBoardToFix != -1;
+    final bool isWin = winningBoardToFix != -1; //FIXME CALCED TWICE
 
     if (!isWin) {
       _winRecordBoards[cardAbRowPreGuessToFix] = -1; //Confirm no win
     }
 
-    //save.saveKeys();
-    //setStateGlobal(); //non-ephemeral state change, so needs setState
-
-    _gradualRevealAbRow(cardAbRowPreGuessToFix);
-    _handleWinLoseState(
-      cardAbRowPreGuessToFix,
-      winningBoardToFix,
-      firstKnowledgeToFix,
-      isWin,
-      maxAbRowOfBoard,
-    );
+    return winningBoardToFix;
   }
 
-  /// Animates the reveal of a row's colors letter by letter.
-  void _gradualRevealAbRow(int abRow) {
-    // flip to reveal the colors with pleasing animation
-    for (int i = 0; i < cols; i++) {
-      _setAbCardFlourishFlipAngle(abRow, i, 0.5);
-    }
-    //setStateGlobal();
-    for (int i = 0; i < cols; i++) {
-      Future<Null>.delayed(
-        Duration(milliseconds: gradualRevealDelayTime * i),
-        () {
-          _setAbCardFlourishFlipAngle(abRow, i, 0.0);
-          if (i == cols - 1) {
-            if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
-              // Due to delays check still exists before remove
-              abCardFlourishFlipAnglesNotifier.remove(abRow);
-              //setStateGlobal(); //needed to refresh keyboard
-            }
-          }
-          //setStateGlobal();
-        },
-      );
-    }
-  }
-
-  /// Handles game flow after a word has been revealed, checking for win or loss.
-  Future<void> _handleWinLoseState(
-    int cardAbRowPreGuessToFix,
-    int winningBoardToFix,
-    int firstKnowledgeToFix,
-    bool isWin,
-    int maxAbRowOfBoard,
-  ) async {
-    //Delay for visual changes to have taken effect
-    await _sleep(_gradualRevealRowTime + _visualCatchUpTime);
-
-    //Code for losing game
-    if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
-      //All rows full, game over
-      await Future.wait(<Future<void>>[
-        _saveToFirebaseAndFilesystem(),
-        showMainPopupScreen(),
-      ]);
-    } else if (!infMode && isWin) {
-      //Code for totally winning game across all boards
-      bool totallySolvedLocal = true;
-      for (int i = 0; i < numBoards; i++) {
-        if (!getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
-          totallySolvedLocal = false;
-        }
-      }
-      if (totallySolvedLocal) {
-        // Leave the screen as is
-      }
-      await _saveToFirebaseAndFilesystem();
-    } else if (infMode && isWin) {
-      await _handleWinningWordEntered(
-        cardAbRowPreGuessToFix,
-        winningBoardToFix,
-        firstKnowledgeToFix,
-      );
-    } else {
-      await _saveToFirebaseAndFilesystem();
-    }
-  }
-
-  /// Logic specifically for when a correct word is guessed in infinite mode.
-  Future<void> _handleWinningWordEntered(
-    int cardAbRowPreGuessToFix,
-    int winningBoardToFix,
-    int firstKnowledgeToFix,
-  ) async {
-    //Slide up and increment firstKnowledge
-    await _slideUpAnimation();
-    firstKnowledgeToFix++;
-
-    if (_getReadyForStreakAbRowReal(cardAbRowPreGuessToFix)) {
-      // Streak, so need to take another step back
-
-      //Slide up and increment firstKnowledge
-      await _slideUpAnimation();
-      firstKnowledgeToFix++;
-    }
-
-    await _unflipSwapFlip(
-      cardAbRowPreGuessToFix,
-      winningBoardToFix,
-      firstKnowledgeToFix,
-    );
-  }
-
-  /// Visual animation for boards sliding up.
-  Future<void> _slideUpAnimation() async {
-    //Slide the cards up visually, creating the illusion of stepping up
-    temporaryVisualOffsetForSlide = 1;
-    //setStateGlobal();
-
-    // Delay for sliding cards up to have taken effect
-    await _sleep(slideTime);
-
-    // Undo the visual slide (and do this instantaneously)
-    temporaryVisualOffsetForSlide = 0;
-
-    // Actually move the cards up, so state matches visual illusion above
-    _takeOneStepBack();
-
-    // Pause, so can temporarily see new position
-    await _sleep(_visualCatchUpTime);
-  }
-
-  /// Increments state to shift boards up.
-  void _takeOneStepBack() {
-    // This function is run after a delay so need to make sure threadsafe
-    // Use variables at the time word was entered rather than live variables
-    pushUpSteps++;
-    //save.saveKeys();
-    //setStateGlobal();
-  }
-
-  /// Animates the flipping and resetting of a solved board.
-  Future<void> _unflipSwapFlip(
-    int cardAbRowPreGuessToFix,
-    int winningBoardToFix,
-    int firstKnowledgeToFix,
-  ) async {
-    //unflip
-    _setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
-    //setStateGlobal();
-    await _sleep(flipTime);
-    await _sleep(_visualCatchUpTime - flipTime);
-
-    // Log the win officially, and get a new word
-    _logWinAndSetNewWord(
-      cardAbRowPreGuessToFix,
-      winningBoardToFix,
-      firstKnowledgeToFix,
-    );
-
-    _stateChange();
-
-    //flip
-    _setBoardFlourishFlipRow(winningBoardToFix, -1);
-
-    await _sleep(flipTime);
-    await _sleep(_visualCatchUpTime);
-  }
 
   /// Records a win and generates a new target word for the board.
-  void _logWinAndSetNewWord(
+  void logWinAndSetNewWord(
     int winRecordBoardsIndexToFix,
     int winningBoardToFix,
     int firstKnowledgeToFix,
@@ -389,7 +150,7 @@ class Game extends ChangeNotifier {
     _targetWords[winningBoardToFix] = _getNewTargetWord();
     targetWordsChangedNotifier.value++;
 
-    _saveToFirebaseAndFilesystem();
+    saveToFirebaseAndFilesystem();
     //setStateGlobal();
   }
 
@@ -412,12 +173,12 @@ class Game extends ChangeNotifier {
   /// Resets the game and saves the new state.
   void resetBoard() {
     _log.info("Reset board");
-    initiateBoard();
+    initiateBoardState();
     if (fBase.fbAnalytics) {
       fBase.analytics!.logLevelStart(levelName: "Reset");
       fBase.analytics!.logLevelUp(level: _enteredWords.length);
     }
-    _saveToFirebaseAndFilesystem();
+    saveToFirebaseAndFilesystem();
   }
 
   /// Toggles between normal and expanding board layout.
@@ -428,18 +189,8 @@ class Game extends ChangeNotifier {
       expandingBoard = true;
       _expandingBoardEver = true;
     }
-    _saveToFirebaseAndFilesystem();
+    saveToFirebaseAndFilesystem();
     _stateChange();
-  }
-
-  /// Highlights a specific board for focus.
-  void toggleHighlightedBoard(int boardNumber) {
-    if (highlightedBoard == boardNumber) {
-      highlightedBoard = -1; //if already set turn off
-    } else {
-      highlightedBoard = boardNumber;
-    }
-    //No need to save as local state
   }
 
   /// Returns the letter at a specific grid index.
@@ -450,7 +201,7 @@ class Game extends ChangeNotifier {
       if (abRow > abCurrentRowInt) {
         return "";
       } else if (abRow == abCurrentRowInt) {
-        return _getCurrentTypingAtCol(col);
+        return gameE.getCurrentTypingAtCol(col);
       } else {
         return _enteredWords[abRow][col];
       }
@@ -468,7 +219,7 @@ class Game extends ChangeNotifier {
   }
 
   /// Logic to determine if a streak bonus (jump up) is applicable.
-  bool _getReadyForStreakAbRowReal(int abRow) {
+  bool getReadyForStreakAbRowReal(int abRow) {
     if (abRow < 2) {
       return false;
     }
@@ -482,7 +233,7 @@ class Game extends ChangeNotifier {
 
   /// Getter for streak readiness of current row.
   bool get readyForStreakCurrentRow =>
-      _getReadyForStreakAbRowReal(abCurrentRowInt);
+      getReadyForStreakAbRowReal(abCurrentRowInt);
 
   /// Checks if a board has been solved within a given number of rows.
   bool getDetectBoardSolvedByABRow(int boardNumber, int maxAbRowToCheck) {
@@ -582,7 +333,7 @@ class Game extends ChangeNotifier {
         _log.severe("loadFromEncodedState error $error");
       }
       _gameEncodedLastCache = gameEncoded;
-      _saveToFirebaseAndFilesystem();
+      saveToFirebaseAndFilesystem();
       _stateChange();
     }
   }
@@ -604,7 +355,7 @@ class Game extends ChangeNotifier {
   }
 
   /// Utility for debug printing target words.
-  void _printCheatTargetWords() {
+  void printCheatTargetWords() {
     if (cheatMode) {
       _log.fine(<dynamic>[
         _targetWords,
@@ -684,35 +435,8 @@ class Game extends ChangeNotifier {
         abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
   }
 
-  /// Helper to set card flip angles for flourishing animations.
-  void _setAbCardFlourishFlipAngle(int abRow, int column, double value) {
-    abCardFlourishFlipAnglesNotifier.set(abRow, column, value);
-  }
-
-  /// Resets flourish animation state for all boards.
-  void _clearBoardFlourishFlipRows() {
-    for (int i = 0; i < boardFlourishFlipRowsNotifiers.length; i++) {
-      _setBoardFlourishFlipRow(i, -1);
-    }
-  }
 
   //setters
-
-  /// Updates current typing state and notifies relevant watchers.
-  void _setCurrentTyping(String text) {
-    for (int i = 0; i < cols; i++) {
-      if (i < text.length) {
-        currentTypingNotifiers[i].value = text.substring(i, i + 1);
-      } else {
-        currentTypingNotifiers[i].value = "";
-      }
-    }
-  }
-
-  /// Sets flourish flip animation row for a board.
-  void _setBoardFlourishFlipRow(int i, int val) {
-    boardFlourishFlipRowsNotifiers[i].value = val;
-  }
 
   //getters
 
@@ -732,21 +456,6 @@ class Game extends ChangeNotifier {
       abCurrentRowInt >= abLiveNumRowsPerBoard &&
       _winRecordBoards.isNotEmpty &&
       _winRecordBoards[_winRecordBoards.length - 1] == -1;
-
-  /// Checks if a board should be highlighted or dimmed.
-  bool isBoardNormalHighlighted(int boardNumber) {
-    return highlightedBoard == -1 || highlightedBoard == boardNumber;
-  }
-
-  /// Returns currently typed letter at a column.
-  String _getCurrentTypingAtCol(int col) {
-    return currentTypingNotifiers[col].value;
-  }
-
-  /// Returns flourish flip row for a board.
-  int getBoardFlourishFlipRow(int i) {
-    return boardFlourishFlipRowsNotifiers[i].value;
-  }
 
   /// Triggers update notification for listeners.
   void _stateChange() {
@@ -798,7 +507,7 @@ class Game extends ChangeNotifier {
   }
 
   /// Saves state to local shared preferences and Firebase if possible.
-  Future<void> _saveToFirebaseAndFilesystem() async {
+  Future<void> saveToFirebaseAndFilesystem() async {
     final String gameEncoded = _getEncodeCurrentGameState();
 
     // save locally
@@ -813,7 +522,7 @@ class Game extends ChangeNotifier {
 }
 
 /// Global singleton instance of [Game].
-final Game game = Game();
+final GameState gameS = GameState();
 
 /// Notifier for managing card flip flourish animations.
 class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
@@ -853,14 +562,6 @@ class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
 
 List<int> _getBlankFirstKnowledge(int numberOfBoards) {
   return List<int>.filled(numberOfBoards, 0);
-}
-
-Future<void> _sleep(int delayAfterMult) async {
-  await Future<Null>.delayed(Duration(milliseconds: delayAfterMult), () {});
-}
-
-bool _isLegalWord(String word) {
-  return word.length == cols && _legalWordsSet.contains(word);
 }
 
 void _copyTo<T>(List<T> to, List<T> from) {
