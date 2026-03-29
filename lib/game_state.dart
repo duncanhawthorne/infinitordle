@@ -7,7 +7,6 @@ import 'package:logging/logging.dart';
 import 'card_colors.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
-import 'game_ephemeral.dart';
 import 'game_io.dart';
 import 'google/google.dart';
 import 'wordlist.dart';
@@ -31,7 +30,6 @@ final Random _random = Random();
 
 /// Core game state for Infinitordle.
 class GameState extends ChangeNotifier {
-
   static final Logger _log = Logger('GS');
 
   //getters / setters
@@ -56,7 +54,6 @@ class GameState extends ChangeNotifier {
   final ValueNotifier<int> pushUpStepsNotifier = ValueNotifier<int>(-1);
   ValueNotifier<bool> expandingBoardNotifier = ValueNotifier<bool>(false);
   bool _expandingBoardEver = false;
-
 
   //transitive state
   String _gameEncodedLastCache = "";
@@ -108,7 +105,6 @@ class GameState extends ChangeNotifier {
 
     return winningBoardToFix;
   }
-
 
   /// Records a win and generates a new target word for the board.
   void logWinAndSetNewWord(
@@ -179,18 +175,8 @@ class GameState extends ChangeNotifier {
   String getCardLetterAtAbIndex(int abIndex) {
     final int abRow = abIndex ~/ cols;
     final int col = abIndex % cols;
-    try {
-      if (abRow > abCurrentRowInt) {
-        return "";
-      } else if (abRow == abCurrentRowInt) {
-        return gameE.getCurrentTypingAtCol(col); //FIXME shouldn't ref [gameE]
-      } else {
-        return _enteredWords[abRow][col];
-      }
-    } catch (e) {
-      _log.severe("Crash getCardLetterAtAbIndex $abIndex $e");
-      return "";
-    }
+    assert(abRow < abCurrentRowInt);
+    return _enteredWords[abRow][col];
   }
 
   /// Checks if a specific board was won at a specific row index.
@@ -437,13 +423,10 @@ class GameState extends ChangeNotifier {
     notifyListeners();
     //setStateGlobal();
   }
-
 }
 
 /// Global singleton instance of [GameState].
 final GameState gameS = GameState();
-
-
 
 List<int> _getBlankFirstKnowledge(int numberOfBoards) {
   return List<int>.filled(numberOfBoards, 0);

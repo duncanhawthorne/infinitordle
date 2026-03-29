@@ -257,7 +257,7 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
       ? gameE.currentTypingString[col]
       : hideCard
       ? ""
-      : gameS.getCardLetterAtAbIndex(abIndex);
+      : _getCardLetter(abIndex);
   final bool normalHighlighting = gameE.isBoardNormalHighlighted(boardNumber);
   final Color cardColor = hideCard
       ? transp
@@ -395,6 +395,18 @@ Color _soften(int boardNumber, Color color) {
   } else {
     return _softColorMap[color]!;
   }
+}
+
+String _getCardLetter(int abIndex) {
+  final int abRow = abIndex ~/ cols;
+  final int col = abIndex % cols;
+    if (abRow > gameS.abCurrentRowInt) {
+      return "";
+    } else if (abRow == gameS.abCurrentRowInt) {
+      return gameE.getCurrentTypingAtCol(col);
+    } else {
+      return gameS.getCardLetterAtAbIndex(abIndex);
+    }
 }
 
 // ignore: unused_element
