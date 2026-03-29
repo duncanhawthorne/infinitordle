@@ -1,5 +1,3 @@
-
-
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,9 +21,7 @@ class GameIO {
     if (snapshotCurrentOrNull != null) {
       final String snapshotCurrent = snapshotCurrentOrNull;
       if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
-        if (snapshotCurrent != gameS.getEncodeCurrentGameState()) {
-          gameS.loadFromEncodedState(snapshotCurrent);
-        }
+        gameS.loadFromEncodedState(snapshotCurrent);
         _recentSnapshotsCache.add(snapshotCurrent);
         if (_recentSnapshotsCache.length > 5) {
           _recentSnapshotsCache.removeAt(0);
@@ -59,9 +55,7 @@ class GameIO {
   }
 
   /// Saves state to local shared preferences and Firebase if possible.
-  Future<void> saveToFirebaseAndFilesystem() async {
-    final String gameEncoded = gameS.getEncodeCurrentGameState();
-
+  Future<void> saveToFirebaseAndFilesystemReal(String gameEncoded) async {
     // save locally
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('game', gameEncoded);
@@ -71,7 +65,6 @@ class GameIO {
       await fBase.firebasePush(g, gameEncoded);
     }
   }
-
 }
 
 /// Global singleton instance of [GameIO].

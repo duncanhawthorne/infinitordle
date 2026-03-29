@@ -128,7 +128,7 @@ class GameState extends ChangeNotifier {
     _targetWords[winningBoardToFix] = _getNewTargetWord();
     targetWordsChangedNotifier.value++;
 
-    gameI.saveToFirebaseAndFilesystem(); //FIXME shouldn't call gameI
+    saveToFirebaseAndFilesystem();
     //setStateGlobal();
   }
 
@@ -156,7 +156,7 @@ class GameState extends ChangeNotifier {
       fBase.analytics!.logLevelStart(levelName: "Reset");
       fBase.analytics!.logLevelUp(level: _enteredWords.length);
     }
-    gameI.saveToFirebaseAndFilesystem(); //FIXME shouldn't call gameI
+    saveToFirebaseAndFilesystem();
   }
 
   /// Toggles between normal and expanding board layout.
@@ -167,7 +167,7 @@ class GameState extends ChangeNotifier {
       expandingBoard = true;
       _expandingBoardEver = true;
     }
-    gameI.saveToFirebaseAndFilesystem(); //FIXME shouldn't call gameI
+    saveToFirebaseAndFilesystem();
     _stateChange();
   }
 
@@ -238,6 +238,9 @@ class GameState extends ChangeNotifier {
 
   /// Loads game state from a JSON encoded string.
   void loadFromEncodedState(String gameEncoded) {
+    if (gameEncoded == gameS.getEncodeCurrentGameState()) {
+      return;
+    }
     if (gameEncoded == "") {
       _log.severe("loadFromEncodedState empty");
       _stateChange();
@@ -301,7 +304,7 @@ class GameState extends ChangeNotifier {
         _log.severe("loadFromEncodedState error $error");
       }
       _gameEncodedLastCache = gameEncoded;
-      gameI.saveToFirebaseAndFilesystem(); //FIXME shouldn't call gameI
+      saveToFirebaseAndFilesystem();
       _stateChange();
     }
   }
@@ -320,6 +323,10 @@ class GameState extends ChangeNotifier {
     gameStateTmp["expandingBoardEver"] = _expandingBoardEver;
 
     return json.encode(gameStateTmp);
+  }
+
+  Future<void> saveToFirebaseAndFilesystem() async {
+    await gameI.saveToFirebaseAndFilesystemReal(getEncodeCurrentGameState()); //FIXME shouldn't call gameI
   }
 
   /// Utility for debug printing target words.
@@ -417,6 +424,7 @@ class GameState extends ChangeNotifier {
       abCurrentRowInt >= abLiveNumRowsPerBoard &&
       _winRecordBoards.isNotEmpty &&
       _winRecordBoards[_winRecordBoards.length - 1] == -1;
+
 
   /// Triggers update notification for listeners.
   void _stateChange() {
