@@ -83,7 +83,7 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   void initState() {
     super.initState();
-    game.initiateBoard();
+    gameO.initiateBoard();
   }
 
   @override

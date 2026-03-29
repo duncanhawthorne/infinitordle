@@ -15,9 +15,9 @@ const int _visualCatchUpTime = delayMult * 750;
 const int _gradualRevealRowTime =
     gradualRevealDelayTime * (cols - 1) + flipTime;
 
-/// Core game logic and state management for Infinitordle.
-class Game extends ChangeNotifier {
-  Game();
+/// Game orchestrator for Infinitordle.
+class GameOrchestrator extends ChangeNotifier {
+  GameOrchestrator();
 
   // ignore: unused_field
   static final Logger _log = Logger('OR');
@@ -52,7 +52,7 @@ class Game extends ChangeNotifier {
   void initiateBoard() {
     gameS.initiateBoardState();
 
-    gameE.initiateBoardEmphemeral();
+    gameE.initiateBoardEphemeral();
 
     temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
@@ -309,8 +309,8 @@ class Game extends ChangeNotifier {
   }
 }
 
-/// Global singleton instance of [Game].
-final Game game = Game();
+/// Global singleton instance of [GameOrchestrator].
+final GameOrchestrator gameO = GameOrchestrator();
 
 /// Notifier for managing card flip flourish animations.
 class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {

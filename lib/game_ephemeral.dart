@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 
 import 'constants.dart';
 
-/// Core game logic and state management for Infinitordle.
-class GameEmphemeral {
-  GameEmphemeral();
+/// Ephemeral game state for Infinitordle.
+class GameEphemeral {
+  GameEphemeral();
 
   String get currentTypingString => currentTypingNotifiers
       .map((ValueNotifier<String> element) => element.value)
@@ -15,7 +15,7 @@ class GameEmphemeral {
   set highlightedBoard(int value) => highlightedBoardNotifier.value = value;
 
   /// Resets the game state and initiates a new board.
-  void initiateBoardEmphemeral() {
+  void initiateBoardEphemeral() {
     setCurrentTyping("");
     highlightedBoard = -1;
   }
@@ -60,5 +60,5 @@ class GameEmphemeral {
   }
 }
 
-/// Global singleton instance of [Game].
-final GameEmphemeral gameE = GameEmphemeral();
+/// Global singleton instance of [GameEphemeral].
+final GameEphemeral gameE = GameEphemeral();

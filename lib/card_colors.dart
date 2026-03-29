@@ -11,7 +11,7 @@ import 'game_orchestrator.dart';
 class CardColors {
   CardColors({required this.game});
 
-  final Game game;
+  final GameOrchestrator game;
 
   final Map<int, Map<int, Map<String, Color>>> _cardColorsCache =
       <int, Map<int, Map<String, Color>>>{};
@@ -235,4 +235,4 @@ class CardColors {
 }
 
 /// Global instance of [CardColors] to be used across the app.
-final CardColors cardColors = CardColors(game: game);
+final CardColors cardColors = CardColors(game: gameO);

@@ -27,7 +27,7 @@ Widget gameboardWidget(int boardNumber) {
           ? ListenableBuilder(
               listenable: Listenable.merge(<Listenable?>[
                 gameS.pushUpStepsNotifier,
-                game,
+                gameO,
               ]),
               builder: (BuildContext context, _) {
                 return _gameboardWidgetReal(boardNumber);
@@ -110,8 +110,8 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
           ? _cardFlipper(abIndex, boardNumber)
           : ListenableBuilder(
               listenable: Listenable.merge(<Listenable?>[
-                game.boardFlourishFlipRowsNotifiers[boardNumber],
-                game.abCardFlourishFlipAnglesNotifier,
+                gameO.boardFlourishFlipRowsNotifiers[boardNumber],
+                gameO.abCardFlourishFlipAnglesNotifier,
               ]),
               builder: (BuildContext context, _) {
                 return _cardFlipper(abIndex, boardNumber);
@@ -124,7 +124,7 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
 /// Builds the visual card widget with a slide animation listener.
 Widget _cardBuilder(int abIndex, int boardNumber, bool facingFront) {
   return ValueListenableBuilder<int>(
-    valueListenable: game.temporaryVisualOffsetForSlideNotifier,
+    valueListenable: gameO.temporaryVisualOffsetForSlideNotifier,
     builder: (BuildContext context, int value, Widget? child) {
       return _positionedScaledCard(abIndex, boardNumber, facingFront);
     },
@@ -158,7 +158,7 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
 Widget _positionedScaledCard(int abIndex, int boardNumber, bool facingFront) {
   const double shrinkCardScaleDefault = 0.75;
   final double cardSizeDefault = screen.cardLiveMaxPixel; //notionalCardSize;
-  final int temporaryVisualOffsetForSlide = game.temporaryVisualOffsetForSlide;
+  final int temporaryVisualOffsetForSlide = gameO.temporaryVisualOffsetForSlide;
 
   final int abRow = abIndex ~/ cols;
   final int gbRow = _getGBRowFromABRow(abRow);
@@ -213,7 +213,7 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
 
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
-      game,
+      gameO,
       gameE.highlightedBoardNotifier,
       gameS.currentRowChangedNotifier,
     ]),
@@ -236,10 +236,10 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   final int col = abIndex % cols;
   final bool historicalWin =
       gameS.getTestHistoricalAbWin(abRow, boardNumber) ||
-      game.getBoardFlourishFlipRow(boardNumber) != -1 &&
-          abRow == game.getBoardFlourishFlipRow(boardNumber);
+      gameO.getBoardFlourishFlipRow(boardNumber) != -1 &&
+          abRow == gameO.getBoardFlourishFlipRow(boardNumber);
   final bool justFlippedBackToFront =
-      game.getBoardFlourishFlipRow(boardNumber) != -1;
+      gameO.getBoardFlourishFlipRow(boardNumber) != -1;
   final bool hideCard =
       (!infMode && gameS.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
       abRow < gameS.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||

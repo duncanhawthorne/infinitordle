@@ -61,7 +61,7 @@ Widget titleWidget() {
         child: FittedBox(
           child: ListenableBuilder(
             listenable: Listenable.merge(<Listenable?>[
-              game,
+              gameO,
               gameS.targetWordsChangedNotifier,
             ]),
             builder: (BuildContext context, _) {
@@ -120,11 +120,11 @@ Widget keyboardListenerWrapper() {
       onKeyEvent: (KeyEvent keyEvent) {
         if (keyEvent is KeyDownEvent) {
           if (keyboardList.contains(keyEvent.character)) {
-            game.onKeyboardTapped(keyEvent.character ?? kNonKey);
+            gameO.onKeyboardTapped(keyEvent.character ?? kNonKey);
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
-            game.onKeyboardTapped(kEnter);
+            gameO.onKeyboardTapped(kEnter);
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
-            game.onKeyboardTapped(kBackspace);
+            gameO.onKeyboardTapped(kBackspace);
           }
         }
       },

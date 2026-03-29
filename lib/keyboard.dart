@@ -56,7 +56,7 @@ Widget _kbKeyStack(String kbLetter, int kbRowLength) {
                 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight,
               ),
               onTap: () {
-                game.onKeyboardTapped(kbLetter);
+                gameO.onKeyboardTapped(kbLetter);
               },
               child: _kbTextSquare(kbLetter, kbRowLength),
             ),
@@ -80,9 +80,9 @@ Widget _enterKey() {
   return Container(
     padding: const EdgeInsets.all(7),
     child: ValueListenableBuilder<bool>(
-      valueListenable: game.illegalFiveLetterWordNotifier,
+      valueListenable: gameO.illegalFiveLetterWordNotifier,
       builder: (BuildContext context, bool value, Widget? child) {
-        return game.illegalFiveLetterWord
+        return gameO.illegalFiveLetterWord
             ? const Icon(Icons.cancel, color: red)
             : ValueListenableBuilder<int>(
               valueListenable: gameS.currentRowChangedNotifier,
@@ -174,10 +174,10 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
 Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
-      game,
+      gameO,
       gameS.pushUpStepsNotifier,
       gameS.targetWordsChangedNotifier,
-      game.abCardFlourishFlipAnglesNotifier,
+      gameO.abCardFlourishFlipAnglesNotifier,
     ]),
     builder: (BuildContext context, _) {
       return _kbMiniSquareColorChooserReal(kbLetter, subIndex);

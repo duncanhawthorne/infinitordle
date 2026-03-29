@@ -10,7 +10,6 @@ import 'card_colors.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
 import 'game_ephemeral.dart';
-import 'game_orchestrator.dart';
 import 'google/google.dart';
 import 'wordlist.dart';
 
@@ -31,7 +30,7 @@ const List<String> _winnableWords = kWinnableWordsList;
 
 final Random _random = Random();
 
-/// Core game logic and state management for Infinitordle.
+/// Core game state for Infinitordle.
 class GameState extends ChangeNotifier {
   GameState() {
     _userChangeListener();
@@ -521,7 +520,7 @@ class GameState extends ChangeNotifier {
   }
 }
 
-/// Global singleton instance of [Game].
+/// Global singleton instance of [GameState].
 final GameState gameS = GameState();
 
 /// Notifier for managing card flip flourish animations.

@@ -8,7 +8,7 @@ import 'game_orchestrator.dart';
 class Flips {
   Flips({required this.game});
 
-  final Game game;
+  final GameOrchestrator game;
 
   /// Calculates the current flip angle (in 0.0-1.0 range) for a specific card.
   /// [abIndex] is the absolute card index, [boardNumber] identifies the board.
@@ -47,4 +47,4 @@ class Flips {
 }
 
 /// Global instance of [Flips] to be used across the app.
-final Flips flips = Flips(game: game);
+final Flips flips = Flips(game: gameO);
