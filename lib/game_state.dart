@@ -187,7 +187,7 @@ class GameState extends ChangeNotifier {
       if (abRow > abCurrentRowInt) {
         return "";
       } else if (abRow == abCurrentRowInt) {
-        return gameE.getCurrentTypingAtCol(col);
+        return gameE.getCurrentTypingAtCol(col); //FIXME shouldn't ref [gameE]
       } else {
         return _enteredWords[abRow][col];
       }
