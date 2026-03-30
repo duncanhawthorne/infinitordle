@@ -97,16 +97,16 @@ class GameFlips {
   double _getFlourishFlipAngle(int abIndex) {
     final int abRow = abIndex ~/ cols;
     final int col = abIndex % cols;
-    if (!gameF.abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
+    if (!abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
       return 0;
     } else {
-      return gameF.abCardFlourishFlipAnglesNotifier.value[abRow]![col];
+      return abCardFlourishFlipAnglesNotifier.value[abRow]![col];
     }
   }
 
   /// Returns 0.5 if the entire board is undergoing a flourish flip, otherwise 0.
   double _getFlourishBoardFlipAngle(int boardNumber) {
-    return gameF.getBoardFlourishFlipRow(boardNumber) == -1 ? 0 : 0.5;
+    return getBoardFlourishFlipRow(boardNumber) == -1 ? 0 : 0.5;
   }
 
 }
