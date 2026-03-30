@@ -142,8 +142,8 @@ class GameState extends ChangeNotifier {
     _targetWords[winningBoardToFix] = _getNewTargetWord();
     targetWordsChangedNotifier.value++;
 
+    _stateChange();
     saveState();
-    //setStateGlobal();
   }
 
   /// Initial state for debugging with cheat mode.

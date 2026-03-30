@@ -61,7 +61,6 @@ Widget titleWidget() {
         child: FittedBox(
           child: ListenableBuilder(
             listenable: Listenable.merge(<Listenable?>[
-              gameSequencer,
               gameState,
               gameState.targetWordsChangedNotifier,
             ]),

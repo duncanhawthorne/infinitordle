@@ -27,7 +27,6 @@ Widget gameboardWidget(int boardNumber) {
           ? ListenableBuilder(
               listenable: Listenable.merge(<Listenable?>[
                 gameState.pushUpStepsNotifier,
-                gameSequencer,
                 gameState,
               ]),
               builder: (BuildContext context, _) {
@@ -215,7 +214,6 @@ Widget _cardChooser(int abIndex, int boardNumber, bool facingFront) {
 
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
-      gameSequencer,
       gameState,
       gameEphemeral.highlightedBoardNotifier,
       gameState.currentRowChangedNotifier,

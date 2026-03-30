@@ -14,8 +14,7 @@ const int _gradualRevealRowTime =
     gradualRevealDelayTime * (cols - 1) + flipTime;
 
 /// Game orchestrator for Infinitordle.
-class GameSequencer extends ChangeNotifier {
-  GameSequencer();
+class GameSequencer {
 
   // ignore: unused_field
   static final Logger _log = Logger('OR');
@@ -39,8 +38,6 @@ class GameSequencer extends ChangeNotifier {
     _temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
     gameFlips.initiateBoardFlips();
-
-    _stateChange();
   }
 
   /// Handles user input from the on-screen keyboard.
@@ -205,8 +202,6 @@ class GameSequencer extends ChangeNotifier {
       firstKnowledgeToFix,
     );
 
-    _stateChange();
-
     //flip
     gameFlips.setBoardFlourishFlipRow(winningBoardToFix, -1);
 
@@ -214,10 +209,6 @@ class GameSequencer extends ChangeNotifier {
     await _sleep(_visualCatchUpTime);
   }
 
-  /// Triggers update notification for listeners.
-  void _stateChange() {
-    notifyListeners();
-  }
 }
 
 /// Global singleton instance of [GameSequencer].

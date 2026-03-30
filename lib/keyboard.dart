@@ -172,7 +172,6 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
 Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
-      gameSequencer,
       gameState,
       gameState.pushUpStepsNotifier,
       gameState.targetWordsChangedNotifier,
