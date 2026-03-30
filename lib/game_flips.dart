@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
-import 'card_flips_notifier.dart';
+import 'card_flips_state_notifier.dart';
 import 'constants.dart';
 import 'game_state.dart';
 
-class FC {
+class GameFlips {
 
   final CustomMapNotifier abCardFlourishFlipAnglesNotifier =
   CustomMapNotifier(); //{}.obs;
@@ -74,7 +75,41 @@ class FC {
     return boardFlourishFlipRowsNotifiers[i].value;
   }
 
+  /// Calculates the current flip angle (in 0.0-1.0 range) for a specific card.
+  /// [abIndex] is the absolute card index, [boardNumber] identifies the board.
+  double getFlipAngle(int abIndex, int boardNumber) {
+    final int abRow = abIndex ~/ cols;
+    final double cardFlipAngle =
+        _getPermFlipAngle(abIndex) - _getFlourishFlipAngle(abIndex);
+    final double boardFlipAngle = abRow <= gameS.abCurrentRowInt
+        ? _getFlourishBoardFlipAngle(boardNumber)
+        : 0;
+    return max(0, cardFlipAngle - boardFlipAngle);
+  }
+
+  /// Returns 0.5 (flipped) if the row has been entered, otherwise 0.
+  double _getPermFlipAngle(int abIndex) {
+    final int abRow = abIndex ~/ cols;
+    return abRow >= gameS.abCurrentRowInt ? 0 : 0.5;
+  }
+
+  /// Retrieves the temporary flourish flip angle from the game logic notifier.
+  double _getFlourishFlipAngle(int abIndex) {
+    final int abRow = abIndex ~/ cols;
+    final int col = abIndex % cols;
+    if (!gameF.abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
+      return 0;
+    } else {
+      return gameF.abCardFlourishFlipAnglesNotifier.value[abRow]![col];
+    }
+  }
+
+  /// Returns 0.5 if the entire board is undergoing a flourish flip, otherwise 0.
+  double _getFlourishBoardFlipAngle(int boardNumber) {
+    return gameF.getBoardFlourishFlipRow(boardNumber) == -1 ? 0 : 0.5;
+  }
+
 }
 
 
-final FC gameF = FC();
+final GameFlips gameF = GameFlips();

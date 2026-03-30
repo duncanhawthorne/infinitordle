@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:stroke_text/stroke_text.dart';
 
 import 'card_colors.dart';
-import 'card_flips.dart';
 import 'constants.dart';
 import 'game_flips.dart';
 import 'game_ephemeral.dart';
@@ -141,7 +140,7 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(
       begin: 0,
-      end: flips.getFlipAngle(abIndex, boardNumber),
+      end: gameF.getFlipAngle(abIndex, boardNumber),
     ),
     duration: const Duration(milliseconds: flipTime),
     builder: (BuildContext context, double angle, _) {
