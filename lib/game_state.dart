@@ -212,6 +212,7 @@ class GameState extends ChangeNotifier {
 
   /// Checks if a board has been solved within a given number of rows.
   bool getDetectBoardSolvedByABRow(int boardNumber, int maxAbRowToCheck) {
+    assert(!infMode);
     for (
       int abRow = getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
       abRow < min(abCurrentRowInt, maxAbRowToCheck);
@@ -377,11 +378,7 @@ class GameState extends ChangeNotifier {
 
   /// Generates initial target words for all boards.
   List<String> _getNewTargetWords(int numberOfBoards) {
-    final List<String> starterList = <String>[];
-    for (int i = 0; i < numberOfBoards; i++) {
-      starterList.add(_getNewTargetWord());
-    }
-    return starterList;
+    return List<String>.generate(numberOfBoards, (_) => _getNewTargetWord());
   }
 
   /// Returns a list of words that successfully solved boards.
