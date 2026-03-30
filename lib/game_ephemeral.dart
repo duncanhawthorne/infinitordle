@@ -19,7 +19,6 @@ class GameEphemeral {
   set _illegalFiveLetterWord(bool tf) =>
       illegalFiveLetterWordNotifier.value = tf;
 
-  //Other state non-saved
   final List<ValueNotifier<String>> currentTypingNotifiers =
       List<ValueNotifier<String>>.generate(
         cols,
@@ -86,7 +85,6 @@ class GameEphemeral {
     } else {
       _highlightedBoard = boardNumber;
     }
-    //No need to save as local state
   }
 
   /// Checks if a board should be highlighted or dimmed.
