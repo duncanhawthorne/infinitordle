@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
+import 'game_flips.dart';
 import 'game_ephemeral.dart';
 import 'game_state.dart';
 import 'game_orchestrator.dart';
@@ -28,11 +29,11 @@ class CardColors {
   /// Returns the best color (Green > Amber > Grey) for a letter on the keyboard for a specific board.
   Color getBestColorForKeyboardLetter(String letter, int boardNumber) {
     final bool isGlobalCacheInvalid =
-        gameO.getLastCardToConsiderForKeyColors() !=
+        gameF.getLastCardToConsiderForKeyColors() !=
         _getLastCardToConsiderForKeyColorsCache;
 
     if (isGlobalCacheInvalid) {
-      _getLastCardToConsiderForKeyColorsCache = gameO
+      _getLastCardToConsiderForKeyColorsCache = gameF
           .getLastCardToConsiderForKeyColors();
       _keyColorsCache.clear();
     }
@@ -102,7 +103,7 @@ class CardColors {
     final int abStart =
         cols *
         max(0, gameS.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
-    final int abEnd = gameO.getLastCardToConsiderForKeyColors();
+    final int abEnd = gameF.getLastCardToConsiderForKeyColors();
 
     // get color for the keyboard based on best (green > yellow > grey) color on the grid
     for (Color color in _cardColorsPriority) {

@@ -3,6 +3,7 @@ import 'package:stroke_text/stroke_text.dart';
 
 import 'card_colors.dart';
 import 'constants.dart';
+import 'game_flips.dart';
 import 'game_ephemeral.dart';
 import 'game_state.dart';
 import 'game_orchestrator.dart';
@@ -175,7 +176,7 @@ Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
       gameS,
       gameS.pushUpStepsNotifier,
       gameS.targetWordsChangedNotifier,
-      gameO.abCardFlourishFlipAnglesNotifier,
+      gameF.abCardFlourishFlipAnglesNotifier,
     ]),
     builder: (BuildContext context, _) {
       return _kbMiniSquareColorChooserReal(kbLetter, subIndex);

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
-import 'card_flips_notifier.dart';
 import 'constants.dart';
+import 'game_flips.dart';
 import 'game_ephemeral.dart';
 import 'game_state.dart';
 import 'popup_screens.dart';
@@ -38,13 +38,6 @@ class GameOrchestrator extends ChangeNotifier {
   final ValueNotifier<int> temporaryVisualOffsetForSlideNotifier =
       ValueNotifier<int>(0);
 
-  final CustomMapNotifier abCardFlourishFlipAnglesNotifier =
-      CustomMapNotifier(); //{}.obs;
-  final List<ValueNotifier<int>> boardFlourishFlipRowsNotifiers =
-      List<ValueNotifier<int>>.generate(
-        cols,
-        (int i) => ValueNotifier<int>(100),
-      );
   final ValueNotifier<bool> illegalFiveLetterWordNotifier = ValueNotifier<bool>(
     false,
   );
@@ -57,8 +50,7 @@ class GameOrchestrator extends ChangeNotifier {
 
     temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
-    abCardFlourishFlipAnglesNotifier.clear();
-    _clearBoardFlourishFlipRows();
+    gameF.initiateBoardFlips();
     illegalFiveLetterWord = false;
 
     _stateChange();
@@ -119,7 +111,7 @@ class GameOrchestrator extends ChangeNotifier {
     final bool isWin = winningBoardToFix != -1; //FIXME CALCED TWICE
     gameE.setCurrentTyping("");
 
-    _gradualRevealAbRow(cardAbRowPreGuessToFix);
+    gameF.gradualRevealAbRow(cardAbRowPreGuessToFix);
     _handleWinLoseState(
       cardAbRowPreGuessToFix,
       winningBoardToFix,
@@ -129,27 +121,7 @@ class GameOrchestrator extends ChangeNotifier {
     );
   }
 
-  /// Animates the reveal of a row's colors letter by letter.
-  void _gradualRevealAbRow(int abRow) {
-    // flip to reveal the colors with pleasing animation
-    for (int i = 0; i < cols; i++) {
-      _setAbCardFlourishFlipAngle(abRow, i, 0.5);
-    }
-    for (int i = 0; i < cols; i++) {
-      Future<void>.delayed(
-        Duration(milliseconds: gradualRevealDelayTime * i),
-        () {
-          _setAbCardFlourishFlipAngle(abRow, i, 0.0);
-          if (i == cols - 1) {
-            if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
-              // Due to delays check still exists before remove
-              abCardFlourishFlipAnglesNotifier.remove(abRow);
-            }
-          }
-        },
-      );
-    }
-  }
+
 
   /// Handles game flow after a word has been revealed, checking for win or loss.
   Future<void> _handleWinLoseState(
@@ -249,7 +221,7 @@ class GameOrchestrator extends ChangeNotifier {
     int firstKnowledgeToFix,
   ) async {
     //unflip
-    _setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
+    gameF.setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime - flipTime);
 
@@ -263,41 +235,13 @@ class GameOrchestrator extends ChangeNotifier {
     _stateChange();
 
     //flip
-    _setBoardFlourishFlipRow(winningBoardToFix, -1);
+    gameF.setBoardFlourishFlipRow(winningBoardToFix, -1);
 
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime);
   }
 
-  /// Returns the index of the last card relevant for coloring keys.
-  int getLastCardToConsiderForKeyColors() {
-    return gameS.abCurrentRowInt * cols -
-        abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
-  }
 
-  /// Helper to set card flip angles for flourishing animations.
-  void _setAbCardFlourishFlipAngle(int abRow, int column, double value) {
-    abCardFlourishFlipAnglesNotifier.set(abRow, column, value);
-  }
-
-  /// Resets flourish animation state for all boards.
-  void _clearBoardFlourishFlipRows() {
-    for (int i = 0; i < boardFlourishFlipRowsNotifiers.length; i++) {
-      _setBoardFlourishFlipRow(i, -1);
-    }
-  }
-
-  //setters
-
-  /// Sets flourish flip animation row for a board.
-  void _setBoardFlourishFlipRow(int i, int val) {
-    boardFlourishFlipRowsNotifiers[i].value = val;
-  }
-
-  /// Returns flourish flip row for a board.
-  int getBoardFlourishFlipRow(int i) {
-    return boardFlourishFlipRowsNotifiers[i].value;
-  }
 
   /// Triggers update notification for listeners.
   void _stateChange() {

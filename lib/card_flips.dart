@@ -1,14 +1,11 @@
 import 'dart:math';
 
 import 'constants.dart';
+import 'game_flips.dart';
 import 'game_state.dart';
-import 'game_orchestrator.dart';
 
 /// Manages the flip animations and states for cards on the game boards.
 class Flips {
-  Flips({required this.game});
-
-  final GameOrchestrator game;
 
   /// Calculates the current flip angle (in 0.0-1.0 range) for a specific card.
   /// [abIndex] is the absolute card index, [boardNumber] identifies the board.
@@ -32,18 +29,18 @@ class Flips {
   double _getFlourishFlipAngle(int abIndex) {
     final int abRow = abIndex ~/ cols;
     final int col = abIndex % cols;
-    if (!game.abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
+    if (!gameF.abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
       return 0;
     } else {
-      return game.abCardFlourishFlipAnglesNotifier.value[abRow]![col];
+      return gameF.abCardFlourishFlipAnglesNotifier.value[abRow]![col];
     }
   }
 
   /// Returns 0.5 if the entire board is undergoing a flourish flip, otherwise 0.
   double _getFlourishBoardFlipAngle(int boardNumber) {
-    return game.getBoardFlourishFlipRow(boardNumber) == -1 ? 0 : 0.5;
+    return gameF.getBoardFlourishFlipRow(boardNumber) == -1 ? 0 : 0.5;
   }
 }
 
 /// Global instance of [Flips] to be used across the app.
-final Flips flips = Flips(game: gameO);
+final Flips flips = Flips();

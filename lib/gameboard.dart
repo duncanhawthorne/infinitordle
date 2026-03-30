@@ -6,6 +6,7 @@ import 'package:stroke_text/stroke_text.dart';
 import 'card_colors.dart';
 import 'card_flips.dart';
 import 'constants.dart';
+import 'game_flips.dart';
 import 'game_ephemeral.dart';
 import 'game_state.dart';
 import 'game_orchestrator.dart';
@@ -111,8 +112,8 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
           ? _cardFlipper(abIndex, boardNumber)
           : ListenableBuilder(
               listenable: Listenable.merge(<Listenable?>[
-                gameO.boardFlourishFlipRowsNotifiers[boardNumber],
-                gameO.abCardFlourishFlipAnglesNotifier,
+                gameF.boardFlourishFlipRowsNotifiers[boardNumber],
+                gameF.abCardFlourishFlipAnglesNotifier,
               ]),
               builder: (BuildContext context, _) {
                 return _cardFlipper(abIndex, boardNumber);
@@ -238,10 +239,10 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   final int col = abIndex % cols;
   final bool historicalWin =
       gameS.getTestHistoricalAbWin(abRow, boardNumber) ||
-      gameO.getBoardFlourishFlipRow(boardNumber) != -1 &&
-          abRow == gameO.getBoardFlourishFlipRow(boardNumber);
+      gameF.getBoardFlourishFlipRow(boardNumber) != -1 &&
+          abRow == gameF.getBoardFlourishFlipRow(boardNumber);
   final bool justFlippedBackToFront =
-      gameO.getBoardFlourishFlipRow(boardNumber) != -1;
+      gameF.getBoardFlourishFlipRow(boardNumber) != -1;
   final bool hideCard =
       (!infMode && gameS.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
       abRow < gameS.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
