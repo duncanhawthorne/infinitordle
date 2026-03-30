@@ -1,32 +1,24 @@
 # infinitordle
-infinitordle is a cross between Wordle and Tetris. Solve as many words as you can before you run out of lives.
+infinitordle: Wordle's logic meets Tetris's tension.
 
-* How many words can you get before you run out of lives?
-* Can you clear the board and reach infinitordle? 
-* Play infinitordle at https://infinitordle.web.app
+* How many words can you solve before you run out of rows?
+* Play infinitordle now at https://infinitordle.web.app
 
 ![](https://raw.githubusercontent.com/duncanhawthorne/infinitordle/main/infinitordle.png)
 
 How to play
 -----------
 
-* infinitordle features four boards each with a secret five-letter word to guess. 
-* Try guessing the word: a green card means you have a letter in the right place, a yellow card means you have a matching letter but in the wrong place. 
-* You have one life for each row of cards. 
-* Be sure to match the words before you run out of lives.  
-&nbsp;&nbsp;
-* When you find the word and solve the board, all five cards will turn green.   
-* As a reward, the cards will then slide up, and give you a new row of cards, giving you back a life.   
-* The secret word for that board will change to a new secret word, and the cards on that board will change colors to help you find the new secret word.
-* Continue solving each board, and be careful to use your lives wisely.  
-&nbsp;&nbsp;
-* If you solve three boards in sequence, you are on a winning streak.
-* On a streak, the cards will slide back two rows at a time, giving you back two lives, and giving you the chance to clear the board.
-* Time your streaks carefully for maximum impact.   
-&nbsp;&nbsp;
-* How many words can you get before you run out of lives?  
-* Can you clear the board and reach infinitordle?   
+* Four boards, each with a secret five-letter word to guess. 
+* Try guessing the word: 
+  * 🟩 Green card: right letter, right place
+  * 🟨 Yellow card: right letter, wrong place 
+* Find the word and solve the board: the cards slide up, reclaiming a row, and giving you a new word to solve.
+* Triple clear: Solve 3 words in a row to get a double-slide, reclaiming two rows at once.
+* Survival: Time your solves carefully - if you run out of rows, it's game over.
 
 Features
 -----------
-* Sign in with your Google account to save your progress and play across devices. 
+* Cross-device play: Sign in with Google to save your progress and play anywhere. 
+* Endless challenge: The more you solve, the more the pressure builds.
+* Reach "Infinitordle": Can you clear the entire screen?
