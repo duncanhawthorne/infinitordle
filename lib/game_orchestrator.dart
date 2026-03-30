@@ -8,9 +8,6 @@ import 'game_flips.dart';
 import 'game_ephemeral.dart';
 import 'game_state.dart';
 import 'popup_screens.dart';
-import 'wordlist.dart';
-
-const Set<String> _legalWordsSet = <String>{...kLegalWordsList};
 
 const int _visualCatchUpTime = delayMult * 750;
 const int _gradualRevealRowTime =
@@ -29,18 +26,9 @@ class GameOrchestrator extends ChangeNotifier {
   set _temporaryVisualOffsetForSlide(int value) =>
       temporaryVisualOffsetForSlideNotifier.value = value;
 
-  bool get illegalFiveLetterWord => illegalFiveLetterWordNotifier.value;
-
-  set _illegalFiveLetterWord(bool tf) =>
-      illegalFiveLetterWordNotifier.value = tf;
-
   //transitive state
   final ValueNotifier<int> temporaryVisualOffsetForSlideNotifier =
       ValueNotifier<int>(0);
-
-  final ValueNotifier<bool> illegalFiveLetterWordNotifier = ValueNotifier<bool>(
-    false,
-  );
 
   /// Resets the game state and initiates a new board.
   void initiateBoard() {
@@ -51,7 +39,6 @@ class GameOrchestrator extends ChangeNotifier {
     _temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
     gameF.initiateBoardFlips();
-    _illegalFiveLetterWord = false;
 
     _stateChange();
   }
@@ -59,40 +46,28 @@ class GameOrchestrator extends ChangeNotifier {
   /// Handles user input from the on-screen keyboard.
   void onKeyboardTapped(String letter) {
     gameS.printCheatTargetWords();
-    final String typingPreTap = gameE.currentTypingString;
+
     if (letter == kNonKey) {
       //Ignore pressing of non-keys
     } else if (letter == kBackspace) {
-      //Backspace key
-      if (typingPreTap.isNotEmpty) {
-        //There is text to delete
-        gameE.setCurrentTyping(
-          typingPreTap.substring(0, typingPreTap.length - 1),
-        );
-        if (illegalFiveLetterWord) {
-          _illegalFiveLetterWord = false;
-        }
-      }
+      gameE.onBackspaceTapped();
     } else if (letter == kEnter) {
-      //Submit guess
-      if (typingPreTap.length == cols) {
-        //Full word entered, so can submit
-        if (_isLegalWord(typingPreTap) &&
-            gameS.abCurrentRowInt < gameS.abLiveNumRowsPerBoard) {
-          //Legal word so can enter the word
-          //Note, not necessarily correct word
-          _handleLegalWordEntered();
-        }
-      }
+      onEnterTapped();
     } else {
-      //pressing regular letter key
-      if (typingPreTap.length < cols) {
-        //Space to add extra letter
-        gameE.setCurrentTyping(typingPreTap + letter);
-        final String typingPostTap = gameE.currentTypingString;
-        if (typingPostTap.length == cols && !_isLegalWord(typingPostTap)) {
-          _illegalFiveLetterWord = true;
-        }
+      gameE.onLetterTapped(letter);
+    }
+  }
+
+  void onEnterTapped() {
+    //Submit guess
+    final String typingPreTap = gameE.currentTypingString;
+    if (typingPreTap.length == cols) {
+      //Full word entered, so can submit
+      if (isLegalWord(typingPreTap) &&
+          gameS.abCurrentRowInt < gameS.abLiveNumRowsPerBoard) {
+        //Legal word so can enter the word
+        //Note, not necessarily correct word
+        _handleLegalWordEntered();
       }
     }
   }
@@ -243,8 +218,4 @@ final GameOrchestrator gameO = GameOrchestrator();
 
 Future<void> _sleep(int delayAfterMult) async {
   await Future<void>.delayed(Duration(milliseconds: delayAfterMult), () {});
-}
-
-bool _isLegalWord(String word) {
-  return word.length == cols && _legalWordsSet.contains(word);
 }

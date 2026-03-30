@@ -45,3 +45,9 @@ const int slideTime = _durMult * 200;
 const int flipTime = _durMult * 500;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+const Set<String> _legalWordsSet = <String>{...kLegalWordsList};
+
+bool isLegalWord(String word) {
+  return word.length == cols && _legalWordsSet.contains(word);
+}

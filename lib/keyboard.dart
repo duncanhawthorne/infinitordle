@@ -80,9 +80,9 @@ Widget _enterKey() {
   return Container(
     padding: const EdgeInsets.all(7),
     child: ValueListenableBuilder<bool>(
-      valueListenable: gameO.illegalFiveLetterWordNotifier,
+      valueListenable: gameE.illegalFiveLetterWordNotifier,
       builder: (BuildContext context, bool value, Widget? child) {
-        return gameO.illegalFiveLetterWord
+        return gameE.illegalFiveLetterWord
             ? const Icon(Icons.cancel, color: red)
             : ValueListenableBuilder<int>(
                 valueListenable: gameS.currentRowChangedNotifier,

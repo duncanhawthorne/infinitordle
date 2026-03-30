@@ -14,11 +14,10 @@ class GameEphemeral {
 
   set _highlightedBoard(int value) => highlightedBoardNotifier.value = value;
 
-  /// Resets the game state and initiates a new board.
-  void initiateBoardEphemeral() {
-    setCurrentTyping("");
-    _highlightedBoard = -1;
-  }
+  bool get illegalFiveLetterWord => illegalFiveLetterWordNotifier.value;
+
+  set _illegalFiveLetterWord(bool tf) =>
+      illegalFiveLetterWordNotifier.value = tf;
 
   //Other state non-saved
   final List<ValueNotifier<String>> currentTypingNotifiers =
@@ -27,6 +26,44 @@ class GameEphemeral {
         (int i) => ValueNotifier<String>(""),
       );
   final ValueNotifier<int> highlightedBoardNotifier = ValueNotifier<int>(0);
+
+  final ValueNotifier<bool> illegalFiveLetterWordNotifier = ValueNotifier<bool>(
+    false,
+  );
+
+  /// Resets the game state and initiates a new board.
+  void initiateBoardEphemeral() {
+    setCurrentTyping("");
+    _highlightedBoard = -1;
+    _illegalFiveLetterWord = false;
+  }
+
+  void onBackspaceTapped() {
+    final String typingPreTap = currentTypingString;
+    //Backspace key
+    if (typingPreTap.isNotEmpty) {
+      //There is text to delete
+      setCurrentTyping(
+        typingPreTap.substring(0, typingPreTap.length - 1),
+      );
+      if (illegalFiveLetterWord) {
+        _illegalFiveLetterWord = false;
+      }
+    }
+  }
+
+  void onLetterTapped(String letter) {
+    final String typingPreTap = currentTypingString;
+    //pressing regular letter key
+    if (typingPreTap.length < cols) {
+      //Space to add extra letter
+      setCurrentTyping(typingPreTap + letter);
+      final String typingPostTap = currentTypingString;
+      if (typingPostTap.length == cols && !isLegalWord(typingPostTap)) {
+        _illegalFiveLetterWord = true;
+      }
+    }
+  }
 
   /// Returns currently typed letter at a column.
   String getCurrentTypingAtCol(int col) {
