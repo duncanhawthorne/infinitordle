@@ -8,14 +8,13 @@ import 'constants.dart';
 import 'game_state.dart';
 
 class GameFlips {
-
   final CustomMapNotifier abCardFlourishFlipAnglesNotifier =
-  CustomMapNotifier(); //{}.obs;
+      CustomMapNotifier(); //{}.obs;
   final List<ValueNotifier<int>> boardFlourishFlipRowsNotifiers =
-  List<ValueNotifier<int>>.generate(
-    cols,
+      List<ValueNotifier<int>>.generate(
+        cols,
         (int i) => ValueNotifier<int>(100),
-  );
+      );
 
   /// Resets the game state and initiates a new board.
   void initiateBoardFlips() {
@@ -32,7 +31,7 @@ class GameFlips {
     for (int i = 0; i < cols; i++) {
       Future<void>.delayed(
         Duration(milliseconds: gradualRevealDelayTime * i),
-            () {
+        () {
           _setAbCardFlourishFlipAngle(abRow, i, 0.0);
           if (i == cols - 1) {
             if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
@@ -108,8 +107,6 @@ class GameFlips {
   double _getFlourishBoardFlipAngle(int boardNumber) {
     return getBoardFlourishFlipRow(boardNumber) == -1 ? 0 : 0.5;
   }
-
 }
-
 
 final GameFlips gameF = GameFlips();

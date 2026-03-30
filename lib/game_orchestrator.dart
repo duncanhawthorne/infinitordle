@@ -121,8 +121,6 @@ class GameOrchestrator extends ChangeNotifier {
     );
   }
 
-
-
   /// Handles game flow after a word has been revealed, checking for win or loss.
   Future<void> _handleWinLoseState(
     int cardAbRowPreGuessToFix,
@@ -207,8 +205,6 @@ class GameOrchestrator extends ChangeNotifier {
     await _sleep(_visualCatchUpTime);
   }
 
-
-
   /// Animates the flipping and resetting of a solved board.
   Future<void> _unflipSwapFlip(
     int cardAbRowPreGuessToFix,
@@ -235,8 +231,6 @@ class GameOrchestrator extends ChangeNotifier {
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime);
   }
-
-
 
   /// Triggers update notification for listeners.
   void _stateChange() {

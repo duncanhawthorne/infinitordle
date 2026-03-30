@@ -206,7 +206,8 @@ class GameState extends ChangeNotifier {
       return false;
     }
     for (int q = 0; q < 2; q++) {
-      if (!(abRow - 1 - q < 0 || _winRecordBoards[abRow - 1 - q] != kBoardWinStatusNoWin)) {
+      if (!(abRow - 1 - q < 0 ||
+          _winRecordBoards[abRow - 1 - q] != kBoardWinStatusNoWin)) {
         return false;
       }
     }
