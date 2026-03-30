@@ -26,12 +26,12 @@ class GameOrchestrator extends ChangeNotifier {
   int get temporaryVisualOffsetForSlide =>
       temporaryVisualOffsetForSlideNotifier.value;
 
-  set temporaryVisualOffsetForSlide(int value) =>
+  set _temporaryVisualOffsetForSlide(int value) =>
       temporaryVisualOffsetForSlideNotifier.value = value;
 
   bool get illegalFiveLetterWord => illegalFiveLetterWordNotifier.value;
 
-  set illegalFiveLetterWord(bool tf) =>
+  set _illegalFiveLetterWord(bool tf) =>
       illegalFiveLetterWordNotifier.value = tf;
 
   //transitive state
@@ -48,10 +48,10 @@ class GameOrchestrator extends ChangeNotifier {
 
     gameE.initiateBoardEphemeral();
 
-    temporaryVisualOffsetForSlide = 0;
+    _temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
     gameF.initiateBoardFlips();
-    illegalFiveLetterWord = false;
+    _illegalFiveLetterWord = false;
 
     _stateChange();
   }
@@ -70,7 +70,7 @@ class GameOrchestrator extends ChangeNotifier {
           typingPreTap.substring(0, typingPreTap.length - 1),
         );
         if (illegalFiveLetterWord) {
-          illegalFiveLetterWord = false;
+          _illegalFiveLetterWord = false;
         }
       }
     } else if (letter == kEnter) {
@@ -91,7 +91,7 @@ class GameOrchestrator extends ChangeNotifier {
         gameE.setCurrentTyping(typingPreTap + letter);
         final String typingPostTap = gameE.currentTypingString;
         if (typingPostTap.length == cols && !_isLegalWord(typingPostTap)) {
-          illegalFiveLetterWord = true;
+          _illegalFiveLetterWord = true;
         }
       }
     }
@@ -192,27 +192,22 @@ class GameOrchestrator extends ChangeNotifier {
   /// Visual animation for boards sliding up.
   Future<void> _slideUpAnimation() async {
     //Slide the cards up visually, creating the illusion of stepping up
-    temporaryVisualOffsetForSlide = 1;
+    _temporaryVisualOffsetForSlide = 1;
 
     // Delay for sliding cards up to have taken effect
     await _sleep(slideTime);
 
     // Undo the visual slide (and do this instantaneously)
-    temporaryVisualOffsetForSlide = 0;
+    _temporaryVisualOffsetForSlide = 0;
 
     // Actually move the cards up, so state matches visual illusion above
-    _takeOneStepBack();
+    gameS.takeOneStepBack();
 
     // Pause, so can temporarily see new position
     await _sleep(_visualCatchUpTime);
   }
 
-  /// Increments state to shift boards up.
-  void _takeOneStepBack() {
-    // This function is run after a delay so need to make sure threadsafe
-    // Use variables at the time word was entered rather than live variables
-    gameS.pushUpSteps++;
-  }
+
 
   /// Animates the flipping and resetting of a solved board.
   Future<void> _unflipSwapFlip(

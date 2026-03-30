@@ -43,11 +43,11 @@ class GameState extends ChangeNotifier {
 
   int get pushUpSteps => pushUpStepsNotifier.value;
 
-  set pushUpSteps(int value) => pushUpStepsNotifier.value = value;
+  set _pushUpSteps(int value) => pushUpStepsNotifier.value = value;
 
   bool get expandingBoard => expandingBoardNotifier.value;
 
-  set expandingBoard(bool val) => expandingBoardNotifier.value = val;
+  set _expandingBoard(bool val) => expandingBoardNotifier.value = val;
 
   bool get expandingBoardEver => _expandingBoardEver;
 
@@ -72,8 +72,8 @@ class GameState extends ChangeNotifier {
     _copyTo(_enteredWords, <String>[]);
     _copyTo(_winRecordBoards, <int>[]);
     _copyTo(_firstKnowledge, _getBlankFirstKnowledge(numBoards));
-    pushUpSteps = 0;
-    expandingBoard = false;
+    _pushUpSteps = 0;
+    _expandingBoard = false;
     _expandingBoardEver = false;
 
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
@@ -111,6 +111,13 @@ class GameState extends ChangeNotifier {
     }
 
     return winningBoardToFix;
+  }
+
+  /// Increments state to shift boards up.
+  void takeOneStepBack() {
+    // This function is run after a delay so need to make sure threadsafe
+    // Use variables at the time word was entered rather than live variables
+    _pushUpSteps = pushUpSteps + 1;
   }
 
   /// Records a win and generates a new target word for the board.
@@ -169,9 +176,9 @@ class GameState extends ChangeNotifier {
   /// Toggles between normal and expanding board layout.
   void toggleExpandingBoardState() {
     if (expandingBoard) {
-      expandingBoard = false;
+      _expandingBoard = false;
     } else {
-      expandingBoard = true;
+      _expandingBoard = true;
       _expandingBoardEver = true;
     }
     saveState();
@@ -297,15 +304,15 @@ class GameState extends ChangeNotifier {
             gameTmp["firstKnowledge"] ?? _getBlankFirstKnowledge(numBoards),
           ),
         );
-        pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
-        expandingBoard = gameTmp["expandingBoard"] ?? false;
+        _pushUpSteps = gameTmp["pushUpSteps"] ?? 0;
+        _expandingBoard = gameTmp["expandingBoard"] ?? false;
         _expandingBoardEver = gameTmp["expandingBoardEver"] ?? false;
 
         //TRANSITIONAL logic from old variable naming convention
         final int offsetRollback = gameTmp["offsetRollback"] ?? 0;
         if (offsetRollback != 0) {
           _log.severe("One-off migration");
-          pushUpSteps = offsetRollback;
+          _pushUpSteps = offsetRollback;
         }
         //TRANSITIONAL logic from old variable naming convention
       } catch (error) {

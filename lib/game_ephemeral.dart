@@ -12,12 +12,12 @@ class GameEphemeral {
 
   int get highlightedBoard => highlightedBoardNotifier.value;
 
-  set highlightedBoard(int value) => highlightedBoardNotifier.value = value;
+  set _highlightedBoard(int value) => highlightedBoardNotifier.value = value;
 
   /// Resets the game state and initiates a new board.
   void initiateBoardEphemeral() {
     setCurrentTyping("");
-    highlightedBoard = -1;
+    _highlightedBoard = -1;
   }
 
   //Other state non-saved
@@ -47,9 +47,9 @@ class GameEphemeral {
   /// Highlights a specific board for focus.
   void toggleHighlightedBoard(int boardNumber) {
     if (highlightedBoard == boardNumber) {
-      highlightedBoard = -1; //if already set turn off
+      _highlightedBoard = -1; //if already set turn off
     } else {
-      highlightedBoard = boardNumber;
+      _highlightedBoard = boardNumber;
     }
     //No need to save as local state
   }
