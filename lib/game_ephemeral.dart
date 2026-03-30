@@ -43,9 +43,7 @@ class GameEphemeral {
     //Backspace key
     if (typingPreTap.isNotEmpty) {
       //There is text to delete
-      setCurrentTyping(
-        typingPreTap.substring(0, typingPreTap.length - 1),
-      );
+      setCurrentTyping(typingPreTap.substring(0, typingPreTap.length - 1));
       if (illegalFiveLetterWord) {
         _illegalFiveLetterWord = false;
       }
@@ -98,4 +96,4 @@ class GameEphemeral {
 }
 
 /// Global singleton instance of [GameEphemeral].
-final GameEphemeral gameE = GameEphemeral();
+final GameEphemeral gameEphemeral = GameEphemeral();

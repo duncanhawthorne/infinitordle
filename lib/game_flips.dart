@@ -46,7 +46,7 @@ class GameFlips {
 
   /// Returns the index of the last card relevant for coloring keys.
   int getLastCardToConsiderForKeyColors() {
-    return gameS.abCurrentRowInt * cols -
+    return gameState.abCurrentRowInt * cols -
         abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
   }
 
@@ -80,7 +80,7 @@ class GameFlips {
     final int abRow = abIndex ~/ cols;
     final double cardFlipAngle =
         _getPermFlipAngle(abIndex) - _getFlourishFlipAngle(abIndex);
-    final double boardFlipAngle = abRow <= gameS.abCurrentRowInt
+    final double boardFlipAngle = abRow <= gameState.abCurrentRowInt
         ? _getFlourishBoardFlipAngle(boardNumber)
         : 0;
     return max(0, cardFlipAngle - boardFlipAngle);
@@ -89,7 +89,7 @@ class GameFlips {
   /// Returns 0.5 (flipped) if the row has been entered, otherwise 0.
   double _getPermFlipAngle(int abIndex) {
     final int abRow = abIndex ~/ cols;
-    return abRow >= gameS.abCurrentRowInt ? 0 : 0.5;
+    return abRow >= gameState.abCurrentRowInt ? 0 : 0.5;
   }
 
   /// Retrieves the temporary flourish flip angle from the game logic notifier.
@@ -109,4 +109,4 @@ class GameFlips {
   }
 }
 
-final GameFlips gameF = GameFlips();
+final GameFlips gameFlips = GameFlips();

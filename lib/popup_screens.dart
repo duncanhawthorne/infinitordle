@@ -113,19 +113,19 @@ Widget scrollableBoardRow(BuildContext context) {
     children: <Widget>[
       const Text('Scrollable board?'),
       ValueListenableBuilder<bool>(
-        valueListenable: gameS.expandingBoardNotifier,
+        valueListenable: gameState.expandingBoardNotifier,
         builder: (BuildContext context, bool value, Widget? child) {
           return Tooltip(
-            message: gameS.expandingBoard
+            message: gameState.expandingBoard
                 ? "Turn off scrollable board"
                 : "Turn on scrollable board",
             child: IconButton(
               iconSize: 25,
-              icon: gameS.expandingBoard
+              icon: gameState.expandingBoard
                   ? const Icon(Icons.visibility_outlined)
                   : const Icon(Icons.visibility_off_outlined),
               onPressed: () {
-                gameS.toggleExpandingBoardState();
+                gameState.toggleExpandingBoardState();
               },
             ),
           );
@@ -137,12 +137,12 @@ Widget scrollableBoardRow(BuildContext context) {
 
 /// Builds the row showing which words have been won and missed.
 Widget wordsWonRow(BuildContext context) {
-  final List<String> winWordsCache = gameS.getWinWords();
+  final List<String> winWordsCache = gameState.getWinWords();
   final int numberWinsCache = winWordsCache.length;
-  final bool gameOver = gameS.gameOver;
+  final bool gameOver = gameState.gameOver;
   return Text(
     gameOver
-        ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${gameS.targetWords.join(", ")}"
+        ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${gameState.targetWords.join(", ")}"
         : "You've got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"} so far${numberWinsCache != 0 ? ":" : ""} ${winWordsCache.join(", ")}",
   );
 }
@@ -167,7 +167,7 @@ Future<void> _showResetConfirmationScreen(BuildContext context) async {
           ),
           TextButton(
             onPressed: () {
-              gameS.resetBoard();
+              gameState.resetBoard();
               focusNodePopup.requestFocus();
               Navigator.pop(context, 'OK');
               Navigator.pop(context, 'OK');

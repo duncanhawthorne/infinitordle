@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_structure.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
-import 'game_orchestrator.dart';
+import 'game_sequencer.dart';
 import 'helper.dart';
 import 'src/workarounds.dart';
 
@@ -83,7 +83,7 @@ class _InfinitordleState extends State<Infinitordle> {
   @override
   void initState() {
     super.initState();
-    gameO.initiateBoard();
+    gameSequencer.initiateBoard();
   }
 
   @override

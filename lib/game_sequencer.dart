@@ -14,8 +14,8 @@ const int _gradualRevealRowTime =
     gradualRevealDelayTime * (cols - 1) + flipTime;
 
 /// Game orchestrator for Infinitordle.
-class GameOrchestrator extends ChangeNotifier {
-  GameOrchestrator();
+class GameSequencer extends ChangeNotifier {
+  GameSequencer();
 
   // ignore: unused_field
   static final Logger _log = Logger('OR');
@@ -32,39 +32,39 @@ class GameOrchestrator extends ChangeNotifier {
 
   /// Resets the game state and initiates a new board.
   void initiateBoard() {
-    gameS.initiateBoardState();
+    gameState.initiateBoardState();
 
-    gameE.initiateBoardEphemeral();
+    gameEphemeral.initiateBoardEphemeral();
 
     _temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
-    gameF.initiateBoardFlips();
+    gameFlips.initiateBoardFlips();
 
     _stateChange();
   }
 
   /// Handles user input from the on-screen keyboard.
   void onKeyboardTapped(String letter) {
-    gameS.printCheatTargetWords();
+    gameState.printCheatTargetWords();
 
     if (letter == kNonKey) {
       //Ignore pressing of non-keys
     } else if (letter == kBackspace) {
-      gameE.onBackspaceTapped();
+      gameEphemeral.onBackspaceTapped();
     } else if (letter == kEnter) {
       onEnterTapped();
     } else {
-      gameE.onLetterTapped(letter);
+      gameEphemeral.onLetterTapped(letter);
     }
   }
 
   void onEnterTapped() {
     //Submit guess
-    final String typingPreTap = gameE.currentTypingString;
+    final String typingPreTap = gameEphemeral.currentTypingString;
     if (typingPreTap.length == cols) {
       //Full word entered, so can submit
       if (isLegalWord(typingPreTap) &&
-          gameS.abCurrentRowInt < gameS.abLiveNumRowsPerBoard) {
+          gameState.abCurrentRowInt < gameState.abLiveNumRowsPerBoard) {
         //Legal word so can enter the word
         //Note, not necessarily correct word
         _handleLegalWordEntered();
@@ -76,17 +76,18 @@ class GameOrchestrator extends ChangeNotifier {
   void _handleLegalWordEntered() {
     // set some local variable to ensure threadsafe
     final int cardAbRowPreGuessToFix =
-        gameS.abCurrentRowInt; //FIXME CALCED TWICE
-    final int firstKnowledgeToFix = gameS.extraRows + gameS.pushOffBoardRows;
-    final int maxAbRowOfBoard = gameS.abLiveNumRowsPerBoard;
+        gameState.abCurrentRowInt; //FIXME CALCED TWICE
+    final int firstKnowledgeToFix =
+        gameState.extraRows + gameState.pushOffBoardRows;
+    final int maxAbRowOfBoard = gameState.abLiveNumRowsPerBoard;
 
-    final int winningBoardToFix = gameS.handleLegalWordEnteredState(
-      gameE.currentTypingString,
+    final int winningBoardToFix = gameState.handleLegalWordEnteredState(
+      gameEphemeral.currentTypingString,
     );
     final bool isWin = winningBoardToFix != -1; //FIXME CALCED TWICE
-    gameE.setCurrentTyping("");
+    gameEphemeral.setCurrentTyping("");
 
-    gameF.gradualRevealAbRow(cardAbRowPreGuessToFix);
+    gameFlips.gradualRevealAbRow(cardAbRowPreGuessToFix);
     _handleWinLoseState(
       cardAbRowPreGuessToFix,
       winningBoardToFix,
@@ -111,21 +112,24 @@ class GameOrchestrator extends ChangeNotifier {
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
       await Future.wait(<Future<void>>[
-        gameS.saveState(),
+        gameState.saveState(),
         showMainPopupScreen(),
       ]);
     } else if (!infMode && isWin) {
       //Code for totally winning game across all boards
       bool totallySolvedLocal = true;
       for (int i = 0; i < numBoards; i++) {
-        if (!gameS.getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
+        if (!gameState.getDetectBoardSolvedByABRow(
+          i,
+          cardAbRowPreGuessToFix + 1,
+        )) {
           totallySolvedLocal = false;
         }
       }
       if (totallySolvedLocal) {
         // Leave the screen as is
       }
-      await gameS.saveState();
+      await gameState.saveState();
     } else if (infMode && isWin) {
       await _handleWinningWordEntered(
         cardAbRowPreGuessToFix,
@@ -133,7 +137,7 @@ class GameOrchestrator extends ChangeNotifier {
         firstKnowledgeToFix,
       );
     } else {
-      await gameS.saveState();
+      await gameState.saveState();
     }
   }
 
@@ -147,7 +151,7 @@ class GameOrchestrator extends ChangeNotifier {
     await _slideUpAnimation();
     firstKnowledgeToFix++;
 
-    if (gameS.getReadyForStreakAbRowReal(cardAbRowPreGuessToFix)) {
+    if (gameState.getReadyForStreakAbRowReal(cardAbRowPreGuessToFix)) {
       // Streak, so need to take another step back
 
       //Slide up and increment firstKnowledge
@@ -174,7 +178,7 @@ class GameOrchestrator extends ChangeNotifier {
     _temporaryVisualOffsetForSlide = 0;
 
     // Actually move the cards up, so state matches visual illusion above
-    gameS.takeOneStepBack();
+    gameState.takeOneStepBack();
 
     // Pause, so can temporarily see new position
     await _sleep(_visualCatchUpTime);
@@ -187,12 +191,15 @@ class GameOrchestrator extends ChangeNotifier {
     int firstKnowledgeToFix,
   ) async {
     //unflip
-    gameF.setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
+    gameFlips.setBoardFlourishFlipRow(
+      winningBoardToFix,
+      cardAbRowPreGuessToFix,
+    );
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime - flipTime);
 
     // Log the win officially, and get a new word
-    gameS.logWinAndSetNewWordState(
+    gameState.logWinAndSetNewWordState(
       cardAbRowPreGuessToFix,
       winningBoardToFix,
       firstKnowledgeToFix,
@@ -201,7 +208,7 @@ class GameOrchestrator extends ChangeNotifier {
     _stateChange();
 
     //flip
-    gameF.setBoardFlourishFlipRow(winningBoardToFix, -1);
+    gameFlips.setBoardFlourishFlipRow(winningBoardToFix, -1);
 
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime);
@@ -213,8 +220,8 @@ class GameOrchestrator extends ChangeNotifier {
   }
 }
 
-/// Global singleton instance of [GameOrchestrator].
-final GameOrchestrator gameO = GameOrchestrator();
+/// Global singleton instance of [GameSequencer].
+final GameSequencer gameSequencer = GameSequencer();
 
 Future<void> _sleep(int delayAfterMult) async {
   await Future<void>.delayed(Duration(milliseconds: delayAfterMult), () {});

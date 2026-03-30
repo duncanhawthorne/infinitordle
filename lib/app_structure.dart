@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'constants.dart';
 import 'game_ephemeral.dart';
 import 'game_state.dart';
-import 'game_orchestrator.dart';
+import 'game_sequencer.dart';
 import 'gameboard.dart';
 import 'keyboard.dart';
 import 'popup_screens.dart';
@@ -61,9 +61,9 @@ Widget titleWidget() {
         child: FittedBox(
           child: ListenableBuilder(
             listenable: Listenable.merge(<Listenable?>[
-              gameO,
-              gameS,
-              gameS.targetWordsChangedNotifier,
+              gameSequencer,
+              gameState,
+              gameState.targetWordsChangedNotifier,
             ]),
             builder: (BuildContext context, _) {
               return titleWidgetReal();
@@ -77,7 +77,7 @@ Widget titleWidget() {
 
 /// Generates the stylized "infinitordle" title text, showing win count via symbols.
 Widget titleWidgetReal() {
-  final int numberWinsCache = gameS.getWinWords().length;
+  final int numberWinsCache = gameState.getWinWords().length;
   final String infText = numberWinsCache == 0
       ? "o"
       : "∞" * (numberWinsCache ~/ 2) + "o" * (numberWinsCache % 2);
@@ -94,7 +94,7 @@ Widget titleWidgetReal() {
         TextSpan(
           text: infText,
           style: TextStyle(
-            color: numberWinsCache == 0 || gameS.expandingBoardEver
+            color: numberWinsCache == 0 || gameState.expandingBoardEver
                 ? white
                 : green,
           ),
@@ -121,11 +121,11 @@ Widget keyboardListenerWrapper() {
       onKeyEvent: (KeyEvent keyEvent) {
         if (keyEvent is KeyDownEvent) {
           if (keyboardList.contains(keyEvent.character)) {
-            gameO.onKeyboardTapped(keyEvent.character ?? kNonKey);
+            gameSequencer.onKeyboardTapped(keyEvent.character ?? kNonKey);
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
-            gameO.onKeyboardTapped(kEnter);
+            gameSequencer.onKeyboardTapped(kEnter);
           } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
-            gameO.onKeyboardTapped(kBackspace);
+            gameSequencer.onKeyboardTapped(kBackspace);
           }
         }
       },
@@ -144,12 +144,12 @@ Widget gameboardAndKeyboard() {
           alignment: Alignment.center,
           children: <Widget>[
             ValueListenableBuilder<int>(
-              valueListenable: gameE.highlightedBoardNotifier,
+              valueListenable: gameEphemeral.highlightedBoardNotifier,
               builder: (BuildContext context, int value, Widget? child) {
-                return gameE.highlightedBoard != -1
+                return gameEphemeral.highlightedBoard != -1
                     //click away to de-highlight all boards
                     ? InkWell(
-                        onTap: () => gameE.toggleHighlightedBoard(-1),
+                        onTap: () => gameEphemeral.toggleHighlightedBoard(-1),
                         child: SizedBox(
                           width: screen.scW,
                           height: screen.fullSizeOfGameboards,

@@ -6,7 +6,7 @@ import 'constants.dart';
 import 'game_flips.dart';
 import 'game_ephemeral.dart';
 import 'game_state.dart';
-import 'game_orchestrator.dart';
+import 'game_sequencer.dart';
 import 'screen.dart';
 
 /// Builds a row of the on-screen keyboard.
@@ -56,7 +56,7 @@ Widget _kbKeyStack(String kbLetter, int kbRowLength) {
                 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight,
               ),
               onTap: () {
-                gameO.onKeyboardTapped(kbLetter);
+                gameSequencer.onKeyboardTapped(kbLetter);
               },
               child: _kbTextSquare(kbLetter, kbRowLength),
             ),
@@ -80,14 +80,14 @@ Widget _enterKey() {
   return Container(
     padding: const EdgeInsets.all(7),
     child: ValueListenableBuilder<bool>(
-      valueListenable: gameE.illegalFiveLetterWordNotifier,
+      valueListenable: gameEphemeral.illegalFiveLetterWordNotifier,
       builder: (BuildContext context, bool value, Widget? child) {
-        return gameE.illegalFiveLetterWord
+        return gameEphemeral.illegalFiveLetterWord
             ? const Icon(Icons.cancel, color: red)
             : ValueListenableBuilder<int>(
-                valueListenable: gameS.currentRowChangedNotifier,
+                valueListenable: gameState.currentRowChangedNotifier,
                 builder: (BuildContext context, int value, Widget? child) {
-                  return gameS.readyForStreakCurrentRow
+                  return gameState.readyForStreakCurrentRow
                       ? const Icon(Icons.fast_forward, color: green)
                       : const Icon(Icons.keyboard_return_sharp, color: white);
                 },
@@ -139,9 +139,9 @@ final Map<String, Widget> _kbRegularTextCache = <String, Widget>{
 /// Builds a mini-grid inside a key to show statuses for multiple boards simultaneously.
 Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
   return ValueListenableBuilder<int>(
-    valueListenable: gameE.highlightedBoardNotifier,
+    valueListenable: gameEphemeral.highlightedBoardNotifier,
     builder: (BuildContext context, int value, Widget? child) {
-      final bool someBoardHighlighted = gameE.highlightedBoard != -1;
+      final bool someBoardHighlighted = gameEphemeral.highlightedBoard != -1;
       return GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         scrollDirection: Axis.vertical,
@@ -172,11 +172,11 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
 Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
-      gameO,
-      gameS,
-      gameS.pushUpStepsNotifier,
-      gameS.targetWordsChangedNotifier,
-      gameF.abCardFlourishFlipAnglesNotifier,
+      gameSequencer,
+      gameState,
+      gameState.pushUpStepsNotifier,
+      gameState.targetWordsChangedNotifier,
+      gameFlips.abCardFlourishFlipAnglesNotifier,
     ]),
     builder: (BuildContext context, _) {
       return _kbMiniSquareColorChooserReal(kbLetter, subIndex);
@@ -192,7 +192,7 @@ Widget _kbMiniSquareColorChooserReal(String kbLetter, int subIndex) {
   );
   final double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
   final int numRows = screen.numPresentationBigRowsOfBoards;
-  final bool specialHighlighting = gameE.highlightedBoard != -1;
+  final bool specialHighlighting = gameEphemeral.highlightedBoard != -1;
   return _kbMiniSquareColorRounded(
     color,
     subIndex,

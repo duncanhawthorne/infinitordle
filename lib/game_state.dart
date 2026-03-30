@@ -254,7 +254,7 @@ class GameState extends ChangeNotifier {
 
   /// Loads game state from a JSON encoded string.
   void _loadFromEncodedState(String gameEncoded) {
-    if (gameEncoded == gameS._getEncodeCurrentGameState()) {
+    if (gameEncoded == gameState._getEncodeCurrentGameState()) {
       return;
     }
     if (gameEncoded == "") {
@@ -445,7 +445,7 @@ class GameState extends ChangeNotifier {
 }
 
 /// Global singleton instance of [GameState].
-final GameState gameS = GameState();
+final GameState gameState = GameState();
 
 List<int> _getBlankFirstKnowledge(int numberOfBoards) {
   return List<int>.filled(numberOfBoards, 0);
