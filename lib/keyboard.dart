@@ -172,6 +172,7 @@ Widget _kbMiniSquareColorChooser(String kbLetter, int subIndex) {
   return ListenableBuilder(
     listenable: Listenable.merge(<Listenable?>[
       gameO,
+      gameS,
       gameS.pushUpStepsNotifier,
       gameS.targetWordsChangedNotifier,
       gameO.abCardFlourishFlipAnglesNotifier,

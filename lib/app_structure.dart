@@ -62,6 +62,7 @@ Widget titleWidget() {
           child: ListenableBuilder(
             listenable: Listenable.merge(<Listenable?>[
               gameO,
+              gameS,
               gameS.targetWordsChangedNotifier,
             ]),
             builder: (BuildContext context, _) {
