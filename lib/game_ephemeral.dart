@@ -8,7 +8,7 @@ class GameEphemeral {
 
   String get currentTypingString => currentTypingNotifiers
       .map((ValueNotifier<String> element) => element.value)
-      .reduce((String value, String element) => value + element);
+      .join();
 
   int get highlightedBoard => highlightedBoardNotifier.value;
 

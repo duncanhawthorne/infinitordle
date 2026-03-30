@@ -36,4 +36,10 @@ class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
     numberNotYetFlourishFlipped = _numberNonZeroItems();
     notifyListeners();
   }
+
+  void clear() {
+    for (int item in value.keys) {
+      remove(item);
+    }
+  }
 }

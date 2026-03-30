@@ -19,14 +19,15 @@ class GameIO {
   /// Loads game state from a Firebase snapshot.
   void _loadFirebaseSnapshot(String? snapshotCurrentOrNull) {
     _log.info("loadFirebaseSnapshot");
-    if (snapshotCurrentOrNull != null) {
-      final String snapshotCurrent = snapshotCurrentOrNull;
-      if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
-        onDataLoadedCallback.call(snapshotCurrent);
-        _recentSnapshotsCache.add(snapshotCurrent);
-        if (_recentSnapshotsCache.length > 5) {
-          _recentSnapshotsCache.removeAt(0);
-        }
+    if (snapshotCurrentOrNull == null) {
+      return;
+    }
+    final String snapshotCurrent = snapshotCurrentOrNull;
+    if (g.signedIn && !_recentSnapshotsCache.contains(snapshotCurrent)) {
+      onDataLoadedCallback.call(snapshotCurrent);
+      _recentSnapshotsCache.add(snapshotCurrent);
+      if (_recentSnapshotsCache.length > 5) {
+        _recentSnapshotsCache.removeAt(0);
       }
     }
   }

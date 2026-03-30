@@ -92,7 +92,7 @@ class GameState extends ChangeNotifier {
     final int cardAbRowPreGuessToFix = abCurrentRowInt; //FIXME CALCED TWICE
 
     _enteredWords.add(enteredWord);
-    _winRecordBoards.add(-2); //Add now, fix value later
+    _winRecordBoards.add(kBoardWinStatusPending); //Add now, fix value later
 
     currentRowChangedNotifier.value++;
     if (fBase.fbAnalytics) {
@@ -106,7 +106,8 @@ class GameState extends ChangeNotifier {
     final bool isWin = winningBoardToFix != -1; //FIXME CALCED TWICE
 
     if (!isWin) {
-      _winRecordBoards[cardAbRowPreGuessToFix] = -1; //Confirm no win
+      _winRecordBoards[cardAbRowPreGuessToFix] =
+          kBoardWinStatusNoWin; //Confirm no win
     }
 
     return winningBoardToFix;
@@ -122,7 +123,7 @@ class GameState extends ChangeNotifier {
     // Use variables at the time word was entered rather than live variables
 
     // Log the word just entered as a win in the official record
-    // Fix the fact that we stored a -1 in this place temporarily
+    // Fix the fact that we stored a [kBoardWinStatusNoWin] in this place temporarily
     if (_winRecordBoards.length > winRecordBoardsIndexToFix) {
       _winRecordBoards[winRecordBoardsIndexToFix] = winningBoardToFix;
     }
@@ -150,7 +151,7 @@ class GameState extends ChangeNotifier {
     }
     for (int i = 0; i < _cheatEnteredWordsInitial.length; i++) {
       _enteredWords.add(_cheatEnteredWordsInitial[i]);
-      _winRecordBoards.add(-1);
+      _winRecordBoards.add(kBoardWinStatusNoWin);
     }
   }
 
@@ -198,7 +199,7 @@ class GameState extends ChangeNotifier {
       return false;
     }
     for (int q = 0; q < 2; q++) {
-      if (!(abRow - 1 - q < 0 || _winRecordBoards[abRow - 1 - q] != -1)) {
+      if (!(abRow - 1 - q < 0 || _winRecordBoards[abRow - 1 - q] != kBoardWinStatusNoWin)) {
         return false;
       }
     }
@@ -387,7 +388,7 @@ class GameState extends ChangeNotifier {
   List<String> getWinWords() {
     final List<String> log = <String>[];
     for (int i = 0; i < _winRecordBoards.length; i++) {
-      if (_winRecordBoards[i] != -1) {
+      if (_winRecordBoards[i] != kBoardWinStatusNoWin) {
         log.add(_enteredWords[i]);
       }
     }
@@ -429,7 +430,7 @@ class GameState extends ChangeNotifier {
   bool get gameOver =>
       abCurrentRowInt >= abLiveNumRowsPerBoard &&
       _winRecordBoards.isNotEmpty &&
-      _winRecordBoards[_winRecordBoards.length - 1] == -1;
+      _winRecordBoards[_winRecordBoards.length - 1] == kBoardWinStatusNoWin;
 
   /// Triggers update notification for listeners.
   void _stateChange() {

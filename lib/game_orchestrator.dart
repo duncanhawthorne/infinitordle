@@ -57,9 +57,7 @@ class GameOrchestrator extends ChangeNotifier {
 
     temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
-    for (int item in abCardFlourishFlipAnglesNotifier.value.keys) {
-      abCardFlourishFlipAnglesNotifier.remove(item);
-    }
+    abCardFlourishFlipAnglesNotifier.clear();
     _clearBoardFlourishFlipRows();
     illegalFiveLetterWord = false;
 
@@ -137,9 +135,8 @@ class GameOrchestrator extends ChangeNotifier {
     for (int i = 0; i < cols; i++) {
       _setAbCardFlourishFlipAngle(abRow, i, 0.5);
     }
-    //setStateGlobal();
     for (int i = 0; i < cols; i++) {
-      Future<Null>.delayed(
+      Future<void>.delayed(
         Duration(milliseconds: gradualRevealDelayTime * i),
         () {
           _setAbCardFlourishFlipAngle(abRow, i, 0.0);
@@ -147,10 +144,8 @@ class GameOrchestrator extends ChangeNotifier {
             if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
               // Due to delays check still exists before remove
               abCardFlourishFlipAnglesNotifier.remove(abRow);
-              //setStateGlobal(); //needed to refresh keyboard
             }
           }
-          //setStateGlobal();
         },
       );
     }
@@ -226,7 +221,6 @@ class GameOrchestrator extends ChangeNotifier {
   Future<void> _slideUpAnimation() async {
     //Slide the cards up visually, creating the illusion of stepping up
     temporaryVisualOffsetForSlide = 1;
-    //setStateGlobal();
 
     // Delay for sliding cards up to have taken effect
     await _sleep(slideTime);
@@ -246,8 +240,6 @@ class GameOrchestrator extends ChangeNotifier {
     // This function is run after a delay so need to make sure threadsafe
     // Use variables at the time word was entered rather than live variables
     gameS.pushUpSteps++;
-    //save.saveKeys();
-    //setStateGlobal();
   }
 
   /// Animates the flipping and resetting of a solved board.
@@ -258,7 +250,6 @@ class GameOrchestrator extends ChangeNotifier {
   ) async {
     //unflip
     _setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
-    //setStateGlobal();
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime - flipTime);
 
@@ -311,7 +302,6 @@ class GameOrchestrator extends ChangeNotifier {
   /// Triggers update notification for listeners.
   void _stateChange() {
     notifyListeners();
-    //setStateGlobal();
   }
 }
 
@@ -319,7 +309,7 @@ class GameOrchestrator extends ChangeNotifier {
 final GameOrchestrator gameO = GameOrchestrator();
 
 Future<void> _sleep(int delayAfterMult) async {
-  await Future<Null>.delayed(Duration(milliseconds: delayAfterMult), () {});
+  await Future<void>.delayed(Duration(milliseconds: delayAfterMult), () {});
 }
 
 bool _isLegalWord(String word) {

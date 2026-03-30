@@ -29,6 +29,8 @@ const double boardSpacer = 8;
 const String kBackspace = "<";
 const String kEnter = ">";
 const String kNonKey = " ";
+const int kBoardWinStatusPending = -2;
+const int kBoardWinStatusNoWin = -1;
 
 //Helper text
 const List<String> keyboardList = kKbdList;
