@@ -17,7 +17,7 @@ class GameIO {
   final List<String> _recentSnapshotsCache = <String>[];
 
   /// Loads game state from a Firebase snapshot.
-  void loadFirebaseSnapshot(String? snapshotCurrentOrNull) {
+  void _loadFirebaseSnapshot(String? snapshotCurrentOrNull) {
     _log.info("loadFirebaseSnapshot");
     if (snapshotCurrentOrNull != null) {
       final String snapshotCurrent = snapshotCurrentOrNull;
@@ -36,7 +36,7 @@ class GameIO {
     _loadFromFirebaseOrFilesystem(); //initial
     g.gUserNotifier.addListener(() {
       _loadFromFirebaseOrFilesystem();
-      fBase.firebaseChangeListener(g.gUser, callback: loadFirebaseSnapshot);
+      fBase.firebaseChangeListener(g.gUser, callback: _loadFirebaseSnapshot);
     });
   }
 
@@ -56,7 +56,7 @@ class GameIO {
   }
 
   /// Saves state to local shared preferences and Firebase if possible.
-  Future<void> saveToFirebaseAndFilesystemReal(String gameEncoded) async {
+  Future<void> saveToFirebaseAndFilesystem(String gameEncoded) async {
     // save locally
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('game', gameEncoded);

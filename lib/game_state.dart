@@ -113,7 +113,7 @@ class GameState extends ChangeNotifier {
   }
 
   /// Records a win and generates a new target word for the board.
-  void logWinAndSetNewWord(
+  void logWinAndSetNewWordState(
     int winRecordBoardsIndexToFix,
     int winningBoardToFix,
     int firstKnowledgeToFix,
@@ -134,7 +134,7 @@ class GameState extends ChangeNotifier {
     _targetWords[winningBoardToFix] = _getNewTargetWord();
     targetWordsChangedNotifier.value++;
 
-    saveToFirebaseAndFilesystem();
+    saveState();
     //setStateGlobal();
   }
 
@@ -162,7 +162,7 @@ class GameState extends ChangeNotifier {
       fBase.analytics!.logLevelStart(levelName: "Reset");
       fBase.analytics!.logLevelUp(level: _enteredWords.length);
     }
-    saveToFirebaseAndFilesystem();
+    saveState();
   }
 
   /// Toggles between normal and expanding board layout.
@@ -173,7 +173,7 @@ class GameState extends ChangeNotifier {
       expandingBoard = true;
       _expandingBoardEver = true;
     }
-    saveToFirebaseAndFilesystem();
+    saveState();
     _stateChange();
   }
 
@@ -244,7 +244,7 @@ class GameState extends ChangeNotifier {
 
   /// Loads game state from a JSON encoded string.
   void _loadFromEncodedState(String gameEncoded) {
-    if (gameEncoded == gameS.getEncodeCurrentGameState()) {
+    if (gameEncoded == gameS._getEncodeCurrentGameState()) {
       return;
     }
     if (gameEncoded == "") {
@@ -310,13 +310,13 @@ class GameState extends ChangeNotifier {
         _log.severe("loadFromEncodedState error $error");
       }
       _gameEncodedLastCache = gameEncoded;
-      saveToFirebaseAndFilesystem();
+      saveState();
       _stateChange();
     }
   }
 
   /// Encodes current game state into a JSON string.
-  String getEncodeCurrentGameState() {
+  String _getEncodeCurrentGameState() {
     final Map<String, dynamic> gameStateTmp = <String, dynamic>{};
     gameStateTmp["targetWords"] = _targetWords;
     gameStateTmp["gUser"] = g.gUser;
@@ -331,8 +331,8 @@ class GameState extends ChangeNotifier {
     return json.encode(gameStateTmp);
   }
 
-  Future<void> saveToFirebaseAndFilesystem() async {
-    await _io.saveToFirebaseAndFilesystemReal(getEncodeCurrentGameState());
+  Future<void> saveState() async {
+    await _io.saveToFirebaseAndFilesystem(_getEncodeCurrentGameState());
   }
 
   /// Utility for debug printing target words.

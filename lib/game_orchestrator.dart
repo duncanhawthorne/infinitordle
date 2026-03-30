@@ -171,7 +171,7 @@ class GameOrchestrator extends ChangeNotifier {
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
       await Future.wait(<Future<void>>[
-        gameS.saveToFirebaseAndFilesystem(),
+        gameS.saveState(),
         showMainPopupScreen(),
       ]);
     } else if (!infMode && isWin) {
@@ -185,7 +185,7 @@ class GameOrchestrator extends ChangeNotifier {
       if (totallySolvedLocal) {
         // Leave the screen as is
       }
-      await gameS.saveToFirebaseAndFilesystem();
+      await gameS.saveState();
     } else if (infMode && isWin) {
       await _handleWinningWordEntered(
         cardAbRowPreGuessToFix,
@@ -193,7 +193,7 @@ class GameOrchestrator extends ChangeNotifier {
         firstKnowledgeToFix,
       );
     } else {
-      await gameS.saveToFirebaseAndFilesystem();
+      await gameS.saveState();
     }
   }
 
@@ -263,7 +263,7 @@ class GameOrchestrator extends ChangeNotifier {
     await _sleep(_visualCatchUpTime - flipTime);
 
     // Log the win officially, and get a new word
-    gameS.logWinAndSetNewWord(
+    gameS.logWinAndSetNewWordState(
       cardAbRowPreGuessToFix,
       winningBoardToFix,
       firstKnowledgeToFix,
