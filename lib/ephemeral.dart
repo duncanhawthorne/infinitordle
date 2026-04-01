@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'constants.dart';
 
 /// Ephemeral game state for Infinitordle.
-class GameEphemeral {
-  GameEphemeral();
+class Ephemeral {
+  Ephemeral();
 
   String get currentTypingString => currentTypingNotifiers
       .map((ValueNotifier<String> element) => element.value)
@@ -93,5 +93,5 @@ class GameEphemeral {
   }
 }
 
-/// Global singleton instance of [GameEphemeral].
-final GameEphemeral gameEphemeral = GameEphemeral();
+/// Global singleton instance of [Ephemeral].
+final Ephemeral ephemeral = Ephemeral();

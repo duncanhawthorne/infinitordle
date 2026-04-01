@@ -3,16 +3,16 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
-import 'game_flips.dart';
-import 'game_ephemeral.dart';
-import 'game_state.dart';
-import 'game_sequencer.dart';
+import 'flips.dart';
+import 'ephemeral.dart';
+import 'state.dart';
+import 'sequencer.dart';
 
 /// Manages the colors of cards and keyboard keys based on game state and logic.
 class CardColors {
   CardColors({required this.game});
 
-  final GameSequencer game;
+  final Sequencer game;
 
   final Map<int, Map<int, Map<String, Color>>> _cardColorsCache =
       <int, Map<int, Map<String, Color>>>{};
@@ -29,34 +29,32 @@ class CardColors {
   /// Returns the best color (Green > Amber > Grey) for a letter on the keyboard for a specific board.
   Color getBestColorForKeyboardLetter(String letter, int boardNumber) {
     final bool isGlobalCacheInvalid =
-        gameFlips.getLastCardToConsiderForKeyColors() !=
+        flips.getLastCardToConsiderForKeyColors() !=
         _getLastCardToConsiderForKeyColorsCache;
 
     if (isGlobalCacheInvalid) {
-      _getLastCardToConsiderForKeyColorsCache = gameFlips
+      _getLastCardToConsiderForKeyColorsCache = flips
           .getLastCardToConsiderForKeyColors();
       _keyColorsCache.clear();
     }
 
-    if (gameEphemeral.highlightedBoard != -1) {
+    if (ephemeral.highlightedBoard != -1) {
       //only care about color from highlighted board, if highlighted
-      boardNumber = gameEphemeral.highlightedBoard;
+      boardNumber = ephemeral.highlightedBoard;
     }
 
-    final String targetWord = gameState.getCurrentTargetWordForBoard(
-      boardNumber,
-    );
+    final String targetWord = state.getCurrentTargetWordForBoard(boardNumber);
 
     final bool isBoardCacheInvalid =
         !_keyColorsCache.containsKey(boardNumber) ||
         _targetWordsCacheForKey[boardNumber] != targetWord ||
-        gameState.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) !=
+        state.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) !=
             _firstRowsToShowCache[boardNumber];
 
     if (isBoardCacheInvalid) {
       _keyColorsCache[boardNumber] = <String, Color>{};
       _targetWordsCacheForKey[boardNumber] = targetWord;
-      _firstRowsToShowCache[boardNumber] = gameState
+      _firstRowsToShowCache[boardNumber] = state
           .getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber);
     }
 
@@ -82,7 +80,7 @@ class CardColors {
   ) {
     //for transp, just check the existence of the letter rather than color
     for (int abIndex = abStart; abIndex < abEnd; abIndex++) {
-      if (gameState.getCardLetterAtAbIndex(abIndex) == queryLetter &&
+      if (state.getCardLetterAtAbIndex(abIndex) == queryLetter &&
           (color == transp || getAbCardColor(abIndex, boardNumber) == color)) {
         return true;
       }
@@ -104,8 +102,8 @@ class CardColors {
 
     final int abStart =
         cols *
-        max(0, gameState.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
-    final int abEnd = gameFlips.getLastCardToConsiderForKeyColors();
+        max(0, state.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber));
+    final int abEnd = flips.getLastCardToConsiderForKeyColors();
 
     // get color for the keyboard based on best (green > yellow > grey) color on the grid
     for (Color color in _cardColorsPriority) {
@@ -124,14 +122,12 @@ class CardColors {
 
   /// Returns the color of a card at [abIndex] for a specific [boardNumber].
   Color getAbCardColor(int abIndex, int boardNumber) {
-    if (abIndex >= gameState.abCurrentRowInt * cols) {
+    if (abIndex >= state.abCurrentRowInt * cols) {
       // Later rows
       return transp;
     }
-    final String targetWord = gameState.getCurrentTargetWordForBoard(
-      boardNumber,
-    );
-    final String testLetter = gameState.getCardLetterAtAbIndex(abIndex);
+    final String targetWord = state.getCurrentTargetWordForBoard(boardNumber);
+    final String testLetter = state.getCardLetterAtAbIndex(abIndex);
     if (!_cardColorsCache.containsKey(boardNumber) ||
         !_cardColorsCache[boardNumber]![-1]!.containsKey(targetWord)) {
       _cardColorsCache[boardNumber] = <int, Map<String, Color>>{
@@ -155,8 +151,7 @@ class CardColors {
   ) {
     int numberOfGreenThisLetterInCardRow = 0;
     for (int i = 0; i < cols; i++) {
-      if (gameState.getCardLetterAtAbIndex(testAbRow * cols + i) ==
-              testLetter &&
+      if (state.getCardLetterAtAbIndex(testAbRow * cols + i) == testLetter &&
           targetWord[i] == testLetter) {
         numberOfGreenThisLetterInCardRow++;
       }
@@ -174,8 +169,7 @@ class CardColors {
   ) {
     int numberOfYellowThisLetterToLeftInCardRow = 0;
     for (int i = 0; i < testColumn; i++) {
-      if (gameState.getCardLetterAtAbIndex(testAbRow * cols + i) ==
-              testLetter &&
+      if (state.getCardLetterAtAbIndex(testAbRow * cols + i) == testLetter &&
           getAbCardColor(testAbRow * cols + i, boardNumber) == amber) {
         numberOfYellowThisLetterToLeftInCardRow++;
       }
@@ -219,13 +213,11 @@ class CardColors {
 
   /// Internal logic to calculate the color of a card.
   Color _getAbCardColorReal(int abIndex, int boardNumber) {
-    if (abIndex >= gameState.abCurrentRowInt * cols) {
+    if (abIndex >= state.abCurrentRowInt * cols) {
       return transp; //later rows
     }
-    final String targetWord = gameState.getCurrentTargetWordForBoard(
-      boardNumber,
-    );
-    final String testLetter = gameState.getCardLetterAtAbIndex(abIndex);
+    final String targetWord = state.getCurrentTargetWordForBoard(boardNumber);
+    final String testLetter = state.getCardLetterAtAbIndex(abIndex);
     final int testAbRow = abIndex ~/ cols;
     final int testColumn = abIndex % cols;
     if (targetWord[testColumn] == testLetter) {
@@ -245,4 +237,4 @@ class CardColors {
 }
 
 /// Global instance of [CardColors] to be used across the app.
-final CardColors cardColors = CardColors(game: gameSequencer);
+final CardColors cardColors = CardColors(game: sequencer);

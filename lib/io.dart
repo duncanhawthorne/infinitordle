@@ -5,12 +5,12 @@ import 'firebase_saves.dart';
 import 'google/google.dart';
 
 /// Core game IO for Infinitordle.
-class GameIO {
-  GameIO({required this.onDataLoadedCallback}) {
+class IO {
+  IO({required this.onDataLoadedCallback}) {
     _userChangeListener();
   }
 
-  static final Logger _log = Logger('GI');
+  static final Logger _log = Logger('IO');
 
   final void Function(String) onDataLoadedCallback;
 

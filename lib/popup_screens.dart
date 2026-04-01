@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
-import 'game_state.dart';
+import 'state.dart';
 import 'google/google.dart';
 
 FocusNode focusNodePopup = FocusNode();
@@ -113,19 +113,19 @@ Widget scrollableBoardRow(BuildContext context) {
     children: <Widget>[
       const Text('Scrollable board?'),
       ValueListenableBuilder<bool>(
-        valueListenable: gameState.expandingBoardNotifier,
+        valueListenable: state.expandingBoardNotifier,
         builder: (BuildContext context, bool value, Widget? child) {
           return Tooltip(
-            message: gameState.expandingBoard
+            message: state.expandingBoard
                 ? "Turn off scrollable board"
                 : "Turn on scrollable board",
             child: IconButton(
               iconSize: 25,
-              icon: gameState.expandingBoard
+              icon: state.expandingBoard
                   ? const Icon(Icons.visibility_outlined)
                   : const Icon(Icons.visibility_off_outlined),
               onPressed: () {
-                gameState.toggleExpandingBoardState();
+                state.toggleExpandingBoardState();
               },
             ),
           );
@@ -137,12 +137,12 @@ Widget scrollableBoardRow(BuildContext context) {
 
 /// Builds the row showing which words have been won and missed.
 Widget wordsWonRow(BuildContext context) {
-  final List<String> winWordsCache = gameState.getWinWords();
+  final List<String> winWordsCache = state.getWinWords();
   final int numberWinsCache = winWordsCache.length;
-  final bool gameOver = gameState.gameOver;
+  final bool gameOver = state.gameOver;
   return Text(
     gameOver
-        ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${gameState.targetWords.join(", ")}"
+        ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${state.targetWords.join(", ")}"
         : "You've got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"} so far${numberWinsCache != 0 ? ":" : ""} ${winWordsCache.join(", ")}",
   );
 }
@@ -167,7 +167,7 @@ Future<void> _showResetConfirmationScreen(BuildContext context) async {
           ),
           TextButton(
             onPressed: () {
-              gameState.resetBoard();
+              state.resetBoard();
               focusNodePopup.requestFocus();
               Navigator.pop(context, 'OK');
               Navigator.pop(context, 'OK');

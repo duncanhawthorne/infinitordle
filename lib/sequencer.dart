@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
 import 'constants.dart';
-import 'game_flips.dart';
-import 'game_ephemeral.dart';
-import 'game_state.dart';
+import 'flips.dart';
+import 'ephemeral.dart';
+import 'state.dart';
 import 'popup_screens.dart';
 
 const int _visualCatchUpTime = delayMult * 750;
@@ -14,10 +14,9 @@ const int _gradualRevealRowTime =
     gradualRevealDelayTime * (cols - 1) + flipTime;
 
 /// Game orchestrator for Infinitordle.
-class GameSequencer {
-
+class Sequencer {
   // ignore: unused_field
-  static final Logger _log = Logger('OR');
+  static final Logger _log = Logger('SQ');
 
   int get temporaryVisualOffsetForSlide =>
       temporaryVisualOffsetForSlideNotifier.value;
@@ -31,37 +30,37 @@ class GameSequencer {
 
   /// Resets the game state and initiates a new board.
   void initiateBoard() {
-    gameState.initiateBoardState();
+    state.initiateBoardState();
 
-    gameEphemeral.initiateBoardEphemeral();
+    ephemeral.initiateBoardEphemeral();
 
     _temporaryVisualOffsetForSlide = 0;
     //gameEncodedLastCache = ""; Don't reset else new d/l will show as change
-    gameFlips.initiateBoardFlips();
+    flips.initiateBoardFlips();
   }
 
   /// Handles user input from the on-screen keyboard.
   void onKeyboardTapped(String letter) {
-    gameState.printCheatTargetWords();
+    state.printCheatTargetWords();
 
     if (letter == kNonKey) {
       //Ignore pressing of non-keys
     } else if (letter == kBackspace) {
-      gameEphemeral.onBackspaceTapped();
+      ephemeral.onBackspaceTapped();
     } else if (letter == kEnter) {
       onEnterTapped();
     } else {
-      gameEphemeral.onLetterTapped(letter);
+      ephemeral.onLetterTapped(letter);
     }
   }
 
   void onEnterTapped() {
     //Submit guess
-    final String typingPreTap = gameEphemeral.currentTypingString;
+    final String typingPreTap = ephemeral.currentTypingString;
     if (typingPreTap.length == cols) {
       //Full word entered, so can submit
       if (isLegalWord(typingPreTap) &&
-          gameState.abCurrentRowInt < gameState.abLiveNumRowsPerBoard) {
+          state.abCurrentRowInt < state.abLiveNumRowsPerBoard) {
         //Legal word so can enter the word
         //Note, not necessarily correct word
         _handleLegalWordEntered();
@@ -73,18 +72,17 @@ class GameSequencer {
   void _handleLegalWordEntered() {
     // set some local variable to ensure threadsafe
     final int cardAbRowPreGuessToFix =
-        gameState.abCurrentRowInt; //FIXME CALCED TWICE
-    final int firstKnowledgeToFix =
-        gameState.extraRows + gameState.pushOffBoardRows;
-    final int maxAbRowOfBoard = gameState.abLiveNumRowsPerBoard;
+        state.abCurrentRowInt; //FIXME CALCED TWICE
+    final int firstKnowledgeToFix = state.extraRows + state.pushOffBoardRows;
+    final int maxAbRowOfBoard = state.abLiveNumRowsPerBoard;
 
-    final int winningBoardToFix = gameState.handleLegalWordEnteredState(
-      gameEphemeral.currentTypingString,
+    final int winningBoardToFix = state.handleLegalWordEnteredState(
+      ephemeral.currentTypingString,
     );
     final bool isWin = winningBoardToFix != -1; //FIXME CALCED TWICE
-    gameEphemeral.setCurrentTyping("");
+    ephemeral.setCurrentTyping("");
 
-    gameFlips.gradualRevealAbRow(cardAbRowPreGuessToFix);
+    flips.gradualRevealAbRow(cardAbRowPreGuessToFix);
     _handleWinLoseState(
       cardAbRowPreGuessToFix,
       winningBoardToFix,
@@ -109,24 +107,21 @@ class GameSequencer {
     if (!isWin && cardAbRowPreGuessToFix + 1 >= maxAbRowOfBoard) {
       //All rows full, game over
       await Future.wait(<Future<void>>[
-        gameState.saveState(),
+        state.saveState(),
         showMainPopupScreen(),
       ]);
     } else if (!infMode && isWin) {
       //Code for totally winning game across all boards
       bool totallySolvedLocal = true;
       for (int i = 0; i < numBoards; i++) {
-        if (!gameState.getDetectBoardSolvedByABRow(
-          i,
-          cardAbRowPreGuessToFix + 1,
-        )) {
+        if (!state.getDetectBoardSolvedByABRow(i, cardAbRowPreGuessToFix + 1)) {
           totallySolvedLocal = false;
         }
       }
       if (totallySolvedLocal) {
         // Leave the screen as is
       }
-      await gameState.saveState();
+      await state.saveState();
     } else if (infMode && isWin) {
       await _handleWinningWordEntered(
         cardAbRowPreGuessToFix,
@@ -134,7 +129,7 @@ class GameSequencer {
         firstKnowledgeToFix,
       );
     } else {
-      await gameState.saveState();
+      await state.saveState();
     }
   }
 
@@ -148,7 +143,7 @@ class GameSequencer {
     await _slideUpAnimation();
     firstKnowledgeToFix++;
 
-    if (gameState.getReadyForStreakAbRowReal(cardAbRowPreGuessToFix)) {
+    if (state.getReadyForStreakAbRowReal(cardAbRowPreGuessToFix)) {
       // Streak, so need to take another step back
 
       //Slide up and increment firstKnowledge
@@ -175,7 +170,7 @@ class GameSequencer {
     _temporaryVisualOffsetForSlide = 0;
 
     // Actually move the cards up, so state matches visual illusion above
-    gameState.takeOneStepBack();
+    state.takeOneStepBack();
 
     // Pause, so can temporarily see new position
     await _sleep(_visualCatchUpTime);
@@ -188,31 +183,27 @@ class GameSequencer {
     int firstKnowledgeToFix,
   ) async {
     //unflip
-    gameFlips.setBoardFlourishFlipRow(
-      winningBoardToFix,
-      cardAbRowPreGuessToFix,
-    );
+    flips.setBoardFlourishFlipRow(winningBoardToFix, cardAbRowPreGuessToFix);
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime - flipTime);
 
     // Log the win officially, and get a new word
-    gameState.logWinAndSetNewWordState(
+    state.logWinAndSetNewWordState(
       cardAbRowPreGuessToFix,
       winningBoardToFix,
       firstKnowledgeToFix,
     );
 
     //flip
-    gameFlips.setBoardFlourishFlipRow(winningBoardToFix, -1);
+    flips.setBoardFlourishFlipRow(winningBoardToFix, -1);
 
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime);
   }
-
 }
 
-/// Global singleton instance of [GameSequencer].
-final GameSequencer gameSequencer = GameSequencer();
+/// Global singleton instance of [Sequencer].
+final Sequencer sequencer = Sequencer();
 
 Future<void> _sleep(int delayAfterMult) async {
   await Future<void>.delayed(Duration(milliseconds: delayAfterMult), () {});

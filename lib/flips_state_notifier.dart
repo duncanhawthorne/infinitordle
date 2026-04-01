@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'constants.dart';
 
 /// Notifier for managing card flip flourish animations.
-class CustomMapNotifier extends ValueNotifier<Map<int, List<double>>> {
-  CustomMapNotifier() : super(<int, List<double>>{});
+class FlipsStateNotifier extends ValueNotifier<Map<int, List<double>>> {
+  FlipsStateNotifier() : super(<int, List<double>>{});
 
   int _numberNonZeroItems() {
     int count = 0;

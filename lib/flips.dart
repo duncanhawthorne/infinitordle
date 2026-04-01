@@ -3,13 +3,13 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
-import 'card_flips_state_notifier.dart';
+import 'flips_state_notifier.dart';
 import 'constants.dart';
-import 'game_state.dart';
+import 'state.dart';
 
-class GameFlips {
-  final CustomMapNotifier abCardFlourishFlipAnglesNotifier =
-      CustomMapNotifier(); //{}.obs;
+class Flips {
+  final FlipsStateNotifier abCardFlourishFlipAnglesNotifier =
+      FlipsStateNotifier(); //{}.obs;
   final List<ValueNotifier<int>> boardFlourishFlipRowsNotifiers =
       List<ValueNotifier<int>>.generate(
         cols,
@@ -46,7 +46,7 @@ class GameFlips {
 
   /// Returns the index of the last card relevant for coloring keys.
   int getLastCardToConsiderForKeyColors() {
-    return gameState.abCurrentRowInt * cols -
+    return state.abCurrentRowInt * cols -
         abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
   }
 
@@ -80,7 +80,7 @@ class GameFlips {
     final int abRow = abIndex ~/ cols;
     final double cardFlipAngle =
         _getPermFlipAngle(abIndex) - _getFlourishFlipAngle(abIndex);
-    final double boardFlipAngle = abRow <= gameState.abCurrentRowInt
+    final double boardFlipAngle = abRow <= state.abCurrentRowInt
         ? _getFlourishBoardFlipAngle(boardNumber)
         : 0;
     return max(0, cardFlipAngle - boardFlipAngle);
@@ -89,7 +89,7 @@ class GameFlips {
   /// Returns 0.5 (flipped) if the row has been entered, otherwise 0.
   double _getPermFlipAngle(int abIndex) {
     final int abRow = abIndex ~/ cols;
-    return abRow >= gameState.abCurrentRowInt ? 0 : 0.5;
+    return abRow >= state.abCurrentRowInt ? 0 : 0.5;
   }
 
   /// Retrieves the temporary flourish flip angle from the game logic notifier.
@@ -109,4 +109,4 @@ class GameFlips {
   }
 }
 
-final GameFlips gameFlips = GameFlips();
+final Flips flips = Flips();

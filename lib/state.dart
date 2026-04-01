@@ -7,7 +7,7 @@ import 'package:logging/logging.dart';
 import 'card_colors.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
-import 'game_io.dart';
+import 'io.dart';
 import 'google/google.dart';
 import 'wordlist.dart';
 
@@ -29,14 +29,14 @@ const List<String> _winnableWords = kWinnableWordsList;
 final Random _random = Random();
 
 /// Core game state for Infinitordle.
-class GameState extends ChangeNotifier {
-  GameState() {
-    _io = GameIO(onDataLoadedCallback: _loadFromEncodedState);
+class State extends ChangeNotifier {
+  State() {
+    _io = IO(onDataLoadedCallback: _loadFromEncodedState);
   }
 
-  late final GameIO _io;
+  late final IO _io;
 
-  static final Logger _log = Logger('GS');
+  static final Logger _log = Logger('ST');
 
   //getters / setters
   List<String> get targetWords => _targetWords;
@@ -254,7 +254,7 @@ class GameState extends ChangeNotifier {
 
   /// Loads game state from a JSON encoded string.
   void _loadFromEncodedState(String gameEncoded) {
-    if (gameEncoded == gameState._getEncodeCurrentGameState()) {
+    if (gameEncoded == _getEncodeCurrentGameState()) {
       return;
     }
     if (gameEncoded == "") {
@@ -444,8 +444,8 @@ class GameState extends ChangeNotifier {
   }
 }
 
-/// Global singleton instance of [GameState].
-final GameState gameState = GameState();
+/// Global singleton instance of [State].
+final State state = State();
 
 List<int> _getBlankFirstKnowledge(int numberOfBoards) {
   return List<int>.filled(numberOfBoards, 0);
