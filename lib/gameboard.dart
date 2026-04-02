@@ -11,6 +11,11 @@ import 'state.dart';
 import 'sequencer.dart';
 import 'screen.dart';
 
+/// Coordinate System:
+/// AB (Absolute Board): The overall index/row of the game across all historical guesses.
+/// GB (Game Board): The localized index/row currently visible on the screen.
+/// RGB (Reverse Game Board): Used for the GridView to allow bottom-up stacking.
+
 const double _notionalCardSize = 1.0;
 const int _renderTwoFramesTime =
     delayMult *
@@ -25,9 +30,7 @@ Widget gameboardWidget(int boardNumber) {
     builder: (BuildContext context, bool value, Widget? child) {
       return state.expandingBoard
           ? ListenableBuilder(
-              listenable: Listenable.merge(<Listenable?>[
-                state.pushUpStepsNotifier,
-              ]),
+              listenable: state.pushUpStepsNotifier,
               builder: (BuildContext context, _) {
                 return _gameboardWidgetReal(boardNumber);
               },
