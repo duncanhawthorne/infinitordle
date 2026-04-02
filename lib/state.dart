@@ -29,7 +29,7 @@ const List<String> _winnableWords = kWinnableWordsList;
 final Random _random = Random();
 
 /// Core game state for Infinitordle.
-class State extends ChangeNotifier {
+class State {
   State() {
     _io = IO(onDataLoadedCallback: _loadFromEncodedState);
   }
@@ -83,7 +83,6 @@ class State extends ChangeNotifier {
     if (cheatMode) {
       _cheatInitiate();
     }
-    _stateChange();
   }
 
   /// Processes a legally entered 5-letter word guess.
@@ -142,7 +141,6 @@ class State extends ChangeNotifier {
     _targetWords[winningBoardToFix] = _getNewTargetWord();
     targetWordsChangedNotifier.value++;
 
-    _stateChange();
     saveState();
   }
 
@@ -182,7 +180,6 @@ class State extends ChangeNotifier {
       _expandingBoardEver = true;
     }
     saveState();
-    _stateChange();
   }
 
   /// Returns the letter at a specific grid index.
@@ -259,7 +256,6 @@ class State extends ChangeNotifier {
     }
     if (gameEncoded == "") {
       _log.severe("loadFromEncodedState empty");
-      _stateChange();
     } else if (gameEncoded != _gameEncodedLastCache) {
       try {
         Map<String, dynamic> gameTmp = <String, dynamic>{};
@@ -271,7 +267,6 @@ class State extends ChangeNotifier {
           //g.forceResetUserTo(tmpgUser);
           //_loadFromFirebaseOrFilesystem();
           _log.severe("users dont match $tmpgUser ${g.gUser}");
-          _stateChange();
           //don't load up
           return;
         }
@@ -321,7 +316,6 @@ class State extends ChangeNotifier {
       }
       _gameEncodedLastCache = gameEncoded;
       saveState();
-      _stateChange();
     }
   }
 
@@ -437,11 +431,6 @@ class State extends ChangeNotifier {
       _winRecordBoards.isNotEmpty &&
       _winRecordBoards[_winRecordBoards.length - 1] == kBoardWinStatusNoWin;
 
-  /// Triggers update notification for listeners.
-  void _stateChange() {
-    notifyListeners();
-    //setStateGlobal();
-  }
 }
 
 /// Global singleton instance of [State].

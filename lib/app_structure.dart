@@ -61,7 +61,7 @@ Widget titleWidget() {
         child: FittedBox(
           child: ListenableBuilder(
             listenable: Listenable.merge(<Listenable?>[
-              state,
+              state.expandingBoardNotifier,
               state.targetWordsChangedNotifier,
             ]),
             builder: (BuildContext context, _) {
