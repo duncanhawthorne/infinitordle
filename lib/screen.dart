@@ -49,7 +49,7 @@ class Screen {
       _vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 
       keyboardSingleKeyLiveMaxPixelHeight = min(
-        _keyAspectRatioDefault * scW / 10,
+        _keyAspectRatioDefault * scW / kMaxKbRowLength,
         _keyAspectRatioDefault * _vertSpaceAfterTitle * 0.17 / 3,
       );
 
@@ -82,14 +82,14 @@ class Screen {
         //if still space left over, no point squashing keyboard for nothing
 
         keyboardSingleKeyLiveMaxPixelHeight = min(
-          _keyAspectRatioDefault * scW / 10,
+          _keyAspectRatioDefault * scW / kMaxKbRowLength,
           (_vertSpaceAfterTitle - fullSizeOfGameboards) / 3,
         );
       }
 
       keyAspectRatioLive = max(
         0.5,
-        keyboardSingleKeyLiveMaxPixelHeight / (scW / 10),
+        keyboardSingleKeyLiveMaxPixelHeight / (scW / kMaxKbRowLength),
       );
       keyboardSingleKeyLiveMaxPixelWidth =
           keyboardSingleKeyLiveMaxPixelHeight / keyAspectRatioLive;

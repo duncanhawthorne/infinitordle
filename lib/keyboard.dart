@@ -17,7 +17,7 @@ Widget keyboardRowWidget(int keyBoardStartKeyIndex, int kbRowLength) {
     constraints: BoxConstraints(
       maxWidth:
           screen.keyboardSingleKeyLiveMaxPixelHeight *
-          10 /
+          kMaxKbRowLength /
           screen.keyAspectRatioLive,
       maxHeight: screen.keyboardSingleKeyLiveMaxPixelHeight,
     ),
@@ -26,7 +26,8 @@ Widget keyboardRowWidget(int keyBoardStartKeyIndex, int kbRowLength) {
       itemCount: kbRowLength,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: kbRowLength,
-        childAspectRatio: 1 / screen.keyAspectRatioLive * (10 / kbRowLength),
+        childAspectRatio:
+            1 / screen.keyAspectRatioLive * (kMaxKbRowLength / kbRowLength),
       ),
       itemBuilder: (BuildContext context, int offsetIndex) {
         final String kbLetter =
@@ -103,15 +104,15 @@ Widget _kbTextSquare(String kbLetter, int kbRowLength) {
     height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
     width:
         screen.keyboardSingleKeyLiveMaxPixelWidth *
-        10 /
+        kMaxKbRowLength /
         kbRowLength, //double.infinity,
     child: FittedBox(
       fit: BoxFit.fitHeight,
-      child: kbLetter == kBackspace
-          ? _backspaceKey()
-          : kbLetter == kEnter
-          ? _enterKey()
-          : _kbRegularTextCache[kbLetter],
+      child: switch (kbLetter) {
+        kBackspace => _backspaceKey(),
+        kEnter => _enterKey(),
+        _ => _kbRegularTextCache[kbLetter],
+      },
     ),
   );
 }
@@ -158,7 +159,7 @@ Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
                         ((numBoards / screen.numPresentationBigRowsOfBoards) /
                             screen.numPresentationBigRowsOfBoards)) /
               screen.keyAspectRatioLive *
-              (10 / kbRowLength),
+              (kMaxKbRowLength / kbRowLength),
         ),
         itemBuilder: (BuildContext context, int subIndex) {
           return _kbMiniSquareColorChooser(kbLetter, subIndex);

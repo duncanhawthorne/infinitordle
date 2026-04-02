@@ -29,6 +29,7 @@ const double boardSpacer = 8;
 const String kBackspace = "<";
 const String kEnter = ">";
 const String kNonKey = " ";
+const int kMaxKbRowLength = 10;
 const int kBoardWinStatusPending = -2;
 const int kBoardWinStatusNoWin = -1;
 
