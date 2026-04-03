@@ -20,7 +20,7 @@ const double _notionalCardSize = 1.0;
 const int _renderTwoFramesTime =
     delayMult *
     33; // so that set state and animations don't happen exactly simultaneously
-const double tau = 2 * pi;
+const double _tau = 2 * pi;
 
 /// Builds the gameboard widget for a specific [boardNumber].
 /// Listens to [expandingBoardNotifier] and [pushUpStepsNotifier] to handle layouts.
@@ -123,16 +123,6 @@ Widget _cardFlipperAlts(int abIndex, int boardNumber) {
   );
 }
 
-/// Builds the visual card widget with a slide animation listener.
-Widget _cardBuilder(int abIndex, int boardNumber, bool facingFront) {
-  return ValueListenableBuilder<int>(
-    valueListenable: sequencer.temporaryVisualOffsetForSlideNotifier,
-    builder: (BuildContext context, int value, Widget? child) {
-      return _positionedScaledCard(abIndex, boardNumber, facingFront);
-    },
-  );
-}
-
 /// Handles the 3D flip animation of a card.
 Widget _cardFlipper(int abIndex, int boardNumber) {
   final Widget childFront = _cardBuilder(abIndex, boardNumber, true);
@@ -149,9 +139,19 @@ Widget _cardFlipper(int abIndex, int boardNumber) {
       return (Transform(
         alignment: Alignment.center,
         transform: Matrix4.identity()
-          ..rotateX(angle * tau + (isFront ? tau / 2 : 0)),
+          ..rotateX(angle * _tau + (isFront ? _tau / 2 : 0)),
         child: isFront ? childFront : childBack,
       ));
+    },
+  );
+}
+
+/// Builds the visual card widget with a slide animation listener.
+Widget _cardBuilder(int abIndex, int boardNumber, bool facingFront) {
+  return ValueListenableBuilder<int>(
+    valueListenable: sequencer.temporaryVisualOffsetForSlideNotifier,
+    builder: (BuildContext context, int value, Widget? child) {
+      return _positionedScaledCard(abIndex, boardNumber, facingFront);
     },
   );
 }
@@ -285,6 +285,27 @@ Widget _cardChooserRealReal(int abIndex, int boardNumber, bool facingFront) {
   return _cardCache[normalHighlighting]![cardLetter]![cardColor]![borderColor]!;
 }
 
+/// Cache for built card widgets.
+final Map<bool, Map<String, Map<Color, Map<Color, Widget>>>> _cardCache =
+    <bool, Map<String, Map<Color, Map<Color, Widget>>>>{
+      for (bool normalHighlighting in <bool>[true, false])
+        (normalHighlighting): <String, Map<Color, Map<Color, Widget>>>{
+          for (String cardLetter in keyboardList)
+            (cardLetter): <Color, Map<Color, Widget>>{
+              for (Color cardColor in cardColorsList)
+                (cardColor): <Color, Widget>{
+                  for (Color borderColor in borderColorsList)
+                    (borderColor): _card(
+                      normalHighlighting,
+                      cardLetter,
+                      cardColor,
+                      borderColor,
+                    ),
+                },
+            },
+        },
+    };
+
 /// Basic card building block with border and background color.
 Widget _card(
   bool normalHighlighting,
@@ -317,6 +338,62 @@ Widget _card(
   );
 }
 
+/// Cache for card text widgets.
+final Map<bool, Map<String, Widget>> _cardTextCache =
+    <bool, Map<String, Widget>>{
+      for (bool normalHighlighting in <bool>[true, false])
+        (normalHighlighting): <String, Widget>{
+          for (String cardLetter in keyboardList)
+            (cardLetter): _cardTextConst(normalHighlighting, cardLetter),
+        },
+    };
+
+/// Creates the text widget for a card's letter.
+Widget _cardTextConst(bool normalHighlighting, String cardLetter) {
+  return StrokeText(
+    text: cardLetter.toUpperCase(),
+    strokeWidth: 0.5, //previously 0.5 * cardSize / screen.cardLiveMaxPixel,
+    strokeColor: normalHighlighting ? bg : transp,
+    textStyle: TextStyle(
+      height: 1.15,
+      leadingDistribution: TextLeadingDistribution.even,
+      color: normalHighlighting ? white : _offWhite,
+      fontWeight: FontWeight.bold,
+    ),
+  );
+}
+
+String _getCardLetter(int abIndex) {
+  final int abRow = abIndex ~/ cols;
+  final int col = abIndex % cols;
+  if (abRow > state.abCurrentRowInt) {
+    return "";
+  } else if (abRow == state.abCurrentRowInt) {
+    return ephemeral.getCurrentTypingAtCol(col);
+  } else {
+    return state.getCardLetterAtAbIndex(abIndex);
+  }
+}
+
+/// Softens colors for non-highlighted boards.
+Color _soften(int boardNumber, Color color) {
+  if (ephemeral.isBoardNormalHighlighted(boardNumber) ||
+      !_softColorMap.containsKey(color)) {
+    return color;
+  } else {
+    return _softColorMap[color]!;
+  }
+}
+
+final Map<Color, Color> _softColorMap = <Color, Color>{
+  green: _softGreen,
+  amber: _softAmber,
+  red: _softRed,
+  white: _offWhite,
+  //grey: grey
+  bg: transp,
+};
+
 const Color _softGreen = Color(0xff61B063);
 const Color _softAmber = Color(0xffFFCF40);
 const Color _softRed = Color(0xffF55549);
@@ -336,83 +413,6 @@ final List<Color> cardColorsList = <Color>[
 
 /// List of available border colors.
 final List<Color> borderColorsList = <Color>[green, _softGreen, transp];
-
-/// Cache for built card widgets.
-final Map<bool, Map<String, Map<Color, Map<Color, Widget>>>> _cardCache =
-    <bool, Map<String, Map<Color, Map<Color, Widget>>>>{
-      for (bool normalHighlighting in <bool>[true, false])
-        (normalHighlighting): <String, Map<Color, Map<Color, Widget>>>{
-          for (String cardLetter in keyboardList)
-            (cardLetter): <Color, Map<Color, Widget>>{
-              for (Color cardColor in cardColorsList)
-                (cardColor): <Color, Widget>{
-                  for (Color borderColor in borderColorsList)
-                    (borderColor): _card(
-                      normalHighlighting,
-                      cardLetter,
-                      cardColor,
-                      borderColor,
-                    ),
-                },
-            },
-        },
-    };
-
-/// Creates the text widget for a card's letter.
-Widget _cardTextConst(bool normalHighlighting, String cardLetter) {
-  return StrokeText(
-    text: cardLetter.toUpperCase(),
-    strokeWidth: 0.5, //previously 0.5 * cardSize / screen.cardLiveMaxPixel,
-    strokeColor: normalHighlighting ? bg : transp,
-    textStyle: TextStyle(
-      height: 1.15,
-      leadingDistribution: TextLeadingDistribution.even,
-      color: normalHighlighting ? white : _offWhite,
-      fontWeight: FontWeight.bold,
-    ),
-  );
-}
-
-/// Cache for card text widgets.
-final Map<bool, Map<String, Widget>> _cardTextCache =
-    <bool, Map<String, Widget>>{
-      for (bool normalHighlighting in <bool>[true, false])
-        (normalHighlighting): <String, Widget>{
-          for (String cardLetter in keyboardList)
-            (cardLetter): _cardTextConst(normalHighlighting, cardLetter),
-        },
-    };
-
-final Map<Color, Color> _softColorMap = <Color, Color>{
-  green: _softGreen,
-  amber: _softAmber,
-  red: _softRed,
-  white: _offWhite,
-  //grey: grey
-  bg: transp,
-};
-
-/// Softens colors for non-highlighted boards.
-Color _soften(int boardNumber, Color color) {
-  if (ephemeral.isBoardNormalHighlighted(boardNumber) ||
-      !_softColorMap.containsKey(color)) {
-    return color;
-  } else {
-    return _softColorMap[color]!;
-  }
-}
-
-String _getCardLetter(int abIndex) {
-  final int abRow = abIndex ~/ cols;
-  final int col = abIndex % cols;
-  if (abRow > state.abCurrentRowInt) {
-    return "";
-  } else if (abRow == state.abCurrentRowInt) {
-    return ephemeral.getCurrentTypingAtCol(col);
-  } else {
-    return state.getCardLetterAtAbIndex(abIndex);
-  }
-}
 
 // ignore: unused_element
 int _getABRowFromGBRow(int gbRow) {
