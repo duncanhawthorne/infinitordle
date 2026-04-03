@@ -45,11 +45,11 @@ class _scaffold extends StatelessWidget {
                 centerTitle: true,
                 titleSpacing: 0,
                 toolbarHeight: screen.appBarHeight,
-                title: titleWidget(),
+                title: titleWidget(screen.appBarHeight),
                 backgroundColor: bg,
                 scrolledUnderElevation: 0.0,
               ),
-              body: bodyWidget(),
+              body: const bodyWidget(),
             );
           },
         ),
@@ -60,7 +60,9 @@ class _scaffold extends StatelessWidget {
 
 /// Builds the interactive title widget in the AppBar.
 class titleWidget extends StatelessWidget {
-  const titleWidget({super.key});
+  const titleWidget(this.appBarHeight, {super.key});
+
+  final double appBarHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +72,7 @@ class titleWidget extends StatelessWidget {
       },
       child: SizedBox(
         height:
-        screen.appBarHeight, //so whole vertical space of appbar is clickable
+        appBarHeight, //so whole vertical space of appbar is clickable
         width: double.infinity,
         child: DecoratedBox(
           decoration: const BoxDecoration(color: Colors.transparent),
@@ -81,7 +83,7 @@ class titleWidget extends StatelessWidget {
                 state.targetWordsChangedNotifier,
               ]),
               builder: (BuildContext context, _) {
-                return titleWidgetReal();
+                return titleWidgetReal(appBarHeight);
               },
             ),
           ),
@@ -93,7 +95,9 @@ class titleWidget extends StatelessWidget {
 
 /// Generates the stylized "infinitordle" title text, showing win count via symbols.
 class titleWidgetReal extends StatelessWidget {
-  const titleWidgetReal({super.key});
+  const titleWidgetReal(this.appBarHeight, {super.key});
+
+  final double appBarHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +110,7 @@ class titleWidgetReal extends StatelessWidget {
         style: TextStyle(
           color: white,
           fontWeight: FontWeight.bold,
-          fontSize: screen.appBarHeight * 40 / 56,
+          fontSize: appBarHeight * 40 / 56,
           fontFamily: GoogleFonts.roboto().fontFamily,
         ),
         children: <TextSpan>[
@@ -132,7 +136,7 @@ class bodyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return keyboardListenerWrapper();
+    return const keyboardListenerWrapper();
   }
 }
 
@@ -159,7 +163,7 @@ class keyboardListenerWrapper extends StatelessWidget {
             }
           }
         },
-        child: gameboardAndKeyboard(),
+        child: const gameboardAndKeyboard(),
       ),
     );
   }
@@ -173,56 +177,63 @@ class gameboardAndKeyboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: bg,
-      child: Column(
-        children: <Widget>[
-          Stack(
-            alignment: Alignment.center,
+      child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+          return Column(
             children: <Widget>[
-              ValueListenableBuilder<int>(
-                valueListenable: ephemeral.highlightedBoardNotifier,
-                builder: (BuildContext context, int value, Widget? child) {
-                  return ephemeral.highlightedBoard != -1
-                  //click away to de-highlight all boards
-                      ? InkWell(
-                    onTap: () => ephemeral.toggleHighlightedBoard(-1),
-                    child: SizedBox(
-                      width: screen.scW,
-                      height: screen.fullSizeOfGameboards,
-                    ),
-                  )
-                      : const SizedBox.shrink();
-                },
-              ),
-              Wrap(
-                spacing: boardSpacer,
-                runSpacing: boardSpacer,
+              Stack(
+                alignment: Alignment.center,
                 children: <Widget>[
-                  // Split into 2 halves so that don't get a wrap on 3 + 1 basis
-                  Wrap(
-                    spacing: boardSpacer,
-                    runSpacing: boardSpacer,
-                    children: List<Widget>.generate(
-                      numBoards ~/ 2,
-                          (int index) => gameboardWidget(index),
-                    ),
+                  ValueListenableBuilder<int>(
+                    valueListenable: ephemeral.highlightedBoardNotifier,
+                    builder: (BuildContext context, int value, Widget? child) {
+                      return ephemeral.highlightedBoard != -1
+                      //click away to de-highlight all boards
+                          ? InkWell(
+                        onTap: () => ephemeral.toggleHighlightedBoard(-1),
+                        child: SizedBox(
+                          width: screen.scW,
+                          height: screen.fullSizeOfGameboards,
+                        ),
+                      )
+                          : const SizedBox.shrink();
+                    },
                   ),
                   Wrap(
                     spacing: boardSpacer,
                     runSpacing: boardSpacer,
-                    children: List<Widget>.generate(
-                      numBoards - (numBoards ~/ 2),
-                          (int index) => gameboardWidget(numBoards ~/ 2 + index),
-                    ),
+                    children: <Widget>[
+                      // Split into 2 halves so that don't get a wrap on 3 + 1 basis
+                      Wrap(
+                        spacing: boardSpacer,
+                        runSpacing: boardSpacer,
+                        children: List<Widget>.generate(
+                          numBoards ~/ 2,
+                              (int index) => gameboardWidget(index),
+                        ),
+                      ),
+                      Wrap(
+                        spacing: boardSpacer,
+                        runSpacing: boardSpacer,
+                        children: List<Widget>.generate(
+                          numBoards - (numBoards ~/ 2),
+                              (int index) => gameboardWidget(numBoards ~/ 2 + index),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+              const Divider(color: Colors.transparent, height: dividerHeight),
+              // ignore: prefer_const_constructors
+              keyboardRowWidget(0, 10),
+              // ignore: prefer_const_constructors
+              keyboardRowWidget(10, 9),
+              // ignore: prefer_const_constructors
+              keyboardRowWidget(20, 9),
             ],
-          ),
-          const Divider(color: Colors.transparent, height: dividerHeight),
-          keyboardRowWidget(0, 10),
-          keyboardRowWidget(10, 9),
-          keyboardRowWidget(20, 9),
-        ],
+          );
+        }
       ),
     );
   }
