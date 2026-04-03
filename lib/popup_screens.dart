@@ -1,3 +1,5 @@
+// ignore_for_file: camel_case_types
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -47,104 +49,139 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
 }
 
 /// Builds the row for signing in/out.
-Widget signInRow(BuildContext context) {
-  g.googleLogoutConfirmationFunction = showLogoutConfirmationScreen;
-  return ValueListenableBuilder<String>(
-    valueListenable: g.gUserNotifier,
-    builder: (BuildContext context, String stringText, Widget? child) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(!g.signedIn ? "Sign in?" : appTitle),
-          Tooltip(
-            message: !g.signedIn ? "Sign in" : "Sign out",
-            child: g.loginLogoutWidget(context, 25, Colors.white),
-          ),
-        ],
-      );
-    },
-  );
+class signInRow extends StatelessWidget {
+  const signInRow(this.parentContext, {super.key});
+
+  final BuildContext parentContext;
+
+  @override
+  Widget build(BuildContext context) {
+    g.googleLogoutConfirmationFunction = showLogoutConfirmationScreen;
+    return ValueListenableBuilder<String>(
+      valueListenable: g.gUserNotifier,
+      builder: (BuildContext context, String stringText, Widget? child) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(!g.signedIn ? "Sign in?" : appTitle),
+            Tooltip(
+              message: !g.signedIn ? "Sign in" : "Sign out",
+              child: g.loginLogoutWidget(context, 25, Colors.white),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 /// Builds the Google sign-in widget row.
-Widget googleWidgetRow(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: <Widget>[
-      ValueListenableBuilder<bool>(
-        valueListenable: g.loggingInProcess,
-        builder: (BuildContext context, bool value, Widget? child) {
-          return Visibility(
-            visible: g.loggingInProcess.value,
-            maintainState: false,
-            child: g.gWidget,
-          );
-        },
-      ),
-    ],
-  );
+class googleWidgetRow extends StatelessWidget {
+  const googleWidgetRow(this.parentContext, {super.key});
+
+  final BuildContext parentContext;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        ValueListenableBuilder<bool>(
+          valueListenable: g.loggingInProcess,
+          builder: (BuildContext context, bool value, Widget? child) {
+            return Visibility(
+              visible: g.loggingInProcess.value,
+              maintainState: false,
+              child: g.gWidget,
+            );
+          },
+        ),
+      ],
+    );
+  }
 }
 
 /// Builds the row for resetting the game board.
-Widget resetRow(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: <Widget>[
-      const Text('Reset board?'),
-      Tooltip(
-        message: "Reset board",
-        child: IconButton(
-          iconSize: 25,
-          icon: const Icon(Icons.refresh_outlined),
-          onPressed: () {
-            _showResetConfirmationScreen(context);
-            focusNodePopup.requestFocus(); //state inside dialog
-          },
+class resetRow extends StatelessWidget {
+  const resetRow(this.parentContext, {super.key});
+
+  final BuildContext parentContext;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        const Text('Reset board?'),
+        Tooltip(
+          message: "Reset board",
+          child: IconButton(
+            iconSize: 25,
+            icon: const Icon(Icons.refresh_outlined),
+            onPressed: () {
+              _showResetConfirmationScreen(context);
+              focusNodePopup.requestFocus(); //state inside dialog
+            },
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
 /// Builds the row for toggling the scrollable board state.
-Widget scrollableBoardRow(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: <Widget>[
-      const Text('Scrollable board?'),
-      ValueListenableBuilder<bool>(
-        valueListenable: state.expandingBoardNotifier,
-        builder: (BuildContext context, bool value, Widget? child) {
-          return Tooltip(
-            message: state.expandingBoard
-                ? "Turn off scrollable board"
-                : "Turn on scrollable board",
-            child: IconButton(
-              iconSize: 25,
-              icon: state.expandingBoard
-                  ? const Icon(Icons.visibility_outlined)
-                  : const Icon(Icons.visibility_off_outlined),
-              onPressed: () {
-                state.toggleExpandingBoardState();
-              },
-            ),
-          );
-        },
-      ),
-    ],
-  );
+class scrollableBoardRow extends StatelessWidget {
+  const scrollableBoardRow(this.parentContext, {super.key});
+
+  final BuildContext parentContext;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        const Text('Scrollable board?'),
+        ValueListenableBuilder<bool>(
+          valueListenable: state.expandingBoardNotifier,
+          builder: (BuildContext context, bool value, Widget? child) {
+            return Tooltip(
+              message: state.expandingBoard
+                  ? "Turn off scrollable board"
+                  : "Turn on scrollable board",
+              child: IconButton(
+                iconSize: 25,
+                icon: state.expandingBoard
+                    ? const Icon(Icons.visibility_outlined)
+                    : const Icon(Icons.visibility_off_outlined),
+                onPressed: () {
+                  state.toggleExpandingBoardState();
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
 }
 
 /// Builds the row showing which words have been won and missed.
-Widget wordsWonRow(BuildContext context) {
-  final List<String> winWordsCache = state.getWinWords();
-  final int numberWinsCache = winWordsCache.length;
-  final bool gameOver = state.gameOver;
-  return Text(
-    gameOver
-        ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${state.targetWords.join(", ")}"
-        : "You've got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"} so far${numberWinsCache != 0 ? ":" : ""} ${winWordsCache.join(", ")}",
-  );
+class wordsWonRow extends StatelessWidget {
+  const wordsWonRow(this.parentContext, {super.key});
+
+  final BuildContext parentContext;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> winWordsCache = state.getWinWords();
+    final int numberWinsCache = winWordsCache.length;
+    final bool gameOver = state.gameOver;
+    return Text(
+      gameOver
+          ? "You got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"}: ${winWordsCache.join(", ")}\n\nYou missed: ${state.targetWords.join(", ")}"
+          : "You've got $numberWinsCache word${numberWinsCache == 1 ? "" : "s"} so far${numberWinsCache != 0 ? ":" : ""} ${winWordsCache.join(", ")}",
+    );
+  }
 }
 
 /// Shows a confirmation dialog before resetting the board.
