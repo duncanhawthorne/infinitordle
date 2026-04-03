@@ -88,6 +88,6 @@ class _InfinitordleState extends State<Infinitordle> {
 
   @override
   Widget build(BuildContext context) {
-    return infinitordleWidget();
+    return const infinitordleWidget();
   }
 }

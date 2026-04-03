@@ -22,7 +22,7 @@ class infinitordleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _scaffold();
+    return const _scaffold();
   }
 }
 
