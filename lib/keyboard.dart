@@ -68,36 +68,6 @@ Widget _kbKeyStack(String kbLetter, int kbRowLength) {
   );
 }
 
-/// Returns the icon widget for the backspace key.
-Widget _backspaceKey() {
-  return Container(
-    padding: const EdgeInsets.all(7),
-    child: const Icon(Icons.keyboard_backspace, color: white),
-  );
-}
-
-/// Returns the icon widget for the enter key, dynamically changing based on game state.
-Widget _enterKey() {
-  return Container(
-    padding: const EdgeInsets.all(7),
-    child: ValueListenableBuilder<bool>(
-      valueListenable: ephemeral.illegalFiveLetterWordNotifier,
-      builder: (BuildContext context, bool value, Widget? child) {
-        return ephemeral.illegalFiveLetterWord
-            ? const Icon(Icons.cancel, color: red)
-            : ValueListenableBuilder<int>(
-                valueListenable: state.currentRowChangedNotifier,
-                builder: (BuildContext context, int value, Widget? child) {
-                  return state.readyForStreakCurrentRow
-                      ? const Icon(Icons.fast_forward, color: green)
-                      : const Icon(Icons.keyboard_return_sharp, color: white);
-                },
-              );
-      },
-    ),
-  );
-}
-
 /// Builds the visual representation of the key's label or icon.
 Widget _kbTextSquare(String kbLetter, int kbRowLength) {
   return SizedBox(
@@ -117,6 +87,42 @@ Widget _kbTextSquare(String kbLetter, int kbRowLength) {
   );
 }
 
+/// Returns the icon widget for the backspace key.
+Widget _backspaceKey() {
+  return Container(
+    padding: const EdgeInsets.all(7),
+    child: const Icon(Icons.keyboard_backspace, color: white),
+  );
+}
+
+/// Returns the icon widget for the enter key, dynamically changing based on game state.
+Widget _enterKey() {
+  return Container(
+    padding: const EdgeInsets.all(7),
+    child: ValueListenableBuilder<bool>(
+      valueListenable: ephemeral.illegalFiveLetterWordNotifier,
+      builder: (BuildContext context, bool value, Widget? child) {
+        return ephemeral.illegalFiveLetterWord
+            ? const Icon(Icons.cancel, color: red)
+            : ValueListenableBuilder<int>(
+          valueListenable: state.currentRowChangedNotifier,
+          builder: (BuildContext context, int value, Widget? child) {
+            return state.readyForStreakCurrentRow
+                ? const Icon(Icons.fast_forward, color: green)
+                : const Icon(Icons.keyboard_return_sharp, color: white);
+          },
+        );
+      },
+    ),
+  );
+}
+
+/// Cache for the regular letter key widgets.
+final Map<String, Widget> _kbRegularTextCache = <String, Widget>{
+  for (String kbLetter in keyboardList)
+    (kbLetter): _kbRegularTextConst(kbLetter),
+};
+
 /// Creates a stroked text widget for a regular letter key.
 Widget _kbRegularTextConst(String kbLetter) {
   return StrokeText(
@@ -130,12 +136,6 @@ Widget _kbRegularTextConst(String kbLetter) {
     ),
   );
 }
-
-/// Cache for the regular letter key widgets.
-final Map<String, Widget> _kbRegularTextCache = <String, Widget>{
-  for (String kbLetter in keyboardList)
-    (kbLetter): _kbRegularTextConst(kbLetter),
-};
 
 /// Builds a mini-grid inside a key to show statuses for multiple boards simultaneously.
 Widget _kbMiniGrid(String kbLetter, int kbRowLength) {
