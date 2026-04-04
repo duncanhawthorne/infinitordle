@@ -7,8 +7,8 @@ import 'package:logging/logging.dart';
 import 'card_colors.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
-import 'io.dart';
 import 'google/google.dart';
+import 'io.dart';
 import 'wordlist.dart';
 
 const List<String> _cheatEnteredWordsInitial = <String>[

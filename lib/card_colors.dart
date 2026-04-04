@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
-import 'flips.dart';
 import 'ephemeral.dart';
-import 'state.dart';
+import 'flips.dart';
 import 'sequencer.dart';
+import 'state.dart';
 
 /// Manages the colors of cards and keyboard keys based on game state and logic.
 class CardColors {

@@ -5,8 +5,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
-import 'state.dart';
 import 'google/google.dart';
+import 'state.dart';
 
 FocusNode focusNodePopup = FocusNode();
 

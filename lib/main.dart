@@ -9,8 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_structure.dart';
 import 'constants.dart';
 import 'firebase_saves.dart';
-import 'sequencer.dart';
 import 'helper.dart';
+import 'sequencer.dart';
 import 'src/workarounds.dart';
 
 /// Entry point of the application.

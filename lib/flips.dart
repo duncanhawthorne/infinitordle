@@ -3,8 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
-import 'flips_state_notifier.dart';
 import 'constants.dart';
+import 'flips_state_notifier.dart';
 import 'state.dart';
 
 class Flips {

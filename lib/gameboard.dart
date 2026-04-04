@@ -7,10 +7,10 @@ import 'package:stroke_text/stroke_text.dart';
 
 import 'card_colors.dart';
 import 'constants.dart';
-import 'flips.dart';
 import 'ephemeral.dart';
-import 'state.dart';
+import 'flips.dart';
 import 'sequencer.dart';
+import 'state.dart';
 
 /// Coordinate System:
 /// AB (Absolute Board): The overall index/row of the game across all historical guesses.

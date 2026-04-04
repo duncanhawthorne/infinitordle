@@ -4,10 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
 import 'constants.dart';
-import 'flips.dart';
 import 'ephemeral.dart';
-import 'state.dart';
+import 'flips.dart';
 import 'popup_screens.dart';
+import 'state.dart';
 
 const int _visualCatchUpTime = delayMult * 750;
 const int _gradualRevealRowTime =
