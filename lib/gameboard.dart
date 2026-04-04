@@ -128,6 +128,14 @@ class _gameboardWidgetWithNRows extends StatelessWidget {
   }
 }
 
+final List<Listenable> _cachedListener1 = List<Listenable>.generate(
+  numBoards,
+  (int boardNumber) => Listenable.merge(<Listenable?>[
+    flips.boardFlourishFlipRowsNotifiers[boardNumber],
+    flips.abCardFlourishFlipStateNotifier,
+  ]),
+);
+
 /// Orchestrates listeners for individual cards to trigger animations efficiently.
 class _cardFlipperAlts extends StatelessWidget {
   const _cardFlipperAlts(this.abIndex, this.boardNumber);
@@ -144,7 +152,7 @@ class _cardFlipperAlts extends StatelessWidget {
         return abRow > state.abCurrentRowInt
             ? _cardFlipper(abIndex, boardNumber)
             : ListenableBuilder(
-                listenable: flips.cachedListener1[boardNumber],
+                listenable: _cachedListener1[boardNumber],
                 builder: (BuildContext context, _) {
                   return _cardFlipper(abIndex, boardNumber);
                 },
@@ -258,6 +266,12 @@ class _positionedScaledCard extends StatelessWidget {
   }
 }
 
+final Listenable _cachedListener2 = Listenable.merge(<Listenable?>[
+  //state.targetWordsChangedNotifier,
+  ephemeral.highlightedBoardNotifier,
+  state.currentRowChangedNotifier,
+]);
+
 /// Listens to game state to decide which letter and color to show on a card.
 class _cardChooser extends StatelessWidget {
   const _cardChooser(this.abIndex, this.boardNumber, this.facingFront);
@@ -271,11 +285,7 @@ class _cardChooser extends StatelessWidget {
     final int abRow = abIndex ~/ cols;
 
     return ListenableBuilder(
-      listenable: Listenable.merge(<Listenable?>[
-        //state.targetWordsChangedNotifier,
-        ephemeral.highlightedBoardNotifier,
-        state.currentRowChangedNotifier,
-      ]),
+      listenable: _cachedListener2,
       builder: (BuildContext context, _) {
         return abRow == state.abCurrentRowInt
             ? ValueListenableBuilder<String>(

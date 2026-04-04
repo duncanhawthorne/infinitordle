@@ -228,6 +228,13 @@ class _kbMiniGrid extends StatelessWidget {
   }
 }
 
+final Listenable _cachedListenerA = Listenable.merge(<Listenable?>[
+  state.expandingBoardNotifier,
+  state.pushUpStepsNotifier,
+  state.targetWordsChangedNotifier,
+  flips.abCardFlourishFlipStateNotifier,
+]);
+
 /// Listens to multiple game states to determine the color of a mini-square in a key.
 class _kbMiniSquareColorChooser extends StatelessWidget {
   const _kbMiniSquareColorChooser(
@@ -245,12 +252,7 @@ class _kbMiniSquareColorChooser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: Listenable.merge(<Listenable?>[
-        state.expandingBoardNotifier,
-        state.pushUpStepsNotifier,
-        state.targetWordsChangedNotifier,
-        flips.abCardFlourishFlipStateNotifier,
-      ]),
+      listenable: _cachedListenerA,
       builder: (BuildContext context, _) {
         final Color color = cardColors.getBestColorForKeyboardLetter(
           kbLetter,
