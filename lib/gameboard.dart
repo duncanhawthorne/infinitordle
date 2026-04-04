@@ -240,22 +240,20 @@ class _positionedScaledCard extends StatelessWidget {
       milliseconds: timeFactorOfSlide * (slideTime - _renderTwoFramesTime),
     );
     // move slightly quicker so have two frames to re-render final position
-    return Stack(
-      fit: StackFit.expand,
-      clipBehavior: gbRow == 0 && cardSlideOffsetFactor != 0
+    final AnimatedSlide animatedCard = AnimatedSlide(
+      offset: Offset(0, cardSlideOffsetFactor),
+      duration: animationDuration,
+      child: AnimatedScale(
+        scale: cardScaleFactor,
+        duration: animationDuration,
+        child: chosenCard,
+      ),
+    );
+    return ClipRect(
+      clipBehavior: (gbRow == 0 && cardSlideOffsetFactor != 0)
           ? Clip.hardEdge
-          : Clip.none, //clipping is slow so clip only when necessary
-      children: <Widget>[
-        AnimatedSlide(
-          offset: Offset(0, cardSlideOffsetFactor),
-          duration: animationDuration,
-          child: AnimatedScale(
-            scale: cardScaleFactor,
-            duration: animationDuration,
-            child: chosenCard,
-          ),
-        ),
-      ],
+          : Clip.none,
+      child: animatedCard,
     );
   }
 }
