@@ -67,35 +67,32 @@ class _kbKeyStack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
+      child: Padding(
         padding: EdgeInsets.all(0.005 * keyHeight),
         child: Stack(
+          alignment: Alignment.center,
           children: <Widget>[
-            Center(
-              child: <String>[kBackspace, kEnter].contains(kbLetter)
-                  ? const SizedBox.shrink()
-                  : _kbMiniGrid(
-                      kbLetter,
-                      kbRowLength,
-                      keyHeight,
-                      keyWidth,
-                      numBigRows,
-                    ),
-            ),
-            Center(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(0.1 * keyHeight),
-                  onTap: () {
-                    sequencer.onKeyboardTapped(kbLetter);
-                  },
-                  child: _kbTextSquare(
+            <String>[kBackspace, kEnter].contains(kbLetter)
+                ? const SizedBox.shrink()
+                : _kbMiniGrid(
                     kbLetter,
                     kbRowLength,
                     keyHeight,
                     keyWidth,
+                    numBigRows,
                   ),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(0.1 * keyHeight),
+                onTap: () {
+                  sequencer.onKeyboardTapped(kbLetter);
+                },
+                child: _kbTextSquare(
+                  kbLetter,
+                  kbRowLength,
+                  keyHeight,
+                  keyWidth,
                 ),
               ),
             ),
@@ -122,9 +119,8 @@ class _kbTextSquare extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: keyHeight, //double.infinity,
-      width: keyWidth * kMaxKbRowLength / kbRowLength, //double.infinity,
+    return Container(
+      constraints: const BoxConstraints.expand(),
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: switch (kbLetter) {
@@ -143,9 +139,9 @@ class _backspaceKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(7),
-      child: const Icon(Icons.keyboard_backspace, color: white),
+    return const Padding(
+      padding: EdgeInsets.all(7),
+      child: Icon(Icons.keyboard_backspace, color: white),
     );
   }
 }
@@ -156,7 +152,7 @@ class _enterKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(7),
       child: ListenableBuilder(
         listenable: Listenable.merge(<Listenable?>[
@@ -227,40 +223,27 @@ class _kbMiniGrid extends StatelessWidget {
       builder: (BuildContext context, int value, Widget? child) {
         final bool someBoardHighlighted = ephemeral.highlightedBoard != -1;
         if (someBoardHighlighted) {
-          return SizedBox(
-            width: keyWidth,
-            height: keyHeight,
-            child: _kbMiniSquareColorChooser(
-              kbLetter,
-              0,
-              keyHeight,
-              numBigRows,
-            ),
-          );
+          return _kbMiniSquareColorChooser(kbLetter, 0, keyHeight, numBigRows);
         }
         final int numCols = numBoards ~/ numBigRows;
-        return SizedBox(
-          width: keyWidth,
-          height: keyHeight,
-          child: Column(
-            children: List<Widget>.generate(numBigRows, (int rowIndex) {
-              return Expanded(
-                child: Row(
-                  children: List<Widget>.generate(numCols, (int colIndex) {
-                    final int subIndex = (rowIndex * numCols) + colIndex;
-                    return Expanded(
-                      child: _kbMiniSquareColorChooser(
-                        kbLetter,
-                        subIndex,
-                        keyHeight,
-                        numBigRows,
-                      ),
-                    );
-                  }),
-                ),
-              );
-            }),
-          ),
+        return Column(
+          children: List<Widget>.generate(numBigRows, (int rowIndex) {
+            return Expanded(
+              child: Row(
+                children: List<Widget>.generate(numCols, (int colIndex) {
+                  final int subIndex = (rowIndex * numCols) + colIndex;
+                  return Expanded(
+                    child: _kbMiniSquareColorChooser(
+                      kbLetter,
+                      subIndex,
+                      keyHeight,
+                      numBigRows,
+                    ),
+                  );
+                }),
+              ),
+            );
+          }),
         );
       },
     );
@@ -291,47 +274,22 @@ class _kbMiniSquareColorChooser extends StatelessWidget {
         flips.abCardFlourishFlipStateNotifier,
       ]),
       builder: (BuildContext context, _) {
-        return _kbMiniSquareColorChooserReal(
+        final Color color = cardColors.getBestColorForKeyboardLetter(
           kbLetter,
           subIndex,
-          keyHeight,
-          numBigRows,
+        );
+        final double radius = 0.1 * keyHeight;
+        final int numRows = numBigRows;
+        final bool specialHighlighting = ephemeral.highlightedBoard != -1;
+        return _kbMiniSquareColorRounded(
+          color,
+          subIndex,
+          numRows,
+          radius,
+          specialHighlighting,
         );
       },
     );
-  }
-}
-
-/// Retrieves the actual color for a mini-square based on the game logic.
-class _kbMiniSquareColorChooserReal extends StatelessWidget {
-  const _kbMiniSquareColorChooserReal(
-    this.kbLetter,
-    this.subIndex,
-    this.keyHeight,
-    this.numBigRows,
-  );
-
-  final String kbLetter;
-  final int subIndex;
-  final double keyHeight;
-  final int numBigRows;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color color = cardColors.getBestColorForKeyboardLetter(
-      kbLetter,
-      subIndex,
-    );
-    final double radius = 0.1 * keyHeight;
-    final int numRows = numBigRows;
-    final bool specialHighlighting = ephemeral.highlightedBoard != -1;
-    return _kbMiniSquareColorRounded(
-      color,
-      subIndex,
-      numRows,
-      radius,
-      specialHighlighting,
-    ); //_kbMiniSquareColorCache[color][subIndex];
   }
 }
 
