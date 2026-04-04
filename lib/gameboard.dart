@@ -215,61 +215,50 @@ class _positionedScaledCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        const double shrinkCardScaleDefault = 0.75;
-        final double cardSizeDefault = constraints.maxWidth;
-        final int temporaryVisualOffsetForSlide =
-            sequencer.temporaryVisualOffsetForSlide;
+    const double shrinkCardScaleDefault = 0.75;
+    final int temporaryVisualOffsetForSlide =
+        sequencer.temporaryVisualOffsetForSlide;
+    final int abRow = abIndex ~/ cols;
+    final int gbRow = _getGBRowFromABRow(abRow);
+    final bool shouldSlideCard = abRow < state.abCurrentRowInt;
+    final bool shouldShrinkCard =
+        state.expandingBoard &&
+        abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
+            state.abLiveNumRowsPerBoard - numRowsPerBoard;
 
-        final int abRow = abIndex ~/ cols;
-        final int gbRow = _getGBRowFromABRow(abRow);
-        final bool shouldSlideCard = abRow < state.abCurrentRowInt;
-        final bool shouldShrinkCard =
-            state.expandingBoard &&
-            abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
-                state.abLiveNumRowsPerBoard - numRowsPerBoard;
+    final double cardScaleFactor = shouldShrinkCard
+        ? shrinkCardScaleDefault
+        : 1.0;
+    final double cardSlideOffsetFactor = shouldSlideCard
+        ? -temporaryVisualOffsetForSlide.toDouble()
+        : 0;
 
-        final double cardScaleFactor = shouldShrinkCard
-            ? shrinkCardScaleDefault
-            : 1.0;
-        final double cardSize = cardSizeDefault * cardScaleFactor;
-        final double cardScaleOffset =
-            cardSizeDefault * (1 - cardScaleFactor) / 2;
-        final double cardSlideOffset = shouldSlideCard
-            ? -cardSizeDefault * temporaryVisualOffsetForSlide
-            : 0;
-        // if offset 1, do gradually. if offset 0, do instantaneously
-        // so slide visual cards into new position slowly
-        // then do a real switch to what is in each card to move one place forward
-        // and move visual cards back to original position instantly
-        final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
-        final Widget chosenCard = SizedBox(
-          height: cardSize,
-          width: cardSize,
-          child: _cardChooser(abIndex, boardNumber, facingFront),
-        );
-        return Stack(
-          clipBehavior: gbRow == 0 && cardSlideOffset != 0
-              ? Clip.hardEdge
-              : Clip.none, //clipping is slow so clip only when necessary
-          children: <Widget>[
-            AnimatedPositioned(
-              //curve: Curves.fastOutSlowIn,
-              duration: Duration(
-                milliseconds:
-                    timeFactorOfSlide * (slideTime - _renderTwoFramesTime),
-              ),
-              // move slightly quicker so have two frames to re-render final position
-              top: cardSlideOffset + cardScaleOffset,
-              left: cardScaleOffset,
-              height: cardSize,
-              width: cardSize,
-              child: chosenCard,
-            ),
-          ],
-        );
-      },
+    // if offset 1, do gradually. if offset 0, do instantaneously
+    // so slide visual cards into new position slowly
+    // then do a real switch to what is in each card to move one place forward
+    // and move visual cards back to original position instantly
+    final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
+    final Widget chosenCard = _cardChooser(abIndex, boardNumber, facingFront);
+    final Duration animationDuration = Duration(
+      milliseconds: timeFactorOfSlide * (slideTime - _renderTwoFramesTime),
+    );
+    // move slightly quicker so have two frames to re-render final position
+    return Stack(
+      fit: StackFit.expand,
+      clipBehavior: gbRow == 0 && cardSlideOffsetFactor != 0
+          ? Clip.hardEdge
+          : Clip.none, //clipping is slow so clip only when necessary
+      children: <Widget>[
+        AnimatedSlide(
+          offset: Offset(0, cardSlideOffsetFactor),
+          duration: animationDuration,
+          child: AnimatedScale(
+            scale: cardScaleFactor,
+            duration: animationDuration,
+            child: chosenCard,
+          ),
+        ),
+      ],
     );
   }
 }
