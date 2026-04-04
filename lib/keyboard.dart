@@ -29,18 +29,9 @@ class keyboardRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        return GridView.builder(
-          physics: const NeverScrollableScrollPhysics(), //ios fix
-          itemCount: kbRowLength,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: kbRowLength,
-            childAspectRatio:
-                1 /
-                ((constraints.maxHeight) /
-                    (constraints.maxWidth / kMaxKbRowLength)) *
-                (kMaxKbRowLength / kbRowLength),
-          ),
-          itemBuilder: (BuildContext context, int offsetIndex) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List<Widget>.generate(kbRowLength, (int offsetIndex) {
             final String kbLetter =
                 keyboardList[keyBoardStartKeyIndex + offsetIndex];
             return _kbKeyStack(
@@ -50,7 +41,7 @@ class keyboardRowWidget extends StatelessWidget {
               constraints.maxWidth / kbRowLength,
               numBigRows,
             );
-          },
+          }),
         );
       },
     );
@@ -75,39 +66,41 @@ class _kbKeyStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(0.005 * keyHeight),
-      child: Stack(
-        children: <Widget>[
-          Center(
-            child: <String>[kBackspace, kEnter].contains(kbLetter)
-                ? const SizedBox.shrink()
-                : _kbMiniGrid(
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.all(0.005 * keyHeight),
+        child: Stack(
+          children: <Widget>[
+            Center(
+              child: <String>[kBackspace, kEnter].contains(kbLetter)
+                  ? const SizedBox.shrink()
+                  : _kbMiniGrid(
+                      kbLetter,
+                      kbRowLength,
+                      keyHeight,
+                      keyWidth,
+                      numBigRows,
+                    ),
+            ),
+            Center(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(0.1 * keyHeight),
+                  onTap: () {
+                    sequencer.onKeyboardTapped(kbLetter);
+                  },
+                  child: _kbTextSquare(
                     kbLetter,
                     kbRowLength,
                     keyHeight,
                     keyWidth,
-                    numBigRows,
                   ),
-          ),
-          Center(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(0.1 * keyHeight),
-                onTap: () {
-                  sequencer.onKeyboardTapped(kbLetter);
-                },
-                child: _kbTextSquare(
-                  kbLetter,
-                  kbRowLength,
-                  keyHeight,
-                  keyWidth,
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
