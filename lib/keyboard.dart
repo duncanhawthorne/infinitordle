@@ -38,7 +38,6 @@ class keyboardRowWidget extends StatelessWidget {
               kbLetter,
               kbRowLength,
               constraints.maxHeight,
-              constraints.maxWidth / kbRowLength,
               numBigRows,
             );
           }),
@@ -54,14 +53,12 @@ class _kbKeyStack extends StatelessWidget {
     this.kbLetter,
     this.kbRowLength,
     this.keyHeight,
-    this.keyWidth,
     this.numBigRows,
   );
 
   final String kbLetter;
   final int kbRowLength;
   final double keyHeight;
-  final double keyWidth;
   final int numBigRows;
 
   @override
@@ -74,13 +71,7 @@ class _kbKeyStack extends StatelessWidget {
           children: <Widget>[
             <String>[kBackspace, kEnter].contains(kbLetter)
                 ? const SizedBox.shrink()
-                : _kbMiniGrid(
-                    kbLetter,
-                    kbRowLength,
-                    keyHeight,
-                    keyWidth,
-                    numBigRows,
-                  ),
+                : _kbMiniGrid(kbLetter, kbRowLength, keyHeight, numBigRows),
             Material(
               color: Colors.transparent,
               child: InkWell(
@@ -88,12 +79,7 @@ class _kbKeyStack extends StatelessWidget {
                 onTap: () {
                   sequencer.onKeyboardTapped(kbLetter);
                 },
-                child: _kbTextSquare(
-                  kbLetter,
-                  kbRowLength,
-                  keyHeight,
-                  keyWidth,
-                ),
+                child: _kbTextSquare(kbLetter, kbRowLength, keyHeight),
               ),
             ),
           ],
@@ -105,17 +91,11 @@ class _kbKeyStack extends StatelessWidget {
 
 /// Builds the visual representation of the key's label or icon.
 class _kbTextSquare extends StatelessWidget {
-  const _kbTextSquare(
-    this.kbLetter,
-    this.kbRowLength,
-    this.keyHeight,
-    this.keyWidth,
-  );
+  const _kbTextSquare(this.kbLetter, this.kbRowLength, this.keyHeight);
 
   final String kbLetter;
   final int kbRowLength;
   final double keyHeight;
-  final double keyWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -206,14 +186,12 @@ class _kbMiniGrid extends StatelessWidget {
     this.kbLetter,
     this.kbRowLength,
     this.keyHeight,
-    this.keyWidth,
     this.numBigRows,
   );
 
   final String kbLetter;
   final int kbRowLength;
   final double keyHeight;
-  final double keyWidth;
   final int numBigRows;
 
   @override
