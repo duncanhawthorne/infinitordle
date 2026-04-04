@@ -165,19 +165,19 @@ class _enterKey extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(7),
-      child: ValueListenableBuilder<bool>(
-        valueListenable: ephemeral.illegalFiveLetterWordNotifier,
-        builder: (BuildContext context, bool value, Widget? child) {
-          return ephemeral.illegalFiveLetterWord
-              ? const Icon(Icons.cancel, color: red)
-              : ValueListenableBuilder<int>(
-                  valueListenable: state.currentRowChangedNotifier,
-                  builder: (BuildContext context, int value, Widget? child) {
-                    return state.readyForStreakCurrentRow
-                        ? const Icon(Icons.fast_forward, color: green)
-                        : const Icon(Icons.keyboard_return_sharp, color: white);
-                  },
-                );
+      child: ListenableBuilder(
+        listenable: Listenable.merge(<Listenable?>[
+          ephemeral.illegalFiveLetterWordNotifier,
+          state.currentRowChangedNotifier,
+        ]),
+        builder: (BuildContext context, _) {
+          if (ephemeral.illegalFiveLetterWord) {
+            return const Icon(Icons.cancel, color: red);
+          }
+          if (state.readyForStreakCurrentRow) {
+            return const Icon(Icons.fast_forward, color: green);
+          }
+          return const Icon(Icons.keyboard_return_sharp, color: white);
         },
       ),
     );
