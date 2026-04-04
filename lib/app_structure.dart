@@ -209,7 +209,7 @@ class gameboardAndKeyboard extends StatelessWidget {
                         runSpacing: boardSpacer,
                         children: List<Widget>.generate(
                           numBoards ~/ 2,
-                              (int index) => gameboardWidget(index),
+                              (int index) => gameboardWidget(index, screen.cardLiveMaxPixel),
                         ),
                       ),
                       Wrap(
@@ -217,7 +217,7 @@ class gameboardAndKeyboard extends StatelessWidget {
                         runSpacing: boardSpacer,
                         children: List<Widget>.generate(
                           numBoards - (numBoards ~/ 2),
-                              (int index) => gameboardWidget(numBoards ~/ 2 + index),
+                              (int index) => gameboardWidget(numBoards ~/ 2 + index, screen.cardLiveMaxPixel),
                         ),
                       ),
                     ],
@@ -225,12 +225,9 @@ class gameboardAndKeyboard extends StatelessWidget {
                 ],
               ),
               const Divider(color: Colors.transparent, height: dividerHeight),
-              // ignore: prefer_const_constructors
-              keyboardRowWidget(0, 10),
-              // ignore: prefer_const_constructors
-              keyboardRowWidget(10, 9),
-              // ignore: prefer_const_constructors
-              keyboardRowWidget(20, 9),
+              const keyboardRowWidget(0, 10),
+              const keyboardRowWidget(10, 9),
+              const keyboardRowWidget(20, 9),
             ],
           );
         }

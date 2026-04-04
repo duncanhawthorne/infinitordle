@@ -15,68 +15,103 @@ import 'screen.dart';
 /// [keyBoardStartKeyIndex] is the starting index in the [keyboardList].
 /// [kbRowLength] is the number of keys in this row.
 class keyboardRowWidget extends StatelessWidget {
-  const keyboardRowWidget(this.keyBoardStartKeyIndex, this.kbRowLength, {super.key});
+  const keyboardRowWidget(
+    this.keyBoardStartKeyIndex,
+    this.kbRowLength, {
+    super.key,
+  });
 
   final int keyBoardStartKeyIndex;
   final int kbRowLength;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(
-        maxWidth:
-        screen.keyboardSingleKeyLiveMaxPixelHeight *
-            kMaxKbRowLength /
-            screen.keyAspectRatioLive,
-        maxHeight: screen.keyboardSingleKeyLiveMaxPixelHeight,
-      ),
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(), //ios fix
-        itemCount: kbRowLength,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: kbRowLength,
-          childAspectRatio:
-          1 / screen.keyAspectRatioLive * (kMaxKbRowLength / kbRowLength),
-        ),
-        itemBuilder: (BuildContext context, int offsetIndex) {
-          final String kbLetter =
-          keyboardList[keyBoardStartKeyIndex + offsetIndex];
-          return _kbKeyStack(kbLetter, kbRowLength);
-        },
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        screen.detectAndUpdateForScreenSize(context);
+        return Container(
+          constraints: BoxConstraints(
+            maxWidth:
+                screen.keyboardSingleKeyLiveMaxPixelHeight *
+                kMaxKbRowLength /
+                screen.keyAspectRatioLive,
+            maxHeight: screen.keyboardSingleKeyLiveMaxPixelHeight,
+          ),
+          child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(), //ios fix
+            itemCount: kbRowLength,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: kbRowLength,
+              childAspectRatio:
+                  1 /
+                  screen.keyAspectRatioLive *
+                  (kMaxKbRowLength / kbRowLength),
+            ),
+            itemBuilder: (BuildContext context, int offsetIndex) {
+              final String kbLetter =
+                  keyboardList[keyBoardStartKeyIndex + offsetIndex];
+              return _kbKeyStack(
+                kbLetter,
+                kbRowLength,
+                screen.keyboardSingleKeyLiveMaxPixelHeight,
+                screen.keyboardSingleKeyLiveMaxPixelWidth,
+                screen.numPresentationBigRowsOfBoards,
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
 
 /// Builds an individual key on the keyboard, including its background colors and text/icon.
 class _kbKeyStack extends StatelessWidget {
-  const _kbKeyStack(this.kbLetter, this.kbRowLength);
+  const _kbKeyStack(
+    this.kbLetter,
+    this.kbRowLength,
+    this.keyHeight,
+    this.keyWidth,
+    this.numBigRows,
+  );
 
   final String kbLetter;
   final int kbRowLength;
+  final double keyHeight;
+  final double keyWidth;
+  final int numBigRows;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(0.005 * screen.keyboardSingleKeyLiveMaxPixelHeight),
+      padding: EdgeInsets.all(0.005 * keyHeight),
       child: Stack(
         children: <Widget>[
           Center(
             child: <String>[kBackspace, kEnter].contains(kbLetter)
                 ? const SizedBox.shrink()
-                : _kbMiniGrid(kbLetter, kbRowLength),
+                : _kbMiniGrid(
+                    kbLetter,
+                    kbRowLength,
+                    keyHeight,
+                    keyWidth,
+                    numBigRows,
+                  ),
           ),
           Center(
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(
-                  0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight,
-                ),
+                borderRadius: BorderRadius.circular(0.1 * keyHeight),
                 onTap: () {
                   sequencer.onKeyboardTapped(kbLetter);
                 },
-                child: _kbTextSquare(kbLetter, kbRowLength),
+                child: _kbTextSquare(
+                  kbLetter,
+                  kbRowLength,
+                  keyHeight,
+                  keyWidth,
+                ),
               ),
             ),
           ),
@@ -88,19 +123,23 @@ class _kbKeyStack extends StatelessWidget {
 
 /// Builds the visual representation of the key's label or icon.
 class _kbTextSquare extends StatelessWidget {
-  const _kbTextSquare(this.kbLetter, this.kbRowLength);
+  const _kbTextSquare(
+    this.kbLetter,
+    this.kbRowLength,
+    this.keyHeight,
+    this.keyWidth,
+  );
 
   final String kbLetter;
   final int kbRowLength;
+  final double keyHeight;
+  final double keyWidth;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: screen.keyboardSingleKeyLiveMaxPixelHeight, //double.infinity,
-      width:
-      screen.keyboardSingleKeyLiveMaxPixelWidth *
-          kMaxKbRowLength /
-          kbRowLength, //double.infinity,
+      height: keyHeight, //double.infinity,
+      width: keyWidth * kMaxKbRowLength / kbRowLength, //double.infinity,
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: switch (kbLetter) {
@@ -140,13 +179,13 @@ class _enterKey extends StatelessWidget {
           return ephemeral.illegalFiveLetterWord
               ? const Icon(Icons.cancel, color: red)
               : ValueListenableBuilder<int>(
-            valueListenable: state.currentRowChangedNotifier,
-            builder: (BuildContext context, int value, Widget? child) {
-              return state.readyForStreakCurrentRow
-                  ? const Icon(Icons.fast_forward, color: green)
-                  : const Icon(Icons.keyboard_return_sharp, color: white);
-            },
-          );
+                  valueListenable: state.currentRowChangedNotifier,
+                  builder: (BuildContext context, int value, Widget? child) {
+                    return state.readyForStreakCurrentRow
+                        ? const Icon(Icons.fast_forward, color: green)
+                        : const Icon(Icons.keyboard_return_sharp, color: white);
+                  },
+                );
         },
       ),
     );
@@ -182,10 +221,19 @@ class _kbRegularTextConst extends StatelessWidget {
 
 /// Builds a mini-grid inside a key to show statuses for multiple boards simultaneously.
 class _kbMiniGrid extends StatelessWidget {
-  const _kbMiniGrid(this.kbLetter, this.kbRowLength);
+  const _kbMiniGrid(
+    this.kbLetter,
+    this.kbRowLength,
+    this.keyHeight,
+    this.keyWidth,
+    this.numBigRows,
+  );
 
   final String kbLetter;
   final int kbRowLength;
+  final double keyHeight;
+  final double keyWidth;
+  final int numBigRows;
 
   @override
   Widget build(BuildContext context) {
@@ -199,20 +247,22 @@ class _kbMiniGrid extends StatelessWidget {
           shrinkWrap: true,
           itemCount: someBoardHighlighted ? 1 : numBoards,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: someBoardHighlighted
-                ? 1
-                : numBoards ~/ screen.numPresentationBigRowsOfBoards,
+            crossAxisCount: someBoardHighlighted ? 1 : numBoards ~/ numBigRows,
             childAspectRatio:
-            (someBoardHighlighted
-                ? 1
-                : 1 /
-                ((numBoards / screen.numPresentationBigRowsOfBoards) /
-                    screen.numPresentationBigRowsOfBoards)) /
-                screen.keyAspectRatioLive *
+                (someBoardHighlighted
+                    ? 1
+                    : 1 / ((numBoards / numBigRows) / numBigRows)) /
+                (keyHeight /
+                keyWidth) *
                 (kMaxKbRowLength / kbRowLength),
           ),
           itemBuilder: (BuildContext context, int subIndex) {
-            return _kbMiniSquareColorChooser(kbLetter, subIndex);
+            return _kbMiniSquareColorChooser(
+              kbLetter,
+              subIndex,
+              keyHeight,
+              numBigRows,
+            );
           },
         );
       },
@@ -222,10 +272,17 @@ class _kbMiniGrid extends StatelessWidget {
 
 /// Listens to multiple game states to determine the color of a mini-square in a key.
 class _kbMiniSquareColorChooser extends StatelessWidget {
-  const _kbMiniSquareColorChooser(this.kbLetter, this.subIndex);
+  const _kbMiniSquareColorChooser(
+    this.kbLetter,
+    this.subIndex,
+    this.keyHeight,
+    this.numBigRows,
+  );
 
   final String kbLetter;
   final int subIndex;
+  final double keyHeight;
+  final int numBigRows;
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +294,12 @@ class _kbMiniSquareColorChooser extends StatelessWidget {
         flips.abCardFlourishFlipAnglesNotifier,
       ]),
       builder: (BuildContext context, _) {
-        return _kbMiniSquareColorChooserReal(kbLetter, subIndex);
+        return _kbMiniSquareColorChooserReal(
+          kbLetter,
+          subIndex,
+          keyHeight,
+          numBigRows,
+        );
       },
     );
   }
@@ -245,10 +307,17 @@ class _kbMiniSquareColorChooser extends StatelessWidget {
 
 /// Retrieves the actual color for a mini-square based on the game logic.
 class _kbMiniSquareColorChooserReal extends StatelessWidget {
-  const _kbMiniSquareColorChooserReal(this.kbLetter, this.subIndex);
+  const _kbMiniSquareColorChooserReal(
+    this.kbLetter,
+    this.subIndex,
+    this.keyHeight,
+    this.numBigRows,
+  );
 
   final String kbLetter;
   final int subIndex;
+  final double keyHeight;
+  final int numBigRows;
 
   @override
   Widget build(BuildContext context) {
@@ -256,8 +325,8 @@ class _kbMiniSquareColorChooserReal extends StatelessWidget {
       kbLetter,
       subIndex,
     );
-    final double radius = 0.1 * screen.keyboardSingleKeyLiveMaxPixelHeight;
-    final int numRows = screen.numPresentationBigRowsOfBoards;
+    final double radius = 0.1 * keyHeight;
+    final int numRows = numBigRows;
     final bool specialHighlighting = ephemeral.highlightedBoard != -1;
     return _kbMiniSquareColorRounded(
       color,
@@ -272,11 +341,12 @@ class _kbMiniSquareColorChooserReal extends StatelessWidget {
 /// Draws a color-filled box with specific corner radii for the mini-grid in a keyboard key.
 class _kbMiniSquareColorRounded extends StatelessWidget {
   const _kbMiniSquareColorRounded(
-      this.color,
-      this.subIndex,
-      this.numRows,
-      this.radius,
-      this.specialHighlighting);
+    this.color,
+    this.subIndex,
+    this.numRows,
+    this.radius,
+    this.specialHighlighting,
+  );
 
   final Color color;
   final int subIndex;
@@ -293,15 +363,15 @@ class _kbMiniSquareColorRounded extends StatelessWidget {
               ? Radius.circular(radius)
               : const Radius.circular(0),
           topRight:
-          specialHighlighting ||
-              subIndex == 1 && numRows == 2 ||
-              subIndex == 3 && numRows == 1
+              specialHighlighting ||
+                  subIndex == 1 && numRows == 2 ||
+                  subIndex == 3 && numRows == 1
               ? Radius.circular(radius)
               : const Radius.circular(0),
           bottomLeft:
-          specialHighlighting ||
-              subIndex == 2 && numRows == 2 ||
-              subIndex == 0 && numRows == 1
+              specialHighlighting ||
+                  subIndex == 2 && numRows == 2 ||
+                  subIndex == 0 && numRows == 1
               ? Radius.circular(radius)
               : const Radius.circular(0),
           bottomRight: specialHighlighting || subIndex == 3

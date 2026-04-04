@@ -11,7 +11,6 @@ import 'flips.dart';
 import 'ephemeral.dart';
 import 'state.dart';
 import 'sequencer.dart';
-import 'screen.dart';
 
 /// Coordinate System:
 /// AB (Absolute Board): The overall index/row of the game across all historical guesses.
@@ -27,9 +26,10 @@ const double _tau = 2 * pi;
 /// Builds the gameboard widget for a specific [boardNumber].
 /// Listens to [expandingBoardNotifier] and [pushUpStepsNotifier] to handle layouts.
 class gameboardWidget extends StatelessWidget {
-  const gameboardWidget(this.boardNumber, {super.key});
+  const gameboardWidget(this.boardNumber, this.cardLiveMaxPixel, {super.key});
 
   final int boardNumber;
+  final double cardLiveMaxPixel;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +40,10 @@ class gameboardWidget extends StatelessWidget {
             ? ListenableBuilder(
           listenable: state.pushUpStepsNotifier,
           builder: (BuildContext context, _) {
-            return _gameboardWidgetReal(boardNumber);
+            return _gameboardWidgetReal(boardNumber, cardLiveMaxPixel);
           },
         )
-            : _gameboardWidgetReal(boardNumber);
+            : _gameboardWidgetReal(boardNumber, cardLiveMaxPixel);
       },
     );
   }
@@ -51,9 +51,10 @@ class gameboardWidget extends StatelessWidget {
 
 /// Internal helper to build the actual board container and gesture detector.
 class _gameboardWidgetReal extends StatelessWidget {
-  const _gameboardWidgetReal(this.boardNumber);
+  const _gameboardWidgetReal(this.boardNumber, this.cardLiveMaxPixel);
 
   final int boardNumber;
+  final double cardLiveMaxPixel;
 
   @override
   Widget build(BuildContext context) {
@@ -61,12 +62,12 @@ class _gameboardWidgetReal extends StatelessWidget {
     final int boardNumberRows = state.gbLiveNumRowsPerBoard;
     // ignore: sized_box_for_whitespace
     return Container(
-      height: numRowsPerBoard * screen.cardLiveMaxPixel, //notionalCardSize,
-      width: cols * screen.cardLiveMaxPixel, //notionalCardSize,
+      height: numRowsPerBoard * cardLiveMaxPixel, //notionalCardSize,
+      width: cols * cardLiveMaxPixel, //notionalCardSize,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(0.2 * screen.cardLiveMaxPixel),
+          borderRadius: BorderRadius.circular(0.2 * cardLiveMaxPixel),
           onTap: () {
             ephemeral.toggleHighlightedBoard(boardNumber);
           },
@@ -213,55 +214,62 @@ class _positionedScaledCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double shrinkCardScaleDefault = 0.75;
-    final double cardSizeDefault = screen.cardLiveMaxPixel; //notionalCardSize;
-    final int temporaryVisualOffsetForSlide =
-        sequencer.temporaryVisualOffsetForSlide;
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          const double shrinkCardScaleDefault = 0.75;
+          final double cardSizeDefault = constraints.maxWidth;
+          final int temporaryVisualOffsetForSlide =
+              sequencer.temporaryVisualOffsetForSlide;
 
-    final int abRow = abIndex ~/ cols;
-    final int gbRow = _getGBRowFromABRow(abRow);
-    final bool shouldSlideCard = abRow < state.abCurrentRowInt;
-    final bool shouldShrinkCard =
-        state.expandingBoard &&
-            abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
-                state.abLiveNumRowsPerBoard - numRowsPerBoard;
+          final int abRow = abIndex ~/ cols;
+          final int gbRow = _getGBRowFromABRow(abRow);
+          final bool shouldSlideCard = abRow < state.abCurrentRowInt;
+          final bool shouldShrinkCard =
+              state.expandingBoard &&
+                  abRow -
+                      (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
+                      state.abLiveNumRowsPerBoard - numRowsPerBoard;
 
-    final double cardScaleFactor = shouldShrinkCard
-        ? shrinkCardScaleDefault
-        : 1.0;
-    final double cardSize = cardSizeDefault * cardScaleFactor;
-    final double cardScaleOffset = cardSizeDefault * (1 - cardScaleFactor) / 2;
-    final double cardSlideOffset = shouldSlideCard
-        ? -cardSizeDefault * temporaryVisualOffsetForSlide
-        : 0;
-    // if offset 1, do gradually. if offset 0, do instantaneously
-    // so slide visual cards into new position slowly
-    // then do a real switch to what is in each card to move one place forward
-    // and move visual cards back to original position instantly
-    final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
-    final Widget chosenCard = SizedBox(
-      height: cardSize,
-      width: cardSize,
-      child: _cardChooser(abIndex, boardNumber, facingFront),
-    );
-    return Stack(
-      clipBehavior: gbRow == 0 && cardSlideOffset != 0
-          ? Clip.hardEdge
-          : Clip.none, //clipping is slow so clip only when necessary
-      children: <Widget>[
-        AnimatedPositioned(
-          //curve: Curves.fastOutSlowIn,
-          duration: Duration(
-            milliseconds: timeFactorOfSlide * (slideTime - _renderTwoFramesTime),
-          ),
-          // move slightly quicker so have two frames to re-render final position
-          top: cardSlideOffset + cardScaleOffset,
-          left: cardScaleOffset,
-          height: cardSize,
-          width: cardSize,
-          child: chosenCard,
-        ),
-      ],
+          final double cardScaleFactor = shouldShrinkCard
+              ? shrinkCardScaleDefault
+              : 1.0;
+          final double cardSize = cardSizeDefault * cardScaleFactor;
+          final double cardScaleOffset = cardSizeDefault *
+              (1 - cardScaleFactor) / 2;
+          final double cardSlideOffset = shouldSlideCard
+              ? -cardSizeDefault * temporaryVisualOffsetForSlide
+              : 0;
+          // if offset 1, do gradually. if offset 0, do instantaneously
+          // so slide visual cards into new position slowly
+          // then do a real switch to what is in each card to move one place forward
+          // and move visual cards back to original position instantly
+          final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
+          final Widget chosenCard = SizedBox(
+            height: cardSize,
+            width: cardSize,
+            child: _cardChooser(abIndex, boardNumber, facingFront),
+          );
+          return Stack(
+            clipBehavior: gbRow == 0 && cardSlideOffset != 0
+                ? Clip.hardEdge
+                : Clip.none, //clipping is slow so clip only when necessary
+            children: <Widget>[
+              AnimatedPositioned(
+                //curve: Curves.fastOutSlowIn,
+                duration: Duration(
+                  milliseconds: timeFactorOfSlide *
+                      (slideTime - _renderTwoFramesTime),
+                ),
+                // move slightly quicker so have two frames to re-render final position
+                top: cardSlideOffset + cardScaleOffset,
+                left: cardScaleOffset,
+                height: cardSize,
+                width: cardSize,
+                child: chosenCard,
+              ),
+            ],
+          );
+        }
     );
   }
 }
