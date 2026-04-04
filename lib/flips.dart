@@ -8,7 +8,7 @@ import 'flips_state_notifier.dart';
 import 'state.dart';
 
 class Flips {
-  final FlipsStateNotifier abCardFlourishFlipAnglesNotifier =
+  final FlipsStateNotifier abCardFlourishFlipStateNotifier =
       FlipsStateNotifier(); //{}.obs;
   final List<ValueNotifier<int>> boardFlourishFlipRowsNotifiers =
       List<ValueNotifier<int>>.generate(
@@ -20,13 +20,13 @@ class Flips {
     numBoards,
     (int boardNumber) => Listenable.merge(<Listenable?>[
       flips.boardFlourishFlipRowsNotifiers[boardNumber],
-      flips.abCardFlourishFlipAnglesNotifier,
+      flips.abCardFlourishFlipStateNotifier,
     ]),
   );
 
   /// Resets the game state and initiates a new board.
   void initiateBoardFlips() {
-    abCardFlourishFlipAnglesNotifier.clear();
+    abCardFlourishFlipStateNotifier.clear();
     _clearBoardFlourishFlipRows();
   }
 
@@ -42,9 +42,9 @@ class Flips {
         () {
           _setAbCardFlourishFlipAngle(abRow, i, 0.0);
           if (i == cols - 1) {
-            if (abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
+            if (abCardFlourishFlipStateNotifier.value.containsKey(abRow)) {
               // Due to delays check still exists before remove
-              abCardFlourishFlipAnglesNotifier.remove(abRow);
+              abCardFlourishFlipStateNotifier.remove(abRow);
             }
           }
         },
@@ -55,12 +55,12 @@ class Flips {
   /// Returns the index of the last card relevant for coloring keys.
   int getLastCardToConsiderForKeyColors() {
     return state.abCurrentRowInt * cols -
-        abCardFlourishFlipAnglesNotifier.numberNotYetFlourishFlipped;
+        abCardFlourishFlipStateNotifier.numberNotYetFlourishFlipped;
   }
 
   /// Helper to set card flip angles for flourishing animations.
   void _setAbCardFlourishFlipAngle(int abRow, int column, double value) {
-    abCardFlourishFlipAnglesNotifier.set(abRow, column, value);
+    abCardFlourishFlipStateNotifier.set(abRow, column, value);
   }
 
   /// Resets flourish animation state for all boards.
@@ -104,10 +104,10 @@ class Flips {
   double _getFlourishFlipAngle(int abIndex) {
     final int abRow = abIndex ~/ cols;
     final int col = abIndex % cols;
-    if (!abCardFlourishFlipAnglesNotifier.value.containsKey(abRow)) {
+    if (!abCardFlourishFlipStateNotifier.value.containsKey(abRow)) {
       return 0;
     } else {
-      return abCardFlourishFlipAnglesNotifier.value[abRow]![col];
+      return abCardFlourishFlipStateNotifier.value[abRow]![col];
     }
   }
 

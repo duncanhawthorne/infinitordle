@@ -288,7 +288,7 @@ class _kbMiniSquareColorChooser extends StatelessWidget {
         state.expandingBoardNotifier,
         state.pushUpStepsNotifier,
         state.targetWordsChangedNotifier,
-        flips.abCardFlourishFlipAnglesNotifier,
+        flips.abCardFlourishFlipStateNotifier,
       ]),
       builder: (BuildContext context, _) {
         return _kbMiniSquareColorChooserReal(
