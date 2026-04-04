@@ -244,8 +244,7 @@ class _kbMiniGrid extends StatelessWidget {
                 (someBoardHighlighted
                     ? 1
                     : 1 / ((numBoards / numBigRows) / numBigRows)) /
-                (keyHeight / keyWidth) *
-                (kMaxKbRowLength / kbRowLength),
+                (keyHeight / keyWidth),
           ),
           itemBuilder: (BuildContext context, int subIndex) {
             return _kbMiniSquareColorChooser(
