@@ -5,11 +5,10 @@ import 'package:stroke_text/stroke_text.dart';
 
 import 'card_colors.dart';
 import 'constants.dart';
-import 'flips.dart';
 import 'ephemeral.dart';
-import 'state.dart';
+import 'flips.dart';
 import 'sequencer.dart';
-import 'screen.dart';
+import 'state.dart';
 
 /// Builds a row of the on-screen keyboard.
 /// [keyBoardStartKeyIndex] is the starting index in the [keyboardList].
@@ -17,48 +16,41 @@ import 'screen.dart';
 class keyboardRowWidget extends StatelessWidget {
   const keyboardRowWidget(
     this.keyBoardStartKeyIndex,
-    this.kbRowLength, {
+    this.kbRowLength,
+    this.numBigRows, {
     super.key,
   });
 
   final int keyBoardStartKeyIndex;
   final int kbRowLength;
+  final int numBigRows;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        screen.detectAndUpdateForScreenSize(context);
-        return Container(
-          constraints: BoxConstraints(
-            maxWidth:
-                screen.keyboardSingleKeyLiveMaxPixelHeight *
-                kMaxKbRowLength /
-                screen.keyAspectRatioLive,
-            maxHeight: screen.keyboardSingleKeyLiveMaxPixelHeight,
+        return GridView.builder(
+          physics: const NeverScrollableScrollPhysics(), //ios fix
+          itemCount: kbRowLength,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: kbRowLength,
+            childAspectRatio:
+                1 /
+                ((constraints.maxHeight) /
+                    (constraints.maxWidth / kMaxKbRowLength)) *
+                (kMaxKbRowLength / kbRowLength),
           ),
-          child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(), //ios fix
-            itemCount: kbRowLength,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: kbRowLength,
-              childAspectRatio:
-                  1 /
-                  screen.keyAspectRatioLive *
-                  (kMaxKbRowLength / kbRowLength),
-            ),
-            itemBuilder: (BuildContext context, int offsetIndex) {
-              final String kbLetter =
-                  keyboardList[keyBoardStartKeyIndex + offsetIndex];
-              return _kbKeyStack(
-                kbLetter,
-                kbRowLength,
-                screen.keyboardSingleKeyLiveMaxPixelHeight,
-                screen.keyboardSingleKeyLiveMaxPixelWidth,
-                screen.numPresentationBigRowsOfBoards,
-              );
-            },
-          ),
+          itemBuilder: (BuildContext context, int offsetIndex) {
+            final String kbLetter =
+                keyboardList[keyBoardStartKeyIndex + offsetIndex];
+            return _kbKeyStack(
+              kbLetter,
+              kbRowLength,
+              constraints.maxHeight,
+              constraints.maxWidth / kbRowLength,
+              numBigRows,
+            );
+          },
         );
       },
     );

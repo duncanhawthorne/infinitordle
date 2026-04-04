@@ -6,13 +6,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'constants.dart';
 import 'ephemeral.dart';
-import 'state.dart';
-import 'sequencer.dart';
 import 'gameboard.dart';
 import 'keyboard.dart';
 import 'popup_screens.dart';
 import 'screen.dart';
+import 'sequencer.dart';
 import 'src/workarounds.dart';
+import 'state.dart';
 
 FocusNode focusNode = FocusNode();
 
@@ -228,9 +228,20 @@ class gameboardAndKeyboard extends StatelessWidget {
                 ],
               ),
               const Divider(color: Colors.transparent, height: dividerHeight),
-              const keyboardRowWidget(0, 10),
-              const keyboardRowWidget(10, 9),
-              const keyboardRowWidget(20, 9),
+              ...<(int, int)>[(0, 10), (10, 9), (20, 9)].map(
+                ((int, int) row) => SizedBox(
+                  width:
+                      screen.keyboardSingleKeyLiveMaxPixelHeight *
+                      kMaxKbRowLength /
+                      screen.keyAspectRatioLive,
+                  height: screen.keyboardSingleKeyLiveMaxPixelHeight,
+                  child: keyboardRowWidget(
+                    row.$1, // starting index
+                    row.$2, // row length
+                    screen.numPresentationBigRowsOfBoards,
+                  ),
+                ),
+              ),
             ],
           );
         },
