@@ -233,27 +233,41 @@ class _kbMiniGrid extends StatelessWidget {
       valueListenable: ephemeral.highlightedBoardNotifier,
       builder: (BuildContext context, int value, Widget? child) {
         final bool someBoardHighlighted = ephemeral.highlightedBoard != -1;
-        return GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemCount: someBoardHighlighted ? 1 : numBoards,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: someBoardHighlighted ? 1 : numBoards ~/ numBigRows,
-            childAspectRatio:
-                (someBoardHighlighted
-                    ? 1
-                    : 1 / ((numBoards / numBigRows) / numBigRows)) /
-                (keyHeight / keyWidth),
-          ),
-          itemBuilder: (BuildContext context, int subIndex) {
-            return _kbMiniSquareColorChooser(
+        if (someBoardHighlighted) {
+          return SizedBox(
+            width: keyWidth,
+            height: keyHeight,
+            child: _kbMiniSquareColorChooser(
               kbLetter,
-              subIndex,
+              0,
               keyHeight,
               numBigRows,
-            );
-          },
+            ),
+          );
+        }
+        final int numCols = numBoards ~/ numBigRows;
+        return SizedBox(
+          width: keyWidth,
+          height: keyHeight,
+          child: Column(
+            children: List<Widget>.generate(numBigRows, (int rowIndex) {
+              return Expanded(
+                child: Row(
+                  children: List<Widget>.generate(numCols, (int colIndex) {
+                    final int subIndex = (rowIndex * numCols) + colIndex;
+                    return Expanded(
+                      child: _kbMiniSquareColorChooser(
+                        kbLetter,
+                        subIndex,
+                        keyHeight,
+                        numBigRows,
+                      ),
+                    );
+                  }),
+                ),
+              );
+            }),
+          ),
         );
       },
     );
