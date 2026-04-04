@@ -9,7 +9,7 @@ import 'state.dart';
 
 class Flips {
   final FlipsStateNotifier abCardFlourishFlipStateNotifier =
-      FlipsStateNotifier(); //{}.obs;
+      FlipsStateNotifier();
   final List<ValueNotifier<int>> boardFlourishFlipRowsNotifiers =
       List<ValueNotifier<int>>.generate(
         cols,
