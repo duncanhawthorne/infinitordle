@@ -144,10 +144,7 @@ class _cardFlipperAlts extends StatelessWidget {
         return abRow > state.abCurrentRowInt
             ? _cardFlipper(abIndex, boardNumber)
             : ListenableBuilder(
-                listenable: Listenable.merge(<Listenable?>[
-                  flips.boardFlourishFlipRowsNotifiers[boardNumber],
-                  flips.abCardFlourishFlipAnglesNotifier,
-                ]),
+                listenable: flips.cachedListener1[boardNumber],
                 builder: (BuildContext context, _) {
                   return _cardFlipper(abIndex, boardNumber);
                 },

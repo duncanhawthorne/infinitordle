@@ -16,6 +16,14 @@ class Flips {
         (int i) => ValueNotifier<int>(100),
       );
 
+  late final List<Listenable> cachedListener1 = List<Listenable>.generate(
+    numBoards,
+    (int boardNumber) => Listenable.merge(<Listenable?>[
+      flips.boardFlourishFlipRowsNotifiers[boardNumber],
+      flips.abCardFlourishFlipAnglesNotifier,
+    ]),
+  );
+
   /// Resets the game state and initiates a new board.
   void initiateBoardFlips() {
     abCardFlourishFlipAnglesNotifier.clear();
