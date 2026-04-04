@@ -252,8 +252,7 @@ class _kbMiniGrid extends StatelessWidget {
                 (someBoardHighlighted
                     ? 1
                     : 1 / ((numBoards / numBigRows) / numBigRows)) /
-                (keyHeight /
-                keyWidth) *
+                (keyHeight / keyWidth) *
                 (kMaxKbRowLength / kbRowLength),
           ),
           itemBuilder: (BuildContext context, int subIndex) {

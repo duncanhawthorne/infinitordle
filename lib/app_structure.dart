@@ -71,8 +71,7 @@ class titleWidget extends StatelessWidget {
         showMainPopupScreen();
       },
       child: SizedBox(
-        height:
-        appBarHeight, //so whole vertical space of appbar is clickable
+        height: appBarHeight, //so whole vertical space of appbar is clickable
         width: double.infinity,
         child: DecoratedBox(
           decoration: const BoxDecoration(color: Colors.transparent),
@@ -178,7 +177,7 @@ class gameboardAndKeyboard extends StatelessWidget {
     return Container(
       color: bg,
       child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
+        builder: (BuildContext context, BoxConstraints constraints) {
           return Column(
             children: <Widget>[
               Stack(
@@ -188,14 +187,14 @@ class gameboardAndKeyboard extends StatelessWidget {
                     valueListenable: ephemeral.highlightedBoardNotifier,
                     builder: (BuildContext context, int value, Widget? child) {
                       return ephemeral.highlightedBoard != -1
-                      //click away to de-highlight all boards
+                          //click away to de-highlight all boards
                           ? InkWell(
-                        onTap: () => ephemeral.toggleHighlightedBoard(-1),
-                        child: SizedBox(
-                          width: screen.scW,
-                          height: screen.fullSizeOfGameboards,
-                        ),
-                      )
+                              onTap: () => ephemeral.toggleHighlightedBoard(-1),
+                              child: SizedBox(
+                                width: screen.scW,
+                                height: screen.fullSizeOfGameboards,
+                              ),
+                            )
                           : const SizedBox.shrink();
                     },
                   ),
@@ -209,7 +208,8 @@ class gameboardAndKeyboard extends StatelessWidget {
                         runSpacing: boardSpacer,
                         children: List<Widget>.generate(
                           numBoards ~/ 2,
-                              (int index) => gameboardWidget(index, screen.cardLiveMaxPixel),
+                          (int index) =>
+                              gameboardWidget(index, screen.cardLiveMaxPixel),
                         ),
                       ),
                       Wrap(
@@ -217,7 +217,10 @@ class gameboardAndKeyboard extends StatelessWidget {
                         runSpacing: boardSpacer,
                         children: List<Widget>.generate(
                           numBoards - (numBoards ~/ 2),
-                              (int index) => gameboardWidget(numBoards ~/ 2 + index, screen.cardLiveMaxPixel),
+                          (int index) => gameboardWidget(
+                            numBoards ~/ 2 + index,
+                            screen.cardLiveMaxPixel,
+                          ),
                         ),
                       ),
                     ],
@@ -230,7 +233,7 @@ class gameboardAndKeyboard extends StatelessWidget {
               const keyboardRowWidget(20, 9),
             ],
           );
-        }
+        },
       ),
     );
   }

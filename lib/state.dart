@@ -430,7 +430,6 @@ class State {
       abCurrentRowInt >= abLiveNumRowsPerBoard &&
       _winRecordBoards.isNotEmpty &&
       _winRecordBoards[_winRecordBoards.length - 1] == kBoardWinStatusNoWin;
-
 }
 
 /// Global singleton instance of [State].

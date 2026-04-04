@@ -38,11 +38,11 @@ class gameboardWidget extends StatelessWidget {
       builder: (BuildContext context, bool value, Widget? child) {
         return state.expandingBoard
             ? ListenableBuilder(
-          listenable: state.pushUpStepsNotifier,
-          builder: (BuildContext context, _) {
-            return _gameboardWidgetReal(boardNumber, cardLiveMaxPixel);
-          },
-        )
+                listenable: state.pushUpStepsNotifier,
+                builder: (BuildContext context, _) {
+                  return _gameboardWidgetReal(boardNumber, cardLiveMaxPixel);
+                },
+              )
             : _gameboardWidgetReal(boardNumber, cardLiveMaxPixel);
       },
     );
@@ -85,9 +85,10 @@ class _gameboardWidgetReal extends StatelessWidget {
 /// Builds the grid of cards for the gameboard.
 class _gameboardWidgetWithNRows extends StatelessWidget {
   const _gameboardWidgetWithNRows(
-      this.boardNumber,
-      this.boardNumberRows,
-      this.expandingBoard);
+    this.boardNumber,
+    this.boardNumberRows,
+    this.expandingBoard,
+  );
 
   final int boardNumber;
   final int boardNumberRows;
@@ -114,14 +115,14 @@ class _gameboardWidgetWithNRows extends StatelessWidget {
         return state.expandingBoard
             ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
             : ValueListenableBuilder<int>(
-          valueListenable: state.pushUpStepsNotifier,
-          builder: (BuildContext context, int value, Widget? child) {
-            return _cardFlipperAlts(
-              _getABIndexFromRGBIndex(rGbIndex),
-              boardNumber,
-            );
-          },
-        );
+                valueListenable: state.pushUpStepsNotifier,
+                builder: (BuildContext context, int value, Widget? child) {
+                  return _cardFlipperAlts(
+                    _getABIndexFromRGBIndex(rGbIndex),
+                    boardNumber,
+                  );
+                },
+              );
       },
     );
   }
@@ -143,14 +144,14 @@ class _cardFlipperAlts extends StatelessWidget {
         return abRow > state.abCurrentRowInt
             ? _cardFlipper(abIndex, boardNumber)
             : ListenableBuilder(
-          listenable: Listenable.merge(<Listenable?>[
-            flips.boardFlourishFlipRowsNotifiers[boardNumber],
-            flips.abCardFlourishFlipAnglesNotifier,
-          ]),
-          builder: (BuildContext context, _) {
-            return _cardFlipper(abIndex, boardNumber);
-          },
-        );
+                listenable: Listenable.merge(<Listenable?>[
+                  flips.boardFlourishFlipRowsNotifiers[boardNumber],
+                  flips.abCardFlourishFlipAnglesNotifier,
+                ]),
+                builder: (BuildContext context, _) {
+                  return _cardFlipper(abIndex, boardNumber);
+                },
+              );
       },
     );
   }
@@ -215,61 +216,60 @@ class _positionedScaledCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          const double shrinkCardScaleDefault = 0.75;
-          final double cardSizeDefault = constraints.maxWidth;
-          final int temporaryVisualOffsetForSlide =
-              sequencer.temporaryVisualOffsetForSlide;
+      builder: (BuildContext context, BoxConstraints constraints) {
+        const double shrinkCardScaleDefault = 0.75;
+        final double cardSizeDefault = constraints.maxWidth;
+        final int temporaryVisualOffsetForSlide =
+            sequencer.temporaryVisualOffsetForSlide;
 
-          final int abRow = abIndex ~/ cols;
-          final int gbRow = _getGBRowFromABRow(abRow);
-          final bool shouldSlideCard = abRow < state.abCurrentRowInt;
-          final bool shouldShrinkCard =
-              state.expandingBoard &&
-                  abRow -
-                      (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
-                      state.abLiveNumRowsPerBoard - numRowsPerBoard;
+        final int abRow = abIndex ~/ cols;
+        final int gbRow = _getGBRowFromABRow(abRow);
+        final bool shouldSlideCard = abRow < state.abCurrentRowInt;
+        final bool shouldShrinkCard =
+            state.expandingBoard &&
+            abRow - (shouldSlideCard ? temporaryVisualOffsetForSlide : 0) <
+                state.abLiveNumRowsPerBoard - numRowsPerBoard;
 
-          final double cardScaleFactor = shouldShrinkCard
-              ? shrinkCardScaleDefault
-              : 1.0;
-          final double cardSize = cardSizeDefault * cardScaleFactor;
-          final double cardScaleOffset = cardSizeDefault *
-              (1 - cardScaleFactor) / 2;
-          final double cardSlideOffset = shouldSlideCard
-              ? -cardSizeDefault * temporaryVisualOffsetForSlide
-              : 0;
-          // if offset 1, do gradually. if offset 0, do instantaneously
-          // so slide visual cards into new position slowly
-          // then do a real switch to what is in each card to move one place forward
-          // and move visual cards back to original position instantly
-          final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
-          final Widget chosenCard = SizedBox(
-            height: cardSize,
-            width: cardSize,
-            child: _cardChooser(abIndex, boardNumber, facingFront),
-          );
-          return Stack(
-            clipBehavior: gbRow == 0 && cardSlideOffset != 0
-                ? Clip.hardEdge
-                : Clip.none, //clipping is slow so clip only when necessary
-            children: <Widget>[
-              AnimatedPositioned(
-                //curve: Curves.fastOutSlowIn,
-                duration: Duration(
-                  milliseconds: timeFactorOfSlide *
-                      (slideTime - _renderTwoFramesTime),
-                ),
-                // move slightly quicker so have two frames to re-render final position
-                top: cardSlideOffset + cardScaleOffset,
-                left: cardScaleOffset,
-                height: cardSize,
-                width: cardSize,
-                child: chosenCard,
+        final double cardScaleFactor = shouldShrinkCard
+            ? shrinkCardScaleDefault
+            : 1.0;
+        final double cardSize = cardSizeDefault * cardScaleFactor;
+        final double cardScaleOffset =
+            cardSizeDefault * (1 - cardScaleFactor) / 2;
+        final double cardSlideOffset = shouldSlideCard
+            ? -cardSizeDefault * temporaryVisualOffsetForSlide
+            : 0;
+        // if offset 1, do gradually. if offset 0, do instantaneously
+        // so slide visual cards into new position slowly
+        // then do a real switch to what is in each card to move one place forward
+        // and move visual cards back to original position instantly
+        final int timeFactorOfSlide = temporaryVisualOffsetForSlide;
+        final Widget chosenCard = SizedBox(
+          height: cardSize,
+          width: cardSize,
+          child: _cardChooser(abIndex, boardNumber, facingFront),
+        );
+        return Stack(
+          clipBehavior: gbRow == 0 && cardSlideOffset != 0
+              ? Clip.hardEdge
+              : Clip.none, //clipping is slow so clip only when necessary
+          children: <Widget>[
+            AnimatedPositioned(
+              //curve: Curves.fastOutSlowIn,
+              duration: Duration(
+                milliseconds:
+                    timeFactorOfSlide * (slideTime - _renderTwoFramesTime),
               ),
-            ],
-          );
-        }
+              // move slightly quicker so have two frames to re-render final position
+              top: cardSlideOffset + cardScaleOffset,
+              left: cardScaleOffset,
+              height: cardSize,
+              width: cardSize,
+              child: chosenCard,
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -295,11 +295,16 @@ class _cardChooser extends StatelessWidget {
       builder: (BuildContext context, _) {
         return abRow == state.abCurrentRowInt
             ? ValueListenableBuilder<String>(
-          valueListenable: ephemeral.currentTypingNotifiers[abIndex % cols],
-          builder: (BuildContext context, String value, Widget? child) {
-            return _cardChooserRealReal(abIndex, boardNumber, facingFront);
-          },
-        )
+                valueListenable:
+                    ephemeral.currentTypingNotifiers[abIndex % cols],
+                builder: (BuildContext context, String value, Widget? child) {
+                  return _cardChooserRealReal(
+                    abIndex,
+                    boardNumber,
+                    facingFront,
+                  );
+                },
+              )
             : _cardChooserRealReal(abIndex, boardNumber, facingFront);
       },
     );
@@ -320,24 +325,24 @@ class _cardChooserRealReal extends StatelessWidget {
     final int col = abIndex % cols;
     final bool historicalWin =
         state.getTestHistoricalAbWin(abRow, boardNumber) ||
-            flips.getBoardFlourishFlipRow(boardNumber) != -1 &&
-                abRow == flips.getBoardFlourishFlipRow(boardNumber);
+        flips.getBoardFlourishFlipRow(boardNumber) != -1 &&
+            abRow == flips.getBoardFlourishFlipRow(boardNumber);
     final bool justFlippedBackToFront =
         flips.getBoardFlourishFlipRow(boardNumber) != -1;
     final bool hideCard =
         (!infMode && state.getDetectBoardSolvedByABRow(boardNumber, abRow)) ||
-            abRow < state.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
-            (_rowOffTopOfMainBoard(abRow) &&
-                !facingFront &&
-                justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
+        abRow < state.getFirstAbRowToShowOnBoardDueToKnowledge(boardNumber) ||
+        (_rowOffTopOfMainBoard(abRow) &&
+            !facingFront &&
+            justFlippedBackToFront); //abRow < game.getAbCurrentRowInt() - 1
 
     final String cardLetter =
-    abRow ==
-        state.abLiveNumRowsPerBoard -
-            1 && //code is formatting final row of cards
-        _getGBRowFromABRow(state.abCurrentRowInt) < 0 &&
-        ephemeral.currentTypingString.length > col
-    //If need to type while off top of board (unlikely), show on final row
+        abRow ==
+                state.abLiveNumRowsPerBoard -
+                    1 && //code is formatting final row of cards
+            _getGBRowFromABRow(state.abCurrentRowInt) < 0 &&
+            ephemeral.currentTypingString.length > col
+        //If need to type while off top of board (unlikely), show on final row
         ? ephemeral.currentTypingString[col]
         : hideCard
         ? ""
@@ -359,9 +364,9 @@ class _cardChooserRealReal extends StatelessWidget {
     assert(_cardCache[normalHighlighting]!.containsKey(cardLetter));
     assert(_cardCache[normalHighlighting]![cardLetter]!.containsKey(cardColor));
     assert(
-    _cardCache[normalHighlighting]![cardLetter]![cardColor]!.containsKey(
-      borderColor,
-    ),
+      _cardCache[normalHighlighting]![cardLetter]![cardColor]!.containsKey(
+        borderColor,
+      ),
     );
     return _cardCache[normalHighlighting]![cardLetter]![cardColor]![borderColor]!;
   }
@@ -391,10 +396,11 @@ final Map<bool, Map<String, Map<Color, Map<Color, Widget>>>> _cardCache =
 /// Basic card building block with border and background color.
 class _card extends StatelessWidget {
   const _card(
-      this.normalHighlighting,
-      this.cardLetter,
-      this.cardColor,
-      this.borderColor);
+    this.normalHighlighting,
+    this.cardLetter,
+    this.cardColor,
+    this.borderColor,
+  );
 
   final bool normalHighlighting;
   final String cardLetter;
