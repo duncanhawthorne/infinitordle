@@ -61,7 +61,7 @@ class _gameboardWidgetReal extends StatelessWidget {
     final bool expandingBoard = state.expandingBoard;
     final int boardNumberRows = state.gbLiveNumRowsPerBoard;
     // ignore: sized_box_for_whitespace
-    return Container(
+    return SizedBox(
       height: numRowsPerBoard * cardLiveMaxPixel, //notionalCardSize,
       width: cols * cardLiveMaxPixel, //notionalCardSize,
       child: Material(
