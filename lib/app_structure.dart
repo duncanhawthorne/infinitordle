@@ -63,7 +63,9 @@ class titleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
+      //so text doesn't intercept clicks
       child: FittedBox(
+        //so long title gets scaled down
         fit: BoxFit.scaleDown,
         child: ListenableBuilder(
           listenable: Listenable.merge(<Listenable?>[
@@ -169,6 +171,7 @@ class gameboardAndKeyboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      //for "click away" to deselect
       behavior: HitTestBehavior.opaque,
       onTap: () {
         if (ephemeral.highlightedBoard != -1) {

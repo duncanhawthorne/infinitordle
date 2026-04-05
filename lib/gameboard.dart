@@ -36,6 +36,8 @@ class gameboardWidget extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: state.expandingBoardNotifier,
       builder: (BuildContext context, bool value, Widget? child) {
+        /// If expandingBoard need new grid with each guess so need listener
+        /// Else grid is fixed but need each card to have a listener
         return state.expandingBoard
             ? ListenableBuilder(
                 listenable: state.pushUpStepsNotifier,
@@ -60,8 +62,8 @@ class _gameboardWidgetReal extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool expandingBoard = state.expandingBoard;
     final int boardNumberRows = state.gbLiveNumRowsPerBoard;
-    // ignore: sized_box_for_whitespace
     return SizedBox(
+      //whether expanding or not, space showing is equal to non-expanding
       height: numRowsPerBoard * cardLiveMaxPixel, //notionalCardSize,
       width: cols * cardLiveMaxPixel, //notionalCardSize,
       child: Material(
@@ -112,6 +114,8 @@ class _gameboardWidgetWithNRows extends StatelessWidget {
         crossAxisCount: cols,
       ),
       itemBuilder: (BuildContext context, int rGbIndex) {
+        /// If expandingBoard, each card has fixed meaning given changes in grid size above
+        /// Else else each card changes meaning based on pushUpSteps
         return state.expandingBoard
             ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
             : ValueListenableBuilder<int>(
@@ -128,6 +132,7 @@ class _gameboardWidgetWithNRows extends StatelessWidget {
   }
 }
 
+//move listener outside of class so made once across all cards and not rebuilt
 final List<Listenable> _cachedListener1 = List<Listenable>.generate(
   numBoards,
   (int boardNumber) => Listenable.merge(<Listenable?>[
@@ -150,6 +155,8 @@ class _cardFlipperAlts extends StatelessWidget {
       valueListenable: state.currentRowChangedNotifier,
       builder: (BuildContext context, int value, Widget? child) {
         return abRow > state.abCurrentRowInt
+            //later rows normally just cards
+            //earlier rows subject to flourish flips
             ? _cardFlipper(abIndex, boardNumber)
             : ListenableBuilder(
                 listenable: _cachedListener1[boardNumber],
@@ -266,6 +273,7 @@ class _positionedScaledCard extends StatelessWidget {
   }
 }
 
+//move listener outside of class so made once across all cards and not rebuilt
 final Listenable _cachedListener2 = Listenable.merge(<Listenable?>[
   //state.targetWordsChangedNotifier,
   ephemeral.highlightedBoardNotifier,
@@ -354,13 +362,13 @@ class _cardChooserRealReal extends StatelessWidget {
         : historicalWin
         ? _soften(boardNumber, green)
         : transp;
-    return _card(normalHighlighting, cardLetter, cardColor, borderColor);
+    return _cardConst(normalHighlighting, cardLetter, cardColor, borderColor);
   }
 }
 
 /// Basic card building block with border and background color.
-class _card extends StatelessWidget {
-  const _card(
+class _cardConst extends StatelessWidget {
+  const _cardConst(
     this.normalHighlighting,
     this.cardLetter,
     this.cardColor,

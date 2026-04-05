@@ -194,8 +194,10 @@ class _kbMiniGrid extends StatelessWidget {
       builder: (BuildContext context, int value, Widget? child) {
         final bool someBoardHighlighted = ephemeral.highlightedBoard != -1;
         if (someBoardHighlighted) {
+          //1x1
           return _kbMiniSquareColorChooser(kbLetter, 0, keyHeight, numBigRows);
         }
+        //2x2
         final int numCols = numBoards ~/ numBigRows;
         return Column(
           children: List<Widget>.generate(numBigRows, (int rowIndex) {
@@ -254,7 +256,7 @@ class _kbMiniSquareColorChooser extends StatelessWidget {
         final double radius = 0.1 * keyHeight;
         final int numRows = numBigRows;
         final bool specialHighlighting = ephemeral.highlightedBoard != -1;
-        return _kbMiniSquareColorRounded(
+        return _kbMiniSquareColorConst(
           color,
           subIndex,
           numRows,
@@ -267,8 +269,8 @@ class _kbMiniSquareColorChooser extends StatelessWidget {
 }
 
 /// Draws a color-filled box with specific corner radii for the mini-grid in a keyboard key.
-class _kbMiniSquareColorRounded extends StatelessWidget {
-  const _kbMiniSquareColorRounded(
+class _kbMiniSquareColorConst extends StatelessWidget {
+  const _kbMiniSquareColorConst(
     this.color,
     this.subIndex,
     this.numRows,
