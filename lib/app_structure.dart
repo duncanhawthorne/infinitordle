@@ -153,8 +153,10 @@ class keyboardListenerWrapper extends StatelessWidget {
         autofocus: true,
         onKeyEvent: (KeyEvent keyEvent) {
           if (keyEvent is KeyDownEvent) {
-            if (keyboardList.contains(keyEvent.character)) {
-              sequencer.onKeyboardTapped(keyEvent.character ?? kNonKey);
+            if (keyboardList.contains(keyEvent.character?.toLowerCase())) {
+              sequencer.onKeyboardTapped(
+                keyEvent.character?.toLowerCase() ?? kNonKey,
+              );
             } else if (keyEvent.logicalKey == LogicalKeyboardKey.enter) {
               sequencer.onKeyboardTapped(kEnter);
             } else if (keyEvent.logicalKey == LogicalKeyboardKey.backspace) {
