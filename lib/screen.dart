@@ -40,7 +40,7 @@ class Screen {
   }
 
   /// Detects screen size changes and updates internal layout variables.
-  void detectAndUpdateForScreenSize(BuildContext context) {
+  void calculateLayoutDimensions(BuildContext context) {
     if (scW != scWCalc(context) || scH != scHCalc(context)) {
       //recalculate these key values for screen size changes
       scW = scWCalc(context);

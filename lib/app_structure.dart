@@ -38,7 +38,7 @@ class _scaffold extends StatelessWidget {
         padding: EdgeInsets.only(bottom: gestureInset()),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            screen.detectAndUpdateForScreenSize(context);
+            screen.calculateLayoutDimensions(context);
             return Scaffold(
               //backgroundColor: bg,
               appBar: AppBar(
