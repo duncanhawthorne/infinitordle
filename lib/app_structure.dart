@@ -63,14 +63,17 @@ class titleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      child: ListenableBuilder(
-        listenable: Listenable.merge(<Listenable?>[
-          state.expandingBoardNotifier,
-          state.targetWordsChangedNotifier,
-        ]),
-        builder: (BuildContext context, _) {
-          return titleWidgetReal(appBarHeight);
-        },
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: ListenableBuilder(
+          listenable: Listenable.merge(<Listenable?>[
+            state.expandingBoardNotifier,
+            state.targetWordsChangedNotifier,
+          ]),
+          builder: (BuildContext context, _) {
+            return titleWidgetReal(appBarHeight);
+          },
+        ),
       ),
     );
   }
