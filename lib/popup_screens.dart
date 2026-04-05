@@ -33,12 +33,12 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
                 children: <Widget?>[
-                  signInRow(context),
-                  !g.loggingInProcess.value ? null : googleWidgetRow(context),
-                  scrollableBoardRow(context),
-                  resetRow(context),
+                  _signInRow(context),
+                  !g.loggingInProcess.value ? null : _googleWidgetRow(context),
+                  _scrollableBoardRow(context),
+                  _resetRow(context),
                   const Divider(),
-                  wordsWonRow(context),
+                  _wordsWonRow(context),
                 ].whereType<Widget>().toList(),
               );
             },
@@ -50,8 +50,8 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
 }
 
 /// Builds the row for signing in/out.
-class signInRow extends StatelessWidget {
-  const signInRow(this.parentContext, {super.key});
+class _signInRow extends StatelessWidget {
+  const _signInRow(this.parentContext);
 
   final BuildContext parentContext;
 
@@ -77,8 +77,8 @@ class signInRow extends StatelessWidget {
 }
 
 /// Builds the Google sign-in widget row.
-class googleWidgetRow extends StatelessWidget {
-  const googleWidgetRow(this.parentContext, {super.key});
+class _googleWidgetRow extends StatelessWidget {
+  const _googleWidgetRow(this.parentContext);
 
   final BuildContext parentContext;
 
@@ -103,8 +103,8 @@ class googleWidgetRow extends StatelessWidget {
 }
 
 /// Builds the row for resetting the game board.
-class resetRow extends StatelessWidget {
-  const resetRow(this.parentContext, {super.key});
+class _resetRow extends StatelessWidget {
+  const _resetRow(this.parentContext);
 
   final BuildContext parentContext;
 
@@ -131,8 +131,8 @@ class resetRow extends StatelessWidget {
 }
 
 /// Builds the row for toggling the scrollable board state.
-class scrollableBoardRow extends StatelessWidget {
-  const scrollableBoardRow(this.parentContext, {super.key});
+class _scrollableBoardRow extends StatelessWidget {
+  const _scrollableBoardRow(this.parentContext);
 
   final BuildContext parentContext;
 
@@ -167,8 +167,8 @@ class scrollableBoardRow extends StatelessWidget {
 }
 
 /// Builds the row showing which words have been won and missed.
-class wordsWonRow extends StatelessWidget {
-  const wordsWonRow(this.parentContext, {super.key});
+class _wordsWonRow extends StatelessWidget {
+  const _wordsWonRow(this.parentContext);
 
   final BuildContext parentContext;
 

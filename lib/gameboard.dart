@@ -133,7 +133,7 @@ class _gameboardWidgetWithNRows extends StatelessWidget {
 }
 
 //move listener outside of class so made once across all cards and not rebuilt
-final List<Listenable> _cachedListener1 = List<Listenable>.generate(
+final List<Listenable> _gbCachedListener1 = List<Listenable>.generate(
   numBoards,
   (int boardNumber) => Listenable.merge(<Listenable?>[
     flips.boardFlourishFlipRowsNotifiers[boardNumber],
@@ -159,7 +159,7 @@ class _cardFlipperAlts extends StatelessWidget {
             //earlier rows subject to flourish flips
             ? _cardFlipper(abIndex, boardNumber)
             : ListenableBuilder(
-                listenable: _cachedListener1[boardNumber],
+                listenable: _gbCachedListener1[boardNumber],
                 builder: (BuildContext context, _) {
                   return _cardFlipper(abIndex, boardNumber);
                 },
@@ -274,7 +274,7 @@ class _positionedScaledCard extends StatelessWidget {
 }
 
 //move listener outside of class so made once across all cards and not rebuilt
-final Listenable _cachedListener2 = Listenable.merge(<Listenable?>[
+final Listenable _gbCachedListener2 = Listenable.merge(<Listenable?>[
   //state.targetWordsChangedNotifier,
   ephemeral.highlightedBoardNotifier,
   state.currentRowChangedNotifier,
@@ -293,7 +293,7 @@ class _cardChooser extends StatelessWidget {
     final int abRow = abIndex ~/ cols;
 
     return ListenableBuilder(
-      listenable: _cachedListener2,
+      listenable: _gbCachedListener2,
       builder: (BuildContext context, _) {
         return abRow == state.abCurrentRowInt
             ? ValueListenableBuilder<String>(
@@ -466,21 +466,6 @@ const Color _softGreen = Color(0xff61B063);
 const Color _softAmber = Color(0xffFFCF40);
 const Color _softRed = Color(0xffF55549);
 const Color _offWhite = Color(0xff939393);
-
-/// List of available card colors.
-final List<Color> cardColorsList = <Color>[
-  red,
-  amber,
-  green,
-  grey,
-  transp,
-  _softGreen,
-  _softAmber,
-  _softRed,
-];
-
-/// List of available border colors.
-final List<Color> borderColorsList = <Color>[green, _softGreen, transp];
 
 // ignore: unused_element
 int _getABRowFromGBRow(int gbRow) {

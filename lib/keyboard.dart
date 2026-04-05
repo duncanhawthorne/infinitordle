@@ -223,7 +223,7 @@ class _kbMiniGrid extends StatelessWidget {
   }
 }
 
-final Listenable _cachedListenerA = Listenable.merge(<Listenable?>[
+final Listenable _kbCachedListener = Listenable.merge(<Listenable?>[
   state.expandingBoardNotifier,
   state.pushUpStepsNotifier,
   state.targetWordsChangedNotifier,
@@ -247,7 +247,7 @@ class _kbMiniSquareColorChooser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _cachedListenerA,
+      listenable: _kbCachedListener,
       builder: (BuildContext context, _) {
         final Color color = cardColors.getBestColorForKeyboardLetter(
           kbLetter,

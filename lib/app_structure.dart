@@ -40,9 +40,9 @@ class infinitordleWidget extends StatelessWidget {
                   onTap: showMainPopupScreen,
                   child: SizedBox.expand(),
                 ),
-                title: titleWidget(screen.appBarHeight),
+                title: _titleWidget(screen.appBarHeight),
               ),
-              body: keyboardListenerWrapper(
+              body: _keyboardListenerWrapper(
                 constraints.maxHeight,
                 constraints.maxWidth,
               ),
@@ -55,8 +55,8 @@ class infinitordleWidget extends StatelessWidget {
 }
 
 /// Builds the interactive title widget in the AppBar.
-class titleWidget extends StatelessWidget {
-  const titleWidget(this.appBarHeight, {super.key});
+class _titleWidget extends StatelessWidget {
+  const _titleWidget(this.appBarHeight);
 
   final double appBarHeight;
 
@@ -73,7 +73,7 @@ class titleWidget extends StatelessWidget {
             state.targetWordsChangedNotifier,
           ]),
           builder: (BuildContext context, _) {
-            return titleWidgetReal(appBarHeight);
+            return _titleWidgetReal(appBarHeight);
           },
         ),
       ),
@@ -82,8 +82,8 @@ class titleWidget extends StatelessWidget {
 }
 
 /// Generates the stylized "infinitordle" title text, showing win count via symbols.
-class titleWidgetReal extends StatelessWidget {
-  const titleWidgetReal(this.appBarHeight, {super.key});
+class _titleWidgetReal extends StatelessWidget {
+  const _titleWidgetReal(this.appBarHeight);
 
   final double appBarHeight;
 
@@ -119,12 +119,8 @@ class titleWidgetReal extends StatelessWidget {
 }
 
 /// Wraps the game content to handle physical keyboard events.
-class keyboardListenerWrapper extends StatelessWidget {
-  const keyboardListenerWrapper(
-    this.constraintHeight,
-    this.constraintWidth, {
-    super.key,
-  });
+class _keyboardListenerWrapper extends StatelessWidget {
+  const _keyboardListenerWrapper(this.constraintHeight, this.constraintWidth);
 
   final double constraintHeight;
   final double constraintWidth;
@@ -150,19 +146,15 @@ class keyboardListenerWrapper extends StatelessWidget {
             }
           }
         },
-        child: gameboardAndKeyboard(constraintHeight, constraintWidth),
+        child: _gameboardAndKeyboard(constraintHeight, constraintWidth),
       ),
     );
   }
 }
 
 /// Lays out the game boards and the on-screen keyboard.
-class gameboardAndKeyboard extends StatelessWidget {
-  const gameboardAndKeyboard(
-    this.constraintHeight,
-    this.constraintWidth, {
-    super.key,
-  });
+class _gameboardAndKeyboard extends StatelessWidget {
+  const _gameboardAndKeyboard(this.constraintHeight, this.constraintWidth);
 
   //constraint variables not used directly, but if they change then screen has changed, so need to rebuild
   final double constraintHeight;
