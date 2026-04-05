@@ -22,32 +22,25 @@ class infinitordleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _scaffold();
-  }
-}
-
-/// Builds the main scaffold of the application, including the AppBar and body.
-class _scaffold extends StatelessWidget {
-  const _scaffold();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(color: bg),
+    return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(bottom: gestureInset()),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            screen.calculateLayoutDimensions(context);
+            screen.calculateLayoutDimensions(constraints);
             return Scaffold(
               //backgroundColor: bg,
               appBar: AppBar(
                 centerTitle: true,
                 titleSpacing: 0,
                 toolbarHeight: screen.appBarHeight,
-                title: titleWidget(screen.appBarHeight),
                 backgroundColor: bg,
                 scrolledUnderElevation: 0.0,
+                flexibleSpace: const InkWell(
+                  onTap: showMainPopupScreen,
+                  child: SizedBox.expand(),
+                ),
+                title: titleWidget(screen.appBarHeight),
               ),
               body: const bodyWidget(),
             );
@@ -66,27 +59,15 @@ class titleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        showMainPopupScreen();
-      },
-      child: SizedBox(
-        height: appBarHeight, //so whole vertical space of appbar is clickable
-        width: double.infinity,
-        child: DecoratedBox(
-          decoration: const BoxDecoration(color: Colors.transparent),
-          child: FittedBox(
-            child: ListenableBuilder(
-              listenable: Listenable.merge(<Listenable?>[
-                state.expandingBoardNotifier,
-                state.targetWordsChangedNotifier,
-              ]),
-              builder: (BuildContext context, _) {
-                return titleWidgetReal(appBarHeight);
-              },
-            ),
-          ),
-        ),
+    return IgnorePointer(
+      child: ListenableBuilder(
+        listenable: Listenable.merge(<Listenable?>[
+          state.expandingBoardNotifier,
+          state.targetWordsChangedNotifier,
+        ]),
+        builder: (BuildContext context, _) {
+          return titleWidgetReal(appBarHeight);
+        },
       ),
     );
   }
@@ -183,59 +164,56 @@ class gameboardAndKeyboard extends StatelessWidget {
           ephemeral.toggleHighlightedBoard(-1);
         }
       },
-      child: Container(
-        color: bg,
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            return Column(
-              children: <Widget>[
-                Wrap(
-                  spacing: boardSpacer,
-                  runSpacing: boardSpacer,
-                  alignment: WrapAlignment.center,
-                  children: <Widget>[
-                    Wrap(
-                      spacing: boardSpacer,
-                      runSpacing: boardSpacer,
-                      children: List<Widget>.generate(
-                        numBoards ~/ 2,
-                        (int index) =>
-                            gameboardWidget(index, screen.cardLiveMaxPixel),
-                      ),
-                    ),
-                    Wrap(
-                      spacing: boardSpacer,
-                      runSpacing: boardSpacer,
-                      children: List<Widget>.generate(
-                        numBoards - (numBoards ~/ 2),
-                        (int index) => gameboardWidget(
-                          numBoards ~/ 2 + index,
-                          screen.cardLiveMaxPixel,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(color: Colors.transparent, height: dividerHeight),
-                ...<(int, int)>[(0, 10), (10, 9), (20, 9)].map(
-                  ((int, int) row) => SizedBox(
-                    width:
-                        screen.keyboardSingleKeyLiveMaxPixelHeight *
-                        kMaxKbRowLength /
-                        screen.keyAspectRatioLive,
-                    height: screen.keyboardSingleKeyLiveMaxPixelHeight,
-                    child: keyboardRowWidget(
-                      row.$1, // starting index
-                      row.$2, // row length
-                      screen.keyboardSingleKeyLiveMaxPixelHeight,
-                      screen.numPresentationBigRowsOfBoards,
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Column(
+            children: <Widget>[
+              Wrap(
+                spacing: boardSpacer,
+                runSpacing: boardSpacer,
+                alignment: WrapAlignment.center,
+                children: <Widget>[
+                  Wrap(
+                    spacing: boardSpacer,
+                    runSpacing: boardSpacer,
+                    children: List<Widget>.generate(
+                      numBoards ~/ 2,
+                      (int index) =>
+                          gameboardWidget(index, screen.cardLiveMaxPixel),
                     ),
                   ),
+                  Wrap(
+                    spacing: boardSpacer,
+                    runSpacing: boardSpacer,
+                    children: List<Widget>.generate(
+                      numBoards - (numBoards ~/ 2),
+                      (int index) => gameboardWidget(
+                        numBoards ~/ 2 + index,
+                        screen.cardLiveMaxPixel,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(color: Colors.transparent, height: dividerHeight),
+              ...<(int, int)>[(0, 10), (10, 9), (20, 9)].map(
+                ((int, int) row) => SizedBox(
+                  width:
+                      screen.keyboardSingleKeyLiveMaxPixelHeight *
+                      kMaxKbRowLength /
+                      screen.keyAspectRatioLive,
+                  height: screen.keyboardSingleKeyLiveMaxPixelHeight,
+                  child: keyboardRowWidget(
+                    row.$1, // starting index
+                    row.$2, // row length
+                    screen.keyboardSingleKeyLiveMaxPixelHeight,
+                    screen.numPresentationBigRowsOfBoards,
+                  ),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

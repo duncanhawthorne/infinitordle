@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
-import 'src/workarounds.dart';
 
 const double _keyAspectRatioDefault = 1.5;
 const double dividerHeight = 2;
@@ -25,26 +24,12 @@ class Screen {
   double _horizSpaceForCardNoWrap = -1;
   double _vertSpaceAfterTitle = -1;
 
-  /// Calculates the screen width based on the provided [context].
-  double scWCalc(BuildContext context) {
-    return MediaQuery.of(context).size.width;
-  }
-
-  /// Calculates the available screen height based on the provided [context],
-  /// accounting for system padding and gesture insets.
-  double scHCalc(BuildContext context) {
-    return MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        MediaQuery.of(context).padding.bottom -
-        gestureInset();
-  }
-
   /// Detects screen size changes and updates internal layout variables.
-  void calculateLayoutDimensions(BuildContext context) {
-    if (scW != scWCalc(context) || scH != scHCalc(context)) {
+  void calculateLayoutDimensions(BoxConstraints constraints) {
+    if (scW != constraints.maxWidth || scH != constraints.maxHeight) {
       //recalculate these key values for screen size changes
-      scW = scWCalc(context);
-      scH = scHCalc(context);
+      scW = constraints.maxWidth;
+      scH = constraints.maxHeight;
       appBarHeight = scH * 0.055;
       _vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
 
