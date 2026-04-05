@@ -159,6 +159,7 @@ class gameboardAndKeyboard extends StatelessWidget {
     super.key,
   });
 
+  //constraint variables not used directly, but if they change then screen has changed, so need to rebuild
   final double constraintHeight;
   final double constraintWidth;
 
