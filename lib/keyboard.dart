@@ -17,32 +17,25 @@ class keyboardRowWidget extends StatelessWidget {
   const keyboardRowWidget(
     this.keyBoardStartKeyIndex,
     this.kbRowLength,
+    this.keyHeight,
     this.numBigRows, {
     super.key,
   });
 
   final int keyBoardStartKeyIndex;
   final int kbRowLength;
+  final double keyHeight;
   final int numBigRows;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List<Widget>.generate(kbRowLength, (int offsetIndex) {
-            final String kbLetter =
-                keyboardList[keyBoardStartKeyIndex + offsetIndex];
-            return _kbKeyStack(
-              kbLetter,
-              kbRowLength,
-              constraints.maxHeight,
-              numBigRows,
-            );
-          }),
-        );
-      },
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List<Widget>.generate(kbRowLength, (int offsetIndex) {
+        final String kbLetter =
+            keyboardList[keyBoardStartKeyIndex + offsetIndex];
+        return _kbKeyStack(kbLetter, kbRowLength, keyHeight, numBigRows);
+      }),
     );
   }
 }

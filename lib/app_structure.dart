@@ -238,6 +238,7 @@ class gameboardAndKeyboard extends StatelessWidget {
                   child: keyboardRowWidget(
                     row.$1, // starting index
                     row.$2, // row length
+                    screen.keyboardSingleKeyLiveMaxPixelHeight,
                     screen.numPresentationBigRowsOfBoards,
                   ),
                 ),
