@@ -174,78 +174,66 @@ class gameboardAndKeyboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: bg,
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Column(
-            children: <Widget>[
-              Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  ValueListenableBuilder<int>(
-                    valueListenable: ephemeral.highlightedBoardNotifier,
-                    builder: (BuildContext context, int value, Widget? child) {
-                      return ephemeral.highlightedBoard != -1
-                          //click away to de-highlight all boards
-                          ? InkWell(
-                              onTap: () => ephemeral.toggleHighlightedBoard(-1),
-                              child: SizedBox(
-                                width: screen.scW,
-                                height: screen.fullSizeOfGameboards,
-                              ),
-                            )
-                          : const SizedBox.shrink();
-                    },
-                  ),
-                  Wrap(
-                    spacing: boardSpacer,
-                    runSpacing: boardSpacer,
-                    children: <Widget>[
-                      // Split into 2 halves so that don't get a wrap on 3 + 1 basis
-                      Wrap(
-                        spacing: boardSpacer,
-                        runSpacing: boardSpacer,
-                        children: List<Widget>.generate(
-                          numBoards ~/ 2,
-                          (int index) =>
-                              gameboardWidget(index, screen.cardLiveMaxPixel),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (ephemeral.highlightedBoard != -1) {
+          ephemeral.toggleHighlightedBoard(-1);
+        }
+      },
+      child: Container(
+        color: bg,
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return Column(
+              children: <Widget>[
+                Wrap(
+                  spacing: boardSpacer,
+                  runSpacing: boardSpacer,
+                  alignment: WrapAlignment.center,
+                  children: <Widget>[
+                    Wrap(
+                      spacing: boardSpacer,
+                      runSpacing: boardSpacer,
+                      children: List<Widget>.generate(
+                        numBoards ~/ 2,
+                        (int index) =>
+                            gameboardWidget(index, screen.cardLiveMaxPixel),
+                      ),
+                    ),
+                    Wrap(
+                      spacing: boardSpacer,
+                      runSpacing: boardSpacer,
+                      children: List<Widget>.generate(
+                        numBoards - (numBoards ~/ 2),
+                        (int index) => gameboardWidget(
+                          numBoards ~/ 2 + index,
+                          screen.cardLiveMaxPixel,
                         ),
                       ),
-                      Wrap(
-                        spacing: boardSpacer,
-                        runSpacing: boardSpacer,
-                        children: List<Widget>.generate(
-                          numBoards - (numBoards ~/ 2),
-                          (int index) => gameboardWidget(
-                            numBoards ~/ 2 + index,
-                            screen.cardLiveMaxPixel,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const Divider(color: Colors.transparent, height: dividerHeight),
-              ...<(int, int)>[(0, 10), (10, 9), (20, 9)].map(
-                ((int, int) row) => SizedBox(
-                  width:
-                      screen.keyboardSingleKeyLiveMaxPixelHeight *
-                      kMaxKbRowLength /
-                      screen.keyAspectRatioLive,
-                  height: screen.keyboardSingleKeyLiveMaxPixelHeight,
-                  child: keyboardRowWidget(
-                    row.$1, // starting index
-                    row.$2, // row length
-                    screen.keyboardSingleKeyLiveMaxPixelHeight,
-                    screen.numPresentationBigRowsOfBoards,
+                    ),
+                  ],
+                ),
+                const Divider(color: Colors.transparent, height: dividerHeight),
+                ...<(int, int)>[(0, 10), (10, 9), (20, 9)].map(
+                  ((int, int) row) => SizedBox(
+                    width:
+                        screen.keyboardSingleKeyLiveMaxPixelHeight *
+                        kMaxKbRowLength /
+                        screen.keyAspectRatioLive,
+                    height: screen.keyboardSingleKeyLiveMaxPixelHeight,
+                    child: keyboardRowWidget(
+                      row.$1, // starting index
+                      row.$2, // row length
+                      screen.keyboardSingleKeyLiveMaxPixelHeight,
+                      screen.numPresentationBigRowsOfBoards,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
