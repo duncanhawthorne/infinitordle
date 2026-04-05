@@ -354,38 +354,9 @@ class _cardChooserRealReal extends StatelessWidget {
         : historicalWin
         ? _soften(boardNumber, green)
         : transp;
-    assert(_cardCache.containsKey(normalHighlighting));
-    assert(_cardCache[normalHighlighting]!.containsKey(cardLetter));
-    assert(_cardCache[normalHighlighting]![cardLetter]!.containsKey(cardColor));
-    assert(
-      _cardCache[normalHighlighting]![cardLetter]![cardColor]!.containsKey(
-        borderColor,
-      ),
-    );
-    return _cardCache[normalHighlighting]![cardLetter]![cardColor]![borderColor]!;
+    return _card(normalHighlighting, cardLetter, cardColor, borderColor);
   }
 }
-
-/// Cache for built card widgets.
-final Map<bool, Map<String, Map<Color, Map<Color, Widget>>>> _cardCache =
-    <bool, Map<String, Map<Color, Map<Color, Widget>>>>{
-      for (bool normalHighlighting in <bool>[true, false])
-        (normalHighlighting): <String, Map<Color, Map<Color, Widget>>>{
-          for (String cardLetter in keyboardList)
-            (cardLetter): <Color, Map<Color, Widget>>{
-              for (Color cardColor in cardColorsList)
-                (cardColor): <Color, Widget>{
-                  for (Color borderColor in borderColorsList)
-                    (borderColor): _card(
-                      normalHighlighting,
-                      cardLetter,
-                      cardColor,
-                      borderColor,
-                    ),
-                },
-            },
-        },
-    };
 
 /// Basic card building block with border and background color.
 class _card extends StatelessWidget {
@@ -421,23 +392,13 @@ class _card extends StatelessWidget {
           ),
           child: FittedBox(
             fit: BoxFit.fitHeight,
-            child: _cardTextCache[normalHighlighting]![cardLetter],
+            child: _cardTextConst(normalHighlighting, cardLetter),
           ),
         ),
       ),
     );
   }
 }
-
-/// Cache for card text widgets.
-final Map<bool, Map<String, Widget>> _cardTextCache =
-    <bool, Map<String, Widget>>{
-      for (bool normalHighlighting in <bool>[true, false])
-        (normalHighlighting): <String, Widget>{
-          for (String cardLetter in keyboardList)
-            (cardLetter): _cardTextConst(normalHighlighting, cardLetter),
-        },
-    };
 
 /// Creates the text widget for a card's letter.
 class _cardTextConst extends StatelessWidget {
