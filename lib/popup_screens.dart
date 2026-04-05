@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'constants.dart';
 import 'google/google.dart';
+import 'sequencer.dart';
 import 'state.dart';
 
 FocusNode focusNodePopup = FocusNode();
@@ -204,7 +205,7 @@ Future<void> _showResetConfirmationScreen(BuildContext context) async {
           ),
           TextButton(
             onPressed: () {
-              state.resetBoard();
+              sequencer.resetBoard();
               focusNodePopup.requestFocus();
               Navigator.pop(context, 'OK');
               Navigator.pop(context, 'OK');

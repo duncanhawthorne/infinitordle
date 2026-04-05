@@ -160,10 +160,8 @@ class State {
     }
   }
 
-  /// Resets the game and saves the new state.
-  void resetBoard() {
-    _log.info("Reset board");
-    initiateBoardState();
+  /// Saves the reseted state.
+  void saveResetedBoardState() {
     if (fBase.fbAnalytics) {
       fBase.analytics!.logLevelStart(levelName: "Reset");
       fBase.analytics!.logLevelUp(level: _enteredWords.length);
@@ -280,7 +278,9 @@ class State {
         targetWordsChangedNotifier.value++;
 
         if (_targetWords.length != numBoards) {
-          resetBoard();
+          //error state
+          initiateBoardState();
+          saveResetedBoardState();
           return;
         }
 

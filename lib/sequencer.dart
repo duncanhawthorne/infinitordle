@@ -200,6 +200,13 @@ class Sequencer {
     await _sleep(flipTime);
     await _sleep(_visualCatchUpTime);
   }
+
+  /// Resets the game.
+  void resetBoard() {
+    _log.info("Reset board");
+    initiateBoard();
+    state.saveResetedBoardState();
+  }
 }
 
 /// Global singleton instance of [Sequencer].
