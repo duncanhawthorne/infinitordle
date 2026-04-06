@@ -115,7 +115,7 @@ class _gameboardWidgetWithNRows extends StatelessWidget {
       ),
       itemBuilder: (BuildContext context, int rGbIndex) {
         /// If expandingBoard, each card has fixed meaning given changes in grid size above
-        /// Else else each card changes meaning based on pushUpSteps
+        /// Else each card changes meaning based on pushUpSteps
         return state.expandingBoard
             ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
             : ValueListenableBuilder<int>(
@@ -185,7 +185,7 @@ class _cardFlipper extends StatelessWidget {
         end: flips.getFlipAngle(abIndex, boardNumber),
       ),
       duration: const Duration(milliseconds: flipTime),
-      builder: (BuildContext context, double angle, _) {
+      builder: (BuildContext context, double angle, Widget? child) {
         final bool isFront = angle > 0.25;
         return (Transform(
           alignment: Alignment.center,

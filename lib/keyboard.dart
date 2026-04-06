@@ -92,8 +92,7 @@ class _kbTextSquare extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints.expand(),
+    return SizedBox.expand(
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: switch (kbLetter) {
