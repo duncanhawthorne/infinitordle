@@ -30,6 +30,29 @@
   <link rel="icon" type="image/png" href="favicon.png">
 
   <title>infinitordle</title>
+  <script>
+    // 1. Save the browser's original matchMedia function
+    const originalMatchMedia = window.matchMedia;
+    
+    // 2. Override it with our own interceptor
+    window.matchMedia = function(query) {
+      // 3. If Flutter asks about reduced motion, lie and say false
+      if (query === '(prefers-reduced-motion: reduce)') {
+        return {
+          matches: false, // <--- The magic bullet: forces full animations
+          media: query,
+          onchange: null,
+          addListener: function() {},
+          removeListener: function() {},
+          addEventListener: function() {},
+          removeEventListener: function() {},
+          dispatchEvent: function() { return false; }
+        };
+      }
+      // 4. Otherwise, let the browser handle it normally (like dark mode checks)
+      return originalMatchMedia.apply(this, arguments);
+    };
+  </script>  
   <link rel="manifest" href="manifest.json">
   
   
