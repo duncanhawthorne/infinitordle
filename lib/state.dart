@@ -29,8 +29,8 @@ const List<String> _winnableWords = kWinnableWordsList;
 final Random _random = Random();
 
 /// Core game state for Infinitordle.
-class State {
-  State() {
+class GameState {
+  GameState() {
     _io = IO(onDataLoadedCallback: _loadFromEncodedState);
   }
 
@@ -432,8 +432,8 @@ class State {
       _winRecordBoards[_winRecordBoards.length - 1] == kBoardWinStatusNoWin;
 }
 
-/// Global singleton instance of [State].
-final State state = State();
+/// Global singleton instance of [GameState].
+final GameState state = GameState();
 
 List<int> _getBlankFirstKnowledge(int numberOfBoards) {
   return List<int>.filled(numberOfBoards, 0);
