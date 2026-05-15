@@ -23,6 +23,12 @@ const int _renderTwoFramesTime =
     33; // so that set state and animations don't happen exactly simultaneously
 const double _tau = 2 * pi;
 
+//move listener outside of class so made once across all boards and not rebuilt
+final Listenable _gbCachedListener0 = Listenable.merge(<Listenable?>[
+  state.pushUpStepsNotifier,
+  state.targetWordsChangedNotifier,
+]);
+
 /// Builds the gameboard widget for a specific [boardNumber].
 /// Listens to [expandingBoardNotifier] and [pushUpStepsNotifier] to handle layouts.
 class gameboardWidget extends StatelessWidget {
@@ -40,7 +46,7 @@ class gameboardWidget extends StatelessWidget {
         /// Else grid is fixed but need each card to have a listener
         return state.expandingBoard
             ? ListenableBuilder(
-                listenable: state.pushUpStepsNotifier,
+                listenable: _gbCachedListener0,
                 builder: (BuildContext context, _) {
                   return _gameboardWidgetReal(boardNumber, cardLiveMaxPixel);
                 },
