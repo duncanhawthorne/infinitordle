@@ -34,7 +34,7 @@ Future<void> _showMainPopupScreenReal(BuildContext context) async {
                 spacing: 10,
                 children: <Widget?>[
                   _signInRow(context),
-                  !g.loggingInProcess.value ? null : _googleWidgetRow(context),
+                  !value ? null : _googleWidgetRow(context),
                   _scrollableBoardRow(context),
                   _resetRow(context),
                   const Divider(),
@@ -58,9 +58,9 @@ class _signInRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     g.googleLogoutConfirmationFunction = showLogoutConfirmationScreen;
-    return ValueListenableBuilder<String>(
-      valueListenable: g.gUserNotifier,
-      builder: (BuildContext context, String stringText, Widget? child) {
+    return ListenableBuilder(
+      listenable: g.gUserNotifier,
+      builder: (BuildContext context, Widget? child) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -91,7 +91,7 @@ class _googleWidgetRow extends StatelessWidget {
           valueListenable: g.loggingInProcess,
           builder: (BuildContext context, bool value, Widget? child) {
             return Visibility(
-              visible: g.loggingInProcess.value,
+              visible: value,
               maintainState: false,
               child: g.gWidget,
             );
@@ -146,12 +146,12 @@ class _scrollableBoardRow extends StatelessWidget {
           valueListenable: state.expandingBoardNotifier,
           builder: (BuildContext context, bool value, Widget? child) {
             return Tooltip(
-              message: state.expandingBoard
+              message: value
                   ? "Turn off scrollable board"
                   : "Turn on scrollable board",
               child: IconButton(
                 iconSize: 25,
-                icon: state.expandingBoard
+                icon: value
                     ? const Icon(Icons.visibility_outlined)
                     : const Icon(Icons.visibility_off_outlined),
                 onPressed: () {

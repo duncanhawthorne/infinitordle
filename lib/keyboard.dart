@@ -191,7 +191,7 @@ class _kbMiniGrid extends StatelessWidget {
     return ValueListenableBuilder<int>(
       valueListenable: ephemeral.highlightedBoardNotifier,
       builder: (BuildContext context, int value, Widget? child) {
-        final bool someBoardHighlighted = ephemeral.highlightedBoard != -1;
+        final bool someBoardHighlighted = value != -1;
         if (someBoardHighlighted) {
           //1x1
           return _kbMiniSquareColorChooser(kbLetter, 0, keyHeight, numBigRows);

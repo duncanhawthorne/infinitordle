@@ -44,7 +44,7 @@ class gameboardWidget extends StatelessWidget {
       builder: (BuildContext context, bool value, Widget? child) {
         /// If expandingBoard need new grid with each guess so need listener
         /// Else grid is fixed but need each card to have a listener
-        return state.expandingBoard
+        return value
             ? ListenableBuilder(
                 listenable: _gbCachedListener0,
                 builder: (BuildContext context, _) {
@@ -124,9 +124,9 @@ class _gameboardWidgetWithNRows extends StatelessWidget {
         /// Else each card changes meaning based on pushUpSteps
         return state.expandingBoard
             ? _cardFlipperAlts(_getABIndexFromRGBIndex(rGbIndex), boardNumber)
-            : ValueListenableBuilder<int>(
-                valueListenable: state.pushUpStepsNotifier,
-                builder: (BuildContext context, int value, Widget? child) {
+            : ListenableBuilder(
+                listenable: state.pushUpStepsNotifier,
+                builder: (BuildContext context, Widget? child) {
                   return _cardFlipperAlts(
                     _getABIndexFromRGBIndex(rGbIndex),
                     boardNumber,
@@ -157,9 +157,9 @@ class _cardFlipperAlts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int abRow = abIndex ~/ cols;
-    return ValueListenableBuilder<int>(
-      valueListenable: state.currentRowChangedNotifier,
-      builder: (BuildContext context, int value, Widget? child) {
+    return ListenableBuilder(
+      listenable: state.currentRowChangedNotifier,
+      builder: (BuildContext context, Widget? child) {
         return abRow > state.abCurrentRowInt
             //later rows normally just cards
             //earlier rows subject to flourish flips
@@ -214,9 +214,9 @@ class _cardBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: sequencer.temporaryVisualOffsetForSlideNotifier,
-      builder: (BuildContext context, int value, Widget? child) {
+    return ListenableBuilder(
+      listenable: sequencer.temporaryVisualOffsetForSlideNotifier,
+      builder: (BuildContext context, Widget? child) {
         return _positionedScaledCard(abIndex, boardNumber, facingFront);
       },
     );
@@ -302,10 +302,9 @@ class _cardChooser extends StatelessWidget {
       listenable: _gbCachedListener2,
       builder: (BuildContext context, _) {
         return abRow == state.abCurrentRowInt
-            ? ValueListenableBuilder<String>(
-                valueListenable:
-                    ephemeral.currentTypingNotifiers[abIndex % cols],
-                builder: (BuildContext context, String value, Widget? child) {
+            ? ListenableBuilder(
+                listenable: ephemeral.currentTypingNotifiers[abIndex % cols],
+                builder: (BuildContext context, Widget? child) {
                   return _cardChooserRealReal(
                     abIndex,
                     boardNumber,
