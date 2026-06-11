@@ -203,9 +203,7 @@ class _gameboardAndKeyboard extends StatelessWidget {
           ...<(int, int)>[(0, 10), (10, 9), (20, 9)].map(
             ((int, int) row) => SizedBox(
               width:
-                  screen.keyboardSingleKeyLiveMaxPixelHeight *
-                  kMaxKbRowLength /
-                  screen.keyAspectRatioLive,
+                  screen.keyboardSingleKeyLiveMaxPixelWidth * kMaxKbRowLength,
               height: screen.keyboardSingleKeyLiveMaxPixelHeight,
               child: keyboardRowWidget(
                 row.$1, // starting index

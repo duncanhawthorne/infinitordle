@@ -11,13 +11,13 @@ const double dividerHeight = 2;
 class Screen {
   double appBarHeight = -1;
   double cardLiveMaxPixel = -1;
-  double keyAspectRatioLive = -1;
+  double _keyAspectRatioLive = -1;
   double keyboardSingleKeyLiveMaxPixelHeight = -1;
   double keyboardSingleKeyLiveMaxPixelWidth = -1;
   int numPresentationBigRowsOfBoards = -1;
-  double fullSizeOfGameboards = -1;
-  double scW = -1;
-  double scH = -1;
+  double _fullSizeOfGameboards = -1;
+  double _scW = -1;
+  double _scH = -1;
 
   double _vertSpaceForGameboard = -1;
   double _vertSpaceForCardWithWrap = -1;
@@ -26,15 +26,15 @@ class Screen {
 
   /// Detects screen size changes and updates internal layout variables.
   void calculateLayoutDimensions(BoxConstraints constraints) {
-    if (scW != constraints.maxWidth || scH != constraints.maxHeight) {
+    if (_scW != constraints.maxWidth || _scH != constraints.maxHeight) {
       //recalculate these key values for screen size changes
-      scW = constraints.maxWidth;
-      scH = constraints.maxHeight;
-      appBarHeight = scH * 0.055;
-      _vertSpaceAfterTitle = scH - appBarHeight - dividerHeight;
+      _scW = constraints.maxWidth;
+      _scH = constraints.maxHeight;
+      appBarHeight = _scH * 0.055;
+      _vertSpaceAfterTitle = _scH - appBarHeight - dividerHeight;
 
       keyboardSingleKeyLiveMaxPixelHeight = min(
-        _keyAspectRatioDefault * scW / kMaxKbRowLength,
+        _keyAspectRatioDefault * _scW / kMaxKbRowLength,
         _keyAspectRatioDefault * _vertSpaceAfterTitle * 0.17 / 3,
       );
 
@@ -43,7 +43,7 @@ class Screen {
       _vertSpaceForCardWithWrap =
           ((_vertSpaceForGameboard - boardSpacer) / numRowsPerBoard) / 2;
       _horizSpaceForCardNoWrap =
-          (scW - (numBoards - 1) * boardSpacer) / numBoards / cols;
+          (_scW - (numBoards - 1) * boardSpacer) / numBoards / cols;
       if (_vertSpaceForCardWithWrap > _horizSpaceForCardNoWrap) {
         numPresentationBigRowsOfBoards = 2;
       } else {
@@ -56,28 +56,28 @@ class Screen {
         (_vertSpaceForGameboard - numSpacersDown * boardSpacer) /
             numPresentationBigRowsOfBoards /
             numRowsPerBoard,
-        (scW - numSpacersAcross * boardSpacer) /
+        (_scW - numSpacersAcross * boardSpacer) /
             (numBoards / numPresentationBigRowsOfBoards).ceil() /
             cols,
       );
-      fullSizeOfGameboards =
+      _fullSizeOfGameboards =
           cardLiveMaxPixel * numRowsPerBoard * numPresentationBigRowsOfBoards +
           numSpacersDown * boardSpacer;
-      if (_vertSpaceForGameboard > fullSizeOfGameboards) {
+      if (_vertSpaceForGameboard > _fullSizeOfGameboards) {
         //if still space left over, no point squashing keyboard for nothing
 
         keyboardSingleKeyLiveMaxPixelHeight = min(
-          _keyAspectRatioDefault * scW / kMaxKbRowLength,
-          (_vertSpaceAfterTitle - fullSizeOfGameboards) / 3,
+          _keyAspectRatioDefault * _scW / kMaxKbRowLength,
+          (_vertSpaceAfterTitle - _fullSizeOfGameboards) / 3,
         );
       }
 
-      keyAspectRatioLive = max(
+      _keyAspectRatioLive = max(
         0.5,
-        keyboardSingleKeyLiveMaxPixelHeight / (scW / kMaxKbRowLength),
+        keyboardSingleKeyLiveMaxPixelHeight / (_scW / kMaxKbRowLength),
       );
       keyboardSingleKeyLiveMaxPixelWidth =
-          keyboardSingleKeyLiveMaxPixelHeight / keyAspectRatioLive;
+          keyboardSingleKeyLiveMaxPixelHeight / _keyAspectRatioLive;
     }
   }
 }
