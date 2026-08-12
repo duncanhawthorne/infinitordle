@@ -30,6 +30,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  material_ui: ^1.0.0
+
   shared_preferences: ^2.0.15
   flutter_native_splash: ^2.3.0
   
